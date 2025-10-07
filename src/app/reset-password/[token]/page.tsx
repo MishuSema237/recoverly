@@ -7,9 +7,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 interface ResetPasswordTokenPageProps {
-  params: {
+  params: Promise<{
     token: string;
-  };
+  }>;
 }
 
 const ResetPasswordTokenPage = ({ params }: ResetPasswordTokenPageProps) => {
@@ -27,7 +27,8 @@ const ResetPasswordTokenPage = ({ params }: ResetPasswordTokenPageProps) => {
   useEffect(() => {
     const validateToken = async () => {
       try {
-        const response = await fetch(`/api/auth/validate-reset-token?token=${params.token}`);
+        const resolvedParams = await params;
+        const response = await fetch(`/api/auth/validate-reset-token?token=${resolvedParams.token}`);
         const data = await response.json();
 
         if (response.ok) {
@@ -51,7 +52,7 @@ const ResetPasswordTokenPage = ({ params }: ResetPasswordTokenPageProps) => {
     };
 
     validateToken();
-  }, [params.token]);
+  }, [params]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,13 +71,14 @@ const ResetPasswordTokenPage = ({ params }: ResetPasswordTokenPageProps) => {
     setMessage({ type: '', text: '' });
 
     try {
+      const resolvedParams = await params;
       const response = await fetch('/api/auth/confirm-reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          token: params.token, 
+          token: resolvedParams.token, 
           password 
         }),
       });
