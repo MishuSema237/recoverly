@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+  
+  .gradient-bg {
+    @apply bg-gradient-to-br from-gray-900 via-red-900 to-gray-900;
+  }
+}
+
+/* Wallet Button Customization */
+.wallet-adapter-button {
+  @apply !bg-red-600 hover:!bg-red-700 !text-white !rounded-lg !px-4 !py-2 !text-sm !font-medium !transition-all !duration-200;
+}
+
+.wallet-adapter-button-trigger {
+  @apply !bg-red-600 hover:!bg-red-700 !text-white !rounded-lg !px-4 !py-2 !text-sm !font-medium;
+}
+
+.wallet-adapter-modal-wrapper {
+  @apply !z-50;
+}
+
+.wallet-adapter-modal {
+  @apply !bg-white !rounded-2xl !shadow-2xl;
+}
+
+.wallet-adapter-modal-title {
+  @apply !text-gray-900 !text-xl !font-bold;
+}
+
+.wallet-adapter-modal-list {
+  @apply !space-y-2;
+}
+
+.wallet-adapter-modal-list-item {
+  @apply !bg-gray-50 hover:!bg-gray-100 !rounded-lg !p-4 !transition-colors !duration-200;
+}
+
+.wallet-adapter-modal-list-item button {
+  @apply !w-full !text-left !text-gray-900 !font-medium;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #dc2626;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b91c1c;
+}
