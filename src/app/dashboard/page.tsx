@@ -25,7 +25,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { canAccessAdmin, getUserRole } from '@/utils/adminUtils';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import DashboardLoader from '@/components/DashboardLoader';
 
@@ -76,7 +76,7 @@ const SupportSection = dynamic(() => import('@/components/dashboard/SupportSecti
   loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
 });
 
-const DashboardPage = () => {
+const DashboardContent = () => {
   const { user, userProfile, logout, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -560,6 +560,14 @@ const DashboardPage = () => {
       )}
       </DashboardLoader>
     </ProtectedRoute>
+  );
+};
+
+const DashboardPage = () => {
+  return (
+    <Suspense fallback={<DashboardLoader />}>
+      <DashboardContent />
+    </Suspense>
   );
 };
 
