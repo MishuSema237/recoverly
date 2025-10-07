@@ -77,7 +77,7 @@ const ResetPasswordPage = () => {
             Reset Your Password
           </h2>
           <p className="text-white/70">
-            Enter your email address and we'll send you instructions to reset your password.
+            Enter your email address and we&apos;ll send you instructions to reset your password.
           </p>
         </motion.div>
 
@@ -140,14 +140,14 @@ const ResetPasswordPage = () => {
                   Check Your Email
                 </h3>
                 <p className="text-white/70 mb-4">
-                  We've sent password reset instructions to:
+                  We&apos;ve sent password reset instructions to:
                 </p>
                 <p className="text-red-400 font-medium">{email}</p>
               </div>
 
               <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                 <p className="text-sm text-white/70">
-                  <strong>Didn't receive the email?</strong> Check your spam folder or try again in a few minutes.
+                  <strong>Didn&apos;t receive the email?</strong> Check your spam folder or try again in a few minutes.
                 </p>
               </div>
 

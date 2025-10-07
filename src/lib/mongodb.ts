@@ -8,7 +8,7 @@ let clientPromise: Promise<MongoClient>;
 
 if (process.env.NODE_ENV === 'development') {
   // Global variable to store the cached connection in development
-  let cachedClient = (global as any)._mongoClient;
+  let cachedClient = (global as unknown as { _mongoClient?: MongoClient })._mongoClient;
   
   if (!cachedClient) {
     cachedClient = new MongoClient(uri, {
@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === 'development') {
         deprecationErrors: true,
       },
     });
-    (global as any)._mongoClient = cachedClient;
+    (global as unknown as { _mongoClient: MongoClient })._mongoClient = cachedClient;
   }
   clientPromise = cachedClient.connect();
 } else {

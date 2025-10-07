@@ -29,7 +29,7 @@ const SupportSection = () => {
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm p-6">
         <p className="text-gray-600 mb-6">
-          Get help and contact our support team. Send us a message and we'll get back to you as soon as possible.
+          Get help and contact our support team. Send us a message and we&apos;ll get back to you as soon as possible.
         </p>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

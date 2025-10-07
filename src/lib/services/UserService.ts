@@ -63,6 +63,23 @@ export class UserService {
     }
   }
 
+  async getUserByEmail(email: string): Promise<User | null> {
+    try {
+      const response = await fetch(`${this.baseUrl}/email/${email}`);
+      const result = await response.json();
+      
+      if (!result.success) {
+        if (response.status === 404) return null;
+        throw new Error(result.error || 'Failed to fetch user by email');
+      }
+      
+      return result.data;
+    } catch (error) {
+      console.error('Error fetching user by email:', error);
+      throw error;
+    }
+  }
+
   async createUser(userData: Omit<User, '_id'>): Promise<User | null> {
     try {
       const response = await fetch(this.baseUrl, {

@@ -64,12 +64,17 @@ const SettingsSection = () => {
       setMessage({ type: 'success', text: 'Password updated successfully!' });
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setShowPasswordForm(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating password:', error);
-      if (error.code === 'auth/wrong-password') {
-        setMessage({ type: 'error', text: 'Current password is incorrect' });
-      } else if (error.code === 'auth/weak-password') {
-        setMessage({ type: 'error', text: 'New password is too weak' });
+      if (error && typeof error === 'object' && 'code' in error) {
+        const errorCode = (error as { code: string }).code;
+        if (errorCode === 'auth/wrong-password') {
+          setMessage({ type: 'error', text: 'Current password is incorrect' });
+        } else if (errorCode === 'auth/weak-password') {
+          setMessage({ type: 'error', text: 'New password is too weak' });
+        } else {
+          setMessage({ type: 'error', text: 'Failed to update password. Please try again.' });
+        }
       } else {
         setMessage({ type: 'error', text: 'Failed to update password. Please try again.' });
       }

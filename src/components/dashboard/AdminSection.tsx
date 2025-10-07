@@ -398,7 +398,7 @@ const AdminSection = () => {
         <div className="text-center">
           <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h3>
-          <p className="text-gray-600">You don't have permission to access the admin panel.</p>
+          <p className="text-gray-600">You don&apos;t have permission to access the admin panel.</p>
         </div>
       </div>
     );
@@ -439,7 +439,7 @@ const AdminSection = () => {
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as 'users' | 'plans' | 'payments')}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
                 activeTab === tab.id
                   ? 'bg-red-600 text-white'
@@ -1085,7 +1085,7 @@ const AdminSection = () => {
             <div className="mb-6">
               <p className="text-gray-700">
                 Are you sure you want to delete{' '}
-                <span className="font-semibold text-gray-900">"{confirmAction.name}"</span>?
+                <span className="font-semibold text-gray-900">&ldquo;{confirmAction.name}&rdquo;</span>?
               </p>
               <p className="text-sm text-gray-500 mt-2">
                 {confirmAction.type === 'deletePlan' && 'This will permanently remove the investment plan.'}

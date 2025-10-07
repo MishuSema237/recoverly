@@ -111,8 +111,8 @@ export default function BlogPage() {
                 Blog Content Coming Soon
               </h2>
               <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                We're currently working on creating valuable content for our blog. 
-                Soon you'll find articles on market trends, investment strategies, 
+                We&apos;re currently working on creating valuable content for our blog. 
+                Soon you&apos;ll find articles on market trends, investment strategies, 
                 and educational resources to help you make better investment decisions.
               </p>
               <div className="bg-gray-50 rounded-lg p-6 mb-8">
