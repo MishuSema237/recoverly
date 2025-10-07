@@ -565,7 +565,14 @@ const DashboardContent = () => {
 
 const DashboardPage = () => {
   return (
-    <Suspense fallback={<DashboardLoader />}>
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    }>
       <DashboardContent />
     </Suspense>
   );
