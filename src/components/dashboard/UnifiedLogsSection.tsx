@@ -150,7 +150,7 @@ const UnifiedLogsSection = () => {
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'deposits' | 'withdrawals' | 'transfers' | 'referrals')}
+              onClick={() => setActiveTab(tab.id as 'all' | 'deposits' | 'withdrawals' | 'transfers' | 'investments')}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
                 activeTab === tab.id
                   ? 'bg-red-600 text-white'
