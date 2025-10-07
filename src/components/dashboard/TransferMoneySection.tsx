@@ -182,7 +182,7 @@ const TransferMoneySection = () => {
 
           <button
             type="submit"
-            disabled={!receiverEmail || !transferAccountEmail || !transferAmount || parseFloat(transferAmount) < 1000}
+            disabled={!receiverEmail || !receiverUserCode || !transferAmount || parseFloat(transferAmount) < 1000}
             className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200"
           >
             Transfer Money
