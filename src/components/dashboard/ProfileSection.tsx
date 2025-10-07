@@ -111,7 +111,17 @@ const ProfileSection = () => {
       
       // Refresh user profile
       if (updateUserProfile) {
-        await updateUserProfile();
+        await updateUserProfile({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          displayName: `${formData.firstName} ${formData.lastName}`,
+          phone: formData.phone,
+          country: formData.country,
+          state: formData.state,
+          city: formData.city,
+          zip: formData.zipCode,
+          ...(profilePicture && { profilePicture })
+        });
       }
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -149,15 +159,9 @@ const ProfileSection = () => {
       setMessage({ type: 'success', text: 'Password updated successfully!' });
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setShowPasswordForm(false);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating password:', error);
-      if (error.code === 'auth/wrong-password') {
-        setMessage({ type: 'error', text: 'Current password is incorrect' });
-      } else if (error.code === 'auth/weak-password') {
-        setMessage({ type: 'error', text: 'New password is too weak' });
-      } else {
-        setMessage({ type: 'error', text: 'Failed to update password. Please try again.' });
-      }
+      setMessage({ type: 'error', text: 'Failed to update password. Please try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -213,7 +217,17 @@ const ProfileSection = () => {
       
       // Refresh user profile
       if (updateUserProfile) {
-        await updateUserProfile();
+        await updateUserProfile({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          displayName: `${formData.firstName} ${formData.lastName}`,
+          phone: formData.phone,
+          country: formData.country,
+          state: formData.state,
+          city: formData.city,
+          zip: formData.zipCode,
+          ...(profilePicture && { profilePicture })
+        });
       }
     } catch (error) {
       console.error('Error updating profile:', error);
