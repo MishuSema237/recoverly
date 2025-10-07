@@ -401,16 +401,6 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                     <div className="text-sm opacity-90">ROI</div>
                   </div>
                 </div>
-                
-                {/* Plan Image Placeholder */}
-                <div className="mt-4 bg-white/20 rounded-lg p-4 h-20 flex items-center justify-center">
-                  <div className="text-center text-white/70">
-                    <div className="w-8 h-8 bg-white/20 rounded-full mx-auto mb-1 flex items-center justify-center">
-                      <div className="w-4 h-4 bg-white/40 rounded-full"></div>
-                    </div>
-                    <p className="text-xs">Plan Image</p>
-                  </div>
-                </div>
               </div>
 
               <div className="p-6">
@@ -450,9 +440,19 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                       handlePlanChange(plan);
                     }
                   }}
-                  className={`w-full mt-6 py-3 px-4 rounded-lg font-semibold transition-colors duration-200 bg-gradient-to-r ${getColorGradient(plan.color)} text-white hover:opacity-90`}
+                  disabled={isProcessing}
+                  className={`w-full mt-6 py-3 px-4 rounded-lg font-semibold transition-colors duration-200 bg-gradient-to-r ${getColorGradient(plan.color)} text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center`}
                 >
-                  {!user ? 'Invest' : !user.emailVerified ? 'Verify Email First' : isDashboard ? (selectedPlan?._id === plan._id ? 'Selected' : 'Select Plan') : 'Invest Now'}
+                  {isProcessing ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      {!user ? 'Invest' : !user.emailVerified ? 'Verify Email First' : isDashboard ? (selectedPlan?._id === plan._id ? 'Selected' : 'Select Plan') : 'Invest Now'}
+                    </>
+                  )}
                 </button>
               </div>
             </motion.div>

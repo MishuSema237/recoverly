@@ -98,16 +98,6 @@ const FeaturesSection = () => {
                   </h3>
                 </div>
                 
-                {/* Feature Image Placeholder */}
-                <div className="mb-4 bg-gray-200 rounded-lg p-4 h-24 flex items-center justify-center">
-                  <div className="text-center text-gray-500">
-                    <div className="w-8 h-8 bg-gray-300 rounded-full mx-auto mb-1 flex items-center justify-center">
-                      <div className="w-4 h-4 bg-gray-400 rounded-full"></div>
-                    </div>
-                    <p className="text-xs">Feature Image</p>
-                  </div>
-                </div>
-                
                 <p className="text-gray-600 leading-relaxed">
                   {feature.description}
                 </p>
@@ -146,16 +136,6 @@ const FeaturesSection = () => {
                 <p className="text-gray-300 leading-relaxed">
                   {step.description}
                 </p>
-                
-                {/* Step Illustration Placeholder */}
-                <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-lg p-4 h-24 flex items-center justify-center">
-                  <div className="text-center text-white/70">
-                    <div className="w-6 h-6 bg-white/20 rounded-full mx-auto mb-1 flex items-center justify-center">
-                      <div className="w-3 h-3 bg-white/40 rounded-full"></div>
-                    </div>
-                    <p className="text-xs">Step Illustration</p>
-                  </div>
-                </div>
                 
                 {index < steps.length - 1 && (
                   <div className="hidden md:block absolute top-8 left-full w-full h-0.5 bg-red-600 transform -translate-x-1/2">

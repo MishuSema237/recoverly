@@ -83,19 +83,6 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="space-y-6"
           >
-            {/* Hero Image Placeholder */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 text-center">
-              <div className="w-full h-64 bg-white/20 rounded-lg flex items-center justify-center mb-4">
-                <div className="text-center text-white/70">
-                  <div className="w-16 h-16 bg-white/20 rounded-full mx-auto mb-3 flex items-center justify-center">
-                    <div className="w-8 h-8 bg-white/40 rounded-full"></div>
-                  </div>
-                  <p className="text-sm">Hero Image</p>
-                </div>
-              </div>
-              <p className="text-white/80 text-sm">Investment Dashboard Preview</p>
-            </div>
-
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
               <div className="flex items-center space-x-4 mb-4">
                 <div className="bg-red-600 p-3 rounded-lg">

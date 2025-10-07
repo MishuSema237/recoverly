@@ -90,16 +90,6 @@ const TestimonialsSection = () => {
                   &ldquo;{testimonial.content}&rdquo;
                 </p>
                 
-                {/* Testimonial Image Placeholder */}
-                <div className="mb-4 bg-gray-200 rounded-lg p-4 h-20 flex items-center justify-center">
-                  <div className="text-center text-gray-500">
-                    <div className="w-8 h-8 bg-gray-300 rounded-full mx-auto mb-1 flex items-center justify-center">
-                      <div className="w-4 h-4 bg-gray-400 rounded-full"></div>
-                    </div>
-                    <p className="text-xs">Customer Photo</p>
-                  </div>
-                </div>
-                
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-semibold">
                     {testimonial.avatar}
@@ -134,16 +124,6 @@ const TestimonialsSection = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="text-center p-6 bg-gray-50 rounded-2xl hover:shadow-lg transition-all duration-300"
               >
-                {/* Investor Image Placeholder */}
-                <div className="mb-4 bg-gray-200 rounded-lg p-4 h-16 flex items-center justify-center">
-                  <div className="text-center text-gray-500">
-                    <div className="w-6 h-6 bg-gray-300 rounded-full mx-auto mb-1 flex items-center justify-center">
-                      <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                    </div>
-                    <p className="text-xs">Investor Photo</p>
-                  </div>
-                </div>
-                
                 <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
                   {investor.avatar}
                 </div>
