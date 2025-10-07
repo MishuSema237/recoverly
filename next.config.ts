@@ -49,9 +49,6 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
-  // Performance optimizations
-  swcMinify: true,
-  
   // Reduce bundle size
   images: {
     unoptimized: false,

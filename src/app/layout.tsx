@@ -9,6 +9,19 @@ import LoadingOverlay from '@/components/LoadingOverlay';
 import { usePathname } from 'next/navigation';
 import './globals.css';
 
+export const metadata = {
+  title: 'Tesla Capital - Investment Platform',
+  description: 'Tesla Capital is a cutting-edge investment platform offering secure cryptocurrency and traditional investment opportunities with industry-leading returns.',
+  icons: {
+    icon: [
+      { url: '/favicon/favicon.ico', sizes: 'any' },
+      { url: '/favicon/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/favicon/apple-touch-icon.png',
+  },
+  manifest: '/favicon/site.webmanifest',
+};
+
 
 export default function RootLayout({
   children,
