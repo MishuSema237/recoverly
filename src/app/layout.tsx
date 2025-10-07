@@ -1,8 +1,6 @@
 import { WalletContextProvider } from '@/contexts/WalletContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { LoadingProvider } from '@/contexts/LoadingContext';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import ConditionalLayout from '@/components/ConditionalLayout';
 import './globals.css';
@@ -33,11 +31,7 @@ export default function RootLayout({
           <AuthProvider>
             <WalletContextProvider>
               <ConditionalLayout>
-                <Header />
-                <main className="flex-grow">
-                  {children}
-                </main>
-                <Footer />
+                {children}
               </ConditionalLayout>
               <LoadingOverlay />
             </WalletContextProvider>

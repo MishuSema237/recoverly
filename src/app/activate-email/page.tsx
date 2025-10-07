@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Mail, CheckCircle, Clock, ArrowRight, RefreshCw } from 'lucide-react';
+import { Mail, CheckCircle, Clock, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';

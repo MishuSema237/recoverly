@@ -145,3 +145,9 @@ export class UserService {
     }
   }
 }
+
+// Export standalone function for server-side use
+export async function getUserByEmail(email: string): Promise<User | null> {
+  const userService = new UserService();
+  return userService.getUserByEmail(email);
+}
