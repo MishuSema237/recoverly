@@ -22,7 +22,18 @@ import {
   Ban,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  Bell,
+  Send,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Clock,
+  DollarSign as DollarIcon,
+  ArrowUpDown,
+  History,
+  Activity
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { canAccessAdmin } from '@/utils/adminUtils';
@@ -54,7 +65,7 @@ interface PaymentMethod {
 
 const AdminSection = () => {
   const { user, userProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'users' | 'plans' | 'payments' | 'transactions'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'plans' | 'payments' | 'transactions' | 'notifications'>('users');
   const [users, setUsers] = useState<User[]>([]);
   const [plans, setPlans] = useState<InvestmentPlan[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -66,6 +77,18 @@ const AdminSection = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showUserModal, setShowUserModal] = useState(false);
+  
+  // Notification states
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [notificationType, setNotificationType] = useState<'broadcast' | 'individual'>('broadcast');
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [selectedUsersForNotification, setSelectedUsersForNotification] = useState<string[]>([]);
+  const [sendingNotification, setSendingNotification] = useState(false);
+  
+  // User detail states
+  const [showUserDetailModal, setShowUserDetailModal] = useState(false);
+  const [userDetailData, setUserDetailData] = useState<any>(null);
+  const [userIndividualMessage, setUserIndividualMessage] = useState('');
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState<InvestmentPlan | null>(null);
@@ -438,6 +461,90 @@ const AdminSection = () => {
     console.warn('deletePaymentMethod function is deprecated, use handleDeletePayment instead');
   };
 
+  // Notification functions
+  const sendNotification = async () => {
+    if (!notificationMessage.trim()) return;
+    
+    setSendingNotification(true);
+    try {
+      const notificationData = {
+        message: notificationMessage,
+        type: notificationType,
+        recipients: notificationType === 'broadcast' ? 'all' : selectedUsersForNotification,
+        sentBy: user?.uid,
+        sentAt: new Date(),
+        read: false
+      };
+
+      // Save notification to Firestore
+      await addDoc(collection(db, 'notifications'), notificationData);
+      
+      // Reset form
+      setNotificationMessage('');
+      setSelectedUsersForNotification([]);
+      setShowNotificationModal(false);
+      
+      alert('Notification sent successfully!');
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      alert('Failed to send notification');
+    } finally {
+      setSendingNotification(false);
+    }
+  };
+
+  const openUserDetail = async (user: User) => {
+    setSelectedUser(user);
+    setShowUserDetailModal(true);
+    
+    // Load additional user data
+    try {
+      // Load user's financial data, transactions, etc.
+      const userDetail = {
+        ...user,
+        balances: {
+          main: 0, // This would come from your database
+          investment: 0,
+          referral: 0,
+          total: 0
+        },
+        transactions: [], // Load from database
+        activityLog: [
+          {
+            action: 'Account Created',
+            timestamp: user.createdAt,
+            details: 'User account was created'
+          }
+        ]
+      };
+      setUserDetailData(userDetail);
+    } catch (error) {
+      console.error('Error loading user details:', error);
+    }
+  };
+
+  const sendUserNotification = async (userId: string, message: string) => {
+    if (!message.trim()) return;
+    
+    try {
+      const notificationData = {
+        message,
+        type: 'individual',
+        recipients: [userId],
+        sentBy: user?.uid,
+        sentAt: new Date(),
+        read: false
+      };
+
+      await addDoc(collection(db, 'notifications'), notificationData);
+      setUserIndividualMessage('');
+      alert('Message sent successfully!');
+    } catch (error) {
+      console.error('Error sending user notification:', error);
+      alert('Failed to send message');
+    }
+  };
+
   const filteredUsers = users.filter(user => 
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -488,11 +595,12 @@ const AdminSection = () => {
             { id: 'users', label: 'Users', icon: <Users className="w-4 h-4" /> },
             { id: 'plans', label: 'Investment Plans', icon: <TrendingUp className="w-4 h-4" /> },
             { id: 'payments', label: 'Payment Methods', icon: <CreditCard className="w-4 h-4" /> },
-            { id: 'transactions', label: 'Transactions', icon: <DollarSign className="w-4 h-4" /> }
+            { id: 'transactions', label: 'Transactions', icon: <DollarSign className="w-4 h-4" /> },
+            { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> }
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'users' | 'plans' | 'payments')}
+              onClick={() => setActiveTab(tab.id as 'users' | 'plans' | 'payments' | 'transactions' | 'notifications')}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
                 activeTab === tab.id
                   ? 'bg-red-600 text-white'
@@ -583,7 +691,11 @@ const AdminSection = () => {
                 </thead>
                 <tbody>
                   {filteredUsers.map(user => (
-                    <tr key={user._id || user.uid} className="border-b border-gray-100 hover:bg-gray-50">
+                    <tr 
+                      key={user._id || user.uid} 
+                      className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => openUserDetail(user)}
+                    >
                       <td className="py-3 px-4">
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
@@ -644,6 +756,68 @@ const AdminSection = () => {
               </table>
             </div>
             )}
+          </div>
+        )}
+
+        {/* Notifications Tab */}
+        {activeTab === 'notifications' && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+              <button
+                onClick={() => setShowNotificationModal(true)}
+                className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+              >
+                <Send className="w-4 h-4" />
+                <span>Send Notification</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Broadcast Notification */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Bell className="w-5 h-5 text-red-600" />
+                  <h4 className="text-lg font-semibold text-gray-900">Broadcast Message</h4>
+                </div>
+                <p className="text-gray-600 mb-4">Send a message to all users</p>
+                <button
+                  onClick={() => {
+                    setNotificationType('broadcast');
+                    setShowNotificationModal(true);
+                  }}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                >
+                  Send to All Users
+                </button>
+              </div>
+
+              {/* Individual Notification */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Mail className="w-5 h-5 text-blue-600" />
+                  <h4 className="text-lg font-semibold text-gray-900">Individual Message</h4>
+                </div>
+                <p className="text-gray-600 mb-4">Send a message to specific users</p>
+                <button
+                  onClick={() => {
+                    setNotificationType('individual');
+                    setShowNotificationModal(true);
+                  }}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                >
+                  Send to Selected Users
+                </button>
+              </div>
+            </div>
+
+            {/* Recent Notifications */}
+            <div className="mt-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Recent Notifications</h4>
+              <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <p className="text-gray-500 text-center">No notifications sent yet</p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1199,6 +1373,198 @@ const AdminSection = () => {
                 )}
                 <span>{isDeleting ? 'Deleting...' : 'Delete'}</span>
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notification Modal */}
+      {showNotificationModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {notificationType === 'broadcast' ? 'Send Broadcast Message' : 'Send Individual Message'}
+            </h3>
+            
+            {notificationType === 'individual' && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Select Users</label>
+                <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                  {users.map(user => (
+                    <label key={user._id || user.uid} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsersForNotification.includes(user._id || user.uid)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedUsersForNotification([...selectedUsersForNotification, user._id || user.uid]);
+                          } else {
+                            setSelectedUsersForNotification(selectedUsersForNotification.filter(id => id !== (user._id || user.uid)));
+                          }
+                        }}
+                        className="rounded"
+                      />
+                      <span className="text-sm">{user.firstName} {user.lastName} ({user.email})</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+              <textarea
+                value={notificationMessage}
+                onChange={(e) => setNotificationMessage(e.target.value)}
+                placeholder="Enter your message here..."
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                rows={4}
+              />
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowNotificationModal(false);
+                  setNotificationMessage('');
+                  setSelectedUsersForNotification([]);
+                }}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={sendNotification}
+                disabled={sendingNotification || !notificationMessage.trim() || (notificationType === 'individual' && selectedUsersForNotification.length === 0)}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                {sendingNotification && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                )}
+                <span>{sendingNotification ? 'Sending...' : 'Send'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* User Detail Modal */}
+      {showUserDetailModal && userDetailData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold text-gray-900">User Details</h3>
+                <button
+                  onClick={() => setShowUserDetailModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XCircle className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* User Information */}
+                <div className="space-y-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-3">Personal Information</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Users className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm text-gray-600">Name:</span>
+                        <span className="font-medium">{userDetailData.firstName} {userDetailData.lastName}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Mail className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm text-gray-600">Email:</span>
+                        <span className="font-medium">{userDetailData.email}</span>
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          userDetailData.emailVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {userDetailData.emailVerified ? 'Verified' : 'Unverified'}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Phone className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm text-gray-600">Phone:</span>
+                        <span className="font-medium">{userDetailData.phone || 'Not provided'}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <MapPin className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm text-gray-600">Location:</span>
+                        <span className="font-medium">{userDetailData.location || 'Not provided'}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Shield className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm text-gray-600">Referral Code:</span>
+                        <span className="font-medium">{userDetailData.userCode}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Account Balances */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-3">Account Balances</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Main Balance:</span>
+                        <span className="font-medium">${userDetailData.balances?.main || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Investment Balance:</span>
+                        <span className="font-medium">${userDetailData.balances?.investment || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Referral Balance:</span>
+                        <span className="font-medium">${userDetailData.balances?.referral || 0}</span>
+                      </div>
+                      <div className="flex justify-between border-t pt-2">
+                        <span className="text-sm font-semibold text-gray-900">Total Balance:</span>
+                        <span className="font-bold text-red-600">${userDetailData.balances?.total || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Transaction Logs and Activity */}
+                <div className="space-y-4">
+                  {/* Send Message */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-3">Send Message</h4>
+                    <div className="space-y-3">
+                      <textarea
+                        value={userIndividualMessage}
+                        onChange={(e) => setUserIndividualMessage(e.target.value)}
+                        placeholder="Type your message here..."
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        rows={3}
+                      />
+                      <button
+                        onClick={() => sendUserNotification(userDetailData._id || userDetailData.uid, userIndividualMessage)}
+                        disabled={!userIndividualMessage.trim()}
+                        className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      >
+                        Send Message
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Activity Log */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-3">Activity Log</h4>
+                    <div className="space-y-2">
+                      {userDetailData.activityLog?.map((activity: any, index: number) => (
+                        <div key={index} className="flex items-center space-x-2 text-sm">
+                          <Activity className="w-4 h-4 text-gray-500" />
+                          <span className="text-gray-600">{activity.action}</span>
+                          <span className="text-gray-400">•</span>
+                          <span className="text-gray-500">{new Date(activity.timestamp).toLocaleDateString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
