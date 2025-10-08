@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/config/firebase';
@@ -9,15 +9,18 @@ export async function POST() {
     const usersRef = collection(db, 'users');
     const firestoreSnapshot = await getDocs(usersRef);
     
-    const firestoreUsers = firestoreSnapshot.docs.map(doc => ({
-      firebaseId: doc.id,
-      ...doc.data(),
-      // Convert Firestore timestamps to JavaScript Date objects
-      createdAt: doc.data().createdAt?.toDate() || new Date(),
-      lastLoginAt: doc.data().lastLoginAt?.toDate() || new Date(),
-      updatedAt: new Date(),
-      updatedBy: 'system-sync'
-    }));
+    const firestoreUsers = firestoreSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        firebaseId: doc.id,
+        ...data,
+        // Convert Firestore timestamps to JavaScript Date objects
+        createdAt: data.createdAt?.toDate() || new Date(),
+        lastLoginAt: data.lastLoginAt?.toDate() || new Date(),
+        updatedAt: new Date(),
+        updatedBy: 'system-sync'
+      };
+    });
 
     // Get MongoDB connection
     const mongoDb = await getDb();
