@@ -118,31 +118,43 @@ export async function POST() {
 
 export async function GET() {
   try {
+    console.log('Starting sync status check...');
+    
     // Get MongoDB connection
+    console.log('Connecting to MongoDB...');
     const mongoDb = await getDb();
+    console.log('MongoDB connected successfully');
     
     // Count users in MongoDB
+    console.log('Counting users in MongoDB...');
     const mongoUserCount = await mongoDb.collection('users').countDocuments();
+    console.log(`MongoDB user count: ${mongoUserCount}`);
     
     // Count users in Firestore
+    console.log('Connecting to Firestore...');
     const usersRef = collection(db, 'users');
     const firestoreSnapshot = await getDocs(usersRef);
     const firestoreUserCount = firestoreSnapshot.size;
+    console.log(`Firestore user count: ${firestoreUserCount}`);
     
-    return NextResponse.json({
+    const result = {
       success: true,
       data: {
         mongoUserCount,
         firestoreUserCount,
         needsSync: mongoUserCount !== firestoreUserCount
       }
-    });
+    };
+    
+    console.log('Sync status check completed:', result);
+    return NextResponse.json(result);
     
   } catch (error) {
     console.error('Error checking user sync status:', error);
     return NextResponse.json({ 
       success: false, 
-      error: 'Failed to check user sync status' 
+      error: error instanceof Error ? error.message : 'Unknown error',
+      details: error instanceof Error ? error.stack : String(error)
     }, { status: 500 });
   }
 }
