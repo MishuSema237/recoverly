@@ -10,6 +10,11 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == userId;
     }
     
+    // Allow server-side access to users collection for sync operations
+    match /users/{userId} {
+      allow read: if request.auth == null; // Server-side access
+    }
+    
     // Investment plans - public read access, admin write access
     match /investmentPlans/{planId} {
       allow read: if true; // Public read access
