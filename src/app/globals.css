@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');
+
+/* Custom Fonts */
+@font-face {
+  font-family: 'Bitcount_Prop_Single_Ink';
+  src: url('/Bitcount_Prop_Single_Ink/BitcountPropSingleInk-VariableFont_CRSV,ELSH,ELXP,SZP1,SZP2,XPN1,XPN2,YPN1,YPN2,slnt,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Custom Styles */
 @layer base {
   html {

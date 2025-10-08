@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Building, Users, FileText, Shield, Award, Globe } from 'lucide-react';
 import { useState } from 'react';
 
@@ -37,21 +38,6 @@ const ContactPage = () => {
       title: 'Email',
       details: ['office@tesla-capital.com', 'onboarding@tesla-capital.com'],
     },
-    {
-      icon: <Phone className="w-6 h-6" />,
-      title: 'Phone',
-      details: ['+381 11 30 20 030'],
-    },
-    {
-      icon: <MapPin className="w-6 h-6" />,
-      title: 'Address',
-      details: ['Bulevar Mihajla Pupina 115Đ', 'Beograd, Serbia'],
-    },
-    {
-      icon: <Clock className="w-6 h-6" />,
-      title: 'Business Hours',
-      details: ['08:00 – 16:00h', 'Monday - Friday'],
-    },
   ];
 
   return (
@@ -82,11 +68,29 @@ const ContactPage = () => {
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Tesla Capital JSC Belgrade - A Broker You Can Trust
             </h2>
-            <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto mb-8">
               Tesla Capital JSC Belgrade is a leading investment brokerage firm providing comprehensive financial services 
               and investment opportunities to clients worldwide. Based in Belgrade, Serbia, we offer professional 
               brokerage services with a focus on transparency, security, and exceptional client support.
             </p>
+            
+            {/* Under Development Illustration */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="flex justify-center"
+            >
+              <div className="bg-gray-50 rounded-3xl p-8">
+                <Image
+                  src="/DrawKit - Economy & Finance/PNG/undraw_contact-us_kcoa.svg"
+                  alt="Contact Us Under Development"
+                  width={400}
+                  height={300}
+                  className="rounded-2xl mx-auto"
+                />
+              </div>
+            </motion.div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">

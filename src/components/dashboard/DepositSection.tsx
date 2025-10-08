@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { ArrowDownUp, DollarSign, CreditCard } from 'lucide-react';
 
 const DepositSection = () => {
@@ -48,6 +49,31 @@ const DepositSection = () => {
 
   return (
     <div className="space-y-6">
+      {/* Header with Illustration */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-3">
+          <div className="bg-red-600 p-2 rounded-lg">
+            <ArrowDownUp className="w-6 h-6 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">Deposit Funds</h2>
+        </div>
+        
+        {/* Illustration */}
+        <div className="hidden md:block">
+          <div className="relative">
+            <div className="bg-gradient-to-br from-red-50 to-gray-50 rounded-2xl p-4 shadow-lg">
+              <Image
+                src="/DrawKit - Economy & Finance/PNG/6 - FINANCES.png"
+                alt="Deposit Illustration"
+                width={120}
+                height={80}
+                className="rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Deposit Form */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <p className="text-gray-600 mb-6">

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { CheckCircle, Star, Zap, Crown, Gem, Mail, AlertCircle, TrendingUp, Diamond, Rocket, Shield, Gift, Target, Trophy, Flame, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { doc, updateDoc, increment } from 'firebase/firestore';

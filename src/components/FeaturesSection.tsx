@@ -20,42 +20,42 @@ const FeaturesSection = () => {
       icon: <BarChart3 className="w-8 h-8" />,
       title: 'Top Technical Analysis',
       description: 'Identify trading opportunities by analyzing statistical trends gathered from trading activity, such as price movement and volume.',
-      image: '/tesla-capital-logo.png',
+      image: '/DrawKit - Economy & Finance/PNG/9 - ECONOMY ANALYSIS.png',
       reverse: false,
     },
     {
       icon: <Zap className="w-8 h-8" />,
       title: 'High Performance',
       description: 'Our system is highly performant and always ready for our investors any time any day.',
-      image: '/tesla-capital-logo.png',
+      image: '/DrawKit - Economy & Finance/PNG/1 - REBUILD THE ECONOMY.png',
       reverse: true,
     },
     {
       icon: <Users className="w-8 h-8" />,
       title: 'Full Expert Support',
       description: 'We have experts at hand ready to guide you along the way for a great investment experience.',
-      image: '/tesla-capital-logo.png',
+      image: '/DrawKit - Economy & Finance/PNG/3 - JOB LOOKING.png',
       reverse: false,
     },
     {
       icon: <Mail className="w-8 h-8" />,
       title: 'Direct Email & SMS Signals',
       description: 'We always keep our investors notified through emails and SMS so that they can take action when necessary.',
-      image: '/tesla-capital-logo.png',
+      image: '/DrawKit - Economy & Finance/PNG/4 - BUDGETTING.png',
       reverse: true,
     },
     {
       icon: <ThumbsUp className="w-8 h-8" />,
       title: 'Highly Recommended',
       description: 'Tesla Capital is highly recommended and well appreciated in the industry. You are safe with us.',
-      image: '/tesla-capital-logo.png',
+      image: '/DrawKit - Economy & Finance/PNG/6 - FINANCES.png',
       reverse: false,
     },
     {
       icon: <Users className="w-8 h-8" />,
       title: 'Join a Growing Community',
       description: 'Join a community of Tesla Capital investors to increase and diversify your investment portfolio.',
-      image: '/tesla-capital-logo.png',
+      image: '/DrawKit - Economy & Finance/PNG/5 - RECRUITING.png',
       reverse: true,
     },
   ];
@@ -124,10 +124,20 @@ const FeaturesSection = () => {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: index * 0.2 }}
-              className={`flex flex-col ${feature.reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-12 lg:gap-20`}
+              className={`flex flex-col ${feature.reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-12 lg:gap-20 relative`}
             >
+              {/* Mobile Background Image */}
+              <div className="md:hidden absolute inset-0 opacity-10">
+                <Image
+                  src={feature.image}
+                  alt={`${feature.title} Background`}
+                  fill
+                  className="object-cover rounded-3xl"
+                />
+              </div>
+              
               {/* Content */}
-              <div className="flex-1 space-y-6">
+              <div className="flex-1 space-y-6 relative z-10">
                 <div className="flex items-center space-x-4">
                   <div className="bg-red-600 p-4 rounded-xl text-white shadow-lg">
                     {feature.icon}
@@ -145,15 +155,15 @@ const FeaturesSection = () => {
                 </div>
               </div>
 
-              {/* Image with overlapping design */}
-              <div className="flex-1 relative">
+              {/* Image with overlapping design - Hidden on mobile */}
+              <div className="flex-1 relative hidden md:block">
                 <div className="relative">
                   {/* Background decoration */}
                   <div className={`absolute -top-8 ${feature.reverse ? '-left-8' : '-right-8'} w-32 h-32 bg-red-100 rounded-full opacity-50`}></div>
                   <div className={`absolute -bottom-8 ${feature.reverse ? '-right-8' : '-left-8'} w-24 h-24 bg-gray-100 rounded-full opacity-50`}></div>
                   
                   {/* Main image */}
-                  <div className="relative z-10 bg-gradient-to-br from-red-50 to-gray-50 rounded-3xl p-8 shadow-2xl">
+                  <div className="relative z-10 bg-gradient-to-br from-red-50 to-gray-50 rounded-3xl p-8">
                     <Image
                       src={feature.image}
                       alt={feature.title}
@@ -222,12 +232,6 @@ const FeaturesSection = () => {
                   <p className="text-gray-300 leading-relaxed">
                     {step.description}
                   </p>
-                  
-                  {index < steps.length - 1 && (
-                    <div className="hidden md:block absolute top-1/2 left-full w-full h-0.5 bg-red-600 transform -translate-x-1/2 -translate-y-1/2">
-                      <ArrowRight className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/2 text-red-600" size={20} />
-                    </div>
-                  )}
                 </motion.div>
               ))}
             </div>

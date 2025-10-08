@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Calendar, User, ArrowRight, TrendingUp, BookOpen, Target } from 'lucide-react';
 import Link from 'next/link';
 
@@ -24,6 +25,24 @@ export default function BlogPage() {
                 Stay informed with the latest insights, market analysis, and investment strategies 
                 from our team of financial experts.
               </p>
+              
+              {/* Under Development Illustration */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="flex justify-center"
+              >
+                <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                  <Image
+                    src="/DrawKit - Economy & Finance/PNG/undraw_design-objectives_f9uv.svg"
+                    alt="Blog Under Development"
+                    width={400}
+                    height={300}
+                    className="rounded-2xl mx-auto"
+                  />
+                </div>
+              </motion.div>
             </motion.div>
           </div>
         </div>
