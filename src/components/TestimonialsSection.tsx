@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Star, Quote } from 'lucide-react';
+import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const TestimonialsSection = () => {
   const testimonials = [
@@ -55,6 +55,26 @@ const TestimonialsSection = () => {
     },
   ];
 
+  const [currentPage, setCurrentPage] = useState(0);
+  const reviewsPerPage = 2;
+  const totalPages = Math.ceil(testimonials.length / reviewsPerPage);
+
+  const nextPage = () => {
+    setCurrentPage((prev) => (prev + 1) % totalPages);
+  };
+
+  const prevPage = () => {
+    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+  };
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const startIndex = currentPage * reviewsPerPage;
+  const endIndex = startIndex + reviewsPerPage;
+  const currentTestimonials = testimonials.slice(startIndex, endIndex);
+
   return (
     <section className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -70,38 +90,79 @@ const TestimonialsSection = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                <div className="flex items-center mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+          {/* Testimonials with Pagination */}
+          <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              {currentTestimonials.map((testimonial, index) => (
+                <motion.div
+                  key={`${currentPage}-${index}`}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <div className="flex items-center mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                  
+                  <Quote className="w-8 h-8 text-red-600 mb-4" />
+                  
+                  <p className="text-gray-600 mb-6 leading-relaxed">
+                    &ldquo;{testimonial.content}&rdquo;
+                  </p>
+                  
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-semibold">
+                      {testimonial.avatar}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
+                      <p className="text-gray-500 text-sm">{testimonial.role}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center space-x-4">
+                {/* Previous Button */}
+                <button
+                  onClick={prevPage}
+                  className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-all duration-200 hover:bg-red-50"
+                  disabled={currentPage === 0}
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-600" />
+                </button>
+
+                {/* Pagination Dots */}
+                <div className="flex space-x-2">
+                  {Array.from({ length: totalPages }, (_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToPage(index)}
+                      className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                        currentPage === index
+                          ? 'bg-red-600 scale-125'
+                          : 'bg-gray-300 hover:bg-gray-400'
+                      }`}
+                    />
                   ))}
                 </div>
-                
-                <Quote className="w-8 h-8 text-red-600 mb-4" />
-                
-                <p className="text-gray-600 mb-6 leading-relaxed">
-                  &ldquo;{testimonial.content}&rdquo;
-                </p>
-                
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-semibold">
-                    {testimonial.avatar}
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
-                    <p className="text-gray-500 text-sm">{testimonial.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+
+                {/* Next Button */}
+                <button
+                  onClick={nextPage}
+                  className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-all duration-200 hover:bg-red-50"
+                  disabled={currentPage === totalPages - 1}
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

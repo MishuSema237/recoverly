@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { CheckCircle, Star, Zap, Crown, Gem, Mail, AlertCircle, TrendingUp, Diamond, Rocket, Shield, Gift, Target, Trophy, Flame, RefreshCw } from 'lucide-react';
+import { CheckCircle, Star, Zap, Crown, Gem, Mail, AlertCircle, TrendingUp, Diamond, Rocket, Shield, Gift, Target, Trophy, Flame, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { doc, updateDoc, increment } from 'firebase/firestore';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
@@ -27,6 +27,8 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
   const [refreshing, setRefreshing] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const [offlinePlans, setOfflinePlans] = useState<InvestmentPlan[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const plansPerPage = 3;
 
   // Mock account balance - in real app, this would come from user profile
   const accountBalance = userProfile?.totalInvested ? 10000 : 0; // Example: $10,000 if user has invested before
@@ -189,6 +191,25 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
 
   // Use only MongoDB plans
   const currentPlans = plans;
+
+  // Pagination functions
+  const totalPages = Math.ceil(currentPlans.length / plansPerPage);
+  
+  const nextPage = () => {
+    setCurrentPage((prev) => (prev + 1) % totalPages);
+  };
+
+  const prevPage = () => {
+    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+  };
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const startIndex = currentPage * plansPerPage;
+  const endIndex = startIndex + plansPerPage;
+  const paginatedPlans = currentPlans.slice(startIndex, endIndex);
 
   // Color mapping function
   const getColorGradient = (colorName?: string) => {
@@ -379,8 +400,9 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {currentPlans.map((plan, index) => (
+          <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+              {paginatedPlans.map((plan, index) => (
             <motion.div
               key={plan._id || `${index}`}
               initial={{ opacity: 0, y: 50 }}
@@ -458,7 +480,46 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
               </div>
             </motion.div>
           ))}
-        </div>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center space-x-4 mt-8">
+                {/* Previous Button */}
+                <button
+                  onClick={prevPage}
+                  className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-all duration-200 hover:bg-red-50"
+                  disabled={currentPage === 0}
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-600" />
+                </button>
+
+                {/* Pagination Dots */}
+                <div className="flex space-x-2">
+                  {Array.from({ length: totalPages }, (_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToPage(index)}
+                      className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                        currentPage === index
+                          ? 'bg-red-600 scale-125'
+                          : 'bg-gray-300 hover:bg-gray-400'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  onClick={nextPage}
+                  className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-all duration-200 hover:bg-red-50"
+                  disabled={currentPage === totalPages - 1}
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Dashboard Calculation Section */}
