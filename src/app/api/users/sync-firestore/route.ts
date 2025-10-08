@@ -3,17 +3,42 @@ import { getDb } from '@/lib/mongodb';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 
+interface FirestoreUser {
+  firebaseId: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  displayName?: string;
+  emailVerified?: boolean;
+  createdAt: Date;
+  lastLoginAt: Date;
+  totalInvested?: number;
+  userCode?: string;
+  isAdmin?: boolean;
+  isActive?: boolean;
+  updatedAt: Date;
+  updatedBy: string;
+}
+
 export async function POST() {
   try {
     // Get all users from Firestore
     const usersRef = collection(db, 'users');
     const firestoreSnapshot = await getDocs(usersRef);
     
-    const firestoreUsers = firestoreSnapshot.docs.map(doc => {
+    const firestoreUsers: FirestoreUser[] = firestoreSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
         firebaseId: doc.id,
-        ...data,
+        email: data.email || '',
+        firstName: data.firstName || '',
+        lastName: data.lastName || '',
+        displayName: data.displayName || '',
+        emailVerified: data.emailVerified || false,
+        totalInvested: data.totalInvested || 0,
+        userCode: data.userCode || '',
+        isAdmin: data.isAdmin || false,
+        isActive: data.isActive !== false,
         // Convert Firestore timestamps to JavaScript Date objects
         createdAt: data.createdAt?.toDate() || new Date(),
         lastLoginAt: data.lastLoginAt?.toDate() || new Date(),
