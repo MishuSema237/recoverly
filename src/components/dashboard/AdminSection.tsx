@@ -18,6 +18,7 @@ import {
   Shield,
   UserCheck,
   UserX,
+  RefreshCw,
   Ban,
   CheckCircle,
   XCircle,

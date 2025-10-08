@@ -3,7 +3,7 @@ import { getDb } from '@/lib/mongodb';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Get all users from Firestore
     const usersRef = collection(db, 'users');
