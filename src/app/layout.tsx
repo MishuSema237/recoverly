@@ -3,7 +3,6 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import ConditionalLayout from '@/components/ConditionalLayout';
-import CookieConsent from '@/components/CookieConsent';
 import './globals.css';
 
 export const metadata = {
@@ -35,7 +34,6 @@ export default function RootLayout({
                 {children}
               </ConditionalLayout>
               <LoadingOverlay />
-              <CookieConsent />
             </WalletContextProvider>
           </AuthProvider>
         </LoadingProvider>
