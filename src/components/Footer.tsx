@@ -63,20 +63,12 @@ const Footer = () => {
               {links.map((link) => (
                 <li key={link.name}>
                   {link.href === '#investment-plans' ? (
-                    <button
-                      onClick={() => {
-                        const element = document.getElementById('investment-plans');
-                        if (element) {
-                          element.scrollIntoView({ 
-                            behavior: 'smooth',
-                            block: 'start'
-                          });
-                        }
-                      }}
-                      className="text-gray-300 hover:text-red-500 transition-colors text-left"
+                    <Link
+                      href="/#investment-plans"
+                      className="text-gray-300 hover:text-red-500 transition-colors"
                     >
                       {link.name}
-                    </button>
+                    </Link>
                   ) : (
                     <Link href={link.href} className="text-gray-300 hover:text-red-500 transition-colors">
                       {link.name}

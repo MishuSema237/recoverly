@@ -25,24 +25,6 @@ export default function BlogPage() {
                 Stay informed with the latest insights, market analysis, and investment strategies 
                 from our team of financial experts.
               </p>
-              
-              {/* Under Development Illustration */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="flex justify-center"
-              >
-                <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                  <Image
-                    src="/DrawKit - Economy & Finance/PNG/undraw_design-objectives_f9uv.svg"
-                    alt="Blog Under Development"
-                    width={400}
-                    height={300}
-                    className="rounded-2xl mx-auto"
-                  />
-                </div>
-              </motion.div>
             </motion.div>
           </div>
         </div>
@@ -134,6 +116,24 @@ export default function BlogPage() {
                 Soon you&apos;ll find articles on market trends, investment strategies, 
                 and educational resources to help you make better investment decisions.
               </p>
+              
+              {/* Under Development Illustration */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="flex justify-center mb-8"
+              >
+                <div className="bg-gray-50 rounded-3xl p-8">
+                  <Image
+                    src="/DrawKit - Economy & Finance/PNG/undraw_design-objectives_f9uv.svg"
+                    alt="Blog Under Development"
+                    width={400}
+                    height={300}
+                    className="rounded-2xl mx-auto"
+                  />
+                </div>
+              </motion.div>
               <div className="bg-gray-50 rounded-lg p-6 mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">What to Expect:</h3>
                 <ul className="text-left text-gray-600 space-y-2 max-w-md mx-auto">
