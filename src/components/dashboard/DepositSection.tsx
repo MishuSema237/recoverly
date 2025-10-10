@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Upload, CheckCircle, AlertCircle, CreditCard, DollarSign } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { showSuccess, showError } from '@/utils/toast';
 
 interface PaymentMethod {
   _id: string;
@@ -36,7 +37,6 @@ const DepositSection = () => {
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
     loadPaymentMethods();
@@ -52,6 +52,7 @@ const DepositSection = () => {
       }
     } catch (error) {
       console.error('Error loading payment methods:', error);
+      showError('An error occurred while loading payment methods');
     }
   };
 
@@ -71,12 +72,11 @@ const DepositSection = () => {
     e.preventDefault();
     
     if (!selectedMethod || !amount || !screenshot) {
-      setMessage({ type: 'error', text: 'Please fill in all fields and upload a screenshot' });
+      showError('Please fill in all fields and upload a screenshot');
       return;
     }
 
     setIsSubmitting(true);
-    setMessage({ type: '', text: '' });
 
     try {
       // Convert screenshot to base64
@@ -106,19 +106,19 @@ const DepositSection = () => {
         const result = await response.json();
 
         if (result.success) {
-          setMessage({ type: 'success', text: 'Deposit request submitted successfully! Please wait for admin approval.' });
+          showSuccess('Deposit request submitted successfully! Please wait for admin approval.');
           setAmount('');
           setScreenshot(null);
           setScreenshotPreview('');
           setSelectedMethod(null);
         } else {
-          setMessage({ type: 'error', text: result.error || 'Failed to submit deposit request' });
+          showError(result.error || 'Failed to submit deposit request');
         }
       };
       reader.readAsDataURL(screenshot);
     } catch (error) {
       console.error('Error submitting deposit request:', error);
-      setMessage({ type: 'error', text: 'An error occurred while submitting your request' });
+      showError('An error occurred while submitting your request');
     } finally {
       setIsSubmitting(false);
     }
@@ -136,25 +136,6 @@ const DepositSection = () => {
             <p className="text-gray-600">Choose a payment method and submit your deposit request</p>
           </div>
         </div>
-
-        {message.text && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`p-4 rounded-lg mb-6 ${
-              message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-            }`}
-          >
-            <div className="flex items-center space-x-2">
-              {message.type === 'success' ? (
-                <CheckCircle className="w-5 h-5" />
-              ) : (
-                <AlertCircle className="w-5 h-5" />
-              )}
-              <span>{message.text}</span>
-            </div>
-          </motion.div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Payment Method Selection */}
@@ -179,7 +160,7 @@ const DepositSection = () => {
                     )}
                     <div>
                       <h3 className="font-semibold text-gray-900">{method.name}</h3>
-                      <p className="text-sm text-gray-600">{method.accountDetails.accountName}</p>
+                      <p className="text-sm text-gray-600">{method.accountDetails?.accountName || 'N/A'}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -198,19 +179,19 @@ const DepositSection = () => {
               <div className="space-y-3">
                 <div>
                   <span className="font-medium text-gray-700">Account Name:</span>
-                  <span className="ml-2 text-gray-900">{selectedMethod.accountDetails.accountName}</span>
+                  <span className="ml-2 text-gray-900">{selectedMethod.accountDetails?.accountName || 'N/A'}</span>
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Account Number:</span>
-                  <span className="ml-2 text-gray-900 font-mono">{selectedMethod.accountDetails.accountNumber}</span>
+                  <span className="ml-2 text-gray-900 font-mono">{selectedMethod.accountDetails?.accountNumber || 'N/A'}</span>
                 </div>
-                {selectedMethod.accountDetails.bankName && (
+                {selectedMethod.accountDetails?.bankName && (
                   <div>
                     <span className="font-medium text-gray-700">Bank:</span>
                     <span className="ml-2 text-gray-900">{selectedMethod.accountDetails.bankName}</span>
                   </div>
                 )}
-                {selectedMethod.accountDetails.network && (
+                {selectedMethod.accountDetails?.network && (
                   <div>
                     <span className="font-medium text-gray-700">Network:</span>
                     <span className="ml-2 text-gray-900">{selectedMethod.accountDetails.network}</span>

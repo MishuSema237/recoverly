@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpDown, CheckCircle, AlertCircle, CreditCard, DollarSign } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { showSuccess, showError } from '@/utils/toast';
 
 interface PaymentMethod {
   _id: string;
@@ -44,7 +45,6 @@ const WithdrawSection = () => {
   const [bankName, setBankName] = useState('');
   const [network, setNetwork] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
     loadPaymentMethods();
@@ -60,6 +60,7 @@ const WithdrawSection = () => {
       }
     } catch (error) {
       console.error('Error loading payment methods:', error);
+      showError('An error occurred while loading payment methods');
     }
   };
 
@@ -67,7 +68,7 @@ const WithdrawSection = () => {
     e.preventDefault();
     
     if (!selectedMethod || !amount || !accountName || !accountNumber) {
-      setMessage({ type: 'error', text: 'Please fill in all required fields' });
+      showError('Please fill in all required fields');
       return;
     }
 
@@ -75,12 +76,11 @@ const WithdrawSection = () => {
     const availableBalance = userProfile?.balances?.main || 0;
 
     if (withdrawalAmount > availableBalance) {
-      setMessage({ type: 'error', text: 'Insufficient balance. Available balance: $' + availableBalance });
+      showError('Insufficient balance. Available balance: $' + availableBalance);
       return;
     }
 
     setIsSubmitting(true);
-    setMessage({ type: '', text: '' });
 
     try {
       const withdrawalRequest: WithdrawalRequest = {
@@ -111,7 +111,7 @@ const WithdrawSection = () => {
       const result = await response.json();
 
       if (result.success) {
-        setMessage({ type: 'success', text: 'Withdrawal request submitted successfully! Please wait for admin processing.' });
+        showSuccess('Withdrawal request submitted successfully! Please wait for admin processing.');
         setAmount('');
         setAccountName('');
         setAccountNumber('');
@@ -119,11 +119,11 @@ const WithdrawSection = () => {
         setNetwork('');
         setSelectedMethod(null);
       } else {
-        setMessage({ type: 'error', text: result.error || 'Failed to submit withdrawal request' });
+        showError(result.error || 'Failed to submit withdrawal request');
       }
     } catch (error) {
       console.error('Error submitting withdrawal request:', error);
-      setMessage({ type: 'error', text: 'An error occurred while submitting your request' });
+      showError('An error occurred while submitting your request');
     } finally {
       setIsSubmitting(false);
     }
@@ -150,25 +150,6 @@ const WithdrawSection = () => {
           </div>
         </div>
 
-        {message.text && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`p-4 rounded-lg mb-6 ${
-              message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-            }`}
-          >
-            <div className="flex items-center space-x-2">
-              {message.type === 'success' ? (
-                <CheckCircle className="w-5 h-5" />
-              ) : (
-                <AlertCircle className="w-5 h-5" />
-              )}
-              <span>{message.text}</span>
-            </div>
-          </motion.div>
-        )}
-
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Payment Method Selection */}
           <div>
@@ -192,7 +173,7 @@ const WithdrawSection = () => {
                     )}
                     <div>
                       <h3 className="font-semibold text-gray-900">{method.name}</h3>
-                      <p className="text-sm text-gray-600">{method.accountDetails.accountName}</p>
+                      <p className="text-sm text-gray-600">{method.accountDetails?.accountName || 'N/A'}</p>
                     </div>
                   </div>
                 </motion.div>
