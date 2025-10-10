@@ -342,6 +342,8 @@ const AdminSection = () => {
       alert('Failed to sync users');
     }
   };
+
+  const clearDefaultPaymentMethods = async () => {
     try {
       const response = await fetch('/api/payment-methods/clear-defaults', {
         method: 'POST'
@@ -674,7 +676,7 @@ const AdminSection = () => {
         activityLog: [
           {
             action: 'Account Created',
-            timestamp: user.createdAt,
+            timestamp: user.createdAt ? user.createdAt.toISOString() : new Date().toISOString(),
             details: 'User account was created'
           }
         ]
@@ -845,6 +847,7 @@ const AdminSection = () => {
                   <RefreshCw className="w-4 h-4" />
                   <span>Sync All Users</span>
                 </button>
+                <button className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
                   <Download className="w-4 h-4" />
                   <span>Export</span>
                 </button>
@@ -1117,7 +1120,7 @@ const AdminSection = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {paymentMethods.map(method => (
-                <div key={method.id} className="bg-white border border-gray-200 rounded-lg p-6">
+                <div key={method._id} className="bg-white border border-gray-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="font-semibold text-gray-900">{method.name}</h4>
                     <div className="flex items-center space-x-2">
@@ -1132,7 +1135,7 @@ const AdminSection = () => {
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDeletePayment(method.id, method.name)}
+                        onClick={() => method._id && handleDeletePayment(method._id, method.name)}
                         className="p-1 text-red-600 hover:text-red-800"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -1140,10 +1143,13 @@ const AdminSection = () => {
                     </div>
                   </div>
                   <div className="space-y-2 text-sm">
-                    <p><span className="font-medium">Currency:</span> {method.currency}</p>
-                    <p><span className="font-medium">Address:</span> {method.address}</p>
-                    {method.trustWalletLink && (
-                      <p><span className="font-medium">Trust Wallet:</span> <a href={method.trustWalletLink} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">Link</a></p>
+                    <p><span className="font-medium">Account Name:</span> {method.accountDetails.accountName}</p>
+                    <p><span className="font-medium">Account Number:</span> {method.accountDetails.accountNumber}</p>
+                    {method.accountDetails.bankName && (
+                      <p><span className="font-medium">Bank:</span> {method.accountDetails.bankName}</p>
+                    )}
+                    {method.accountDetails.network && (
+                      <p><span className="font-medium">Network:</span> {method.accountDetails.network}</p>
                     )}
                   </div>
                   <div className="mt-4">
@@ -1602,8 +1608,11 @@ const AdminSection = () => {
                     onChange={(e) => setNewPayment({ 
                       ...newPayment, 
                       accountDetails: { 
-                        ...newPayment.accountDetails, 
-                        accountName: e.target.value 
+                        accountName: e.target.value,
+                        accountNumber: newPayment.accountDetails?.accountNumber || '',
+                        bankName: newPayment.accountDetails?.bankName || '',
+                        walletAddress: newPayment.accountDetails?.walletAddress || '',
+                        network: newPayment.accountDetails?.network || ''
                       } 
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -1619,8 +1628,11 @@ const AdminSection = () => {
                     onChange={(e) => setNewPayment({ 
                       ...newPayment, 
                       accountDetails: { 
-                        ...newPayment.accountDetails, 
-                        accountNumber: e.target.value 
+                        accountName: newPayment.accountDetails?.accountName || '',
+                        accountNumber: e.target.value,
+                        bankName: newPayment.accountDetails?.bankName || '',
+                        walletAddress: newPayment.accountDetails?.walletAddress || '',
+                        network: newPayment.accountDetails?.network || ''
                       } 
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -1636,8 +1648,11 @@ const AdminSection = () => {
                     onChange={(e) => setNewPayment({ 
                       ...newPayment, 
                       accountDetails: { 
-                        ...newPayment.accountDetails, 
-                        bankName: e.target.value 
+                        accountName: newPayment.accountDetails?.accountName || '',
+                        accountNumber: newPayment.accountDetails?.accountNumber || '',
+                        bankName: e.target.value,
+                        walletAddress: newPayment.accountDetails?.walletAddress || '',
+                        network: newPayment.accountDetails?.network || ''
                       } 
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -1653,8 +1668,11 @@ const AdminSection = () => {
                     onChange={(e) => setNewPayment({ 
                       ...newPayment, 
                       accountDetails: { 
-                        ...newPayment.accountDetails, 
-                        network: e.target.value 
+                        accountName: newPayment.accountDetails?.accountName || '',
+                        accountNumber: newPayment.accountDetails?.accountNumber || '',
+                        bankName: newPayment.accountDetails?.bankName || '',
+                        walletAddress: newPayment.accountDetails?.walletAddress || '',
+                        network: e.target.value
                       } 
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -1733,12 +1751,12 @@ const AdminSection = () => {
             <div className="mb-6">
               <p className="text-gray-700">
                 Are you sure you want to delete{' '}
-                <span className="font-semibold text-gray-900">&ldquo;{confirmAction.name}&rdquo;</span>?
+                <span className="font-semibold text-gray-900">&ldquo;{confirmAction?.name}&rdquo;</span>?
               </p>
               <p className="text-sm text-gray-500 mt-2">
-                {confirmAction.type === 'deletePlan' && 'This will permanently remove the investment plan.'}
-                {confirmAction.type === 'deleteUser' && 'This will permanently remove the user account.'}
-                {confirmAction.type === 'deletePayment' && 'This will permanently remove the payment method.'}
+                {confirmAction?.type === 'deletePlan' && 'This will permanently remove the investment plan.'}
+                {confirmAction?.type === 'deleteUser' && 'This will permanently remove the user account.'}
+                {confirmAction?.type === 'deletePayment' && 'This will permanently remove the payment method.'}
               </p>
             </div>
             
@@ -1862,22 +1880,22 @@ const AdminSection = () => {
                       <div className="flex items-center space-x-2">
                         <Users className="w-4 h-4 text-gray-500" />
                         <span className="text-sm text-gray-600">Name:</span>
-                        <span className="font-medium">{userDetailData.firstName} {userDetailData.lastName}</span>
+                        <span className="font-medium">{userDetailData?.firstName} {userDetailData?.lastName}</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Mail className="w-4 h-4 text-gray-500" />
                         <span className="text-sm text-gray-600">Email:</span>
-                        <span className="font-medium">{userDetailData.email}</span>
+                        <span className="font-medium">{userDetailData?.email}</span>
                         <span className={`px-2 py-1 rounded-full text-xs ${
-                          userDetailData.emailVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          userDetailData?.emailVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                         }`}>
-                          {userDetailData.emailVerified ? 'Verified' : 'Unverified'}
+                          {userDetailData?.emailVerified ? 'Verified' : 'Unverified'}
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Phone className="w-4 h-4 text-gray-500" />
                         <span className="text-sm text-gray-600">Phone:</span>
-                        <span className="font-medium">{userDetailData.phone || 'Not provided'}</span>
+                        <span className="font-medium">{userDetailData?.phone || 'Not provided'}</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <MapPin className="w-4 h-4 text-gray-500" />
@@ -1943,7 +1961,7 @@ const AdminSection = () => {
                   <div className="bg-gray-50 rounded-lg p-4">
                     <h4 className="font-semibold text-gray-900 mb-3">Activity Log</h4>
                     <div className="space-y-2">
-                      {userDetailData.activityLog?.map((activity: { action: string; timestamp: string }, index: number) => (
+                      {userDetailData?.activityLog?.map((activity: { action: string; timestamp: string }, index: number) => (
                         <div key={index} className="flex items-center space-x-2 text-sm">
                           <Activity className="w-4 h-4 text-gray-500" />
                           <span className="text-gray-600">{activity.action}</span>
