@@ -3,6 +3,31 @@ import { getDb } from '@/lib/mongodb';
 import { collection, getDocs } from 'firebase/firestore';
 import { db as firestoreDb } from '@/config/firebase';
 
+interface FirestoreUser {
+  firebaseId: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  displayName?: string;
+  emailVerified?: boolean;
+  createdAt?: Date;
+  lastLoginAt?: Date;
+  totalInvested?: number;
+  currentInvestment?: number;
+  totalDeposit?: number;
+  totalWithdraw?: number;
+  referralEarnings?: number;
+  userCode?: string;
+  isAdmin?: boolean;
+  isActive?: boolean;
+  balances?: {
+    main: number;
+    investment: number;
+    referral: number;
+    total: number;
+  };
+}
+
 export async function POST() {
   try {
     const mongoDb = await getDb();
@@ -11,9 +36,29 @@ export async function POST() {
     const usersRef = collection(firestoreDb, 'users');
     const firestoreSnapshot = await getDocs(usersRef);
     
-    const firestoreUsers = firestoreSnapshot.docs.map(doc => ({
+    const firestoreUsers: FirestoreUser[] = firestoreSnapshot.docs.map(doc => ({
       firebaseId: doc.id,
-      ...doc.data()
+      email: doc.data().email || '',
+      firstName: doc.data().firstName || '',
+      lastName: doc.data().lastName || '',
+      displayName: doc.data().displayName || '',
+      emailVerified: doc.data().emailVerified || false,
+      createdAt: doc.data().createdAt || new Date(),
+      lastLoginAt: doc.data().lastLoginAt || new Date(),
+      totalInvested: doc.data().totalInvested || 0,
+      currentInvestment: doc.data().currentInvestment || 0,
+      totalDeposit: doc.data().totalDeposit || 0,
+      totalWithdraw: doc.data().totalWithdraw || 0,
+      referralEarnings: doc.data().referralEarnings || 0,
+      userCode: doc.data().userCode || '',
+      isAdmin: doc.data().isAdmin || false,
+      isActive: doc.data().isActive !== false,
+      balances: doc.data().balances || {
+        main: 0,
+        investment: 0,
+        referral: 0,
+        total: 0
+      }
     }));
     
     console.log(`Found ${firestoreUsers.length} users in Firestore`);
