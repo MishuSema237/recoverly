@@ -65,6 +65,12 @@ interface UserProfile {
   city?: string;
   zip?: string;
   profilePicture?: string;
+  balances?: {
+    main: number;
+    investment: number;
+    referral: number;
+    total: number;
+  };
 }
 
 interface AuthContextType {
@@ -169,6 +175,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               userCode: '',
               isAdmin: false,
               isActive: true,
+              balances: {
+                main: 0,
+                investment: 0,
+                referral: 0,
+                total: 0
+              }
             });
           }
         } catch (error) {
@@ -187,6 +199,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             userCode: '',
             isAdmin: false,
             isActive: true,
+            balances: {
+              main: 0,
+              investment: 0,
+              referral: 0,
+              total: 0
+            }
           });
         }
       } else {
