@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, TrendingUp, Shield, Zap } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const HeroSection = () => {
-  const [currentWord, setCurrentWord] = useState(0);
+  const [currentWord] = useState(0);
   
   const dynamicWords = [
     'CRYPTO'

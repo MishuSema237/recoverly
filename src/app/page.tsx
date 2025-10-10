@@ -30,7 +30,7 @@ const NewsletterSection = dynamic(() => import('@/components/NewsletterSection')
 });
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
 
   // Show loading while checking authentication
   if (loading) {
