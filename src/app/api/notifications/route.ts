@@ -3,12 +3,21 @@ import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 interface Notification {
+  _id?: ObjectId;
+  title: string;
   message: string;
   type: 'broadcast' | 'individual';
   recipients: string[] | 'all';
   sentBy: string;
   sentAt: Date;
   read: boolean;
+  attachments?: Array<{
+    filename: string;
+    originalName: string;
+    contentType: string;
+    size: number;
+    url: string;
+  }>;
 }
 
 export async function GET() {

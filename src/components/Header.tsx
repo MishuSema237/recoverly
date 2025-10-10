@@ -4,16 +4,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Menu, X, User, LogOut } from 'lucide-react';
+import { Menu, X, User, LogOut, Bell } from 'lucide-react';
+import NotificationDropdown from './NotificationDropdown';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const pathname = usePathname();
   const { user, userProfile, logout, loading } = useAuth();
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const notificationRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -37,6 +41,9 @@ const Header = () => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setShowUserMenu(false);
       }
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -44,6 +51,46 @@ const Header = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Fetch notifications count
+  useEffect(() => {
+    if (userProfile?.userCode) {
+      fetchNotifications();
+    }
+  }, [userProfile?.userCode]);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch(`/api/user-notifications?referralCode=${userProfile?.userCode}`);
+      const result = await response.json();
+      if (result.success) {
+        const unreadNotifications = result.data.filter((notification: any) => !notification.read);
+        setUnreadCount(unreadNotifications.length);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  const handleMarkAsRead = async (notificationId: string) => {
+    try {
+      await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          _id: notificationId,
+          read: true
+        })
+      });
+      
+      // Update local count
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -96,6 +143,32 @@ const Header = () => {
                 >
                   Dashboard
                 </Link>
+                
+                {/* Notification Bell */}
+                <div className="relative" ref={notificationRef}>
+                  <button
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="relative p-2 text-gray-700 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                  >
+                    <Bell className="w-5 h-5" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </button>
+                  
+                  {showNotifications && (
+                    <NotificationDropdown
+                      userReferralCode={userProfile?.userCode || ''}
+                      isOpen={showNotifications}
+                      onClose={() => setShowNotifications(false)}
+                      unreadCount={unreadCount}
+                      onMarkAsRead={handleMarkAsRead}
+                    />
+                  )}
+                </div>
+                
                 <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}

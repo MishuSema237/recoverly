@@ -126,6 +126,10 @@ const AdminSection = () => {
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [notificationType, setNotificationType] = useState<'broadcast' | 'individual'>('broadcast');
   const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationTitle, setNotificationTitle] = useState('');
+  const [notificationDetails, setNotificationDetails] = useState('');
+  const [notificationFiles, setNotificationFiles] = useState<File[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [selectedUsersForNotification, setSelectedUsersForNotification] = useState<string[]>([]);
   const [sendingNotification, setSendingNotification] = useState(false);
   
@@ -617,15 +621,35 @@ const AdminSection = () => {
 
   // Notification functions
   const sendNotification = async () => {
-    if (!notificationMessage.trim()) return;
+    if (!notificationMessage.trim() || !notificationTitle.trim()) return;
     
     setSendingNotification(true);
     try {
+      // Upload files first if any
+      const attachments = [];
+      for (const file of notificationFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const uploadResult = await uploadResponse.json();
+        if (uploadResult.success) {
+          attachments.push(uploadResult.data);
+        }
+      }
+
       const notificationData = {
+        title: notificationTitle,
         message: notificationMessage,
+        details: notificationDetails,
         type: notificationType,
-        recipients: notificationType === 'broadcast' ? 'all' : selectedUsersForNotification, // Now contains referral codes
-        sentBy: user?.uid
+        recipients: notificationType === 'broadcast' ? 'all' : selectedUsersForNotification,
+        sentBy: user?.uid,
+        attachments: attachments.length > 0 ? attachments : undefined
       };
 
       // Save notification to MongoDB via API
@@ -642,6 +666,10 @@ const AdminSection = () => {
       if (result.success) {
         // Reset form
         setNotificationMessage('');
+        setNotificationTitle('');
+        setNotificationDetails('');
+        setNotificationFiles([]);
+        setUploadedFiles([]);
         setSelectedUsersForNotification([]);
         setShowNotificationModal(false);
         
@@ -1789,7 +1817,7 @@ const AdminSection = () => {
       {/* Notification Modal */}
       {showNotificationModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               {notificationType === 'broadcast' ? 'Send Broadcast Message' : 'Send Individual Message'}
             </h3>
@@ -1820,7 +1848,18 @@ const AdminSection = () => {
             )}
             
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+              <input
+                type="text"
+                value={notificationTitle}
+                onChange={(e) => setNotificationTitle(e.target.value)}
+                placeholder="Enter notification title..."
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Message *</label>
               <textarea
                 value={notificationMessage}
                 onChange={(e) => setNotificationMessage(e.target.value)}
@@ -1829,12 +1868,55 @@ const AdminSection = () => {
                 rows={4}
               />
             </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Details (Optional)</label>
+              <textarea
+                value={notificationDetails}
+                onChange={(e) => setNotificationDetails(e.target.value)}
+                placeholder="Enter additional details..."
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                rows={3}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Attachments (Optional)</label>
+              <input
+                type="file"
+                multiple
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setNotificationFiles(Array.from(e.target.files));
+                  }
+                }}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                accept="image/*,.pdf,.doc,.docx,.txt,.zip"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Supported formats: Images, PDF, DOC, DOCX, TXT, ZIP (Max 10MB each)
+              </p>
+              {notificationFiles.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-sm font-medium text-gray-700">Selected files:</p>
+                  <ul className="text-sm text-gray-600">
+                    {notificationFiles.map((file, index) => (
+                      <li key={index}>• {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
             
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => {
                   setShowNotificationModal(false);
                   setNotificationMessage('');
+                  setNotificationTitle('');
+                  setNotificationDetails('');
+                  setNotificationFiles([]);
+                  setUploadedFiles([]);
                   setSelectedUsersForNotification([]);
                 }}
                 className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
@@ -1843,7 +1925,7 @@ const AdminSection = () => {
               </button>
               <button
                 onClick={sendNotification}
-                disabled={sendingNotification || !notificationMessage.trim() || (notificationType === 'individual' && selectedUsersForNotification.length === 0)}
+                disabled={sendingNotification || !notificationMessage.trim() || !notificationTitle.trim() || (notificationType === 'individual' && selectedUsersForNotification.length === 0)}
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
               >
                 {sendingNotification && (
