@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import dynamic from 'next/dynamic';
+import PublicRoute from '@/components/PublicRoute';
 
 // Lazy load components for better performance
 const HeroSection = dynamic(() => import('@/components/HeroSection'), {
@@ -41,13 +42,15 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen">
-      <HeroSection />
-      <InvestmentPlans />
-      <FeaturesSection />
-      <TestimonialsSection />
-      <FAQSection />
-      <NewsletterSection />
-    </div>
+    <PublicRoute>
+      <div className="min-h-screen">
+        <HeroSection />
+        <InvestmentPlans />
+        <FeaturesSection />
+        <TestimonialsSection />
+        <FAQSection />
+        <NewsletterSection />
+      </div>
+    </PublicRoute>
   );
 }

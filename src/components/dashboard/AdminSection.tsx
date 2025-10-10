@@ -5,7 +5,6 @@ import {
   Users, 
   DollarSign, 
   TrendingUp, 
-  Settings, 
   CreditCard, 
   Plus,
   Edit,
@@ -14,10 +13,8 @@ import {
   Search,
   Filter,
   Download,
-  Upload,
   Shield,
   UserCheck,
-  UserX,
   RefreshCw,
   Ban,
   CheckCircle,
@@ -28,11 +25,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  Calendar,
-  Clock,
-  DollarSign as DollarIcon,
-  ArrowUpDown,
-  History,
   Activity
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -43,24 +35,75 @@ import {
   getDocs, 
   doc, 
   updateDoc, 
-  deleteDoc,
-  addDoc,
-  where,
-  orderBy,
-  limit
+  deleteDoc
 } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
 import { UserService, User } from '@/lib/services/UserService';
 
 interface PaymentMethod {
-  id: string;
+  _id?: string;
   name: string;
-  currency: string;
-  address: string;
-  qrCode?: string;
-  trustWalletLink?: string;
+  logo: string;
+  accountDetails: {
+    accountName: string;
+    accountNumber: string;
+    bankName?: string;
+    walletAddress?: string;
+    network?: string;
+  };
+  instructions: string;
   isActive: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface AdminUser extends User {
+  location?: string;
+  balances?: {
+    main: number;
+    investment: number;
+    referral: number;
+    total: number;
+  };
+  activityLog?: Array<{
+    action: string;
+    timestamp: string;
+  }>;
+}
+
+interface DepositRequest {
+  _id?: string;
+  userId: string;
+  paymentMethodId: string;
+  amount: number;
+  screenshot: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: Date;
+  updatedAt: Date;
+  approvedBy?: string;
+  approvedAt?: Date;
+  rejectionReason?: string;
+}
+
+interface WithdrawalRequest {
+  _id?: string;
+  userId: string;
+  paymentMethodId: string;
+  amount: number;
+  accountDetails: {
+    accountName: string;
+    accountNumber: string;
+    bankName?: string;
+    walletAddress?: string;
+    network?: string;
+  };
+  status: 'pending' | 'processing' | 'completed' | 'rejected';
+  createdAt: Date;
+  updatedAt: Date;
+  processedBy?: string;
+  processedAt?: Date;
+  rejectionReason?: string;
 }
 
 const AdminSection = () => {
@@ -69,7 +112,8 @@ const AdminSection = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [plans, setPlans] = useState<InvestmentPlan[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [depositRequests, setDepositRequests] = useState<DepositRequest[]>([]);
+  const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [loadingPayments, setLoadingPayments] = useState(false);
@@ -87,7 +131,7 @@ const AdminSection = () => {
   
   // User detail states
   const [showUserDetailModal, setShowUserDetailModal] = useState(false);
-  const [userDetailData, setUserDetailData] = useState<any>(null);
+  const [userDetailData, setUserDetailData] = useState<AdminUser | null>(null);
   const [userIndividualMessage, setUserIndividualMessage] = useState('');
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -146,6 +190,7 @@ const AdminSection = () => {
       loadUsers();
       loadPlans();
       loadPaymentMethods();
+      loadTransactions();
       checkSyncStatus();
     }
   }, [isAdmin]);
@@ -240,17 +285,109 @@ const AdminSection = () => {
   const loadPaymentMethods = async () => {
     setLoadingPayments(true);
     try {
-      const paymentsRef = collection(db, 'paymentMethods');
-      const querySnapshot = await getDocs(paymentsRef);
-      const paymentsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as PaymentMethod[];
-      setPaymentMethods(paymentsData);
+      const response = await fetch('/api/payment-methods');
+      const result = await response.json();
+      
+      if (result.success) {
+        setPaymentMethods(result.data);
+      } else {
+        console.error('Error loading payment methods:', result.error);
+        setPaymentMethods([]);
+      }
     } catch (error) {
       console.error('Error loading payment methods:', error);
+      setPaymentMethods([]);
     } finally {
       setLoadingPayments(false);
+    }
+  };
+
+  const loadTransactions = async () => {
+    try {
+      // Load deposit requests
+      const depositsResponse = await fetch('/api/transactions?type=deposits');
+      const depositsResult = await depositsResponse.json();
+      
+      if (depositsResult.success) {
+        setDepositRequests(depositsResult.data);
+      }
+      
+      // Load withdrawal requests
+      const withdrawalsResponse = await fetch('/api/transactions?type=withdrawals');
+      const withdrawalsResult = await withdrawalsResponse.json();
+      
+      if (withdrawalsResult.success) {
+        setWithdrawalRequests(withdrawalsResult.data);
+      }
+    } catch (error) {
+      console.error('Error loading transactions:', error);
+    }
+  };
+
+  const syncAllUsers = async () => {
+    try {
+      const response = await fetch('/api/users/sync-all', {
+        method: 'POST'
+      });
+      const result = await response.json();
+      
+      if (result.success) {
+        alert(`Successfully synced ${result.results.length} users!`);
+        loadUsers();
+      } else {
+        alert('Failed to sync users: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error syncing all users:', error);
+      alert('Failed to sync users');
+    }
+  };
+    try {
+      const response = await fetch('/api/payment-methods/clear-defaults', {
+        method: 'POST'
+      });
+      const result = await response.json();
+      
+      if (result.success) {
+        alert(`Cleared ${result.deletedCount} default payment methods`);
+        loadPaymentMethods();
+      } else {
+        alert('Failed to clear payment methods: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error clearing payment methods:', error);
+      alert('Failed to clear payment methods');
+    }
+  };
+
+  const updateTransactionStatus = async (transactionId: string, type: 'deposit' | 'withdrawal', status: string, rejectionReason?: string) => {
+    try {
+      const response = await fetch('/api/transactions', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          _id: transactionId,
+          type,
+          status,
+          rejectionReason,
+          approvedBy: user?.uid,
+          approvedAt: new Date()
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('Transaction status updated successfully');
+        loadTransactions();
+      } else {
+        alert('Failed to update transaction: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      alert('Failed to update transaction');
     }
   };
 
@@ -282,10 +419,6 @@ const AdminSection = () => {
     setShowConfirmModal(true);
   };
 
-  const handleDeleteUser = (userId: string, userName: string) => {
-    setConfirmAction({ type: 'deleteUser', id: userId, name: userName });
-    setShowConfirmModal(true);
-  };
 
   const handleDeletePayment = (paymentId: string, paymentName: string) => {
     setConfirmAction({ type: 'deletePayment', id: paymentId, name: paymentName });
@@ -319,9 +452,17 @@ const AdminSection = () => {
           break;
         
         case 'deletePayment':
-          await deleteDoc(doc(db, 'paymentMethods', confirmAction.id));
-          setMessage({ type: 'success', text: 'Payment method deleted successfully' });
-          loadPaymentMethods();
+          const response = await fetch(`/api/payment-methods?id=${confirmAction.id}`, {
+            method: 'DELETE'
+          });
+          const result = await response.json();
+          
+          if (result.success) {
+            setMessage({ type: 'success', text: 'Payment method deleted successfully' });
+            loadPaymentMethods();
+          } else {
+            setMessage({ type: 'error', text: result.error || 'Failed to delete payment method' });
+          }
           break;
       }
     } catch (error) {
@@ -399,67 +540,78 @@ const AdminSection = () => {
     }
   };
 
-  const deletePlan = async (planId: string) => {
-    // This function is now replaced by handleDeletePlan
-    console.warn('deletePlan function is deprecated, use handleDeletePlan instead');
-  };
 
   const savePaymentMethod = async () => {
     setIsProcessingPayment(true);
     try {
       // Validate required fields
-      if (!newPayment.name || !newPayment.currency || !newPayment.address) {
+      if (!newPayment.name || !newPayment.logo || !newPayment.accountDetails?.accountName || !newPayment.accountDetails?.accountNumber || !newPayment.instructions) {
         setMessage({ type: 'error', text: 'Please fill in all required fields' });
         setIsProcessingPayment(false);
         return;
       }
 
+      const paymentData = {
+        name: newPayment.name,
+        logo: newPayment.logo,
+        accountDetails: newPayment.accountDetails,
+        instructions: newPayment.instructions,
+        isActive: newPayment.isActive !== false
+      };
+
       if (editingPayment) {
         // Update existing payment method
-        const paymentRef = doc(db, 'paymentMethods', editingPayment.id);
-        await updateDoc(paymentRef, {
-          name: newPayment.name,
-          currency: newPayment.currency,
-          address: newPayment.address,
-          qrCode: newPayment.qrCode || '',
-          trustWalletLink: newPayment.trustWalletLink || '',
-          isActive: newPayment.isActive !== false,
-          updatedAt: new Date(),
-          updatedBy: userProfile?.email || 'admin'
+        const response = await fetch('/api/payment-methods', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            _id: editingPayment._id,
+            ...paymentData
+          })
         });
-        setMessage({ type: 'success', text: 'Payment method updated successfully' });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          setMessage({ type: 'success', text: 'Payment method updated successfully' });
+          loadPaymentMethods();
+          setShowPaymentModal(false);
+          setEditingPayment(null);
+          setNewPayment({});
+        } else {
+          setMessage({ type: 'error', text: result.error || 'Failed to update payment method' });
+        }
       } else {
         // Create new payment method
-        await addDoc(collection(db, 'paymentMethods'), {
-          name: newPayment.name,
-          currency: newPayment.currency,
-          address: newPayment.address,
-          qrCode: newPayment.qrCode || '',
-          trustWalletLink: newPayment.trustWalletLink || '',
-          isActive: newPayment.isActive !== false,
-          createdAt: new Date(),
-          createdBy: userProfile?.email || 'admin',
-          updatedAt: new Date(),
-          updatedBy: userProfile?.email || 'admin'
+        const response = await fetch('/api/payment-methods', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(paymentData)
         });
-        setMessage({ type: 'success', text: 'Payment method created successfully' });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          setMessage({ type: 'success', text: 'Payment method created successfully' });
+          loadPaymentMethods();
+          setShowPaymentModal(false);
+          setNewPayment({});
+        } else {
+          setMessage({ type: 'error', text: result.error || 'Failed to create payment method' });
+        }
       }
-      setShowPaymentModal(false);
-      setEditingPayment(null);
-      setNewPayment({});
-      loadPaymentMethods();
     } catch (error) {
       console.error('Error saving payment method:', error);
-      setMessage({ type: 'error', text: 'Failed to save payment method' });
+      setMessage({ type: 'error', text: 'An error occurred while saving the payment method' });
     } finally {
       setIsProcessingPayment(false);
     }
   };
 
-  const deletePaymentMethod = async (paymentId: string) => {
-    // This function is now replaced by handleDeletePayment
-    console.warn('deletePaymentMethod function is deprecated, use handleDeletePayment instead');
-  };
 
   // Notification functions
   const sendNotification = async () => {
@@ -470,21 +622,31 @@ const AdminSection = () => {
       const notificationData = {
         message: notificationMessage,
         type: notificationType,
-        recipients: notificationType === 'broadcast' ? 'all' : selectedUsersForNotification,
-        sentBy: user?.uid,
-        sentAt: new Date(),
-        read: false
+        recipients: notificationType === 'broadcast' ? 'all' : selectedUsersForNotification, // Now contains referral codes
+        sentBy: user?.uid
       };
 
-      // Save notification to Firestore
-      await addDoc(collection(db, 'notifications'), notificationData);
+      // Save notification to MongoDB via API
+      const response = await fetch('/api/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(notificationData)
+      });
       
-      // Reset form
-      setNotificationMessage('');
-      setSelectedUsersForNotification([]);
-      setShowNotificationModal(false);
+      const result = await response.json();
       
-      alert('Notification sent successfully!');
+      if (result.success) {
+        // Reset form
+        setNotificationMessage('');
+        setSelectedUsersForNotification([]);
+        setShowNotificationModal(false);
+        
+        alert('Notification sent successfully!');
+      } else {
+        alert('Failed to send notification: ' + result.error);
+      }
     } catch (error) {
       console.error('Error sending notification:', error);
       alert('Failed to send notification');
@@ -523,22 +685,33 @@ const AdminSection = () => {
     }
   };
 
-  const sendUserNotification = async (userId: string, message: string) => {
+  const sendUserNotification = async (userReferralCode: string, message: string) => {
     if (!message.trim()) return;
     
     try {
       const notificationData = {
         message,
         type: 'individual',
-        recipients: [userId],
-        sentBy: user?.uid,
-        sentAt: new Date(),
-        read: false
+        recipients: [userReferralCode], // Using referral code instead of userId
+        sentBy: user?.uid
       };
 
-      await addDoc(collection(db, 'notifications'), notificationData);
-      setUserIndividualMessage('');
-      alert('Message sent successfully!');
+      const response = await fetch('/api/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(notificationData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setUserIndividualMessage('');
+        alert('Message sent successfully!');
+      } else {
+        alert('Failed to send message: ' + result.error);
+      }
     } catch (error) {
       console.error('Error sending user notification:', error);
       alert('Failed to send message');
@@ -665,7 +838,13 @@ const AdminSection = () => {
                     )}
                   </button>
                 )}
-                <button className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                <button 
+                  onClick={syncAllUsers}
+                  className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  <span>Sync All Users</span>
+                </button>
                   <Download className="w-4 h-4" />
                   <span>Export</span>
                 </button>
@@ -910,16 +1089,25 @@ const AdminSection = () => {
                   </div>
                 )}
               </div>
-              <button
-                onClick={() => {
-                  setEditingPayment(null);
-                  setShowPaymentModal(true);
-                }}
-                className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Payment Method</span>
-              </button>
+              <div className="flex space-x-3">
+                <button
+                  onClick={clearDefaultPaymentMethods}
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Clear Defaults</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingPayment(null);
+                    setShowPaymentModal(true);
+                  }}
+                  className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Payment Method</span>
+                </button>
+              </div>
             </div>
 
             {loadingPayments ? (
@@ -976,23 +1164,179 @@ const AdminSection = () => {
         {activeTab === 'transactions' && (
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">All Transactions</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Transaction Management</h3>
               <div className="flex items-center space-x-4">
-                <button className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
-                  <Download className="w-4 h-4" />
-                  <span>Export</span>
-                </button>
-                <button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                  <Filter className="w-4 h-4" />
-                  <span>Filter</span>
+                <button 
+                  onClick={loadTransactions}
+                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  <span>Refresh</span>
                 </button>
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-6 text-center">
-              <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h4 className="text-lg font-medium text-gray-900 mb-2">Transaction Management</h4>
-              <p className="text-gray-600">View and manage all user transactions, deposits, withdrawals, and transfers.</p>
+            {/* Deposit Requests */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Deposit Requests</h4>
+              <div className="bg-white rounded-lg shadow overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Screenshot</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {depositRequests.map((deposit) => (
+                        <tr key={deposit._id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {deposit.userId}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${deposit.amount}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {deposit.paymentMethodId}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {deposit.screenshot ? (
+                              <img src={deposit.screenshot} alt="Screenshot" className="w-16 h-16 object-cover rounded" />
+                            ) : 'No screenshot'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                              deposit.status === 'approved' ? 'bg-green-100 text-green-800' :
+                              deposit.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {deposit.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {new Date(deposit.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            {deposit.status === 'pending' && (
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => updateTransactionStatus(deposit._id!, 'deposit', 'approved')}
+                                  className="text-green-600 hover:text-green-900"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    const reason = prompt('Rejection reason:');
+                                    if (reason) {
+                                      updateTransactionStatus(deposit._id!, 'deposit', 'rejected', reason);
+                                    }
+                                  }}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* Withdrawal Requests */}
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Withdrawal Requests</h4>
+              <div className="bg-white rounded-lg shadow overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account Details</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {withdrawalRequests.map((withdrawal) => (
+                        <tr key={withdrawal._id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {withdrawal.userId}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${withdrawal.amount}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div>
+                              <div>{withdrawal.accountDetails.accountName}</div>
+                              <div className="text-gray-500">{withdrawal.accountDetails.accountNumber}</div>
+                              {withdrawal.accountDetails.bankName && (
+                                <div className="text-gray-500">{withdrawal.accountDetails.bankName}</div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                              withdrawal.status === 'completed' ? 'bg-green-100 text-green-800' :
+                              withdrawal.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                              withdrawal.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {withdrawal.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {new Date(withdrawal.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            {withdrawal.status === 'pending' && (
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => updateTransactionStatus(withdrawal._id!, 'withdrawal', 'processing')}
+                                  className="text-blue-600 hover:text-blue-900"
+                                >
+                                  Process
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    const reason = prompt('Rejection reason:');
+                                    if (reason) {
+                                      updateTransactionStatus(withdrawal._id!, 'withdrawal', 'rejected', reason);
+                                    }
+                                  }}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            )}
+                            {withdrawal.status === 'processing' && (
+                              <button
+                                onClick={() => updateTransactionStatus(withdrawal._id!, 'withdrawal', 'completed')}
+                                className="text-green-600 hover:text-green-900"
+                              >
+                                Complete
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -1235,51 +1579,97 @@ const AdminSection = () => {
                     value={newPayment.name || ''}
                     onChange={(e) => setNewPayment({ ...newPayment, name: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    placeholder="e.g., Ethereum, Bitcoin, Trust Wallet"
+                    placeholder="e.g., Bank Transfer, Bitcoin, Ethereum"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Logo URL</label>
+                  <input
+                    type="url"
+                    value={newPayment.logo || ''}
+                    onChange={(e) => setNewPayment({ ...newPayment, logo: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="https://example.com/logo.png"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Account Name</label>
                   <input
                     type="text"
-                    value={newPayment.currency || ''}
-                    onChange={(e) => setNewPayment({ ...newPayment, currency: e.target.value })}
+                    value={newPayment.accountDetails?.accountName || ''}
+                    onChange={(e) => setNewPayment({ 
+                      ...newPayment, 
+                      accountDetails: { 
+                        ...newPayment.accountDetails, 
+                        accountName: e.target.value 
+                      } 
+                    })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    placeholder="e.g., ETH, BTC, USD"
+                    placeholder="Account holder name"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Wallet Address</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Account Number/Address</label>
+                  <input
+                    type="text"
+                    value={newPayment.accountDetails?.accountNumber || ''}
+                    onChange={(e) => setNewPayment({ 
+                      ...newPayment, 
+                      accountDetails: { 
+                        ...newPayment.accountDetails, 
+                        accountNumber: e.target.value 
+                      } 
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="Account number or wallet address"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Bank Name (Optional)</label>
+                  <input
+                    type="text"
+                    value={newPayment.accountDetails?.bankName || ''}
+                    onChange={(e) => setNewPayment({ 
+                      ...newPayment, 
+                      accountDetails: { 
+                        ...newPayment.accountDetails, 
+                        bankName: e.target.value 
+                      } 
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="Bank name (for bank transfers)"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Network (Optional)</label>
+                  <input
+                    type="text"
+                    value={newPayment.accountDetails?.network || ''}
+                    onChange={(e) => setNewPayment({ 
+                      ...newPayment, 
+                      accountDetails: { 
+                        ...newPayment.accountDetails, 
+                        network: e.target.value 
+                      } 
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="Network (e.g., Ethereum, BSC, Polygon)"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Instructions</label>
                   <textarea
-                    value={newPayment.address || ''}
-                    onChange={(e) => setNewPayment({ ...newPayment, address: e.target.value })}
+                    value={newPayment.instructions || ''}
+                    onChange={(e) => setNewPayment({ ...newPayment, instructions: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    rows={3}
-                    placeholder="0xd624DB06741B512059b6a8Cd0bbc3800A9Ecf083"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">QR Code URL (Optional)</label>
-                  <input
-                    type="url"
-                    value={newPayment.qrCode || ''}
-                    onChange={(e) => setNewPayment({ ...newPayment, qrCode: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    placeholder="https://example.com/qr-code.png"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Trust Wallet Link (Optional)</label>
-                  <input
-                    type="url"
-                    value={newPayment.trustWalletLink || ''}
-                    onChange={(e) => setNewPayment({ ...newPayment, trustWalletLink: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    placeholder="https://link.trustwallet.com/send?address=..."
+                    rows={4}
+                    placeholder="Instructions for users on how to make deposits using this method"
                   />
                 </div>
 
@@ -1394,17 +1784,17 @@ const AdminSection = () => {
                     <label key={user._id || user.uid} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
                       <input
                         type="checkbox"
-                        checked={selectedUsersForNotification.includes(user._id || user.uid)}
+                        checked={selectedUsersForNotification.includes(user.userCode)}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setSelectedUsersForNotification([...selectedUsersForNotification, user._id || user.uid]);
+                            setSelectedUsersForNotification([...selectedUsersForNotification, user.userCode]);
                           } else {
-                            setSelectedUsersForNotification(selectedUsersForNotification.filter(id => id !== (user._id || user.uid)));
+                            setSelectedUsersForNotification(selectedUsersForNotification.filter(code => code !== user.userCode));
                           }
                         }}
                         className="rounded"
                       />
-                      <span className="text-sm">{user.firstName} {user.lastName} ({user.email})</span>
+                      <span className="text-sm">{user.firstName} {user.lastName} ({user.userCode})</span>
                     </label>
                   ))}
                 </div>
@@ -1539,13 +1929,13 @@ const AdminSection = () => {
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                         rows={3}
                       />
-                      <button
-                        onClick={() => sendUserNotification(userDetailData._id || userDetailData.uid, userIndividualMessage)}
-                        disabled={!userIndividualMessage.trim()}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                      >
-                        Send Message
-                      </button>
+                        <button
+                          onClick={() => sendUserNotification(userDetailData.userCode, userIndividualMessage)}
+                          disabled={!userIndividualMessage.trim()}
+                          className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        >
+                          Send Message
+                        </button>
                     </div>
                   </div>
 
@@ -1553,7 +1943,7 @@ const AdminSection = () => {
                   <div className="bg-gray-50 rounded-lg p-4">
                     <h4 className="font-semibold text-gray-900 mb-3">Activity Log</h4>
                     <div className="space-y-2">
-                      {userDetailData.activityLog?.map((activity: any, index: number) => (
+                      {userDetailData.activityLog?.map((activity: { action: string; timestamp: string }, index: number) => (
                         <div key={index} className="flex items-center space-x-2 text-sm">
                           <Activity className="w-4 h-4 text-gray-500" />
                           <span className="text-gray-600">{activity.action}</span>

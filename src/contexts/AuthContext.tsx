@@ -237,6 +237,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         userCode: userProfile.userCode,
       });
 
+      // Save to MongoDB via API
+      try {
+        const response = await fetch('/api/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firebaseId: user.uid,
+            email: user.email,
+            firstName,
+            lastName,
+            displayName: `${firstName} ${lastName}`,
+            emailVerified: false,
+            userCode,
+            isAdmin: false,
+            isActive: true,
+            totalInvested: 0,
+            currentInvestment: 0,
+            totalDeposit: 0,
+            totalWithdraw: 0,
+            referralEarnings: 0,
+            balances: {
+              main: 0,
+              investment: 0,
+              referral: 0,
+              total: 0
+            }
+          }),
+        });
+
+        if (!response.ok) {
+          console.error('Failed to save user to MongoDB');
+        }
+      } catch (error) {
+        console.error('Error saving user to MongoDB:', error);
+      }
+
       // Send custom email verification
       try {
         const response = await fetch('/api/auth/send-verification', {
@@ -300,6 +338,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             await setDoc(doc(db, 'users', userCredential.user.uid), {
               lastLoginAt: new Date(),
             }, { merge: true });
+
+            // Also update MongoDB
+            try {
+              await fetch('/api/users/sync-firestore', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              });
+            } catch (error) {
+              console.error('Failed to sync with MongoDB:', error);
+            }
           } catch (error) {
             console.error('Failed to update last login time:', error);
           }

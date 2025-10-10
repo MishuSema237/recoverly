@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Building, Users, FileText, Shield, Award, Globe } from 'lucide-react';
 import { useState } from 'react';
+import PublicRoute from '@/components/PublicRoute';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -41,7 +42,8 @@ const ContactPage = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <PublicRoute>
+      <div className="min-h-screen">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-gray-900 via-red-900 to-gray-900 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -618,7 +620,8 @@ const ContactPage = () => {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </PublicRoute>
   );
 };
 

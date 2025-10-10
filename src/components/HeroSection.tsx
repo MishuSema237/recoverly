@@ -10,22 +10,16 @@ const HeroSection = () => {
   const [currentWord, setCurrentWord] = useState(0);
   
   const dynamicWords = [
-    'Financial',
-    'Digital', 
-    'Crypto',
-    'Investment',
-    'Trading',
-    'Wealth',
-    'Money',
-    'Capital'
+    'CRYPTO'
   ];
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentWord((prev) => (prev + 1) % dynamicWords.length);
-    }, 2000); // Change word every 2 seconds
+    // No need for interval since we only have one word
+    // const interval = setInterval(() => {
+    //   setCurrentWord((prev) => (prev + 1) % dynamicWords.length);
+    // }, 2000);
 
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
   }, []);
 
   return (
@@ -69,7 +63,7 @@ const HeroSection = () => {
                             damping: 20
                           }}
                           className="text-red-400 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent"
-                          style={{ fontFamily: 'Dancing Script, cursive', fontSize: '1.2em', fontWeight: '700' }}
+                          style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '1.2em', fontWeight: '700' }}
                         >
                           {letter}
                         </motion.span>

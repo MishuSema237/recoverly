@@ -3,12 +3,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Calendar, User, ArrowRight, TrendingUp, BookOpen, Target } from 'lucide-react';
+import { Calendar, ArrowRight, TrendingUp, BookOpen, Target } from 'lucide-react';
 import Link from 'next/link';
+import PublicRoute from '@/components/PublicRoute';
 
 export default function BlogPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <PublicRoute>
+      <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-gray-900 via-red-900 to-gray-900 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -208,6 +210,7 @@ export default function BlogPage() {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </PublicRoute>
   );
 }

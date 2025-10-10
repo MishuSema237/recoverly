@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const ActivateEmailPage = () => {
-  const { sendVerificationEmail, user } = useAuth();
+  const { user } = useAuth();
   const [email, setEmail] = useState('');
   const [isResending, setIsResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
