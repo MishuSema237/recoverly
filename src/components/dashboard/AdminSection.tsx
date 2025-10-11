@@ -1171,12 +1171,12 @@ const AdminSection = () => {
                     </div>
                   </div>
                   <div className="space-y-2 text-sm">
-                    <p><span className="font-medium">Account Name:</span> {method.accountDetails.accountName}</p>
-                    <p><span className="font-medium">Account Number:</span> {method.accountDetails.accountNumber}</p>
-                    {method.accountDetails.bankName && (
+                    <p><span className="font-medium">Account Name:</span> {method.accountDetails?.accountName || 'N/A'}</p>
+                    <p><span className="font-medium">Account Number:</span> {method.accountDetails?.accountNumber || 'N/A'}</p>
+                    {method.accountDetails?.bankName && (
                       <p><span className="font-medium">Bank:</span> {method.accountDetails.bankName}</p>
                     )}
-                    {method.accountDetails.network && (
+                    {method.accountDetails?.network && (
                       <p><span className="font-medium">Network:</span> {method.accountDetails.network}</p>
                     )}
                   </div>
