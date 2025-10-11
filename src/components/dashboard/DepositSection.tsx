@@ -183,7 +183,7 @@ const DepositSection = () => {
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Account Number:</span>
-                  <span className="ml-2 text-gray-900 font-mono">{selectedMethod.accountDetails?.accountNumber || 'N/A'}</span>
+                  <span className="ml-2 text-gray-900 font-mono break-all">{selectedMethod.accountDetails?.accountNumber || 'N/A'}</span>
                 </div>
                 {selectedMethod.accountDetails?.bankName && (
                   <div>
@@ -235,7 +235,11 @@ const DepositSection = () => {
               <label htmlFor="screenshot-upload" className="cursor-pointer">
                 {screenshotPreview ? (
                   <div className="space-y-4">
-                    <img src={screenshotPreview} alt="Screenshot preview" className="mx-auto max-h-48 rounded-lg" />
+                    <img 
+                      src={screenshotPreview} 
+                      alt="Screenshot preview" 
+                      className="mx-auto max-w-full max-h-96 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200" 
+                    />
                     <p className="text-sm text-gray-600">Click to change screenshot</p>
                   </div>
                 ) : (
