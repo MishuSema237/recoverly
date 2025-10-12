@@ -183,6 +183,48 @@ const AdminSection = () => {
     };
   }, []);
 
+  const loadUsers = useCallback(async () => {
+    setLoadingUsers(true);
+    try {
+      const mongoUsers = await userService.getAllUsers();
+      setUsers(mongoUsers);
+    } catch (error) {
+      console.error('Error loading users:', error);
+      setUsers([]);
+    } finally {
+      setLoadingUsers(false);
+    }
+  }, []);
+
+  const loadPlans = useCallback(async () => {
+    setLoadingPlans(true);
+    try {
+      const mongoPlans = await planService.getAllPlans();
+      // Convert MongoDB plans to component format
+      const formattedPlans = mongoPlans.map(plan => ({
+        _id: plan._id || '',
+        id: plan._id || '',
+        name: plan.name,
+        minAmount: plan.minAmount,
+        maxAmount: plan.maxAmount,
+        duration: plan.duration,
+        roi: plan.roi,
+        capitalBack: plan.capitalBack,
+        color: plan.color,
+        gradient: plan.gradient,
+        icon: plan.icon,
+        isActive: plan.isActive
+      }));
+      setPlans(formattedPlans);
+    } catch (error) {
+      console.error('Error loading plans:', error);
+      // Set empty array if both MongoDB and fallback fail
+      setPlans([]);
+    } finally {
+      setLoadingPlans(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (isAdmin) {
       loadUsers();
@@ -237,48 +279,6 @@ const AdminSection = () => {
       setIsSyncingUsers(false);
     }
   };
-
-  const loadUsers = useCallback(async () => {
-    setLoadingUsers(true);
-    try {
-      const mongoUsers = await userService.getAllUsers();
-      setUsers(mongoUsers);
-    } catch (error) {
-      console.error('Error loading users:', error);
-      setUsers([]);
-    } finally {
-      setLoadingUsers(false);
-    }
-  }, []);
-
-  const loadPlans = useCallback(async () => {
-    setLoadingPlans(true);
-    try {
-      const mongoPlans = await planService.getAllPlans();
-      // Convert MongoDB plans to component format
-      const formattedPlans = mongoPlans.map(plan => ({
-        _id: plan._id || '',
-        id: plan._id || '',
-        name: plan.name,
-        minAmount: plan.minAmount,
-        maxAmount: plan.maxAmount,
-        duration: plan.duration,
-        roi: plan.roi,
-        capitalBack: plan.capitalBack,
-        color: plan.color,
-        gradient: plan.gradient,
-        icon: plan.icon,
-        isActive: plan.isActive
-      }));
-      setPlans(formattedPlans);
-    } catch (error) {
-      console.error('Error loading plans:', error);
-      // Set empty array if both MongoDB and fallback fail
-      setPlans([]);
-    } finally {
-      setLoadingPlans(false);
-    }
-  }, []);
 
   const loadPaymentMethods = async () => {
     setLoadingPayments(true);
