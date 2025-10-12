@@ -2136,7 +2136,7 @@ const AdminSection = () => {
                 )}
 
                 {/* Account Details for withdrawals */}
-                {selectedTransactionType === 'withdrawals' && selectedTransaction.accountDetails && (
+                {selectedTransactionType === 'withdrawals' && selectedTransaction && 'accountDetails' in selectedTransaction && selectedTransaction.accountDetails && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Account Details</label>
                     <div className="bg-gray-50 p-4 rounded-lg space-y-2">
