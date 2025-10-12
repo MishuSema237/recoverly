@@ -50,7 +50,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/user-notifications?referralCode=${userReferralCode}`);
+      const response = await fetch(`/api/user-notifications?userCode=${userReferralCode}`);
       const result = await response.json();
       if (result.success) {
         setNotifications(result.data);
@@ -139,14 +139,14 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                   }`} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-medium text-gray-900 truncate">
+                      <h4 className="text-sm font-medium text-gray-900 break-words">
                         {notification.title || 'Notification'}
                       </h4>
                       <span className="text-xs text-gray-500">
                         {formatDate(notification.sentAt)}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                    <p className="text-xs text-gray-600 mt-1 line-clamp-2 break-words">
                       {notification.message}
                     </p>
                     {notification.attachments && notification.attachments.length > 0 && (
@@ -175,6 +175,73 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
           </div>
         )}
       </motion.div>
+
+      {/* Notification Details Modal */}
+      {selectedNotification && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedNotification(null)}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-96 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900 break-words">
+                {selectedNotification.title || 'Notification'}
+              </h3>
+              <button
+                onClick={() => setSelectedNotification(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="px-6 py-4 max-h-64 overflow-y-auto">
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 break-words whitespace-pre-wrap">
+                  {selectedNotification.message}
+                </p>
+              </div>
+              
+              {selectedNotification.attachments && selectedNotification.attachments.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">Attachments</h4>
+                  <div className="space-y-2">
+                    {selectedNotification.attachments.map((attachment, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <div className="flex items-center space-x-2">
+                          <FileText className="w-4 h-4 text-gray-500" />
+                          <span className="text-sm text-gray-700 break-words">
+                            {attachment.originalName}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => handleDownloadAttachment(attachment)}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          <Download className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="text-xs text-gray-500">
+                {formatDate(selectedNotification.sentAt)}
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </AnimatePresence>
   );
 };

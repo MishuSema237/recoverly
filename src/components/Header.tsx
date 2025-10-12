@@ -65,10 +65,17 @@ const Header = () => {
     }
   }, [userProfile?.userCode]);
 
-  // Fetch notifications count
+  // Fetch notifications count and set up polling
   useEffect(() => {
     if (userProfile?.userCode) {
       fetchNotifications();
+      
+      // Set up polling every 30 seconds
+      const interval = setInterval(() => {
+        fetchNotifications();
+      }, 30000); // 30 seconds
+      
+      return () => clearInterval(interval);
     }
   }, [userProfile?.userCode, fetchNotifications]);
 

@@ -27,6 +27,13 @@ const NotificationsSection = () => {
   useEffect(() => {
     if (userProfile?.userCode) {
       loadNotifications();
+      
+      // Set up polling every 30 seconds
+      const interval = setInterval(() => {
+        loadNotifications();
+      }, 30000); // 30 seconds
+      
+      return () => clearInterval(interval);
     }
   }, [userProfile?.userCode]);
 
@@ -179,7 +186,7 @@ const NotificationsSection = () => {
                           
                           <div className="flex-1">
                             <div className="flex items-center space-x-2">
-                              <h3 className={`text-sm font-semibold ${
+                              <h3 className={`text-sm font-semibold break-words ${
                                 notification.read ? 'text-gray-700' : 'text-gray-900'
                               }`}>
                                 {notification.title || (notification.type === 'broadcast' ? 'System Announcement' : 'Support Message')}
@@ -191,7 +198,7 @@ const NotificationsSection = () => {
                               )}
                             </div>
                             
-                            <p className={`text-sm text-gray-600 mt-1 ${
+                            <p className={`text-sm text-gray-600 mt-1 break-words ${
                               notification.read ? '' : 'font-medium'
                             }`}>
                               {notification.message}
@@ -218,7 +225,7 @@ const NotificationsSection = () => {
                             exit={{ opacity: 0, height: 0 }}
                             className="mt-3 pt-3 border-t border-gray-100"
                           >
-                            <p className="text-sm text-gray-700 whitespace-pre-line">
+                            <p className="text-sm text-gray-700 whitespace-pre-line break-words">
                               {notification.details}
                             </p>
                           </motion.div>
