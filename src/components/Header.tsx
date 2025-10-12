@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -59,7 +59,7 @@ const Header = () => {
     }
   }, [userProfile?.userCode, fetchNotifications]);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const response = await fetch(`/api/user-notifications?referralCode=${userProfile?.userCode}`);
       const result = await response.json();
@@ -70,7 +70,7 @@ const Header = () => {
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
-  };
+  }, [userProfile?.userCode]);
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {

@@ -24,7 +24,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { canAccessAdmin } from '@/utils/adminUtils';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useMemo } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import DashboardLoader from '@/components/DashboardLoader';
 
@@ -86,7 +86,7 @@ const DashboardContent = () => {
   const [copySuccess, setCopySuccess] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
-  const dashboardLinks = [
+  const dashboardLinks = useMemo(() => [
     { id: 'dashboard', name: 'Dashboard', icon: <BarChart3 className="w-5 h-5" /> },
     { id: 'investment', name: 'Investment', icon: <TrendingUp className="w-5 h-5" /> },
     { id: 'deposit', name: 'Deposit', icon: <ArrowDownUp className="w-5 h-5" /> },
@@ -99,7 +99,7 @@ const DashboardContent = () => {
     { id: 'settings', name: 'Settings', icon: <Settings className="w-5 h-5" /> },
     { id: 'support', name: 'Support', icon: <HelpCircle className="w-5 h-5" /> },
     ...(canAccessAdmin(userProfile) ? [{ id: 'admin', name: 'Admin Panel', icon: <Shield className="w-5 h-5" /> }] : [])
-  ];
+  ], [userProfile]);
 
   useEffect(() => {
     if (!loading && !user) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Users, 
   DollarSign, 
@@ -9,7 +9,6 @@ import {
   Plus,
   Edit,
   Trash2,
-  Eye,
   Search,
   Shield,
   UserCheck,
@@ -115,7 +114,6 @@ const AdminSection = () => {
   const [notificationTitle, setNotificationTitle] = useState('');
   const [notificationDetails, setNotificationDetails] = useState('');
   const [notificationFiles, setNotificationFiles] = useState<File[]>([]);
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [selectedUsersForNotification, setSelectedUsersForNotification] = useState<string[]>([]);
   const [sendingNotification, setSendingNotification] = useState(false);
   
@@ -240,7 +238,7 @@ const AdminSection = () => {
     }
   };
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     setLoadingUsers(true);
     try {
       const mongoUsers = await userService.getAllUsers();
@@ -251,9 +249,9 @@ const AdminSection = () => {
     } finally {
       setLoadingUsers(false);
     }
-  };
+  }, []);
 
-  const loadPlans = async () => {
+  const loadPlans = useCallback(async () => {
     setLoadingPlans(true);
     try {
       const mongoPlans = await planService.getAllPlans();
@@ -280,7 +278,7 @@ const AdminSection = () => {
     } finally {
       setLoadingPlans(false);
     }
-  };
+  }, []);
 
   const loadPaymentMethods = async () => {
     setLoadingPayments(true);

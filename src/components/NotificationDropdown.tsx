@@ -69,7 +69,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
     setSelectedNotification(notification);
   };
 
-  const handleDownloadAttachment = (attachment: any) => {
+  const handleDownloadAttachment = (attachment: { url: string; originalName: string }) => {
     // Create a temporary link to download the file
     const link = document.createElement('a');
     link.href = attachment.url;
