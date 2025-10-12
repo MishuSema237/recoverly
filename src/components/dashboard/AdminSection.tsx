@@ -334,14 +334,14 @@ const AdminSection = () => {
       const result = await response.json();
       
       if (result.success) {
-        alert(`Successfully synced ${result.results.length} users!`);
+        showSuccess(`Successfully synced ${result.results.length} users!`);
         loadUsers();
       } else {
-        alert('Failed to sync users: ' + result.error);
+        showError('Failed to sync users: ' + result.error);
       }
     } catch (error) {
       console.error('Error syncing all users:', error);
-      alert('Failed to sync users');
+      showError('Failed to sync users');
     }
   };
 
@@ -675,13 +675,13 @@ const AdminSection = () => {
         setSelectedUsersForNotification([]);
         setShowNotificationModal(false);
         
-        alert('Notification sent successfully!');
+        showSuccess('Notification sent successfully!');
       } else {
-        alert('Failed to send notification: ' + result.error);
+        showError('Failed to send notification: ' + result.error);
       }
     } catch (error) {
       console.error('Error sending notification:', error);
-      alert('Failed to send notification');
+      showError('Failed to send notification');
     } finally {
       setSendingNotification(false);
     }
