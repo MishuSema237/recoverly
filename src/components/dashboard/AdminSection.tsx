@@ -347,7 +347,7 @@ const AdminSection = () => {
 
 
   const getUserInfo = (userId: string) => {
-    const user = users.find(u => u.firebaseId === userId);
+    const user = users.find(u => u.uid === userId);
     return user ? {
       name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown User',
       userCode: user.userCode || 'N/A'
