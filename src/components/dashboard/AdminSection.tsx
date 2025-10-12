@@ -688,7 +688,7 @@ const AdminSection = () => {
   };
 
   const openUserDetail = async (user: User) => {
-    setSelectedUser(user);
+    setUserDetailData(user as AdminUser);
     setShowUserDetailModal(true);
     
     // Load additional user data
