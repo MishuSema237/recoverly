@@ -2124,7 +2124,7 @@ const AdminSection = () => {
                 </div>
 
                 {/* Screenshot for deposits */}
-                {selectedTransactionType === 'deposits' && selectedTransaction.screenshot && (
+                {selectedTransactionType === 'deposits' && selectedTransaction && 'screenshot' in selectedTransaction && selectedTransaction.screenshot && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Payment Screenshot</label>
                     <img 
