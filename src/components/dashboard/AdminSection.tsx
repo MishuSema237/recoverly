@@ -2175,7 +2175,9 @@ const AdminSection = () => {
                           <>
                             <button
                               onClick={() => {
-                                updateTransactionStatus(selectedTransaction._id, 'deposit', 'approved');
+                                if (selectedTransaction._id) {
+                                  updateTransactionStatus(selectedTransaction._id, 'deposit', 'approved');
+                                }
                                 setShowTransactionModal(false);
                                 setSelectedTransaction(null);
                                 setRejectionReason('');
@@ -2186,7 +2188,9 @@ const AdminSection = () => {
                             </button>
                             <button
                               onClick={() => {
-                                updateTransactionStatus(selectedTransaction._id, 'deposit', 'rejected', rejectionReason);
+                                if (selectedTransaction._id) {
+                                  updateTransactionStatus(selectedTransaction._id, 'deposit', 'rejected', rejectionReason);
+                                }
                                 setShowTransactionModal(false);
                                 setSelectedTransaction(null);
                                 setRejectionReason('');
@@ -2200,7 +2204,9 @@ const AdminSection = () => {
                           <>
                             <button
                               onClick={() => {
-                                updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'processing');
+                                if (selectedTransaction._id) {
+                                  updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'processing');
+                                }
                                 setShowTransactionModal(false);
                                 setSelectedTransaction(null);
                                 setRejectionReason('');
@@ -2211,7 +2217,9 @@ const AdminSection = () => {
                             </button>
                             <button
                               onClick={() => {
-                                updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'rejected', rejectionReason);
+                                if (selectedTransaction._id) {
+                                  updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'rejected', rejectionReason);
+                                }
                                 setShowTransactionModal(false);
                                 setSelectedTransaction(null);
                                 setRejectionReason('');
@@ -2228,7 +2236,9 @@ const AdminSection = () => {
                     {selectedTransactionType === 'withdrawals' && selectedTransaction.status === 'processing' && (
                       <button
                         onClick={() => {
-                          updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'completed');
+                          if (selectedTransaction._id) {
+                            updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'completed');
+                          }
                           setShowTransactionModal(false);
                           setSelectedTransaction(null);
                           setRejectionReason('');
