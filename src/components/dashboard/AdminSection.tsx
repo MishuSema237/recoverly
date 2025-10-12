@@ -26,7 +26,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
 import { canAccessAdmin } from '@/utils/adminUtils';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
-import { UserService, User } from '@/lib/services/UserService';
+import { UserService, User } from '@/lib/auth/user';
 
 interface PaymentMethod {
   _id?: string;
@@ -147,16 +147,9 @@ const AdminSection = () => {
     id: string;
     name: string;
   } | null>(null);
-  const [isSyncingUsers, setIsSyncingUsers] = useState(false);
-  const [syncStatus, setSyncStatus] = useState<{
-    mongoUserCount: number;
-    firestoreUserCount: number;
-    needsSync: boolean;
-  } | null>(null);
 
   // MongoDB services
   const planService = new PlanService();
-  const userService = new UserService();
 
   // Check if user is admin
   const isAdmin = canAccessAdmin(userProfile);
@@ -186,7 +179,7 @@ const AdminSection = () => {
   const loadUsers = useCallback(async () => {
     setLoadingUsers(true);
     try {
-      const mongoUsers = await userService.getAllUsers();
+      const mongoUsers = await UserService.getAllUsers();
       setUsers(mongoUsers);
     } catch (error) {
       console.error('Error loading users:', error);
@@ -231,54 +224,10 @@ const AdminSection = () => {
       loadPlans();
       loadPaymentMethods();
       loadTransactions();
-      checkSyncStatus();
     }
   }, [isAdmin, loadUsers, loadPlans]);
 
-  const checkSyncStatus = async () => {
-    try {
-      const response = await fetch('/api/users/sync-firestore');
-      const result = await response.json();
-      if (result.success) {
-        setSyncStatus(result.data);
-      }
-    } catch (error) {
-      console.error('Error checking sync status:', error);
-    }
-  };
 
-  const syncUsersFromFirestore = async () => {
-    setIsSyncingUsers(true);
-    try {
-      const response = await fetch('/api/users/sync-firestore', {
-        method: 'POST',
-      });
-      const result = await response.json();
-      
-      if (result.success) {
-        setMessage({ 
-          type: 'success', 
-          text: `Successfully synced ${result.totalUsers} users from Firestore to MongoDB` 
-        });
-        // Reload users after sync
-        await loadUsers();
-        await checkSyncStatus();
-      } else {
-        setMessage({ 
-          type: 'error', 
-          text: result.error || 'Failed to sync users' 
-        });
-      }
-    } catch (error) {
-      console.error('Error syncing users:', error);
-      setMessage({ 
-        type: 'error', 
-        text: 'Failed to sync users from Firestore' 
-      });
-    } finally {
-      setIsSyncingUsers(false);
-    }
-  };
 
   const loadPaymentMethods = async () => {
     setLoadingPayments(true);
@@ -329,13 +278,17 @@ const AdminSection = () => {
 
 
   const getUserInfo = (userId: string) => {
-    const user = users.find(u => u.uid === userId);
+    const user = users.find(u => u._id === userId);
     return user ? {
       name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown User',
-      userCode: user.userCode || 'N/A'
+      userCode: user.userCode || 'N/A',
+      userId: user._id || 'N/A',
+      email: user.email || 'N/A'
     } : {
       name: 'Unknown User',
-      userCode: 'N/A'
+      userCode: 'N/A',
+      userId: userId,
+      email: 'N/A'
     };
   };
 
@@ -1245,7 +1198,8 @@ const AdminSection = () => {
                         <span className="text-sm text-gray-500">User:</span>
                         <div className="text-sm text-gray-900 text-right">
                           <div className="font-medium">{getUserInfo(deposit.userId).name}</div>
-                          <div className="text-xs text-gray-500">{getUserInfo(deposit.userId).userCode}</div>
+                          <div className="text-xs text-gray-500">Code: {getUserInfo(deposit.userId).userCode}</div>
+                          <div className="text-xs text-gray-400">ID: {getUserInfo(deposit.userId).userId}</div>
                         </div>
                       </div>
                       <div className="flex justify-between">
@@ -1293,7 +1247,8 @@ const AdminSection = () => {
                         <span className="text-sm text-gray-500">User:</span>
                         <div className="text-sm text-gray-900 text-right">
                           <div className="font-medium">{getUserInfo(withdrawal.userId).name}</div>
-                          <div className="text-xs text-gray-500">{getUserInfo(withdrawal.userId).userCode}</div>
+                          <div className="text-xs text-gray-500">Code: {getUserInfo(withdrawal.userId).userCode}</div>
+                          <div className="text-xs text-gray-400">ID: {getUserInfo(withdrawal.userId).userId}</div>
                         </div>
                       </div>
                       <div className="flex justify-between">
@@ -2052,7 +2007,9 @@ const AdminSection = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">User</label>
                     <div className="text-sm text-gray-900">
                       <div className="font-medium">{getUserInfo(selectedTransaction.userId).name}</div>
-                      <div className="text-xs text-gray-500 font-mono">{getUserInfo(selectedTransaction.userId).userCode}</div>
+                      <div className="text-xs text-gray-500 font-mono">Code: {getUserInfo(selectedTransaction.userId).userCode}</div>
+                      <div className="text-xs text-gray-500 font-mono">ID: {getUserInfo(selectedTransaction.userId).userId}</div>
+                      <div className="text-xs text-gray-500 font-mono">Email: {getUserInfo(selectedTransaction.userId).email}</div>
                     </div>
                   </div>
                   <div>
