@@ -354,11 +354,11 @@ export class UserService {
       return;
     }
 
-    // Add referral bonus to referrer
+    // Add referral bonus to referrer (but only to referral balance, not main balance)
     const referralBonus = 10; // $10 bonus for each referral
     const newReferralEarnings = (referrer.referralEarnings || 0) + referralBonus;
-    const newTotalBalance = (referrer.balances?.total || 0) + referralBonus;
     const newReferralBalance = (referrer.balances?.referral || 0) + referralBonus;
+    // Note: Total balance will be updated when the referred user verifies their email
 
     await usersCollection.updateOne(
       { _id: referrer._id },
@@ -366,12 +366,11 @@ export class UserService {
         $set: {
           referralEarnings: newReferralEarnings,
           'balances.referral': newReferralBalance,
-          'balances.total': newTotalBalance,
           updatedAt: new Date()
         },
         $push: {
           activityLog: {
-            action: `Referral bonus earned: $${referralBonus} from ${newUser.firstName} ${newUser.lastName}`,
+            action: `Referral bonus earned: $${referralBonus} from ${newUser.firstName} ${newUser.lastName} (pending email verification)`,
             timestamp: new Date().toISOString()
           }
         }
@@ -396,7 +395,48 @@ export class UserService {
       }
     );
 
-    console.log(`Referral bonus processed: $${referralBonus} added to ${referrer.email}`);
+    console.log(`Referral bonus processed: $${referralBonus} added to ${referrer.email} (pending email verification)`);
+  }
+
+  // Move referral earnings to main balance when user verifies email
+  static async moveReferralEarningsToMainBalance(userId: string): Promise<void> {
+    const db = await getDb();
+    const usersCollection = db.collection<User>('users');
+
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+    if (!user || !user.referredBy) {
+      return; // User wasn't referred or doesn't exist
+    }
+
+    // Find the referrer
+    const referrer = await usersCollection.findOne({ _id: new ObjectId(user.referredBy) });
+    if (!referrer) {
+      return;
+    }
+
+    // Move referral earnings to main balance
+    const referralBonus = 10; // Same amount as in processReferralBonus
+    const newMainBalance = (referrer.balances?.main || 0) + referralBonus;
+    const newTotalBalance = (referrer.balances?.total || 0) + referralBonus;
+
+    await usersCollection.updateOne(
+      { _id: referrer._id },
+      {
+        $set: {
+          'balances.main': newMainBalance,
+          'balances.total': newTotalBalance,
+          updatedAt: new Date()
+        },
+        $push: {
+          activityLog: {
+            action: `Referral bonus moved to main balance: $${referralBonus} from ${user.firstName} ${user.lastName} (email verified)`,
+            timestamp: new Date().toISOString()
+          }
+        }
+      }
+    );
+
+    console.log(`Referral bonus moved to main balance: $${referralBonus} for ${referrer.email}`);
   }
 
   static async getReferralStats(userId: string): Promise<{

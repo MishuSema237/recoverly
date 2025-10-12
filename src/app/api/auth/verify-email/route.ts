@@ -31,6 +31,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Move referral earnings to main balance if user was referred
+    try {
+      await UserService.moveReferralEarningsToMainBalance(payload.userId);
+    } catch (error) {
+      console.error('Error moving referral earnings:', error);
+      // Don't fail the verification if this fails
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Email verified successfully'
