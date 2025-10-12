@@ -52,13 +52,6 @@ const Header = () => {
     };
   }, []);
 
-  // Fetch notifications count
-  useEffect(() => {
-    if (userProfile?.userCode) {
-      fetchNotifications();
-    }
-  }, [userProfile?.userCode, fetchNotifications]);
-
   const fetchNotifications = useCallback(async () => {
     try {
       const response = await fetch(`/api/user-notifications?referralCode=${userProfile?.userCode}`);
@@ -71,6 +64,13 @@ const Header = () => {
       console.error('Error fetching notifications:', error);
     }
   }, [userProfile?.userCode]);
+
+  // Fetch notifications count
+  useEffect(() => {
+    if (userProfile?.userCode) {
+      fetchNotifications();
+    }
+  }, [userProfile?.userCode, fetchNotifications]);
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {
