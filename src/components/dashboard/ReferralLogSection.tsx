@@ -74,32 +74,10 @@ const ReferralLogSection = () => {
         
         {/* Mobile Tile Layout */}
         <div className="block md:hidden space-y-3">
-          {/* Sample referral tile - replace with actual data */}
-          <div className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <span className="text-green-600 text-sm font-medium">JD</span>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">John Doe</p>
-                  <p className="text-sm text-gray-500">john@example.com</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-semibold text-green-600">$50.00</p>
-                <p className="text-xs text-gray-500">Commission</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-between text-sm text-gray-600">
-              <span>Joined: Jan 15, 2024</span>
-              <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Active</span>
-            </div>
-          </div>
-          
           {/* Empty state */}
           <div className="text-center py-8 text-gray-500">
-            <p>No referrals found</p>
+            <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-lg font-medium">No referrals yet</p>
             <p className="text-sm">Share your link to start earning commissions</p>
           </div>
         </div>
@@ -121,7 +99,11 @@ const ReferralLogSection = () => {
             <tbody>
               <tr>
                 <td colSpan={7} className="text-center py-8 text-gray-500">
-                  No referral found
+                  <div className="flex flex-col items-center">
+                    <Users className="w-12 h-12 text-gray-300 mb-4" />
+                    <p className="text-lg font-medium">No referrals yet</p>
+                    <p className="text-sm">Share your link to start earning commissions</p>
+                  </div>
                 </td>
               </tr>
             </tbody>

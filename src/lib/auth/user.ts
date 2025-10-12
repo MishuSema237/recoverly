@@ -471,12 +471,12 @@ export class UserService {
       notificationMessage = `User logged in: ${user.firstName} ${user.lastName} (${user.email})`;
     }
 
-    // Create notification for all admins
+    // Create notification for all admins only
     await notificationsCollection.insertOne({
       title: notificationTitle,
       message: notificationMessage,
-      type: 'broadcast',
-      recipients: 'all', // Send to all admins
+      type: 'admin-only', // Only admins see this
+      recipients: adminReferralCodes, // Send to specific admin codes
       sentBy: 'system',
       sentAt: new Date(),
       read: false,

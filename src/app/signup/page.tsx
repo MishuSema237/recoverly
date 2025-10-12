@@ -110,6 +110,13 @@ const SignupPage = () => {
         return;
       }
 
+      // Validate referral code length if provided
+      if (formData.referralCode && formData.referralCode.length !== 8) {
+        setErrors(['Referral code must be exactly 8 characters long']);
+        scrollToError();
+        return;
+      }
+
       // Validate terms agreement
       if (!formData.agreeToTerms) {
         setErrors(['You must agree to the terms and conditions']);
@@ -131,7 +138,8 @@ const SignupPage = () => {
       });
 
       if (success) {
-        router.push('/dashboard');
+        // Redirect to login page after successful registration
+        router.push('/login');
       }
     } catch (error) {
       console.error('Signup error:', error);

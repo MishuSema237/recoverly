@@ -810,6 +810,18 @@ const AdminSection = () => {
                   />
                 </div>
               </div>
+              <button
+                onClick={loadUsers}
+                disabled={loadingUsers}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+              >
+                {loadingUsers ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-1" />
+                )}
+                Refresh
+              </button>
             </div>
 
             {loadingUsers ? (

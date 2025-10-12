@@ -6,32 +6,22 @@ export async function GET(request: NextRequest) {
   try {
     const db = await getDb();
     const { searchParams } = new URL(request.url);
-    const userReferralCode = searchParams.get('userCode');
+    const adminReferralCode = searchParams.get('adminCode');
     
-    if (!userReferralCode) {
+    if (!adminReferralCode) {
       return NextResponse.json({
         success: false,
-        error: 'User referral code is required'
+        error: 'Admin referral code is required'
       }, { status: 400 });
     }
     
-    // Get notifications for this user (broadcast + individual + personal system notifications)
-    // Exclude admin-only notifications
+    // Get all notifications for admins (including admin-only notifications)
     const notifications = await db.collection('notifications').find({
-      $and: [
-        {
-          $or: [
-            { recipients: 'all' }, // Broadcast notifications
-            { recipients: userReferralCode }, // Individual notifications for this user
-            { 
-              type: 'system',
-              recipients: userReferralCode 
-            } // Personal system notifications (email verified, deposit approved, etc.)
-          ]
-        },
-        {
-          type: { $ne: 'admin-only' } // Exclude admin-only notifications
-        }
+      $or: [
+        { recipients: 'all' }, // Broadcast notifications
+        { recipients: adminReferralCode }, // Individual notifications for this admin
+        { type: 'admin-only' }, // Admin-only notifications (user activity logs)
+        { type: 'broadcast' } // System broadcast notifications
       ]
     }).sort({ sentAt: -1 }).toArray();
     
@@ -40,7 +30,7 @@ export async function GET(request: NextRequest) {
       data: notifications
     });
   } catch (error) {
-    console.error('Error fetching user notifications:', error);
+    console.error('Error fetching admin notifications:', error);
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -51,22 +41,24 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const db = await getDb();
-    const { notificationId, userCode } = await request.json();
+    const { notificationId, adminCode } = await request.json();
     
-    if (!notificationId || !userCode) {
+    if (!notificationId || !adminCode) {
       return NextResponse.json({
         success: false,
-        error: 'Notification ID and user code are required'
+        error: 'Notification ID and admin code are required'
       }, { status: 400 });
     }
     
-    // Mark notification as read for this user
+    // Mark notification as read for this admin
     const result = await db.collection('notifications').updateOne(
       { 
         _id: new ObjectId(notificationId),
         $or: [
           { recipients: 'all' },
-          { recipients: userCode }
+          { recipients: adminCode },
+          { type: 'admin-only' },
+          { type: 'broadcast' }
         ]
       },
       { 

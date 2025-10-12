@@ -148,6 +148,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     state?: string;
     city?: string;
     zip?: string;
+    referralCode?: string;
   }): Promise<boolean> => {
     try {
       const response = await fetch('/api/auth/register', {
@@ -162,9 +163,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const result = await response.json();
 
       if (result.success) {
-        setUser(result.data.user);
-        setUserProfile(result.data.user);
-        showSuccess('Registration successful! Please check your email to verify your account.');
+        // Don't set user as authenticated - they need to verify email first
+        // Clear any existing auth state
+        setUser(null);
+        setUserProfile(null);
+        
+        showSuccess('Registration successful! Please check your email to verify your account, then login.');
         return true;
       } else {
         showError(result.error || 'Registration failed');

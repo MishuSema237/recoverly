@@ -13,8 +13,12 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   const pathname = usePathname();
   const isDashboard = pathname?.startsWith('/dashboard');
   const isActivateEmail = pathname === '/activate-email';
+  const isLogin = pathname === '/login';
+  const isSignup = pathname === '/signup';
+  const isVerifyEmail = pathname === '/verify-email';
+  const isResetPassword = pathname === '/reset-password';
 
-  if (isDashboard || isActivateEmail) {
+  if (isDashboard || isActivateEmail || isLogin || isSignup || isVerifyEmail || isResetPassword) {
     return <>{children}</>;
   }
 
