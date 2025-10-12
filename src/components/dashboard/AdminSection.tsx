@@ -11,17 +11,13 @@ import {
   Trash2,
   Eye,
   Search,
-  Filter,
-  Download,
   Shield,
   UserCheck,
   RefreshCw,
   Ban,
   CheckCircle,
   XCircle,
-  AlertCircle,
   Bell,
-  Send,
   Mail,
   Phone,
   MapPin,
@@ -30,15 +26,6 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
 import { canAccessAdmin } from '@/utils/adminUtils';
-import { 
-  collection, 
-  query, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  deleteDoc
-} from 'firebase/firestore';
-import { db } from '@/config/firebase';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
 import { UserService, User } from '@/lib/services/UserService';
 
@@ -120,8 +107,6 @@ const AdminSection = () => {
   const [loadingPayments, setLoadingPayments] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [showUserModal, setShowUserModal] = useState(false);
   
   // Notification states
   const [showNotificationModal, setShowNotificationModal] = useState(false);
@@ -130,7 +115,7 @@ const AdminSection = () => {
   const [notificationTitle, setNotificationTitle] = useState('');
   const [notificationDetails, setNotificationDetails] = useState('');
   const [notificationFiles, setNotificationFiles] = useState<File[]>([]);
-  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [selectedUsersForNotification, setSelectedUsersForNotification] = useState<string[]>([]);
   const [sendingNotification, setSendingNotification] = useState(false);
   
@@ -151,7 +136,7 @@ const AdminSection = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   
   // Transaction modal states
-  const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<DepositRequest | WithdrawalRequest | null>(null);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [selectedTransactionType, setSelectedTransactionType] = useState<'deposits' | 'withdrawals'>('deposits');
   const [rejectionReason, setRejectionReason] = useState('');
@@ -208,7 +193,7 @@ const AdminSection = () => {
       loadTransactions();
       checkSyncStatus();
     }
-  }, [isAdmin]);
+  }, [isAdmin, loadUsers, loadPlans]);
 
   const checkSyncStatus = async () => {
     try {

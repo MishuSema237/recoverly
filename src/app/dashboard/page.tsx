@@ -13,7 +13,6 @@ import {
   ArrowUpDown,
   ArrowDownUp,
   Users,
-  ShieldCheck,
   Menu,
   X,
   Copy,
@@ -23,7 +22,7 @@ import {
   Shield
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { canAccessAdmin, getUserRole } from '@/utils/adminUtils';
+import { canAccessAdmin } from '@/utils/adminUtils';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -114,7 +113,7 @@ const DashboardContent = () => {
     if (section && dashboardLinks.some(link => link.id === section)) {
       setActiveSection(section);
     }
-  }, [searchParams]);
+  }, [searchParams, dashboardLinks]);
 
   // Fetch unread notifications count
   useEffect(() => {
@@ -125,7 +124,7 @@ const DashboardContent = () => {
           const result = await response.json();
           
           if (result.success) {
-            const unreadCount = result.data.filter((n: any) => !n.read).length;
+            const unreadCount = result.data.filter((n: { read: boolean }) => !n.read).length;
             setUnreadNotifications(unreadCount);
           }
         } catch (error) {
@@ -165,29 +164,6 @@ const DashboardContent = () => {
   };
 
 
-  const stats = [
-    {
-      icon: <DollarSign className="w-8 h-8" />,
-      title: 'Total Balance',
-      value: '$0.00',
-      change: '+0.00%',
-      changeType: 'positive'
-    },
-    {
-      icon: <TrendingUp className="w-8 h-8" />,
-      title: 'Total Invested',
-      value: '$0.00',
-      change: '+0.00%',
-      changeType: 'positive'
-    },
-    {
-      icon: <BarChart3 className="w-8 h-8" />,
-      title: 'Active Investments',
-      value: '0',
-      change: '0 plans',
-      changeType: 'neutral'
-    }
-  ];
 
   return (
     <ProtectedRoute>

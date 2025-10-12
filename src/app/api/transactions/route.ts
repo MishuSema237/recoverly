@@ -120,7 +120,7 @@ export async function PUT(request: NextRequest) {
     }
 
     let collection;
-    let updateDoc: any = { status, updatedAt: new Date() };
+    let updateDoc: Record<string, unknown> = { status, updatedAt: new Date() };
 
     if (type === 'deposit') {
       collection = db.collection<DepositRequest>('depositRequests');

@@ -57,14 +57,14 @@ const Header = () => {
     if (userProfile?.userCode) {
       fetchNotifications();
     }
-  }, [userProfile?.userCode]);
+  }, [userProfile?.userCode, fetchNotifications]);
 
   const fetchNotifications = async () => {
     try {
       const response = await fetch(`/api/user-notifications?referralCode=${userProfile?.userCode}`);
       const result = await response.json();
       if (result.success) {
-        const unreadNotifications = result.data.filter((notification: any) => !notification.read);
+        const unreadNotifications = result.data.filter((notification: { read: boolean }) => !notification.read);
         setUnreadCount(unreadNotifications.length);
       }
     } catch (error) {
