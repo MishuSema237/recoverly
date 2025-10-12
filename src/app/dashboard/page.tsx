@@ -85,6 +85,7 @@ const DashboardContent = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const dashboardLinks = [
     { id: 'dashboard', name: 'Dashboard', icon: <BarChart3 className="w-5 h-5" /> },
@@ -114,6 +115,30 @@ const DashboardContent = () => {
       setActiveSection(section);
     }
   }, [searchParams]);
+
+  // Fetch unread notifications count
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      if (userProfile?.userCode) {
+        try {
+          const response = await fetch(`/api/user-notifications?referralCode=${userProfile.userCode}`);
+          const result = await response.json();
+          
+          if (result.success) {
+            const unreadCount = result.data.filter((n: any) => !n.read).length;
+            setUnreadNotifications(unreadCount);
+          }
+        } catch (error) {
+          console.error('Error fetching unread notifications:', error);
+        }
+      }
+    };
+
+    fetchUnreadCount();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [userProfile?.userCode]);
 
   const handleSectionChange = (sectionId: string) => {
     setActiveSection(sectionId);
@@ -206,7 +231,14 @@ const DashboardContent = () => {
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  {link.icon}
+                  <div className="relative">
+                    {link.icon}
+                    {link.id === 'notifications' && unreadNotifications > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
+                        {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                      </span>
+                    )}
+                  </div>
                   <span className="font-medium">{link.name}</span>
                 </button>
               ))}
@@ -246,8 +278,16 @@ const DashboardContent = () => {
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  <button className="p-2 text-gray-400 hover:text-gray-600">
+                  <button 
+                    onClick={() => setActiveSection('notifications')}
+                    className="relative p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                  >
                     <Bell className="w-6 h-6" />
+                    {unreadNotifications > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                        {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                      </span>
+                    )}
                   </button>
                 </div>
               </div>

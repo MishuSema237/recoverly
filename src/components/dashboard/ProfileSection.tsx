@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { User, Mail, Phone, MapPin, Camera, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
+import { User, Mail, Phone, MapPin, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { doc, updateDoc } from 'firebase/firestore';
 import { updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { db } from '@/config/firebase';
+import { showSuccess, showError } from '@/utils/toast';
 
 const ProfileSection = () => {
   const { user, userProfile, updateUserProfile } = useAuth();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
     firstName: userProfile?.firstName || '',
@@ -39,9 +39,7 @@ const ProfileSection = () => {
     confirm: false
   });
 
-  const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -59,33 +57,12 @@ const ProfileSection = () => {
     }));
   };
 
-  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setMessage({ type: 'error', text: 'File size must be less than 5MB' });
-        return;
-      }
-
-      if (!file.type.startsWith('image/')) {
-        setMessage({ type: 'error', text: 'Please select an image file' });
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfilePicture(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
     setIsLoading(true);
-    setMessage({ type: '', text: '' });
 
     try {
       // Update Firebase Auth profile
@@ -103,11 +80,37 @@ const ProfileSection = () => {
         country: formData.country,
         state: formData.state,
         city: formData.city,
-        zip: formData.zipCode,
-        ...(profilePicture && { profilePicture })
+        zip: formData.zipCode
       });
 
-      setMessage({ type: 'success', text: 'Profile updated successfully!' });
+      // Update MongoDB profile
+      try {
+        const response = await fetch('/api/users/update-profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            firebaseId: user.uid,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            displayName: `${formData.firstName} ${formData.lastName}`,
+            phone: formData.phone,
+            country: formData.country,
+            state: formData.state,
+            city: formData.city,
+            zip: formData.zipCode
+          })
+        });
+
+        if (!response.ok) {
+          console.warn('Failed to update MongoDB profile, but Firestore update succeeded');
+        }
+      } catch (error) {
+        console.warn('Error updating MongoDB profile:', error);
+      }
+
+      showSuccess('Profile updated successfully!');
       
       // Refresh user profile
       if (updateUserProfile) {
@@ -119,13 +122,12 @@ const ProfileSection = () => {
           country: formData.country,
           state: formData.state,
           city: formData.city,
-          zip: formData.zipCode,
-          ...(profilePicture && { profilePicture })
+          zip: formData.zipCode
         });
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      setMessage({ type: 'error', text: 'Failed to update profile. Please try again.' });
+      showError('Failed to update profile. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -136,17 +138,16 @@ const ProfileSection = () => {
     if (!user) return;
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setMessage({ type: 'error', text: 'New passwords do not match' });
+      showError('New passwords do not match');
       return;
     }
 
     if (passwordData.newPassword.length < 6) {
-      setMessage({ type: 'error', text: 'New password must be at least 6 characters' });
+      showError('New password must be at least 6 characters');
       return;
     }
 
     setIsLoading(true);
-    setMessage({ type: '', text: '' });
 
     try {
       // Re-authenticate user
@@ -156,12 +157,12 @@ const ProfileSection = () => {
       // Update password
       await updatePassword(user, passwordData.newPassword);
 
-      setMessage({ type: 'success', text: 'Password updated successfully!' });
+      showSuccess('Password updated successfully!');
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setShowPasswordForm(false);
     } catch (error) {
       console.error('Error updating password:', error);
-      setMessage({ type: 'error', text: 'Failed to update password. Please try again.' });
+      showError('Failed to update password. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -182,7 +183,6 @@ const ProfileSection = () => {
   const handleCancelEdit = () => {
     setIsEditing(false);
     setFormData(originalData);
-    setMessage({ type: '', text: '' });
   };
 
   const handleSaveChanges = async (e: React.FormEvent) => {
@@ -190,7 +190,6 @@ const ProfileSection = () => {
     if (!user) return;
 
     setIsLoading(true);
-    setMessage({ type: '', text: '' });
 
     try {
       // Update Firebase Auth profile
@@ -208,11 +207,37 @@ const ProfileSection = () => {
         country: formData.country,
         state: formData.state,
         city: formData.city,
-        zip: formData.zipCode,
-        ...(profilePicture && { profilePicture })
+        zip: formData.zipCode
       });
 
-      setMessage({ type: 'success', text: 'Profile updated successfully!' });
+      // Update MongoDB profile
+      try {
+        const response = await fetch('/api/users/update-profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            firebaseId: user.uid,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            displayName: `${formData.firstName} ${formData.lastName}`,
+            phone: formData.phone,
+            country: formData.country,
+            state: formData.state,
+            city: formData.city,
+            zip: formData.zipCode
+          })
+        });
+
+        if (!response.ok) {
+          console.warn('Failed to update MongoDB profile, but Firestore update succeeded');
+        }
+      } catch (error) {
+        console.warn('Error updating MongoDB profile:', error);
+      }
+
+      showSuccess('Profile updated successfully!');
       setIsEditing(false);
       
       // Refresh user profile
@@ -225,13 +250,12 @@ const ProfileSection = () => {
           country: formData.country,
           state: formData.state,
           city: formData.city,
-          zip: formData.zipCode,
-          ...(profilePicture && { profilePicture })
+          zip: formData.zipCode
         });
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      setMessage({ type: 'error', text: 'Failed to update profile. Please try again.' });
+      showError('Failed to update profile. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -239,16 +263,6 @@ const ProfileSection = () => {
 
   return (
     <div className="space-y-6">
-      {/* Message Display */}
-      {message.text && (
-        <div className={`p-4 rounded-lg ${
-          message.type === 'success' 
-            ? 'bg-green-50 border border-green-200 text-green-800' 
-            : 'bg-red-50 border border-red-200 text-red-800'
-        }`}>
-          {message.text}
-        </div>
-      )}
 
       {/* Detailed User Information */}
       <div className="bg-white rounded-lg shadow-sm p-6">
@@ -368,43 +382,9 @@ const ProfileSection = () => {
           )}
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Picture Section */}
-          <div className="lg:col-span-1">
-            <div className="text-center">
-              <div className="relative w-32 h-32 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden">
-                {profilePicture || userProfile?.profilePicture ? (
-                  <img 
-                    src={profilePicture || userProfile?.profilePicture} 
-                    alt="Profile" 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-4xl text-gray-500">👤</span>
-                )}
-                <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
-                  <Camera className="w-6 h-6 text-white opacity-0 hover:opacity-100 transition-opacity duration-200" />
-                </div>
-              </div>
-              <button 
-                onClick={() => fileInputRef.current?.click()}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              >
-                Change Profile Picture
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleProfilePictureChange}
-                className="hidden"
-              />
-              <p className="text-xs text-gray-500 mt-2">Max 5MB, JPG/PNG</p>
-            </div>
-          </div>
-
+        <div className="grid grid-cols-1 gap-8">
           {/* Profile Information */}
-          <div className="lg:col-span-2">
+          <div>
             <form onSubmit={handleSaveChanges} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>

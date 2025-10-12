@@ -158,10 +158,9 @@ const DepositSection = () => {
                     {method.logo && (
                       <img src={method.logo} alt={method.name} className="w-8 h-8 rounded" />
                     )}
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{method.name}</h3>
-                      <p className="text-sm text-gray-600">{method.accountDetails?.accountName || 'N/A'}</p>
-                    </div>
+                            <div>
+                              <h3 className="font-semibold text-gray-900">{method.name}</h3>
+                            </div>
                   </div>
                 </motion.div>
               ))}

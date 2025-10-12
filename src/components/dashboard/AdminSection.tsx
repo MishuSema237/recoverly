@@ -28,6 +28,7 @@ import {
   Activity
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { showSuccess, showError } from '@/utils/toast';
 import { canAccessAdmin } from '@/utils/adminUtils';
 import { 
   collection, 
@@ -148,6 +149,16 @@ const AdminSection = () => {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Transaction modal states
+  const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [selectedTransactionType, setSelectedTransactionType] = useState<'deposits' | 'withdrawals'>('deposits');
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [depositFilter, setDepositFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [withdrawalFilter, setWithdrawalFilter] = useState<'all' | 'pending' | 'processing' | 'completed' | 'rejected'>('all');
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{
     type: 'deletePlan' | 'deleteUser' | 'deletePayment';
     id: string;
@@ -307,6 +318,7 @@ const AdminSection = () => {
   };
 
   const loadTransactions = async () => {
+    setIsLoadingTransactions(true);
     try {
       // Load deposit requests
       const depositsResponse = await fetch('/api/transactions?type=deposits');
@@ -325,6 +337,9 @@ const AdminSection = () => {
       }
     } catch (error) {
       console.error('Error loading transactions:', error);
+      showError('Failed to load transactions');
+    } finally {
+      setIsLoadingTransactions(false);
     }
   };
 
@@ -347,23 +362,26 @@ const AdminSection = () => {
     }
   };
 
-  const clearDefaultPaymentMethods = async () => {
-    try {
-      const response = await fetch('/api/payment-methods/clear-defaults', {
-        method: 'POST'
-      });
-      const result = await response.json();
-      
-      if (result.success) {
-        alert(`Cleared ${result.deletedCount} default payment methods`);
-        loadPaymentMethods();
-      } else {
-        alert('Failed to clear payment methods: ' + result.error);
-      }
-    } catch (error) {
-      console.error('Error clearing payment methods:', error);
-      alert('Failed to clear payment methods');
-    }
+
+  const getUserInfo = (userId: string) => {
+    const user = users.find(u => u.firebaseId === userId);
+    return user ? {
+      name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown User',
+      userCode: user.userCode || 'N/A'
+    } : {
+      name: 'Unknown User',
+      userCode: 'N/A'
+    };
+  };
+
+  const getFilteredDeposits = () => {
+    if (depositFilter === 'all') return depositRequests;
+    return depositRequests.filter(deposit => deposit.status === depositFilter);
+  };
+
+  const getFilteredWithdrawals = () => {
+    if (withdrawalFilter === 'all') return withdrawalRequests;
+    return withdrawalRequests.filter(withdrawal => withdrawal.status === withdrawalFilter);
   };
 
   const updateTransactionStatus = async (transactionId: string, type: 'deposit' | 'withdrawal', status: string, rejectionReason?: string) => {
@@ -379,21 +397,23 @@ const AdminSection = () => {
           status,
           rejectionReason,
           approvedBy: user?.uid,
-          approvedAt: new Date()
+          approvedAt: new Date(),
+          userId: selectedTransaction?.userId,
+          amount: selectedTransaction?.amount
         })
       });
       
       const result = await response.json();
       
       if (result.success) {
-        alert('Transaction status updated successfully');
+        showSuccess(`Transaction ${status} successfully!`);
         loadTransactions();
       } else {
-        alert('Failed to update transaction: ' + result.error);
+        showError(result.error || 'Failed to update transaction');
       }
     } catch (error) {
       console.error('Error updating transaction:', error);
-      alert('Failed to update transaction');
+      showError('An error occurred while updating the transaction');
     }
   };
 
@@ -704,7 +724,7 @@ const AdminSection = () => {
         activityLog: [
           {
             action: 'Account Created',
-            timestamp: user.createdAt ? user.createdAt.toISOString() : new Date().toISOString(),
+            timestamp: user.createdAt ? (typeof user.createdAt === 'string' ? user.createdAt : user.createdAt.toISOString()) : new Date().toISOString(),
             details: 'User account was created'
           }
         ]
@@ -717,6 +737,8 @@ const AdminSection = () => {
 
   const sendUserNotification = async (userReferralCode: string, message: string) => {
     if (!message.trim()) return;
+    
+    setIsSendingMessage(true);
     
     try {
       const notificationData = {
@@ -738,13 +760,15 @@ const AdminSection = () => {
       
       if (result.success) {
         setUserIndividualMessage('');
-        alert('Message sent successfully!');
+        showSuccess('Message sent successfully!');
       } else {
-        alert('Failed to send message: ' + result.error);
+        showError('Failed to send message: ' + result.error);
       }
     } catch (error) {
       console.error('Error sending user notification:', error);
-      alert('Failed to send message');
+      showError('Failed to send message');
+    } finally {
+      setIsSendingMessage(false);
     }
   };
 
@@ -875,10 +899,6 @@ const AdminSection = () => {
                   <RefreshCw className="w-4 h-4" />
                   <span>Sync All Users</span>
                 </button>
-                <button className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
-                  <Download className="w-4 h-4" />
-                  <span>Export</span>
-                </button>
               </div>
             </div>
 
@@ -887,84 +907,100 @@ const AdminSection = () => {
                 <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600"></div>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-medium text-gray-700">User</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-700">Email</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-700">Balance</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-700">Plan</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.map(user => (
-                    <tr 
-                      key={user._id || user.uid} 
-                      className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
-                      onClick={() => openUserDetail(user)}
-                    >
-                      <td className="py-3 px-4">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                            {user.firstName?.[0] || user.email?.[0]?.toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">{user.firstName} {user.lastName}</p>
-                            <p className="text-sm text-gray-500">{user.userCode}</p>
-                          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredUsers.map(user => (
+                  <div
+                    key={user._id || user.uid}
+                    className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => openUserDetail(user)}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                          {user.firstName?.[0] || user.email?.[0]?.toUpperCase()}
                         </div>
-                      </td>
-                      <td className="py-3 px-4 text-sm text-gray-600">{user.email}</td>
-                      <td className="py-3 px-4">
-                        <div className="text-sm">
-                          <p className="font-medium">${user.totalInvested?.toLocaleString() || '0'}</p>
-                          <p className="text-gray-500">Invested</p>
+                        <div>
+                          <div className="font-medium text-gray-900">{user.firstName} {user.lastName}</div>
+                          <div className="text-xs text-gray-500 font-mono">{user.userCode}</div>
                         </div>
-                      </td>
-                      <td className="py-3 px-4 text-sm text-gray-600">{user.investmentPlan || 'N/A'}</td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center space-x-2">
-                          {user.isActive !== false ? (
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <XCircle className="w-4 h-4 text-red-600" />
-                          )}
-                          <span className="text-sm">{user.isActive !== false ? 'Active' : 'Inactive'}</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => {
-                              setSelectedUser(user);
-                              setShowUserModal(true);
-                            }}
-                            className="p-1 text-blue-600 hover:text-blue-800"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => toggleUserStatus(user._id || user.uid, user.isActive === false)}
-                            className={`p-1 ${user.isActive !== false ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'}`}
-                          >
-                            {user.isActive !== false ? <Ban className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
-                          </button>
-                          <button
-                            onClick={() => makeAdmin(user._id || user.uid, !user.isAdmin)}
-                            className={`p-1 ${user.isAdmin ? 'text-yellow-600 hover:text-yellow-800' : 'text-gray-600 hover:text-gray-800'}`}
-                          >
-                            <Shield className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        {user.isActive !== false ? (
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                        ) : (
+                          <XCircle className="w-4 h-4 text-red-600" />
+                        )}
+                        {user.isAdmin && <Shield className="w-4 h-4 text-yellow-600" />}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Email:</span>
+                        <span className="text-sm text-gray-900">{user.email}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Balance:</span>
+                        <span className="text-sm font-semibold text-gray-900">${user.totalInvested?.toLocaleString() || '0'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Plan:</span>
+                        <span className="text-sm text-gray-900">{user.investmentPlan || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Status:</span>
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          user.isActive !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {user.isActive !== false ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3 flex space-x-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedUser(user);
+                          setShowUserModal(true);
+                        }}
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1"
+                      >
+                        <Eye className="w-3 h-3" />
+                        <span>View</span>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleUserStatus(user._id || user.uid, user.isActive === false);
+                        }}
+                        className={`flex-1 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1 ${
+                          user.isActive !== false 
+                            ? 'bg-red-600 hover:bg-red-700 text-white' 
+                            : 'bg-green-600 hover:bg-green-700 text-white'
+                        }`}
+                      >
+                        {user.isActive !== false ? <Ban className="w-3 h-3" /> : <UserCheck className="w-3 h-3" />}
+                        <span>{user.isActive !== false ? 'Disable' : 'Enable'}</span>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          makeAdmin(user._id || user.uid, !user.isAdmin);
+                        }}
+                        className={`flex-1 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1 ${
+                          user.isAdmin 
+                            ? 'bg-yellow-600 hover:bg-yellow-700 text-white' 
+                            : 'bg-gray-600 hover:bg-gray-700 text-white'
+                        }`}
+                      >
+                        <Shield className="w-3 h-3" />
+                        <span>{user.isAdmin ? 'Admin' : 'User'}</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
@@ -974,13 +1010,6 @@ const AdminSection = () => {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
-              <button
-                onClick={() => setShowNotificationModal(true)}
-                className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-              >
-                <Send className="w-4 h-4" />
-                <span>Send Notification</span>
-              </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1120,25 +1149,16 @@ const AdminSection = () => {
                   </div>
                 )}
               </div>
-              <div className="flex space-x-3">
-                <button
-                  onClick={clearDefaultPaymentMethods}
-                  className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span>Clear Defaults</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setEditingPayment(null);
-                    setShowPaymentModal(true);
-                  }}
-                  className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Payment Method</span>
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  setEditingPayment(null);
+                  setShowPaymentModal(true);
+                }}
+                className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Payment Method</span>
+              </button>
             </div>
 
             {loadingPayments ? (
@@ -1171,7 +1191,6 @@ const AdminSection = () => {
                     </div>
                   </div>
                   <div className="space-y-2 text-sm">
-                    <p><span className="font-medium">Account Name:</span> {method.accountDetails?.accountName || 'N/A'}</p>
                     <p><span className="font-medium">Account Number:</span> {method.accountDetails?.accountNumber || 'N/A'}</p>
                     {method.accountDetails?.bankName && (
                       <p><span className="font-medium">Bank:</span> {method.accountDetails.bankName}</p>
@@ -1202,176 +1221,191 @@ const AdminSection = () => {
               <div className="flex items-center space-x-4">
                 <button 
                   onClick={loadTransactions}
-                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                  disabled={isLoadingTransactions}
+                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg"
                 >
-                  <RefreshCw className="w-4 h-4" />
-                  <span>Refresh</span>
+                  {isLoadingTransactions ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    <RefreshCw className="w-4 h-4" />
+                  )}
+                  <span>{isLoadingTransactions ? 'Loading...' : 'Refresh'}</span>
                 </button>
               </div>
             </div>
 
-            {/* Deposit Requests */}
-            <div className="mb-8">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4">Deposit Requests</h4>
-              <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Screenshot</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {depositRequests.map((deposit) => (
-                        <tr key={deposit._id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {deposit.userId}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ${deposit.amount}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {deposit.paymentMethodId}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {deposit.screenshot ? (
-                              <img src={deposit.screenshot} alt="Screenshot" className="w-16 h-16 object-cover rounded" />
-                            ) : 'No screenshot'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                              deposit.status === 'approved' ? 'bg-green-100 text-green-800' :
-                              deposit.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                              'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {deposit.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {new Date(deposit.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            {deposit.status === 'pending' && (
-                              <div className="flex space-x-2">
-                                <button
-                                  onClick={() => updateTransactionStatus(deposit._id!, 'deposit', 'approved')}
-                                  className="text-green-600 hover:text-green-900"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    const reason = prompt('Rejection reason:');
-                                    if (reason) {
-                                      updateTransactionStatus(deposit._id!, 'deposit', 'rejected', reason);
-                                    }
-                                  }}
-                                  className="text-red-600 hover:text-red-900"
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+            {/* Transaction Type Toggle */}
+            <div className="flex space-x-4 mb-6">
+              <button
+                onClick={() => setSelectedTransactionType('deposits')}
+                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+                  selectedTransactionType === 'deposits'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Deposits ({getFilteredDeposits().length})
+              </button>
+              <button
+                onClick={() => setSelectedTransactionType('withdrawals')}
+                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+                  selectedTransactionType === 'withdrawals'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Withdrawals ({getFilteredWithdrawals().length})
+              </button>
             </div>
 
-            {/* Withdrawal Requests */}
-            <div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-4">Withdrawal Requests</h4>
-              <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account Details</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {withdrawalRequests.map((withdrawal) => (
-                        <tr key={withdrawal._id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {withdrawal.userId}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ${withdrawal.amount}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <div>
-                              <div>{withdrawal.accountDetails.accountName}</div>
-                              <div className="text-gray-500">{withdrawal.accountDetails.accountNumber}</div>
-                              {withdrawal.accountDetails.bankName && (
-                                <div className="text-gray-500">{withdrawal.accountDetails.bankName}</div>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                              withdrawal.status === 'completed' ? 'bg-green-100 text-green-800' :
-                              withdrawal.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                              withdrawal.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                              'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {withdrawal.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {new Date(withdrawal.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            {withdrawal.status === 'pending' && (
-                              <div className="flex space-x-2">
-                                <button
-                                  onClick={() => updateTransactionStatus(withdrawal._id!, 'withdrawal', 'processing')}
-                                  className="text-blue-600 hover:text-blue-900"
-                                >
-                                  Process
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    const reason = prompt('Rejection reason:');
-                                    if (reason) {
-                                      updateTransactionStatus(withdrawal._id!, 'withdrawal', 'rejected', reason);
-                                    }
-                                  }}
-                                  className="text-red-600 hover:text-red-900"
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            )}
-                            {withdrawal.status === 'processing' && (
-                              <button
-                                onClick={() => updateTransactionStatus(withdrawal._id!, 'withdrawal', 'completed')}
-                                className="text-green-600 hover:text-green-900"
-                              >
-                                Complete
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+            {/* Filter Options */}
+            <div className="mb-6">
+              {selectedTransactionType === 'deposits' ? (
+                <div className="flex space-x-2">
+                  {(['all', 'pending', 'approved', 'rejected'] as const).map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => setDepositFilter(filter)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        depositFilter === filter
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                    </button>
+                  ))}
                 </div>
-              </div>
+              ) : (
+                <div className="flex space-x-2">
+                  {(['all', 'pending', 'processing', 'completed', 'rejected'] as const).map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => setWithdrawalFilter(filter)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        withdrawalFilter === filter
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+
+            {/* Transaction Tiles */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {selectedTransactionType === 'deposits' ? (
+                getFilteredDeposits().map((deposit) => (
+                  <div
+                    key={deposit._id}
+                    className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => {
+                      setSelectedTransaction(deposit);
+                      setShowTransactionModal(true);
+                    }}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span className="text-sm font-medium text-gray-600">Deposit</span>
+                      </div>
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        deposit.status === 'approved' ? 'bg-green-100 text-green-800' :
+                        deposit.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {deposit.status}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Amount:</span>
+                        <span className="text-sm font-semibold text-gray-900">${deposit.amount}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">User:</span>
+                        <div className="text-sm text-gray-900 text-right">
+                          <div className="font-medium">{getUserInfo(deposit.userId).name}</div>
+                          <div className="text-xs text-gray-500">{getUserInfo(deposit.userId).userCode}</div>
+                        </div>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Date:</span>
+                        <span className="text-sm text-gray-900">{new Date(deposit.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3 text-center">
+                      <span className="text-xs text-gray-500">Click for details</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                getFilteredWithdrawals().map((withdrawal) => (
+                  <div
+                    key={withdrawal._id}
+                    className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => {
+                      setSelectedTransaction(withdrawal);
+                      setShowTransactionModal(true);
+                    }}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <span className="text-sm font-medium text-gray-600">Withdrawal</span>
+                      </div>
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        withdrawal.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        withdrawal.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                        withdrawal.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {withdrawal.status}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Amount:</span>
+                        <span className="text-sm font-semibold text-gray-900">${withdrawal.amount}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">User:</span>
+                        <div className="text-sm text-gray-900 text-right">
+                          <div className="font-medium">{getUserInfo(withdrawal.userId).name}</div>
+                          <div className="text-xs text-gray-500">{getUserInfo(withdrawal.userId).userCode}</div>
+                        </div>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Date:</span>
+                        <span className="text-sm text-gray-900">{new Date(withdrawal.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3 text-center">
+                      <span className="text-xs text-gray-500">Click for details</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* No transactions message */}
+            {((selectedTransactionType === 'deposits' && getFilteredDeposits().length === 0) || 
+              (selectedTransactionType === 'withdrawals' && getFilteredWithdrawals().length === 0)) && (
+              <div className="text-center py-12">
+                <div className="text-gray-400 mb-4">
+                  <CreditCard className="w-16 h-16 mx-auto" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No {selectedTransactionType} found</h3>
+                <p className="text-gray-500">There are no {selectedTransactionType} requests with the current filter.</p>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -2031,10 +2065,13 @@ const AdminSection = () => {
                       />
                         <button
                           onClick={() => sendUserNotification(userDetailData.userCode, userIndividualMessage)}
-                          disabled={!userIndividualMessage.trim()}
-                          className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                          disabled={!userIndividualMessage.trim() || isSendingMessage}
+                          className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                         >
-                          Send Message
+                          {isSendingMessage && (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          )}
+                          <span>{isSendingMessage ? 'Sending...' : 'Send Message'}</span>
                         </button>
                     </div>
                   </div>
@@ -2052,6 +2089,196 @@ const AdminSection = () => {
                         </div>
                       ))}
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Transaction Detail Modal */}
+      {showTransactionModal && selectedTransaction && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {selectedTransactionType === 'deposits' ? 'Deposit' : 'Withdrawal'} Details
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowTransactionModal(false);
+                    setSelectedTransaction(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XCircle className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Transaction Info */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                    <div className="text-lg font-semibold text-gray-900">${selectedTransaction.amount}</div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
+                      selectedTransaction.status === 'approved' || selectedTransaction.status === 'completed' ? 'bg-green-100 text-green-800' :
+                      selectedTransaction.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                      selectedTransaction.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {selectedTransaction.status}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">User</label>
+                    <div className="text-sm text-gray-900">
+                      <div className="font-medium">{getUserInfo(selectedTransaction.userId).name}</div>
+                      <div className="text-xs text-gray-500 font-mono">{getUserInfo(selectedTransaction.userId).userCode}</div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                    <div className="text-sm text-gray-900">{new Date(selectedTransaction.createdAt).toLocaleString()}</div>
+                  </div>
+                </div>
+
+                {/* Payment Method Info */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Payment Method ID</label>
+                  <div className="text-sm text-gray-900 font-mono">{selectedTransaction.paymentMethodId}</div>
+                </div>
+
+                {/* Screenshot for deposits */}
+                {selectedTransactionType === 'deposits' && selectedTransaction.screenshot && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Payment Screenshot</label>
+                    <img 
+                      src={selectedTransaction.screenshot} 
+                      alt="Payment Screenshot" 
+                      className="w-full max-w-md h-auto rounded border"
+                    />
+                  </div>
+                )}
+
+                {/* Account Details for withdrawals */}
+                {selectedTransactionType === 'withdrawals' && selectedTransaction.accountDetails && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Account Details</label>
+                    <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                      <div><span className="font-medium">Account Name:</span> {selectedTransaction.accountDetails.accountName}</div>
+                      <div><span className="font-medium">Account Number:</span> <span className="font-mono break-all">{selectedTransaction.accountDetails.accountNumber}</span></div>
+                      {selectedTransaction.accountDetails.bankName && (
+                        <div><span className="font-medium">Bank:</span> {selectedTransaction.accountDetails.bankName}</div>
+                      )}
+                      {selectedTransaction.accountDetails.network && (
+                        <div><span className="font-medium">Network:</span> {selectedTransaction.accountDetails.network}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="space-y-4 pt-4 border-t">
+                  {/* Rejection Reason Input */}
+                  {selectedTransaction.status === 'pending' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Rejection Reason (if rejecting)</label>
+                      <textarea
+                        value={rejectionReason}
+                        onChange={(e) => setRejectionReason(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        rows={3}
+                        placeholder="Enter reason for rejection (optional)"
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex space-x-4">
+                    {selectedTransaction.status === 'pending' && (
+                      <>
+                        {selectedTransactionType === 'deposits' ? (
+                          <>
+                            <button
+                              onClick={() => {
+                                updateTransactionStatus(selectedTransaction._id, 'deposit', 'approved');
+                                setShowTransactionModal(false);
+                                setSelectedTransaction(null);
+                                setRejectionReason('');
+                              }}
+                              className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => {
+                                updateTransactionStatus(selectedTransaction._id, 'deposit', 'rejected', rejectionReason);
+                                setShowTransactionModal(false);
+                                setSelectedTransaction(null);
+                                setRejectionReason('');
+                              }}
+                              className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => {
+                                updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'processing');
+                                setShowTransactionModal(false);
+                                setSelectedTransaction(null);
+                                setRejectionReason('');
+                              }}
+                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold"
+                            >
+                              Process
+                            </button>
+                            <button
+                              onClick={() => {
+                                updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'rejected', rejectionReason);
+                                setShowTransactionModal(false);
+                                setSelectedTransaction(null);
+                                setRejectionReason('');
+                              }}
+                              className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                      </>
+                    )}
+                    
+                    {selectedTransactionType === 'withdrawals' && selectedTransaction.status === 'processing' && (
+                      <button
+                        onClick={() => {
+                          updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'completed');
+                          setShowTransactionModal(false);
+                          setSelectedTransaction(null);
+                          setRejectionReason('');
+                        }}
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold"
+                      >
+                        Complete
+                      </button>
+                    )}
+                    
+                    <button
+                      onClick={() => {
+                        setShowTransactionModal(false);
+                        setSelectedTransaction(null);
+                        setRejectionReason('');
+                      }}
+                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold"
+                    >
+                      Close
+                    </button>
                   </div>
                 </div>
               </div>

@@ -7,7 +7,9 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface Notification {
   _id: string;
+  title?: string;
   message: string;
+  details?: string;
   type: 'broadcast' | 'individual';
   recipients: string[] | 'all';
   sentBy: string;
@@ -20,6 +22,7 @@ const NotificationsSection = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (userProfile?.userCode) {
@@ -84,6 +87,18 @@ const NotificationsSection = () => {
     }
   };
 
+  const toggleExpanded = (notificationId: string) => {
+    setExpandedNotifications(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(notificationId)) {
+        newSet.delete(notificationId);
+      } else {
+        newSet.add(notificationId);
+      }
+      return newSet;
+    });
+  };
+
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto p-6">
@@ -136,60 +151,97 @@ const NotificationsSection = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {notifications.map((notification) => (
-              <motion.div
-                key={notification._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`p-4 rounded-lg border-l-4 ${
-                  notification.read 
-                    ? 'bg-gray-50 border-gray-300' 
-                    : 'bg-blue-50 border-blue-500'
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      {notification.type === 'broadcast' ? (
-                        <AlertCircle className="w-4 h-4 text-blue-600" />
-                      ) : (
-                        <Bell className="w-4 h-4 text-green-600" />
-                      )}
-                      <span className={`text-sm font-medium ${
-                        notification.read ? 'text-gray-600' : 'text-gray-900'
-                      }`}>
-                        {notification.type === 'broadcast' ? 'Broadcast Message' : 'Personal Message'}
-                      </span>
+            {notifications.map((notification) => {
+              const isExpanded = expandedNotifications.has(notification._id);
+              return (
+                <motion.div
+                  key={notification._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                  onClick={() => toggleExpanded(notification._id)}
+                >
+                  <div className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <div className={`p-2 rounded-full ${
+                            notification.type === 'broadcast' 
+                              ? 'bg-blue-100 text-blue-600' 
+                              : 'bg-green-100 text-green-600'
+                          }`}>
+                            {notification.type === 'broadcast' ? (
+                              <AlertCircle className="w-4 h-4" />
+                            ) : (
+                              <Bell className="w-4 h-4" />
+                            )}
+                          </div>
+                          
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <h3 className={`text-sm font-semibold ${
+                                notification.read ? 'text-gray-700' : 'text-gray-900'
+                              }`}>
+                                {notification.title || (notification.type === 'broadcast' ? 'System Announcement' : 'Support Message')}
+                              </h3>
+                              {!notification.read && (
+                                <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium">
+                                  New
+                                </span>
+                              )}
+                            </div>
+                            
+                            <p className={`text-sm text-gray-600 mt-1 ${
+                              notification.read ? '' : 'font-medium'
+                            }`}>
+                              {notification.message}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between mt-3">
+                          <p className="text-xs text-gray-500">
+                            {new Date(notification.sentAt).toLocaleString()}
+                          </p>
+                          
+                          {notification.details && (
+                            <span className="text-xs text-blue-600 font-medium">
+                              {isExpanded ? 'Show less' : 'Show details'}
+                            </span>
+                          )}
+                        </div>
+                        
+                        {isExpanded && notification.details && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mt-3 pt-3 border-t border-gray-100"
+                          >
+                            <p className="text-sm text-gray-700 whitespace-pre-line">
+                              {notification.details}
+                            </p>
+                          </motion.div>
+                        )}
+                      </div>
+                      
                       {!notification.read && (
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                          New
-                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markAsRead(notification._id);
+                          }}
+                          className="ml-4 p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                          title="Mark as read"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                       )}
                     </div>
-                    
-                    <p className={`text-gray-700 mb-2 ${
-                      notification.read ? '' : 'font-medium'
-                    }`}>
-                      {notification.message}
-                    </p>
-                    
-                    <p className="text-xs text-gray-500">
-                      {new Date(notification.sentAt).toLocaleString()}
-                    </p>
                   </div>
-                  
-                  {!notification.read && (
-                    <button
-                      onClick={() => markAsRead(notification._id)}
-                      className="ml-4 p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                      title="Mark as read"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </div>

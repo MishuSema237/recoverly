@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Target, Users, Shield, TrendingUp, Award, Globe } from 'lucide-react';
+import PublicRoute from '@/components/PublicRoute';
 
 const AboutPage = () => {
   const stats = [
@@ -35,7 +36,8 @@ const AboutPage = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <PublicRoute>
+      <div className="min-h-screen">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-gray-900 via-red-900 to-gray-900 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -208,7 +210,8 @@ const AboutPage = () => {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </PublicRoute>
   );
 };
 

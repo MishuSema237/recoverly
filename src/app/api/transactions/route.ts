@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const db = await getDb();
-    const { _id, type, status, rejectionReason, approvedBy, approvedAt } = await request.json();
+    const { _id, type, status, rejectionReason, approvedBy, approvedAt, userId, amount } = await request.json();
 
     if (!_id || !type || !status) {
       return NextResponse.json({ success: false, error: 'Transaction ID, type, and status are required' }, { status: 400 });

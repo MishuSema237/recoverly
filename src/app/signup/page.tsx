@@ -13,7 +13,13 @@ const SignupPage = () => {
   const { signUp, user } = useAuth();
   const { setLoading } = useLoading();
 
-  // No auto-redirect to dashboard - users must login first
+  // Redirect to dashboard if user is already authenticated
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
