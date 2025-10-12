@@ -129,6 +129,9 @@ export class UserService {
       await this.processReferralBonus(referralCode, createdUser._id!);
     }
 
+    // Notify admins of new user registration
+    await this.notifyAdminsOfUserActivity(createdUser._id!, 'registration', createdUser);
+
     // Generate JWT token
     const token = generateToken({
       userId: createdUser._id!,
@@ -173,6 +176,9 @@ export class UserService {
         }
       }
     );
+
+    // Notify admins of user login
+    await this.notifyAdminsOfUserActivity(user._id!.toString(), 'login', user);
 
     const token = generateToken({
       userId: user._id!.toString(),
@@ -437,5 +443,53 @@ export class UserService {
 
     const user = await usersCollection.findOne({ userCode: referralCode });
     return !!user;
+  }
+
+  // Admin Notification Methods
+  static async notifyAdminsOfUserActivity(userId: string, activity: 'registration' | 'login', user: User): Promise<void> {
+    const db = await getDb();
+    const notificationsCollection = db.collection('notifications');
+    const usersCollection = db.collection<User>('users');
+
+    // Find all admin users
+    const admins = await usersCollection.find({ isAdmin: true }).toArray();
+    const adminReferralCodes = admins.map(admin => admin.userCode).filter(Boolean);
+
+    if (adminReferralCodes.length === 0) {
+      console.warn('No admins found to notify of user activity.');
+      return;
+    }
+
+    let notificationTitle = '';
+    let notificationMessage = '';
+
+    if (activity === 'registration') {
+      notificationTitle = 'New User Registration';
+      notificationMessage = `New user registered: ${user.firstName} ${user.lastName} (${user.email})`;
+    } else if (activity === 'login') {
+      notificationTitle = 'User Login';
+      notificationMessage = `User logged in: ${user.firstName} ${user.lastName} (${user.email})`;
+    }
+
+    // Create notification for all admins
+    await notificationsCollection.insertOne({
+      title: notificationTitle,
+      message: notificationMessage,
+      type: 'broadcast',
+      recipients: 'all', // Send to all admins
+      sentBy: 'system',
+      sentAt: new Date(),
+      read: false,
+      details: JSON.stringify({
+        userId: userId,
+        userEmail: user.email,
+        userName: `${user.firstName} ${user.lastName}`,
+        userCode: user.userCode,
+        activity: activity,
+        timestamp: new Date().toISOString()
+      })
+    });
+
+    console.log(`Admins notified of user ${activity}: ${user.email}`);
   }
 }

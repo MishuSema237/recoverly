@@ -1,40 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/mongodb';
+import { requireAdmin } from '@/middleware/auth';
+import { UserService } from '@/lib/auth/user';
 
-export async function GET() {
+export const GET = requireAdmin(async (request) => {
   try {
-    const db = await getDb();
-    const users = await db.collection('users').find({}).toArray();
+    const users = await UserService.getAllUsers();
     
-    return NextResponse.json({ success: true, data: users });
+    return NextResponse.json({
+      success: true,
+      data: users
+    });
+
   } catch (error) {
-    console.error('Error fetching users:', error);
-    return NextResponse.json({ success: false, error: 'Failed to fetch users' }, { status: 500 });
+    console.error('Get users error:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to get users' 
+      },
+      { status: 500 }
+    );
   }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const db = await getDb();
-    
-    const newUser = {
-      ...body,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    const result = await db.collection('users').insertOne(newUser);
-    
-    return NextResponse.json({ success: true, data: { _id: result.insertedId, ...newUser } });
-  } catch (error) {
-    console.error('Error creating user:', error);
-    return NextResponse.json({ success: false, error: 'Failed to create user' }, { status: 500 });
-  }
-}
-
-
-
-
-
-
+});

@@ -26,7 +26,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
 import { canAccessAdmin } from '@/utils/adminUtils';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
-import { UserService, User } from '@/lib/auth/user';
+// Note: UserService is server-side only, we'll use API calls instead
 
 interface PaymentMethod {
   _id?: string;
@@ -45,14 +45,39 @@ interface PaymentMethod {
   updatedAt?: Date;
 }
 
-interface AdminUser extends User {
-  location?: string;
+interface AdminUser {
+  _id?: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  emailVerified: boolean;
+  userCode: string;
+  isAdmin: boolean;
+  isActive: boolean;
+  profilePicture?: string;
+  phone?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  zip?: string;
+  totalInvested: number;
+  currentInvestment: number;
+  investmentPlan?: string;
+  totalDeposit: number;
+  totalWithdraw: number;
+  referralEarnings: number;
+  referredBy?: string;
+  referredByCode?: string;
   balances?: {
     main: number;
     investment: number;
     referral: number;
     total: number;
   };
+  createdAt: string;
+  updatedAt: string;
+  lastLoginAt: string;
   activityLog?: Array<{
     action: string;
     timestamp: string;
@@ -96,7 +121,7 @@ interface WithdrawalRequest {
 const AdminSection = () => {
   const { user, userProfile } = useAuth();
   const [activeTab, setActiveTab] = useState<'users' | 'plans' | 'payments' | 'transactions' | 'notifications'>('users');
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [plans, setPlans] = useState<InvestmentPlan[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [depositRequests, setDepositRequests] = useState<DepositRequest[]>([]);
@@ -179,8 +204,14 @@ const AdminSection = () => {
   const loadUsers = useCallback(async () => {
     setLoadingUsers(true);
     try {
-      const mongoUsers = await UserService.getAllUsers();
-      setUsers(mongoUsers);
+      const response = await fetch('/api/users');
+      const result = await response.json();
+      if (result.success) {
+        setUsers(result.data);
+      } else {
+        console.error('Error loading users:', result.error);
+        setUsers([]);
+      }
     } catch (error) {
       console.error('Error loading users:', error);
       setUsers([]);
@@ -622,8 +653,8 @@ const AdminSection = () => {
     }
   };
 
-  const openUserDetail = async (user: User) => {
-    setUserDetailData(user as AdminUser);
+  const openUserDetail = async (user: AdminUser) => {
+    setUserDetailData(user);
     setShowUserDetailModal(true);
     
     // Load additional user data
