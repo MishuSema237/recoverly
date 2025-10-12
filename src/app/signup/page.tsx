@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Shield, Zap, CheckCircle, Users } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
@@ -45,6 +45,7 @@ const SignupPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const errorRef = useRef<HTMLDivElement>(null);
 
   const validatePassword = (password: string): string[] => {
     const errors: string[] = [];
@@ -72,6 +73,15 @@ const SignupPage = () => {
     return errors;
   };
 
+  const scrollToError = () => {
+    setTimeout(() => {
+      errorRef.current?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }, 100);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -81,12 +91,14 @@ const SignupPage = () => {
       // Validate required fields
       if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
         setErrors(['Please fill in all required fields']);
+        scrollToError();
         return;
       }
 
       // Validate passwords match
       if (formData.password !== formData.confirmPassword) {
         setErrors(['Passwords do not match']);
+        scrollToError();
         return;
       }
 
@@ -94,12 +106,14 @@ const SignupPage = () => {
       const passwordErrors = validatePassword(formData.password);
       if (passwordErrors.length > 0) {
         setErrors(passwordErrors);
+        scrollToError();
         return;
       }
 
       // Validate terms agreement
       if (!formData.agreeToTerms) {
         setErrors(['You must agree to the terms and conditions']);
+        scrollToError();
         return;
       }
 
@@ -148,7 +162,7 @@ const SignupPage = () => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {errors.length > 0 && (
-                <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                <div ref={errorRef} className="bg-red-50 border border-red-200 rounded-md p-4">
                   <div className="flex">
                     <div className="ml-3">
                       <h3 className="text-sm font-medium text-red-800">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
@@ -13,6 +13,7 @@ export default function ResetPasswordPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const errorRef = useRef<HTMLDivElement>(null);
   
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -46,6 +47,15 @@ export default function ResetPasswordPage() {
     return errors;
   };
 
+  const scrollToError = () => {
+    setTimeout(() => {
+      errorRef.current?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }, 100);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -58,11 +68,13 @@ export default function ResetPasswordPage() {
     const passwordErrors = validatePassword(password);
     if (passwordErrors.length > 0) {
       setErrors(passwordErrors);
+      scrollToError();
       return;
     }
 
     if (password !== confirmPassword) {
       setErrors(['Passwords do not match']);
+      scrollToError();
       return;
     }
 
@@ -123,7 +135,7 @@ export default function ResetPasswordPage() {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {errors.length > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <div ref={errorRef} className="bg-red-50 border border-red-200 rounded-md p-4">
                 <div className="flex">
                   <div className="ml-3">
                     <h3 className="text-sm font-medium text-red-800">

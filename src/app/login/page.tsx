@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Zap, CheckCircle, Phone } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { showSuccess, showError } from '@/utils/toast';
@@ -21,6 +21,8 @@ const LoginPage = () => {
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
   const [isForgotPasswordLoading, setIsForgotPasswordLoading] = useState(false);
   const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
+  const errorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Redirect authenticated users to dashboard
@@ -29,17 +31,36 @@ const LoginPage = () => {
     }
   }, [user, router]);
 
+  const scrollToError = () => {
+    setTimeout(() => {
+      errorRef.current?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }, 100);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrors([]);
 
     try {
+      // Validate required fields
+      if (!formData.email || !formData.password) {
+        setErrors(['Please fill in all required fields']);
+        scrollToError();
+        return;
+      }
+
       const success = await login(formData.email, formData.password);
       if (success) {
         router.push('/dashboard');
       }
     } catch (error) {
       console.error('Login error:', error);
+      setErrors(['Login failed. Please check your credentials and try again.']);
+      scrollToError();
     } finally {
       setIsLoading(false);
     }
@@ -48,8 +69,15 @@ const LoginPage = () => {
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsForgotPasswordLoading(true);
+    setErrors([]);
 
     try {
+      if (!forgotPasswordEmail) {
+        setErrors(['Please enter your email address']);
+        scrollToError();
+        return;
+      }
+
       const success = await forgotPassword(forgotPasswordEmail);
       if (success) {
         setForgotPasswordSuccess(true);
@@ -57,6 +85,8 @@ const LoginPage = () => {
       }
     } catch (error) {
       console.error('Forgot password error:', error);
+      setErrors(['Failed to send reset email. Please try again.']);
+      scrollToError();
     } finally {
       setIsForgotPasswordLoading(false);
     }
@@ -84,6 +114,25 @@ const LoginPage = () => {
 
             {!showForgotPassword ? (
               <form onSubmit={handleSubmit} className="space-y-6">
+                {errors.length > 0 && (
+                  <div ref={errorRef} className="bg-red-50 border border-red-200 rounded-md p-4">
+                    <div className="flex">
+                      <div className="ml-3">
+                        <h3 className="text-sm font-medium text-red-800">
+                          Please fix the following errors:
+                        </h3>
+                        <div className="mt-2 text-sm text-red-700">
+                          <ul className="list-disc pl-5 space-y-1">
+                            {errors.map((error, index) => (
+                              <li key={index}>{error}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                     Email Address
