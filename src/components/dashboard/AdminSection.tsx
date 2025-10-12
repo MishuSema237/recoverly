@@ -326,24 +326,6 @@ const AdminSection = () => {
     }
   };
 
-  const syncAllUsers = async () => {
-    try {
-      const response = await fetch('/api/users/sync-all', {
-        method: 'POST'
-      });
-      const result = await response.json();
-      
-      if (result.success) {
-        showSuccess(`Successfully synced ${result.results.length} users!`);
-        loadUsers();
-      } else {
-        showError('Failed to sync users: ' + result.error);
-      }
-    } catch (error) {
-      console.error('Error syncing all users:', error);
-      showError('Failed to sync users');
-    }
-  };
 
 
   const getUserInfo = (userId: string) => {
@@ -833,18 +815,6 @@ const AdminSection = () => {
                     <span className="text-sm font-medium">Offline</span>
                   </div>
                 )}
-                {syncStatus && (
-                  <div className="flex items-center space-x-2 text-sm">
-                    <span className="text-gray-600">
-                      MongoDB: {syncStatus.mongoUserCount} | Firestore: {syncStatus.firestoreUserCount}
-                    </span>
-                    {syncStatus.needsSync && (
-                      <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs">
-                        Sync Needed
-                      </span>
-                    )}
-                  </div>
-                )}
                 <div className="relative">
                   <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
@@ -855,32 +825,6 @@ const AdminSection = () => {
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
-                {syncStatus?.needsSync && (
-                  <button
-                    onClick={syncUsersFromFirestore}
-                    disabled={isSyncingUsers}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2"
-                  >
-                    {isSyncingUsers ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Syncing...</span>
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="w-4 h-4" />
-                        <span>Sync from Firestore</span>
-                      </>
-                    )}
-                  </button>
-                )}
-                <button 
-                  onClick={syncAllUsers}
-                  className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  <span>Sync All Users</span>
-                </button>
               </div>
             </div>
 

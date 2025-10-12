@@ -55,6 +55,7 @@ interface AuthContextType {
     state?: string;
     city?: string;
     zip?: string;
+    referralCode?: string;
   }) => Promise<boolean>;
   logout: () => Promise<void>;
   verifyEmail: (token: string) => Promise<boolean>;

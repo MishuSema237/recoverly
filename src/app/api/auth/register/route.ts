@@ -5,7 +5,7 @@ import { sendEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, firstName, lastName, phone, country, state, city, zip } = await request.json();
+    const { email, password, firstName, lastName, phone, country, state, city, zip, referralCode } = await request.json();
 
     // Validate required fields
     if (!email || !password || !firstName || !lastName) {
@@ -33,6 +33,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate referral code if provided
+    if (referralCode) {
+      const isValidReferralCode = await UserService.validateReferralCode(referralCode);
+      if (!isValidReferralCode) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid referral code' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Create user
     const result = await UserService.createUser({
       email: email.toLowerCase(),
@@ -44,7 +55,7 @@ export async function POST(request: NextRequest) {
       state,
       city,
       zip
-    }, password);
+    }, password, referralCode);
 
     // Send verification email
     try {

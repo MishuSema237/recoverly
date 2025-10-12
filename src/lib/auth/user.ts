@@ -30,6 +30,8 @@ export interface User {
   totalDeposit: number;
   totalWithdraw: number;
   referralEarnings: number;
+  referredBy?: string; // ID of the user who referred this user
+  referredByCode?: string; // Referral code used when signing up
   balances?: {
     main: number;
     investment: number;
@@ -55,7 +57,7 @@ export class UserService {
     return result;
   }
 
-  static async createUser(userData: Omit<User, '_id' | 'password' | 'userCode' | 'createdAt' | 'updatedAt' | 'lastLoginAt' | 'emailVerified' | 'isAdmin' | 'isActive' | 'totalInvested' | 'currentInvestment' | 'totalDeposit' | 'totalWithdraw' | 'referralEarnings'>, password: string): Promise<{ user: User; token: string; emailVerificationToken: string }> {
+  static async createUser(userData: Omit<User, '_id' | 'password' | 'userCode' | 'createdAt' | 'updatedAt' | 'lastLoginAt' | 'emailVerified' | 'isAdmin' | 'isActive' | 'totalInvested' | 'currentInvestment' | 'totalDeposit' | 'totalWithdraw' | 'referralEarnings'>, password: string, referralCode?: string): Promise<{ user: User; token: string; emailVerificationToken: string }> {
     const db = await getDb();
     const usersCollection = db.collection<User>('users');
 
@@ -121,6 +123,11 @@ export class UserService {
       { _id: result.insertedId },
       { $set: { emailVerificationToken: properEmailVerificationToken } }
     );
+
+    // Handle referral bonus if referral code provided
+    if (referralCode) {
+      await this.processReferralBonus(referralCode, createdUser._id!);
+    }
 
     // Generate JWT token
     const token = generateToken({
@@ -320,5 +327,115 @@ export class UserService {
 
     const users = await usersCollection.find({}).toArray();
     return users.map(user => ({ ...user, _id: user._id!.toString() }));
+  }
+
+  // Referral System Methods
+  static async processReferralBonus(referralCode: string, newUserId: string): Promise<void> {
+    const db = await getDb();
+    const usersCollection = db.collection<User>('users');
+
+    // Find the referrer by their user code
+    const referrer = await usersCollection.findOne({ userCode: referralCode });
+    if (!referrer) {
+      console.log(`Referral code ${referralCode} not found`);
+      return;
+    }
+
+    // Check if this user was already referred by someone else
+    const newUser = await usersCollection.findOne({ _id: new ObjectId(newUserId) });
+    if (!newUser) {
+      console.log(`New user ${newUserId} not found`);
+      return;
+    }
+
+    // Add referral bonus to referrer
+    const referralBonus = 10; // $10 bonus for each referral
+    const newReferralEarnings = (referrer.referralEarnings || 0) + referralBonus;
+    const newTotalBalance = (referrer.balances?.total || 0) + referralBonus;
+    const newReferralBalance = (referrer.balances?.referral || 0) + referralBonus;
+
+    await usersCollection.updateOne(
+      { _id: referrer._id },
+      {
+        $set: {
+          referralEarnings: newReferralEarnings,
+          'balances.referral': newReferralBalance,
+          'balances.total': newTotalBalance,
+          updatedAt: new Date()
+        },
+        $push: {
+          activityLog: {
+            action: `Referral bonus earned: $${referralBonus} from ${newUser.firstName} ${newUser.lastName}`,
+            timestamp: new Date().toISOString()
+          }
+        }
+      }
+    );
+
+    // Update new user with referrer info
+    await usersCollection.updateOne(
+      { _id: new ObjectId(newUserId) },
+      {
+        $set: {
+          referredBy: referrer._id!.toString(),
+          referredByCode: referralCode,
+          updatedAt: new Date()
+        },
+        $push: {
+          activityLog: {
+            action: `Referred by ${referrer.firstName} ${referrer.lastName} (${referralCode})`,
+            timestamp: new Date().toISOString()
+          }
+        }
+      }
+    );
+
+    console.log(`Referral bonus processed: $${referralBonus} added to ${referrer.email}`);
+  }
+
+  static async getReferralStats(userId: string): Promise<{
+    totalReferrals: number;
+    totalEarnings: number;
+    referrals: Array<{
+      name: string;
+      email: string;
+      joinedAt: string;
+    }>;
+  }> {
+    const db = await getDb();
+    const usersCollection = db.collection<User>('users');
+
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Find all users referred by this user
+    const referrals = await usersCollection.find({ 
+      referredBy: userId 
+    }).sort({ createdAt: -1 }).toArray();
+
+    return {
+      totalReferrals: referrals.length,
+      totalEarnings: user.referralEarnings || 0,
+      referrals: referrals.map(ref => ({
+        name: `${ref.firstName} ${ref.lastName}`,
+        email: ref.email,
+        joinedAt: ref.createdAt.toISOString()
+      }))
+    };
+  }
+
+  static async generateReferralLink(userCode: string): string {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    return `${baseUrl}/signup?ref=${userCode}`;
+  }
+
+  static async validateReferralCode(referralCode: string): Promise<boolean> {
+    const db = await getDb();
+    const usersCollection = db.collection<User>('users');
+
+    const user = await usersCollection.findOne({ userCode: referralCode });
+    return !!user;
   }
 }
