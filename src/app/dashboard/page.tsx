@@ -135,8 +135,8 @@ const DashboardContent = () => {
     };
 
     fetchUnreadCount();
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchUnreadCount, 30000);
+    // Refresh every 5 minutes (300000ms) instead of 30 seconds
+    const interval = setInterval(fetchUnreadCount, 300000);
     return () => clearInterval(interval);
   }, [userProfile?.userCode]);
 

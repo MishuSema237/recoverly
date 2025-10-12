@@ -961,17 +961,6 @@ const AdminSection = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedUser(user);
-                          setShowUserModal(true);
-                        }}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1"
-                      >
-                        <Eye className="w-3 h-3" />
-                        <span>View</span>
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
                           toggleUserStatus(user._id || user.uid, user.isActive === false);
                         }}
                         className={`flex-1 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1 ${
