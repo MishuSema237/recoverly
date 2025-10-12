@@ -672,7 +672,6 @@ const AdminSection = () => {
         setNotificationTitle('');
         setNotificationDetails('');
         setNotificationFiles([]);
-        setUploadedFiles([]);
         setSelectedUsersForNotification([]);
         setShowNotificationModal(false);
         
@@ -1922,7 +1921,6 @@ const AdminSection = () => {
                   setNotificationTitle('');
                   setNotificationDetails('');
                   setNotificationFiles([]);
-                  setUploadedFiles([]);
                   setSelectedUsersForNotification([]);
                 }}
                 className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
