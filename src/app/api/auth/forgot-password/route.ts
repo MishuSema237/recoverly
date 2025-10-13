@@ -46,7 +46,19 @@ export async function POST(request: NextRequest) {
             <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
             <p style="color: #666; font-size: 12px;">© 2024 Tesla Capital. All rights reserved.</p>
           </div>
-        `
+        `,
+        text: `Password Reset Request
+
+You requested a password reset for your Tesla Capital account.
+
+Click the link below to reset your password:
+${resetUrl}
+
+This link will expire in 1 hour.
+
+If you didn't request a password reset, please ignore this email.
+
+© 2024 Tesla Capital. All rights reserved.`
       });
     } catch (emailError) {
       console.error('Failed to send password reset email:', emailError);
