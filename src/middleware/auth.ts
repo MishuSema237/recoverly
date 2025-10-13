@@ -43,7 +43,7 @@ export async function authenticateRequest(request: NextRequest): Promise<{
     return {
       success: true,
       user: {
-        id: user._id!,
+        id: user._id!.toString(),
         email: user.email,
         isAdmin: user.isAdmin
       }
