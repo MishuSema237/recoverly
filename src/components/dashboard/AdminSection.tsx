@@ -426,12 +426,25 @@ const AdminSection = () => {
           break;
         
         case 'deleteUser':
-          const deleteSuccess = await userService.deleteUser(confirmAction.id);
-          if (deleteSuccess) {
-            setMessage({ type: 'success', text: 'User deleted successfully' });
-            loadUsers();
-          } else {
-            setMessage({ type: 'error', text: 'Failed to delete user' });
+          try {
+            const response = await fetch(`/api/users/${confirmAction.id}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              showSuccess('User deleted successfully');
+              loadUsers();
+            } else {
+              showError(result.error || 'Failed to delete user');
+            }
+          } catch (error) {
+            console.error('Error deleting user:', error);
+            showError('Failed to delete user');
           }
           break;
         

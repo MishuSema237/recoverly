@@ -56,3 +56,32 @@ export const PUT = requireAdmin(async (request: AuthenticatedRequest) => {
     );
   }
 });
+
+export const DELETE = requireAdmin(async (request: AuthenticatedRequest) => {
+  try {
+    const url = new URL(request.url);
+    const pathSegments = url.pathname.split('/');
+    const userId = pathSegments[pathSegments.length - 1];
+
+    // Delete user
+    const success = await UserService.deleteUser(userId);
+    
+    if (!success) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to delete user' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    console.error('User deletion error:', error);
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : 'An unknown error occurred' },
+      { status: 500 }
+    );
+  }
+});
