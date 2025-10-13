@@ -79,7 +79,20 @@ export async function POST(request: NextRequest) {
             <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
             <p style="color: #666; font-size: 12px;">© 2024 Tesla Capital. All rights reserved.</p>
           </div>
-        `
+        `,
+        text: `Welcome to Tesla Capital!
+
+Hi ${result.user.firstName},
+
+Thank you for registering with Tesla Capital. Please verify your email address by clicking the link below:
+
+${verificationUrl}
+
+This link will expire in 24 hours.
+
+If you didn't create an account with Tesla Capital, please ignore this email.
+
+© 2024 Tesla Capital. All rights reserved.`
       });
     } catch (emailError) {
       console.error('Failed to send verification email:', emailError);
