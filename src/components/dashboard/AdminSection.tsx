@@ -366,7 +366,7 @@ const AdminSection = () => {
     }
   };
 
-  const updateUser = async (userId: string, updates: Partial<User>) => {
+  const updateUser = async (userId: string, updates: Partial<AdminUser>) => {
     try {
       const success = await userService.updateUser(userId, updates);
       if (success) {
