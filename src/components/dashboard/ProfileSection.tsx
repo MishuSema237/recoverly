@@ -62,14 +62,8 @@ const ProfileSection = () => {
     setIsLoading(true);
 
     try {
-      // Update Firebase Auth profile
-      await updateProfile(user, {
-        displayName: `${formData.firstName} ${formData.lastName}`
-      });
-
-      // Update Firestore profile
-      // MongoDB profile update handled by updateProfile function
-      await updateDoc(userRef, {
+      // Update MongoDB profile using the updateProfile function from AuthContext
+      const success = await updateProfile({
         firstName: formData.firstName,
         lastName: formData.lastName,
         displayName: `${formData.firstName} ${formData.lastName}`,
@@ -80,36 +74,11 @@ const ProfileSection = () => {
         zip: formData.zipCode
       });
 
-      // Update MongoDB profile
-      try {
-        const response = await fetch('/api/users/update-profile', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            // MongoDB profile update handled by updateProfile function
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            displayName: `${formData.firstName} ${formData.lastName}`,
-            phone: formData.phone,
-            country: formData.country,
-            state: formData.state,
-            city: formData.city,
-            zip: formData.zipCode
-          })
-        });
-
-        if (!response.ok) {
-          console.warn('Failed to update MongoDB profile, but Firestore update succeeded');
-        }
-      } catch (error) {
-        console.warn('Error updating MongoDB profile:', error);
+      if (success) {
+        showSuccess('Profile updated successfully!');
+      } else {
+        showError('Failed to update profile');
       }
-
-      showSuccess('Profile updated successfully!');
-      
-      // Profile updated successfully via updateProfile function
     } catch (error) {
       console.error('Error updating profile:', error);
       showError('Failed to update profile. Please try again.');
@@ -127,24 +96,35 @@ const ProfileSection = () => {
       return;
     }
 
-    if (passwordData.newPassword.length < 6) {
-      showError('New password must be at least 6 characters');
+    if (passwordData.newPassword.length < 8) {
+      showError('New password must be at least 8 characters');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Re-authenticate user
-      const credential = EmailAuthProvider.credential(user.email!, passwordData.currentPassword);
-      await reauthenticateWithCredential(user, credential);
+      // Update password via API
+      const response = await fetch('/api/auth/update-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        })
+      });
 
-      // Update password
-      await updatePassword(user, passwordData.newPassword);
+      const result = await response.json();
 
-      showSuccess('Password updated successfully!');
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      setShowPasswordForm(false);
+      if (result.success) {
+        showSuccess('Password updated successfully!');
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setShowPasswordForm(false);
+      } else {
+        showError(result.error || 'Failed to update password');
+      }
     } catch (error) {
       console.error('Error updating password:', error);
       showError('Failed to update password. Please try again.');
