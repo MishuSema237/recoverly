@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Bell, X, FileText, Download } from 'lucide-react';
+import { X, FileText, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Notification {
@@ -41,12 +41,6 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   const [loading, setLoading] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
 
-  useEffect(() => {
-    if (isOpen && userReferralCode) {
-      fetchNotifications();
-    }
-  }, [isOpen, userReferralCode, fetchNotifications]);
-
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {
@@ -61,6 +55,12 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
       setLoading(false);
     }
   }, [userReferralCode]);
+
+  useEffect(() => {
+    if (isOpen && userReferralCode) {
+      fetchNotifications();
+    }
+  }, [isOpen, userReferralCode, fetchNotifications]);
 
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.read) {
