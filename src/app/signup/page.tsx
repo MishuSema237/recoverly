@@ -2,11 +2,11 @@
 
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Shield, Zap, CheckCircle, Users } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
-const SignupPage = () => {
+const SignupForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { register, user } = useAuth();
@@ -539,6 +539,14 @@ const SignupPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const SignupPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignupForm />
+    </Suspense>
   );
 };
 
