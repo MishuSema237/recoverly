@@ -84,7 +84,7 @@ const WithdrawSection = () => {
 
     try {
       const withdrawalRequest: WithdrawalRequest = {
-        userId: user?.uid || '',
+        userId: user?._id || '',
         paymentMethodId: selectedMethod._id,
         amount: withdrawalAmount,
         accountDetails: {
@@ -148,7 +148,7 @@ const WithdrawSection = () => {
             <span className="text-sm font-medium text-gray-700">Available Balance:</span>
             <span className="text-lg font-bold text-gray-900">${userProfile?.balances?.main || 0}</span>
           </div>
-        </div>
+          </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Payment Method Selection */}
@@ -167,13 +167,13 @@ const WithdrawSection = () => {
                   }`}
                   onClick={() => setSelectedMethod(method)}
                 >
-                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3">
                     {method.logo && (
                       <img src={method.logo} alt={method.name} className="w-8 h-8 rounded" />
                     )}
-                            <div>
+                      <div>
                               <h3 className="font-semibold text-gray-900">{method.name}</h3>
-                            </div>
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -225,7 +225,7 @@ const WithdrawSection = () => {
                 placeholder="Enter account number or wallet address"
                 required
               />
-            </div>
+                </div>
 
             {selectedMethod?.accountDetails.bankName && (
               <div>
@@ -237,8 +237,8 @@ const WithdrawSection = () => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="Enter bank name"
                 />
-              </div>
-            )}
+            </div>
+          )}
 
             {selectedMethod?.accountDetails.network && (
               <div>

@@ -3,13 +3,10 @@
 import { useState } from 'react';
 import { User, Mail, Phone, MapPin, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { doc, updateDoc } from 'firebase/firestore';
-import { updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
-import { db } from '@/config/firebase';
 import { showSuccess, showError } from '@/utils/toast';
 
 const ProfileSection = () => {
-  const { user, userProfile, updateUserProfile } = useAuth();
+  const { user, userProfile, updateProfile } = useAuth();
   
   const [formData, setFormData] = useState({
     firstName: userProfile?.firstName || '',
@@ -71,7 +68,7 @@ const ProfileSection = () => {
       });
 
       // Update Firestore profile
-      const userRef = doc(db, 'users', user.uid);
+      // MongoDB profile update handled by updateProfile function
       await updateDoc(userRef, {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -91,7 +88,7 @@ const ProfileSection = () => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            firebaseId: user.uid,
+            // MongoDB profile update handled by updateProfile function
             firstName: formData.firstName,
             lastName: formData.lastName,
             displayName: `${formData.firstName} ${formData.lastName}`,
@@ -112,19 +109,7 @@ const ProfileSection = () => {
 
       showSuccess('Profile updated successfully!');
       
-      // Refresh user profile
-      if (updateUserProfile) {
-        await updateUserProfile({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          displayName: `${formData.firstName} ${formData.lastName}`,
-          phone: formData.phone,
-          country: formData.country,
-          state: formData.state,
-          city: formData.city,
-          zip: formData.zipCode
-        });
-      }
+      // Profile updated successfully via updateProfile function
     } catch (error) {
       console.error('Error updating profile:', error);
       showError('Failed to update profile. Please try again.');
@@ -198,7 +183,7 @@ const ProfileSection = () => {
       });
 
       // Update Firestore profile
-      const userRef = doc(db, 'users', user.uid);
+      // MongoDB profile update handled by updateProfile function
       await updateDoc(userRef, {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -218,7 +203,7 @@ const ProfileSection = () => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            firebaseId: user.uid,
+            // MongoDB profile update handled by updateProfile function
             firstName: formData.firstName,
             lastName: formData.lastName,
             displayName: `${formData.firstName} ${formData.lastName}`,
@@ -240,19 +225,7 @@ const ProfileSection = () => {
       showSuccess('Profile updated successfully!');
       setIsEditing(false);
       
-      // Refresh user profile
-      if (updateUserProfile) {
-        await updateUserProfile({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          displayName: `${formData.firstName} ${formData.lastName}`,
-          phone: formData.phone,
-          country: formData.country,
-          state: formData.state,
-          city: formData.city,
-          zip: formData.zipCode
-        });
-      }
+      // Profile updated successfully via updateProfile function
     } catch (error) {
       console.error('Error updating profile:', error);
       showError('Failed to update profile. Please try again.');

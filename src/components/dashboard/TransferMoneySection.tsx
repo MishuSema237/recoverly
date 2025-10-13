@@ -42,7 +42,7 @@ const TransferMoneySection = () => {
         return false;
       }
 
-      if (userData.uid === userProfile?.uid) {
+      if (userData._id === userProfile?._id) {
         setError('You cannot transfer money to yourself');
         return false;
       }

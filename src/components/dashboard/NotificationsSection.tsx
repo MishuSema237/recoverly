@@ -24,19 +24,6 @@ const NotificationsSection = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    if (userProfile?.userCode) {
-      loadNotifications();
-      
-      // Set up polling every 30 seconds
-      const interval = setInterval(() => {
-        loadNotifications();
-      }, 30000); // 30 seconds
-      
-      return () => clearInterval(interval);
-    }
-  }, [userProfile?.userCode, loadNotifications]);
-
   const loadNotifications = useCallback(async () => {
     try {
       const response = await fetch(`/api/user-notifications?userCode=${userProfile?.userCode}`);
@@ -52,6 +39,19 @@ const NotificationsSection = () => {
       setLoading(false);
     }
   }, [userProfile?.userCode]);
+
+  useEffect(() => {
+    if (userProfile?.userCode) {
+      loadNotifications();
+      
+      // Set up polling every 30 seconds
+      const interval = setInterval(() => {
+        loadNotifications();
+      }, 30000); // 30 seconds
+      
+      return () => clearInterval(interval);
+    }
+  }, [userProfile?.userCode, loadNotifications]);
 
   const markAsRead = async (notificationId: string) => {
     try {

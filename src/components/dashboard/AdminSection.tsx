@@ -694,7 +694,7 @@ const AdminSection = () => {
         activityLog: [
           {
             action: 'Account Created',
-            timestamp: user.createdAt ? (typeof user.createdAt === 'string' ? user.createdAt : user.createdAt.toISOString()) : new Date().toISOString(),
+            timestamp: user.createdAt ? (typeof user.createdAt === 'string' ? user.createdAt : new Date(user.createdAt).toISOString()) : new Date().toISOString(),
             details: 'User account was created'
           }
         ]
@@ -715,7 +715,7 @@ const AdminSection = () => {
         message,
         type: 'individual',
         recipients: [userReferralCode], // Using referral code instead of userId
-        sentBy: user?.uid
+        sentBy: user?._id
       };
 
       const response = await fetch('/api/notifications', {
@@ -1950,7 +1950,7 @@ const AdminSection = () => {
                       <div className="flex items-center space-x-2">
                         <MapPin className="w-4 h-4 text-gray-500" />
                         <span className="text-sm text-gray-600">Location:</span>
-                        <span className="font-medium">{userDetailData.location || 'Not provided'}</span>
+                        <span className="font-medium">{userDetailData.city && userDetailData.country ? `${userDetailData.city}, ${userDetailData.country}` : 'Not provided'}</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Shield className="w-4 h-4 text-gray-500" />

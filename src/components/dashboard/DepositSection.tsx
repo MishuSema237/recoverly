@@ -30,7 +30,7 @@ interface DepositRequest {
 }
 
 const DepositSection = () => {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
   const [amount, setAmount] = useState('');
@@ -91,7 +91,7 @@ const DepositSection = () => {
         const base64Screenshot = reader.result as string;
         
         const depositRequest: DepositRequest = {
-          userId: user?.uid || '',
+          userId: user?._id || '',
           paymentMethodId: selectedMethod._id,
           amount: parseFloat(amount),
           screenshot: base64Screenshot,

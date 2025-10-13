@@ -4,7 +4,7 @@ import { hashPassword, verifyPassword } from './password';
 import { generateToken, generateEmailVerificationToken, generatePasswordResetToken } from './jwt';
 
 export interface User {
-  _id?: string;
+  _id?: string | ObjectId;
   email: string;
   password: string;
   firstName: string;
@@ -520,7 +520,7 @@ export class UserService {
     };
   }
 
-  static async generateReferralLink(userCode: string): string {
+  static generateReferralLink(userCode: string): string {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     return `${baseUrl}/signup?ref=${userCode}`;
   }
