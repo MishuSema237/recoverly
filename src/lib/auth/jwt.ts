@@ -10,12 +10,12 @@ export interface JWTPayload {
 }
 
 export function generateToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign(payload, JWT_SECRET as string, { expiresIn: JWT_EXPIRES_IN });
 }
 
 export function verifyToken(token: string): JWTPayload | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
+    const decoded = jwt.verify(token, JWT_SECRET as string) as JWTPayload;
     return decoded;
   } catch (error) {
     console.error('JWT verification failed:', error);
@@ -24,16 +24,16 @@ export function verifyToken(token: string): JWTPayload | null {
 }
 
 export function generateEmailVerificationToken(userId: string): string {
-  return jwt.sign({ userId, type: 'email-verification' }, JWT_SECRET, { expiresIn: '24h' });
+  return jwt.sign({ userId, type: 'email-verification' }, JWT_SECRET as string, { expiresIn: '24h' });
 }
 
 export function generatePasswordResetToken(userId: string): string {
-  return jwt.sign({ userId, type: 'password-reset' }, JWT_SECRET, { expiresIn: '1h' });
+  return jwt.sign({ userId, type: 'password-reset' }, JWT_SECRET as string, { expiresIn: '1h' });
 }
 
 export function verifyEmailVerificationToken(token: string): { userId: string } | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; type: string };
+    const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string; type: string };
     if (decoded.type === 'email-verification') {
       return { userId: decoded.userId };
     }
@@ -46,7 +46,7 @@ export function verifyEmailVerificationToken(token: string): { userId: string } 
 
 export function verifyPasswordResetToken(token: string): { userId: string } | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; type: string };
+    const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string; type: string };
     if (decoded.type === 'password-reset') {
       return { userId: decoded.userId };
     }
