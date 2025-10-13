@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/middleware/auth';
 import { UserService } from '@/lib/auth/user';
 
-export async function POST(request: NextRequest) {
+export const POST = requireAuth(async (request) => {
   try {
     const { planId, amount, planName } = await request.json();
     const userId = request.user!.id;
@@ -50,4 +50,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
