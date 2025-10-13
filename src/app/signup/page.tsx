@@ -5,7 +5,6 @@ import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Shield, Zap, CheckCircle, Us
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { showSuccess, showError } from '@/utils/toast';
 
 const SignupPage = () => {
   const router = useRouter();

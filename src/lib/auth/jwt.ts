@@ -33,7 +33,7 @@ export function generatePasswordResetToken(userId: string): string {
 
 export function verifyEmailVerificationToken(token: string): { userId: string } | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; type: string };
     if (decoded.type === 'email-verification') {
       return { userId: decoded.userId };
     }
@@ -46,7 +46,7 @@ export function verifyEmailVerificationToken(token: string): { userId: string } 
 
 export function verifyPasswordResetToken(token: string): { userId: string } | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; type: string };
     if (decoded.type === 'password-reset') {
       return { userId: decoded.userId };
     }

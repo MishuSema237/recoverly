@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { requireAuth } from '@/middleware/auth';
 import { UserService } from '@/lib/auth/user';
 
@@ -8,7 +8,7 @@ export const PUT = requireAuth(async (request) => {
     const userId = request.user!.id;
 
     // Remove sensitive fields that shouldn't be updated via this endpoint
-    const { password, email, isAdmin, isActive, userCode, _id, ...allowedUpdates } = updates;
+    const { password: _password, email: _email, isAdmin: _isAdmin, isActive: _isActive, userCode: _userCode, _id: __id, ...allowedUpdates } = updates;
 
     // Update user profile
     const success = await UserService.updateUserProfile(userId, allowedUpdates);

@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Remove sensitive data from response
-    const { password: _, emailVerificationToken: __, passwordResetToken: ___, ...userWithoutSensitiveData } = user;
+    const { password: _password, emailVerificationToken: _emailToken, passwordResetToken: _resetToken, ...userWithoutSensitiveData } = user;
 
     return NextResponse.json({
       success: true,

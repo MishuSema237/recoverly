@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Bell, CheckCircle, AlertCircle, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,9 +35,9 @@ const NotificationsSection = () => {
       
       return () => clearInterval(interval);
     }
-  }, [userProfile?.userCode]);
+  }, [userProfile?.userCode, loadNotifications]);
 
-  const loadNotifications = async () => {
+  const loadNotifications = useCallback(async () => {
     try {
       const response = await fetch(`/api/user-notifications?userCode=${userProfile?.userCode}`);
       const result = await response.json();
@@ -51,7 +51,7 @@ const NotificationsSection = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userProfile?.userCode]);
 
   const markAsRead = async (notificationId: string) => {
     try {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Bell, X, FileText, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -45,9 +45,9 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
     if (isOpen && userReferralCode) {
       fetchNotifications();
     }
-  }, [isOpen, userReferralCode]);
+  }, [isOpen, userReferralCode, fetchNotifications]);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`/api/user-notifications?userCode=${userReferralCode}`);
@@ -60,7 +60,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [userReferralCode]);
 
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.read) {

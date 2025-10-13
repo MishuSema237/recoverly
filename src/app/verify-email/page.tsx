@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { showSuccess, showError } from '@/utils/toast';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 export default function VerifyEmailPage() {
