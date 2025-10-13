@@ -345,7 +345,7 @@ const AdminSection = () => {
           type,
           status,
           rejectionReason,
-          approvedBy: user?.uid,
+          approvedBy: user?._id,
           approvedAt: new Date(),
           userId: selectedTransaction?.userId,
           amount: selectedTransaction?.amount
