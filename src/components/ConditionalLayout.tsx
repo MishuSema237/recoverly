@@ -18,10 +18,24 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   const isVerifyEmail = pathname === '/verify-email';
   const isResetPassword = pathname === '/reset-password';
 
-  if (isDashboard || isActivateEmail || isLogin || isSignup || isVerifyEmail || isResetPassword) {
+  // Pages with no layout (dashboard, auth pages except signup)
+  if (isDashboard || isActivateEmail || isLogin || isVerifyEmail || isResetPassword) {
     return <>{children}</>;
   }
 
+  // Signup page: Header only, no footer
+  if (isSignup) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          {children}
+        </main>
+      </div>
+    );
+  }
+
+  // All other pages: Header + Footer
   return (
     <div className="flex flex-col min-h-screen">
       <Header />

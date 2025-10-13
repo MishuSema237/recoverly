@@ -44,6 +44,7 @@ const SignupForm = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [currentStep, setCurrentStep] = useState(1);
   const errorRef = useRef<HTMLDivElement>(null);
 
   const validatePassword = (password: string): string[] => {
@@ -81,44 +82,82 @@ const SignupForm = () => {
     }, 100);
   };
 
+  const validateStep1 = (): boolean => {
+    const stepErrors: string[] = [];
+    
+    if (!formData.firstName.trim()) {
+      stepErrors.push('First name is required');
+    }
+    if (!formData.lastName.trim()) {
+      stepErrors.push('Last name is required');
+    }
+    if (!formData.email.trim()) {
+      stepErrors.push('Email address is required');
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      stepErrors.push('Please enter a valid email address');
+    }
+    if (!formData.password) {
+      stepErrors.push('Password is required');
+    } else {
+      const passwordErrors = validatePassword(formData.password);
+      stepErrors.push(...passwordErrors);
+    }
+    if (!formData.confirmPassword) {
+      stepErrors.push('Please confirm your password');
+    } else if (formData.password !== formData.confirmPassword) {
+      stepErrors.push('Passwords do not match');
+    }
+    
+    setErrors(stepErrors);
+    if (stepErrors.length > 0) {
+      scrollToError();
+      return false;
+    }
+    return true;
+  };
+
+  const validateStep2 = (): boolean => {
+    const stepErrors: string[] = [];
+    
+    if (!formData.agreeToTerms) {
+      stepErrors.push('You must agree to the Terms of Service and Privacy Policy');
+    }
+    
+    setErrors(stepErrors);
+    if (stepErrors.length > 0) {
+      scrollToError();
+      return false;
+    }
+    return true;
+  };
+
+  const handleNextStep = () => {
+    if (validateStep1()) {
+      setCurrentStep(2);
+      setErrors([]);
+    }
+  };
+
+  const handlePrevStep = () => {
+    setCurrentStep(1);
+    setErrors([]);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate step 2 before submitting
+    if (!validateStep2()) {
+      return;
+    }
+    
     setIsLoading(true);
     setErrors([]);
     
     try {
-      // Validate required fields
-      if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
-        setErrors(['Please fill in all required fields']);
-        scrollToError();
-        return;
-      }
-
-      // Validate passwords match
-      if (formData.password !== formData.confirmPassword) {
-        setErrors(['Passwords do not match']);
-        scrollToError();
-        return;
-      }
-
-      // Validate password strength
-      const passwordErrors = validatePassword(formData.password);
-      if (passwordErrors.length > 0) {
-        setErrors(passwordErrors);
-        scrollToError();
-        return;
-      }
-
       // Validate referral code length if provided
       if (formData.referralCode && formData.referralCode.length !== 8) {
         setErrors(['Referral code must be exactly 8 characters long']);
-        scrollToError();
-        return;
-      }
-
-      // Validate terms agreement
-      if (!formData.agreeToTerms) {
-        setErrors(['You must agree to the terms and conditions']);
         scrollToError();
         return;
       }
@@ -165,6 +204,26 @@ const SignupForm = () => {
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Your Account</h2>
               <p className="text-gray-600">Join Tesla Capital and start investing today</p>
+              
+              {/* Step Indicator */}
+              <div className="flex items-center justify-center mt-6 mb-4">
+                <div className="flex items-center space-x-4">
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+                    currentStep >= 1 ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-600'
+                  }`}>
+                    1
+                  </div>
+                  <div className={`w-16 h-1 ${currentStep >= 2 ? 'bg-red-600' : 'bg-gray-200'}`}></div>
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+                    currentStep >= 2 ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-600'
+                  }`}>
+                    2
+                  </div>
+                </div>
+              </div>
+              <div className="text-sm text-gray-500">
+                {currentStep === 1 ? 'Basic Information' : 'Additional Details'}
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -187,7 +246,10 @@ const SignupForm = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* Step 1: Basic Information */}
+              {currentStep === 1 && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
                     First Name
@@ -302,9 +364,14 @@ const SignupForm = () => {
                   </button>
                 </div>
               </div>
+                </>
+              )}
 
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+              {/* Step 2: Additional Information */}
+              {currentStep === 2 && (
+                <>
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
                   Phone Number
                 </label>
                 <input
@@ -431,8 +498,35 @@ const SignupForm = () => {
                   </button>
                 </label>
               </div>
+                </>
+              )}
 
-              <motion.button
+              {/* Step Navigation Buttons */}
+              <div className="flex justify-between items-center pt-6">
+                {currentStep === 1 ? (
+                  <div></div> // Empty div for spacing
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handlePrevStep}
+                    className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-2"
+                  >
+                    <ArrowRight className="h-5 w-5 rotate-180" />
+                    <span>Previous</span>
+                  </button>
+                )}
+                
+                {currentStep === 1 ? (
+                  <button
+                    type="button"
+                    onClick={handleNextStep}
+                    className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="h-5 w-5" />
+                  </button>
+                ) : (
+                  <motion.button
                 type="submit"
                 disabled={isLoading}
                 whileHover={{ scale: 1.02 }}
