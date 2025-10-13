@@ -5,9 +5,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { CheckCircle, Star, Zap, Crown, Gem, Mail, AlertCircle, TrendingUp, Diamond, Rocket, Shield, Gift, Target, Trophy, Flame, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { doc, updateDoc, increment } from 'firebase/firestore';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
-import { db } from '@/config/firebase';
 
 interface InvestmentPlansProps {
   isDashboard?: boolean;
@@ -312,14 +310,23 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
     setMessage({ type: '', text: '' });
 
     try {
-      // Update user's investment in Firestore
-      const userRef = doc(db, 'users', user.uid);
-      await updateDoc(userRef, {
-        totalInvested: increment(investmentAmount),
-        investmentPlan: selectedPlan.name,
-        lastInvestmentDate: new Date(),
-        currentInvestment: investmentAmount
+      // Update user's investment via API
+      const response = await fetch('/api/users/invest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planId: selectedPlan._id,
+          amount: investmentAmount,
+          planName: selectedPlan.name
+        }),
       });
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Investment failed');
+      }
 
       setMessage({ 
         type: 'success', 

@@ -327,6 +327,54 @@ export class UserService {
     return result.modifiedCount > 0;
   }
 
+  static async updateUserInvestment(userId: string, investmentData: {
+    planId: string;
+    amount: number;
+    planName: string;
+  }): Promise<boolean> {
+    const db = await getDb();
+    const usersCollection = db.collection<User>('users');
+
+    try {
+      const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+      if (!user) {
+        return false;
+      }
+
+      // Check if user has enough balance
+      const currentBalance = user.balances?.main || 0;
+      if (currentBalance < investmentData.amount) {
+        return false;
+      }
+
+      // Update user's investment
+      const result = await usersCollection.updateOne(
+        { _id: new ObjectId(userId) },
+        { 
+          $set: { 
+            totalInvested: (user.totalInvested || 0) + investmentData.amount,
+            currentInvestment: investmentData.amount,
+            investmentPlan: investmentData.planName,
+            'balances.main': currentBalance - investmentData.amount,
+            'balances.investment': (user.balances?.investment || 0) + investmentData.amount,
+            updatedAt: new Date()
+          },
+          $push: {
+            activityLog: {
+              action: `Invested $${investmentData.amount} in ${investmentData.planName} plan`,
+              timestamp: new Date().toISOString()
+            }
+          }
+        }
+      );
+
+      return result.modifiedCount > 0;
+    } catch (error) {
+      console.error('Error updating user investment:', error);
+      return false;
+    }
+  }
+
   static async getAllUsers(): Promise<User[]> {
     const db = await getDb();
     const usersCollection = db.collection<User>('users');
