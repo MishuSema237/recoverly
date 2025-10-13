@@ -368,16 +368,25 @@ const AdminSection = () => {
 
   const updateUser = async (userId: string, updates: Partial<AdminUser>) => {
     try {
-      const success = await userService.updateUser(userId, updates);
-      if (success) {
-        setMessage({ type: 'success', text: 'User updated successfully' });
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updates)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        showSuccess('User updated successfully');
         loadUsers();
       } else {
-        setMessage({ type: 'error', text: 'Failed to update user' });
+        showError(result.error || 'Failed to update user');
       }
     } catch (error) {
       console.error('Error updating user:', error);
-      setMessage({ type: 'error', text: 'Failed to update user' });
+      showError('Failed to update user');
     }
   };
 
