@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/middleware/auth';
+import { requireAdmin, AuthenticatedRequest } from '@/middleware/auth';
 import { UserService } from '@/lib/auth/user';
 
-export const PUT = requireAdmin(async (request: NextRequest, { params }: { params: { id: string } }) => {
+export const PUT = requireAdmin(async (request: AuthenticatedRequest) => {
   try {
-    const userId = params.id;
+    const url = new URL(request.url);
+    const pathSegments = url.pathname.split('/');
+    const userId = pathSegments[pathSegments.length - 1];
     const updates = await request.json();
 
     // Remove sensitive fields that shouldn't be updated via this endpoint
