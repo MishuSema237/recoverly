@@ -639,7 +639,7 @@ const AdminSection = () => {
         details: notificationDetails,
         type: notificationType,
         recipients: notificationType === 'broadcast' ? 'all' : selectedUsersForNotification,
-        sentBy: user?.uid,
+        sentBy: user?._id,
         attachments: attachments.length > 0 ? attachments : undefined
       };
 
@@ -854,7 +854,7 @@ const AdminSection = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredUsers.map(user => (
                   <div
-                    key={user._id || user.uid}
+                    key={user._id}
                     className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
                     onClick={() => openUserDetail(user)}
                   >
@@ -905,7 +905,7 @@ const AdminSection = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleUserStatus(user._id || user.uid, user.isActive === false);
+                          toggleUserStatus(user._id!, user.isActive === false);
                         }}
                         className={`flex-1 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1 ${
                           user.isActive !== false 
@@ -919,7 +919,7 @@ const AdminSection = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          makeAdmin(user._id || user.uid, !user.isAdmin);
+                          makeAdmin(user._id!, !user.isAdmin);
                         }}
                         className={`flex-1 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1 ${
                           user.isAdmin 
@@ -1796,7 +1796,7 @@ const AdminSection = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Select Users</label>
                 <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2">
                   {users.map(user => (
-                    <label key={user._id || user.uid} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
+                    <label key={user._id} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
                       <input
                         type="checkbox"
                         checked={selectedUsersForNotification.includes(user.userCode)}
