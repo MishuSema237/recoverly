@@ -157,14 +157,8 @@ const ProfileSection = () => {
     setIsLoading(true);
 
     try {
-      // Update Firebase Auth profile
-      await updateProfile(user, {
-        displayName: `${formData.firstName} ${formData.lastName}`
-      });
-
-      // Update Firestore profile
-      // MongoDB profile update handled by updateProfile function
-      await updateDoc(userRef, {
+      // Update MongoDB profile using the updateProfile function from AuthContext
+      const success = await updateProfile({
         firstName: formData.firstName,
         lastName: formData.lastName,
         displayName: `${formData.firstName} ${formData.lastName}`,
@@ -175,37 +169,12 @@ const ProfileSection = () => {
         zip: formData.zipCode
       });
 
-      // Update MongoDB profile
-      try {
-        const response = await fetch('/api/users/update-profile', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            // MongoDB profile update handled by updateProfile function
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            displayName: `${formData.firstName} ${formData.lastName}`,
-            phone: formData.phone,
-            country: formData.country,
-            state: formData.state,
-            city: formData.city,
-            zip: formData.zipCode
-          })
-        });
-
-        if (!response.ok) {
-          console.warn('Failed to update MongoDB profile, but Firestore update succeeded');
-        }
-      } catch (error) {
-        console.warn('Error updating MongoDB profile:', error);
+      if (success) {
+        showSuccess('Profile updated successfully!');
+        setIsEditing(false);
+      } else {
+        showError('Failed to update profile');
       }
-
-      showSuccess('Profile updated successfully!');
-      setIsEditing(false);
-      
-      // Profile updated successfully via updateProfile function
     } catch (error) {
       console.error('Error updating profile:', error);
       showError('Failed to update profile. Please try again.');
