@@ -10,8 +10,7 @@ export interface JWTPayload {
 }
 
 export function generateToken(payload: JWTPayload): string {
-  const options: SignOptions = { expiresIn: JWT_EXPIRES_IN as string | number };
-  return jwt.sign(payload, JWT_SECRET, options);
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 }
 
 export function verifyToken(token: string): JWTPayload | null {
@@ -25,13 +24,11 @@ export function verifyToken(token: string): JWTPayload | null {
 }
 
 export function generateEmailVerificationToken(userId: string): string {
-  const options: SignOptions = { expiresIn: '24h' as string | number };
-  return jwt.sign({ userId, type: 'email-verification' }, JWT_SECRET, options);
+  return jwt.sign({ userId, type: 'email-verification' }, JWT_SECRET, { expiresIn: '24h' });
 }
 
 export function generatePasswordResetToken(userId: string): string {
-  const options: SignOptions = { expiresIn: '1h' as string | number };
-  return jwt.sign({ userId, type: 'password-reset' }, JWT_SECRET, options);
+  return jwt.sign({ userId, type: 'password-reset' }, JWT_SECRET, { expiresIn: '1h' });
 }
 
 export function verifyEmailVerificationToken(token: string): { userId: string } | null {
