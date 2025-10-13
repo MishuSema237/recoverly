@@ -580,4 +580,17 @@ export class UserService {
 
     console.log(`Admins notified of user ${activity}: ${user.email}`);
   }
+
+  static async deleteUser(userId: string): Promise<boolean> {
+    const db = await getDb();
+    const usersCollection = db.collection<User>('users');
+
+    try {
+      const result = await usersCollection.deleteOne({ _id: new ObjectId(userId) });
+      return result.deletedCount > 0;
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      return false;
+    }
+  }
 }
