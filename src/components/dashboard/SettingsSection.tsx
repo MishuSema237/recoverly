@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { ShieldCheck, Key, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 
 const SettingsSection = () => {
   const { user } = useAuth();
@@ -45,8 +44,8 @@ const SettingsSection = () => {
       return;
     }
 
-    if (passwordData.newPassword.length < 6) {
-      setMessage({ type: 'error', text: 'New password must be at least 6 characters' });
+    if (passwordData.newPassword.length < 8) {
+      setMessage({ type: 'error', text: 'New password must be at least 8 characters' });
       return;
     }
 
@@ -54,30 +53,30 @@ const SettingsSection = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      // Re-authenticate user
-      const credential = EmailAuthProvider.credential(user.email!, passwordData.currentPassword);
-      await reauthenticateWithCredential(user, credential);
+      // Update password via API
+      const response = await fetch('/api/auth/update-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        })
+      });
 
-      // Update password
-      await updatePassword(user, passwordData.newPassword);
+      const result = await response.json();
 
-      setMessage({ type: 'success', text: 'Password updated successfully!' });
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      setShowPasswordForm(false);
-    } catch (error: unknown) {
-      console.error('Error updating password:', error);
-      if (error && typeof error === 'object' && 'code' in error) {
-        const errorCode = (error as { code: string }).code;
-        if (errorCode === 'auth/wrong-password') {
-          setMessage({ type: 'error', text: 'Current password is incorrect' });
-        } else if (errorCode === 'auth/weak-password') {
-          setMessage({ type: 'error', text: 'New password is too weak' });
-        } else {
-          setMessage({ type: 'error', text: 'Failed to update password. Please try again.' });
-        }
+      if (result.success) {
+        setMessage({ type: 'success', text: 'Password updated successfully!' });
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setShowPasswordForm(false);
       } else {
-        setMessage({ type: 'error', text: 'Failed to update password. Please try again.' });
+        setMessage({ type: 'error', text: result.error || 'Failed to update password' });
       }
+    } catch (error) {
+      console.error('Error updating password:', error);
+      setMessage({ type: 'error', text: 'Failed to update password. Please try again.' });
     } finally {
       setIsLoading(false);
     }
