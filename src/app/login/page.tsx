@@ -98,7 +98,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Left Column - Login Form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <div className="flex-1 flex items-start justify-center px-4 sm:px-6 lg:px-8 pt-16">
         <div className="max-w-md w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -309,8 +309,8 @@ const LoginPage = () => {
       </div>
 
       {/* Right Column - Promotional Content */}
-      <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:px-8 bg-white">
-        <div className="max-w-md mx-auto space-y-8">
+      <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:px-8 bg-white pt-16">
+        <div className="max-w-md mx-auto space-y-6">
           {/* Access Your Investment Portfolio */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -320,11 +320,11 @@ const LoginPage = () => {
             <h3 className="text-2xl font-bold text-gray-900 mb-2">
               Access Your <span className="text-red-600">Investment Portfolio</span>
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-4">
               Sign in to manage your investments, track performance, and access exclusive features.
             </p>
             
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="flex items-start space-x-3">
                 <Shield className="h-6 w-6 text-red-600 mt-1" />
                 <div>
@@ -348,7 +348,7 @@ const LoginPage = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-red-600 rounded-lg p-6 text-white"
+            className="bg-red-600 rounded-lg p-4 text-white"
           >
             <h3 className="text-xl font-bold mb-3">New to Tesla Capital?</h3>
             <p className="text-red-100 mb-4">
@@ -367,7 +367,7 @@ const LoginPage = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-white rounded-lg shadow-md p-6 border border-gray-200"
+            className="bg-white rounded-lg shadow-md p-4 border border-gray-200"
           >
             <h3 className="text-lg font-bold text-gray-900 mb-3">Need Help?</h3>
             <p className="text-gray-600 mb-4">
