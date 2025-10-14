@@ -98,7 +98,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Left Column - Login Form */}
-      <div className="flex-1 flex items-start justify-center px-4 sm:px-6 lg:px-8 pt-16">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -309,8 +309,8 @@ const LoginPage = () => {
       </div>
 
       {/* Right Column - Promotional Content */}
-      <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:px-8 bg-white pt-16">
-        <div className="max-w-md mx-auto space-y-6">
+      <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:px-8 bg-white">
+        <div className="max-w-md mx-auto space-y-4">
           {/* Access Your Investment Portfolio */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}

@@ -1,98 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuth, AuthenticatedRequest } from '@/middleware/auth';
 import { getDb } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
 
-export async function GET(request: NextRequest) {
+export const DELETE = requireAuth(async (request: AuthenticatedRequest) => {
   try {
-    const db = await getDb();
-    const { searchParams } = new URL(request.url);
-    const userReferralCode = searchParams.get('userCode');
-    
-    if (!userReferralCode) {
-      return NextResponse.json({
-        success: false,
-        error: 'User referral code is required'
-      }, { status: 400 });
+    const { notificationId } = await request.json();
+    const userId = request.user!.id;
+
+    if (!notificationId) {
+      return NextResponse.json(
+        { success: false, error: 'Notification ID is required' },
+        { status: 400 }
+      );
     }
-    
-    // Get notifications for this user (broadcast + individual + personal system notifications)
-    // Exclude admin-only notifications
-    const notifications = await db.collection('notifications').find({
-      $and: [
-        {
-          $or: [
-            { recipients: 'all' }, // Broadcast notifications
-            { recipients: userReferralCode }, // Individual notifications for this user
-            { 
-              type: 'system',
-              recipients: userReferralCode 
-            } // Personal system notifications (email verified, deposit approved, etc.)
-          ]
-        },
-        {
-          type: { $ne: 'admin-only' } // Exclude admin-only notifications
-        }
-      ]
-    }).sort({ sentAt: -1 }).toArray();
-    
+
+    const db = await getDb();
+    const notificationsCollection = db.collection('notifications');
+
+    // Delete the notification for this specific user
+    const result = await notificationsCollection.deleteOne({
+      _id: notificationId,
+      recipients: userId
+    });
+
+    if (result.deletedCount === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Notification not found or already deleted' },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      data: notifications
+      message: 'Notification deleted successfully'
     });
   } catch (error) {
-    console.error('Error fetching user notifications:', error);
-    return NextResponse.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
-  }
-}
-
-export async function PUT(request: NextRequest) {
-  try {
-    const db = await getDb();
-    const { notificationId, userCode } = await request.json();
-    
-    if (!notificationId || !userCode) {
-      return NextResponse.json({
-        success: false,
-        error: 'Notification ID and user code are required'
-      }, { status: 400 });
-    }
-    
-    // Mark notification as read for this user
-    const result = await db.collection('notifications').updateOne(
-      { 
-        _id: new ObjectId(notificationId),
-        $or: [
-          { recipients: 'all' },
-          { recipients: userCode }
-        ]
-      },
-      { 
-        $set: { 
-          read: true,
-          readAt: new Date()
-        } 
-      }
+    console.error('Delete notification error:', error);
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : 'An unknown error occurred' },
+      { status: 500 }
     );
-    
-    if (result.matchedCount === 0) {
-      return NextResponse.json({
-        success: false,
-        error: 'Notification not found'
-      }, { status: 404 });
-    }
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Notification marked as read'
-    });
-  } catch (error) {
-    console.error('Error marking notification as read:', error);
-    return NextResponse.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
   }
-}
+});
