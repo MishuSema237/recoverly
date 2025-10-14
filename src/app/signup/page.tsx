@@ -542,6 +542,8 @@ const SignupForm = () => {
                   </>
                 )}
               </motion.button>
+                )}
+              </div>
             </form>
 
             <div className="mt-6 text-center">
