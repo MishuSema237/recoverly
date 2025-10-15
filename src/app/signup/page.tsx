@@ -191,15 +191,15 @@ const SignupForm = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Left Column - Signup Form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="flex max-w-6xl w-full mx-auto shadow-2xl rounded-lg overflow-hidden">
+        {/* Left Column - Signup Form */}
+        <div className="flex-1">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-white rounded-lg shadow-lg p-8"
+            className="bg-white p-8 h-full flex flex-col justify-center"
           >
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Your Account</h2>
@@ -632,6 +632,77 @@ const SignupForm = () => {
               </div>
             </div>
           </motion.div>
+        </div>
+
+        {/* Right Column - Promotional Content */}
+        <div className="hidden lg:flex lg:flex-1 bg-white">
+          <div className="w-full p-8 flex flex-col justify-center space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                Start Your <span className="text-red-600">Investment Journey</span>
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Join thousands of investors who trust Tesla Capital for their investment needs.
+              </p>
+              
+              <div className="space-y-3">
+                <div className="flex items-start space-x-3">
+                  <Shield className="h-6 w-6 text-red-600 mt-1" />
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Secure Platform</h4>
+                    <p className="text-sm text-gray-600">Bank-level security for all transactions</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <Zap className="h-6 w-6 text-red-600 mt-1" />
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Instant Access</h4>
+                    <p className="text-sm text-gray-600">Start investing immediately after signup</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Users className="h-6 w-6 text-red-600 mt-1" />
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Expert Support</h4>
+                    <p className="text-sm text-gray-600">24/7 customer support and guidance</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-red-600 rounded-lg p-4 text-white"
+            >
+              <h3 className="text-xl font-bold mb-3">Why Choose Tesla Capital?</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-red-100" />
+                  <span className="text-red-100">Industry-leading security</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-red-100" />
+                  <span className="text-red-100">Transparent fee structure</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-red-100" />
+                  <span className="text-red-100">Expert financial guidance</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-red-100" />
+                  <span className="text-red-100">24/7 customer support</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </div>
