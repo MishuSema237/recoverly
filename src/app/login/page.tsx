@@ -310,82 +310,82 @@ const LoginPage = () => {
 
         {/* Right Column - Promotional Content */}
         <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:px-8 bg-white">
-        <div className="max-w-md mx-auto space-y-4">
-          {/* Access Your Investment Portfolio */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              Access Your <span className="text-red-600">Investment Portfolio</span>
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Sign in to manage your investments, track performance, and access exclusive features.
-            </p>
-            
-            <div className="space-y-3">
-              <div className="flex items-start space-x-3">
-                <Shield className="h-6 w-6 text-red-600 mt-1" />
-                <div>
-                  <h4 className="font-semibold text-gray-900">Secure Login</h4>
-                  <p className="text-sm text-gray-600">Bank-level security for your account</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <Zap className="h-6 w-6 text-red-600 mt-1" />
-                <div>
-                  <h4 className="font-semibold text-gray-900">Quick Access</h4>
-                  <p className="text-sm text-gray-600">Access your portfolio instantly</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* New to Tesla Capital */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-red-600 rounded-lg p-4 text-white"
-          >
-            <h3 className="text-xl font-bold mb-3">New to Tesla Capital?</h3>
-            <p className="text-red-100 mb-4">
-              Join thousands of investors who trust Tesla Capital for their investment needs.
-            </p>
-            <button
-              onClick={() => router.push('/signup')}
-              className="w-full bg-white text-red-600 py-2 px-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+          <div className="max-w-md mx-auto space-y-4">
+            {/* Access Your Investment Portfolio */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             >
-              Create Account
-            </button>
-          </motion.div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                Access Your <span className="text-red-600">Investment Portfolio</span>
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Sign in to manage your investments, track performance, and access exclusive features.
+              </p>
+              
+              <div className="space-y-3">
+                <div className="flex items-start space-x-3">
+                  <Shield className="h-6 w-6 text-red-600 mt-1" />
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Secure Login</h4>
+                    <p className="text-sm text-gray-600">Bank-level security for your account</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <Zap className="h-6 w-6 text-red-600 mt-1" />
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Quick Access</h4>
+                    <p className="text-sm text-gray-600">Access your portfolio instantly</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
 
-          {/* Need Help */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-white rounded-lg shadow-md p-4 border border-gray-200"
-          >
-            <h3 className="text-lg font-bold text-gray-900 mb-3">Need Help?</h3>
-            <p className="text-gray-600 mb-4">
-              Our support team is available 24/7 to assist you.
-            </p>
-            
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Mail className="h-4 w-4 text-purple-600" />
-                <span className="text-sm text-gray-700">support@teslacapital.com</span>
+            {/* New to Tesla Capital */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-red-600 rounded-lg p-4 text-white"
+            >
+              <h3 className="text-xl font-bold mb-3">New to Tesla Capital?</h3>
+              <p className="text-red-100 mb-4">
+                Join thousands of investors who trust Tesla Capital for their investment needs.
+              </p>
+              <button
+                onClick={() => router.push('/signup')}
+                className="w-full bg-white text-red-600 py-2 px-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              >
+                Create Account
+              </button>
+            </motion.div>
+
+            {/* Need Help */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="bg-white rounded-lg shadow-md p-4 border border-gray-200"
+            >
+              <h3 className="text-lg font-bold text-gray-900 mb-3">Need Help?</h3>
+              <p className="text-gray-600 mb-4">
+                Our support team is available 24/7 to assist you.
+              </p>
+              
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Mail className="h-4 w-4 text-purple-600" />
+                  <span className="text-sm text-gray-700">support@teslacapital.com</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Phone className="h-4 w-4 text-purple-600" />
+                  <span className="text-sm text-gray-700">+1 (555) 123-4567</span>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Phone className="h-4 w-4 text-purple-600" />
-                <span className="text-sm text-gray-700">+1 (555) 123-4567</span>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </div>
