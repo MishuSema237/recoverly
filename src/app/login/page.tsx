@@ -24,7 +24,6 @@ const LoginPage = () => {
   const errorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Redirect authenticated users to dashboard
     if (user) {
       router.push('/dashboard');
     }
@@ -45,7 +44,6 @@ const LoginPage = () => {
     setErrors([]);
 
     try {
-      // Validate required fields
       if (!formData.email || !formData.password) {
         setErrors(['Please fill in all required fields']);
         scrollToError();
@@ -92,13 +90,12 @@ const LoginPage = () => {
   };
 
   if (user) {
-    return null; // Will redirect to dashboard
+    return null;
   }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="flex max-w-6xl w-full mx-auto shadow-2xl rounded-lg overflow-hidden">
-        {/* Left Column - Login Form */}
         <div className="flex-1">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -106,212 +103,209 @@ const LoginPage = () => {
             transition={{ duration: 0.5 }}
             className="bg-white p-8 h-full flex flex-col justify-center"
           >
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-                <p className="text-gray-600">Sign in to your Tesla Capital account</p>
-              </div>
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+              <p className="text-gray-600">Sign in to your Tesla Capital account</p>
+            </div>
 
-              {!showForgotPassword ? (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {errors.length > 0 && (
-                    <div ref={errorRef} className="bg-red-50 border border-red-200 rounded-md p-4">
-                      <div className="flex">
-                        <div className="ml-3">
-                          <h3 className="text-sm font-medium text-red-800">
-                            Please fix the following errors:
-                          </h3>
-                          <div className="mt-2 text-sm text-red-700">
-                            <ul className="list-disc pl-5 space-y-1">
-                              {errors.map((error, index) => (
-                                <li key={index}>{error}</li>
-                              ))}
-                            </ul>
-                          </div>
+            {!showForgotPassword ? (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {errors.length > 0 && (
+                  <div ref={errorRef} className="bg-red-50 border border-red-200 rounded-md p-4">
+                    <div className="flex">
+                      <div className="ml-3">
+                        <h3 className="text-sm font-medium text-red-800">
+                          Please fix the following errors:
+                        </h3>
+                        <div className="mt-2 text-sm text-red-700">
+                          <ul className="list-disc pl-5 space-y-1">
+                            {errors.map((error, index) => (
+                              <li key={index}>{error}</li>
+                            ))}
+                          </ul>
                         </div>
                       </div>
                     </div>
-                  )}
-
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                      <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        autoComplete="email"
-                        required
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="your@email.com"
-                      />
-                    </div>
                   </div>
+                )}
 
-                  <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                      <input
-                        id="password"
-                        name="password"
-                        type={showPassword ? 'text' : 'password'}
-                        autoComplete="current-password"
-                        required
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Enter your password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                      </button>
-                    </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      placeholder="your@email.com"
+                    />
                   </div>
+                </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        id="remember-me"
-                        name="remember-me"
-                        type="checkbox"
-                        checked={formData.rememberMe}
-                        onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
-                        className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-                      />
-                      <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                        Remember me
-                      </label>
-                    </div>
-
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      required
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      placeholder="Enter your password"
+                    />
                     <button
                       type="button"
-                      onClick={() => setShowForgotPassword(true)}
-                      className="text-sm text-red-600 hover:text-red-500"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
-                      Forgot password?
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
+                </div>
 
-                  <motion.button
-                    type="submit"
-                    disabled={isLoading}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <input
+                      id="remember-me"
+                      name="remember-me"
+                      type="checkbox"
+                      checked={formData.rememberMe}
+                      onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
+                      className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                      Remember me
+                    </label>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-sm text-red-600 hover:text-red-500"
                   >
-                    {isLoading ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    ) : (
-                      <>
-                        Sign In
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </>
-                    )}
-                  </motion.button>
-                </form>
-              ) : (
-                <div>
-                  {forgotPasswordSuccess ? (
-                    <div className="text-center space-y-4">
-                      <CheckCircle className="mx-auto h-12 w-12 text-green-600" />
-                      <h3 className="text-lg font-medium text-gray-900">Check Your Email</h3>
-                      <p className="text-gray-600">
-                        We've sent a password reset link to your email address.
+                    Forgot password?
+                  </button>
+                </div>
+
+                <motion.button
+                  type="submit"
+                  disabled={isLoading}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <>
+                      Sign In
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </>
+                  )}
+                </motion.button>
+              </form>
+            ) : (
+              <div>
+                {forgotPasswordSuccess ? (
+                  <div className="text-center space-y-4">
+                    <CheckCircle className="mx-auto h-12 w-12 text-green-600" />
+                    <h3 className="text-lg font-medium text-gray-900">Check Your Email</h3>
+                    <p className="text-gray-600">
+                      We have sent a password reset link to your email address.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setShowForgotPassword(false);
+                        setForgotPasswordSuccess(false);
+                      }}
+                      className="w-full py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    >
+                      Back to Login
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleForgotPassword} className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">Reset Password</h3>
+                      <p className="text-gray-600 mb-4">
+                        Enter your email address and we will send you a link to reset your password.
                       </p>
+                    </div>
+
+                    <div>
+                      <label htmlFor="forgot-email" className="block text-sm font-medium text-gray-700 mb-2">
+                        Email Address
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          id="forgot-email"
+                          name="email"
+                          type="email"
+                          autoComplete="email"
+                          required
+                          value={forgotPasswordEmail}
+                          onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                          placeholder="Enter your email"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex space-x-3">
                       <button
-                        onClick={() => {
-                          setShowForgotPassword(false);
-                          setForgotPasswordSuccess(false);
-                        }}
-                        className="w-full py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        type="button"
+                        onClick={() => setShowForgotPassword(false)}
+                        className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                       >
-                        Back to Login
+                        Back
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isForgotPasswordLoading}
+                        className="flex-1 py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                      >
+                        {isForgotPasswordLoading ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mx-auto"></div>
+                        ) : (
+                          'Send Reset Link'
+                        )}
                       </button>
                     </div>
-                  ) : (
-                    <form onSubmit={handleForgotPassword} className="space-y-6">
-                      <div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">Reset Password</h3>
-                        <p className="text-gray-600 mb-4">
-                          Enter your email address and we'll send you a link to reset your password.
-                        </p>
-                      </div>
-
-                      <div>
-                        <label htmlFor="forgot-email" className="block text-sm font-medium text-gray-700 mb-2">
-                          Email Address
-                        </label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                          <input
-                            id="forgot-email"
-                            name="email"
-                            type="email"
-                            autoComplete="email"
-                            required
-                            value={forgotPasswordEmail}
-                            onChange={(e) => setForgotPasswordEmail(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                            placeholder="Enter your email"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex space-x-3">
-                        <button
-                          type="button"
-                          onClick={() => setShowForgotPassword(false)}
-                          className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                        >
-                          Back
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={isForgotPasswordLoading}
-                          className="flex-1 py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-                        >
-                          {isForgotPasswordLoading ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mx-auto"></div>
-                          ) : (
-                            'Send Reset Link'
-                          )}
-                        </button>
-                      </div>
-                    </form>
-                  )}
-                </div>
-              )}
-
-              <div className="mt-6 text-center">
-                <p className="text-gray-600">
-                  Don't have an account?{' '}
-                  <button
-                    onClick={() => router.push('/signup')}
-                    className="text-red-600 hover:text-red-500 font-medium"
-                  >
-                    Sign up here
-                  </button>
-                </p>
+                  </form>
+                )}
               </div>
-            </motion.div>
-          </div>
+            )}
+
+            <div className="mt-6 text-center">
+              <p className="text-gray-600">
+                Do not have an account?{' '}
+                <button
+                  onClick={() => router.push('/signup')}
+                  className="text-red-600 hover:text-red-500 font-medium"
+                >
+                  Sign up here
+                </button>
+              </p>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Right Column - Promotional Content */}
         <div className="hidden lg:flex lg:flex-1 bg-white">
           <div className="w-full p-8 flex flex-col justify-center space-y-6">
-            {/* Access Your Investment Portfolio */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -343,7 +337,6 @@ const LoginPage = () => {
               </div>
             </motion.div>
 
-            {/* New to Tesla Capital */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -362,7 +355,6 @@ const LoginPage = () => {
               </button>
             </motion.div>
 
-            {/* Need Help */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
