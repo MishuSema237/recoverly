@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+import { NotificationService } from '@/lib/notifications/NotificationService';
 
 interface DepositRequest {
   _id?: ObjectId;
@@ -75,8 +76,17 @@ export async function POST(request: NextRequest) {
       };
       const result = await collection.insertOne(newDeposit);
       
-      // Send notification to all admins
-      await notifyAdminsOfTransaction('deposit', transactionData.userId, transactionData.amount);
+      // Get user details for notification
+      const user = await db.collection('users').findOne({ _id: new ObjectId(transactionData.userId) });
+      const userEmail = user?.email || 'Unknown User';
+      
+      // Send notifications using NotificationService
+      await NotificationService.notifyDepositRequest(
+        transactionData.userId,
+        userEmail,
+        transactionData.amount,
+        result.insertedId.toString()
+      );
       
       return NextResponse.json({ success: true, data: result.insertedId });
     } else if (type === 'withdrawal') {
@@ -89,8 +99,17 @@ export async function POST(request: NextRequest) {
       };
       const result = await collection.insertOne(newWithdrawal);
       
-      // Send notification to all admins
-      await notifyAdminsOfTransaction('withdrawal', transactionData.userId, transactionData.amount);
+      // Get user details for notification
+      const user = await db.collection('users').findOne({ _id: new ObjectId(transactionData.userId) });
+      const userEmail = user?.email || 'Unknown User';
+      
+      // Send notifications using NotificationService
+      await NotificationService.notifyWithdrawalRequest(
+        transactionData.userId,
+        userEmail,
+        transactionData.amount,
+        result.insertedId.toString()
+      );
       
       return NextResponse.json({ success: true, data: result.insertedId });
     } else {
@@ -131,13 +150,38 @@ export async function PUT(request: NextRequest) {
         const depositRequest = await collection.findOne({ _id: objectId });
         if (depositRequest) {
           // Update user balance
-          await updateUserBalance(depositRequest.userId, depositRequest.amount, 'add');
+          await updateUserBalance(depositRequest.userId, depositRequest.amount, 'add', 'deposit');
+          
+          // Get user details for notification
+          const user = await db.collection('users').findOne({ _id: new ObjectId(depositRequest.userId) });
+          const userEmail = user?.email || 'Unknown User';
           
           // Notify user of approval
-          await notifyUserOfTransactionApproval(depositRequest.userId, 'deposit', depositRequest.amount);
+          await NotificationService.notifyDepositApproval(
+            depositRequest.userId,
+            userEmail,
+            depositRequest.amount,
+            depositRequest._id?.toString() || ''
+          );
         }
       } else if (status === 'rejected') {
         updateDoc = { ...updateDoc, rejectionReason };
+        
+        // Get the deposit request to notify user
+        const depositRequest = await collection.findOne({ _id: objectId });
+        if (depositRequest) {
+          const user = await db.collection('users').findOne({ _id: new ObjectId(depositRequest.userId) });
+          const userEmail = user?.email || 'Unknown User';
+          
+          // Notify user of rejection
+          await NotificationService.notifyDepositDecline(
+            depositRequest.userId,
+            userEmail,
+            depositRequest.amount,
+            depositRequest._id?.toString() || '',
+            rejectionReason
+          );
+        }
       }
     } else if (type === 'withdrawal') {
       collection = db.collection<WithdrawalRequest>('withdrawalRequests');
@@ -148,13 +192,38 @@ export async function PUT(request: NextRequest) {
         const withdrawalRequest = await collection.findOne({ _id: objectId });
         if (withdrawalRequest) {
           // Deduct from user balance
-          await updateUserBalance(withdrawalRequest.userId, withdrawalRequest.amount, 'subtract');
+          await updateUserBalance(withdrawalRequest.userId, withdrawalRequest.amount, 'subtract', 'withdrawal');
+          
+          // Get user details for notification
+          const user = await db.collection('users').findOne({ _id: new ObjectId(withdrawalRequest.userId) });
+          const userEmail = user?.email || 'Unknown User';
           
           // Notify user of completion
-          await notifyUserOfTransactionApproval(withdrawalRequest.userId, 'withdrawal', withdrawalRequest.amount);
+          await NotificationService.notifyWithdrawalApproval(
+            withdrawalRequest.userId,
+            userEmail,
+            withdrawalRequest.amount,
+            withdrawalRequest._id?.toString() || ''
+          );
         }
       } else if (status === 'rejected') {
         updateDoc = { ...updateDoc, rejectionReason };
+        
+        // Get the withdrawal request to notify user
+        const withdrawalRequest = await collection.findOne({ _id: objectId });
+        if (withdrawalRequest) {
+          const user = await db.collection('users').findOne({ _id: new ObjectId(withdrawalRequest.userId) });
+          const userEmail = user?.email || 'Unknown User';
+          
+          // Notify user of rejection
+          await NotificationService.notifyWithdrawalDecline(
+            withdrawalRequest.userId,
+            userEmail,
+            withdrawalRequest.amount,
+            withdrawalRequest._id?.toString() || '',
+            rejectionReason
+          );
+        }
       }
     } else {
       return NextResponse.json({ success: false, error: 'Invalid transaction type for PUT' }, { status: 400 });
@@ -177,12 +246,12 @@ export async function PUT(request: NextRequest) {
 }
 
 // Helper function to update user balance
-async function updateUserBalance(userId: string, amount: number, operation: 'add' | 'subtract') {
+async function updateUserBalance(userId: string, amount: number, operation: 'add' | 'subtract', transactionType?: 'deposit' | 'withdrawal') {
   try {
     const db = await getDb();
     const usersCollection = db.collection('users');
     
-    const user = await usersCollection.findOne({ firebaseId: userId });
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
     if (!user) {
       console.error('User not found for balance update:', userId);
       return;
@@ -193,77 +262,26 @@ async function updateUserBalance(userId: string, amount: number, operation: 'add
       ? currentBalance + amount 
       : Math.max(0, currentBalance - amount);
 
+    const updateData: any = {
+      'balances.main': newBalance,
+      'balances.total': (user.balances?.investment || 0) + (user.balances?.referral || 0) + newBalance,
+      updatedAt: new Date()
+    };
+
+    // Track total deposits and withdrawals
+    if (transactionType === 'deposit' && operation === 'add') {
+      updateData.totalDeposit = (user.totalDeposit || 0) + amount;
+    } else if (transactionType === 'withdrawal' && operation === 'subtract') {
+      updateData.totalWithdraw = (user.totalWithdraw || 0) + amount;
+    }
+
     await usersCollection.updateOne(
-      { firebaseId: userId },
-      { 
-        $set: { 
-          'balances.main': newBalance,
-          'balances.total': (user.balances?.investment || 0) + (user.balances?.referral || 0) + newBalance,
-          updatedAt: new Date()
-        } 
-      }
+      { _id: new ObjectId(userId) },
+      { $set: updateData }
     );
 
     console.log(`Updated balance for user ${userId}: ${operation} ${amount}, new balance: ${newBalance}`);
   } catch (error) {
     console.error('Error updating user balance:', error);
-  }
-}
-
-// Helper function to notify admins of new transactions
-async function notifyAdminsOfTransaction(transactionType: string, userId: string, amount: number) {
-  try {
-    const db = await getDb();
-    const notificationsCollection = db.collection('notifications');
-    
-    // Get all admin users
-    const usersCollection = db.collection('users');
-    const admins = await usersCollection.find({ isAdmin: true }).toArray();
-    
-    if (admins.length > 0) {
-      const notification = {
-        title: `New ${transactionType} Request`,
-        message: `A user has submitted a ${transactionType} request for $${amount}`,
-        details: `Transaction Type: ${transactionType}\nAmount: $${amount}\nUser ID: ${userId}`,
-        type: 'broadcast',
-        recipients: 'all', // Send to all admins
-        sentBy: 'system',
-        sentAt: new Date(),
-        read: false
-      };
-      
-      await notificationsCollection.insertOne(notification);
-    }
-  } catch (error) {
-    console.error('Error notifying admins:', error);
-  }
-}
-
-// Helper function to notify user of transaction approval
-async function notifyUserOfTransactionApproval(userId: string, transactionType: string, amount: number) {
-  try {
-    const db = await getDb();
-    const notificationsCollection = db.collection('notifications');
-    
-    // Get user's referral code
-    const usersCollection = db.collection('users');
-    const user = await usersCollection.findOne({ firebaseId: userId });
-    
-    if (user && user.userCode) {
-      const notification = {
-        title: `${transactionType === 'deposit' ? 'Deposit' : 'Withdrawal'} ${transactionType === 'deposit' ? 'Approved' : 'Completed'}`,
-        message: `Your ${transactionType} request for $${amount} has been ${transactionType === 'deposit' ? 'approved' : 'completed'}`,
-        details: `Amount: $${amount}\nStatus: ${transactionType === 'deposit' ? 'Approved' : 'Completed'}\nYour balance has been updated accordingly.`,
-        type: 'individual',
-        recipients: [user.userCode],
-        sentBy: 'system',
-        sentAt: new Date(),
-        read: false
-      };
-      
-      await notificationsCollection.insertOne(notification);
-    }
-  } catch (error) {
-    console.error('Error notifying user:', error);
   }
 }

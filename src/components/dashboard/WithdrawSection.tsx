@@ -46,6 +46,13 @@ const WithdrawSection = () => {
   const [network, setNetwork] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Validation states
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+  const availableBalance = userProfile?.balances?.main || 0;
+  const withdrawalAmount = parseFloat(amount) || 0;
+  const isAmountValid = withdrawalAmount <= availableBalance && withdrawalAmount > 0;
+  const isFormValid = isAmountValid && selectedMethod && accountName && accountNumber;
+
   useEffect(() => {
     loadPaymentMethods();
   }, []);
@@ -187,16 +194,32 @@ const WithdrawSection = () => {
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${
+                amount && !isAmountValid 
+                  ? 'border-red-500 focus:ring-red-500 bg-red-50' 
+                  : 'border-gray-300 focus:ring-red-500'
+              }`}
               placeholder="Enter amount to withdraw"
               min="1"
               step="0.01"
-              max={userProfile?.balances?.main || 0}
+              max={availableBalance}
               required
             />
-            <p className="text-sm text-gray-500 mt-1">
-              Maximum: ${userProfile?.balances?.main || 0}
-            </p>
+            {amount && !isAmountValid && (
+              <p className="mt-1 text-sm text-red-600">
+                Amount exceeds available balance (${availableBalance.toFixed(2)})
+              </p>
+            )}
+            {amount && isAmountValid && (
+              <p className="mt-1 text-sm text-green-600">
+                Available balance: ${availableBalance.toFixed(2)}
+              </p>
+            )}
+            {!amount && (
+              <p className="text-sm text-gray-500 mt-1">
+                Available balance: ${availableBalance.toFixed(2)}
+              </p>
+            )}
           </div>
 
           {/* Account Details */}
@@ -257,8 +280,12 @@ const WithdrawSection = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={!selectedMethod || !amount || !accountName || !accountNumber || isSubmitting}
-            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2"
+            disabled={!isFormValid || isSubmitting}
+            className={`w-full text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 ${
+              !isFormValid && !isSubmitting
+                ? 'bg-red-500 hover:bg-red-600'
+                : 'bg-red-600 hover:bg-red-700 disabled:bg-gray-400'
+            }`}
           >
             {isSubmitting ? (
               <>

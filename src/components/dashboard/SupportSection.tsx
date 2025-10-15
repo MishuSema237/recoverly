@@ -2,14 +2,18 @@
 
 import { useState } from 'react';
 import { HelpCircle, Mail, MessageSquare, Clock, Phone, MapPin, Globe, Users, Shield, Zap } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import toast from 'react-hot-toast';
 
 const SupportSection = () => {
+  const { user, userProfile } = useAuth();
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
+    fullName: userProfile?.displayName || '',
+    email: user?.email || '',
     subject: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -19,10 +23,48 @@ const SupportSection = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle support form submission
-    console.log('Support request:', formData);
+    setIsSubmitting(true);
+
+    try {
+      // Send support message as notification to admins
+      const response = await fetch('/api/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: `Support Request: ${formData.subject}`,
+          message: `From: ${formData.fullName} (${formData.email})\n\nMessage: ${formData.message}`,
+          type: 'broadcast',
+          recipients: 'all', // This will be filtered to admins only
+          sentBy: user?._id || 'system',
+          metadata: {
+            supportRequest: true,
+            userEmail: formData.email,
+            userId: user?._id
+          }
+        })
+      });
+
+      if (response.ok) {
+        toast.success('Support message sent successfully! We\'ll get back to you soon.');
+        // Reset form
+        setFormData(prev => ({
+          ...prev,
+          subject: '',
+          message: ''
+        }));
+      } else {
+        throw new Error('Failed to send support message');
+      }
+    } catch (error) {
+      console.error('Error sending support message:', error);
+      toast.error('Failed to send support message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -99,9 +141,17 @@ const SupportSection = () => {
               
               <button
                 type="submit"
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200"
+                disabled={isSubmitting}
+                className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2"
               >
-                Send Message
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Sending...</span>
+                  </>
+                ) : (
+                  <span>Send Message</span>
+                )}
               </button>
             </form>
           </div>

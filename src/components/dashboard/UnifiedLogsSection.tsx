@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   History, 
   ArrowDownCircle, 
@@ -16,6 +16,7 @@ import {
   XCircle,
   Clock
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface LogEntry {
   id: string;
@@ -33,66 +34,37 @@ interface LogEntry {
 }
 
 const UnifiedLogsSection = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'all' | 'deposits' | 'withdrawals' | 'transfers' | 'investments'>('all');
   const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
+  const [transactions, setTransactions] = useState<LogEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data - in real app, this would come from Firestore
-  const mockLogs: LogEntry[] = [
-    {
-      id: 'DEP001',
-      type: 'deposit',
-      date: '2024-01-15T10:30:00Z',
-      amount: 5000,
-      currency: 'USD',
-      status: 'completed',
-      details: 'Initial deposit via Bitcoin',
-      method: 'Bitcoin'
-    },
-    {
-      id: 'INV001',
-      type: 'investment',
-      date: '2024-01-16T14:20:00Z',
-      amount: 2000,
-      currency: 'USD',
-      status: 'completed',
-      details: 'Investment in Silver plan',
-      plan: 'Silver'
-    },
-    {
-      id: 'TRF001',
-      type: 'transfer',
-      date: '2024-01-17T09:15:00Z',
-      amount: 500,
-      currency: 'USD',
-      status: 'completed',
-      details: 'Transfer to user ABC12345',
-      sender: 'You',
-      receiver: 'ABC12345',
-      fee: 5
-    },
-    {
-      id: 'WTH001',
-      type: 'withdrawal',
-      date: '2024-01-18T16:45:00Z',
-      amount: 1000,
-      currency: 'USD',
-      status: 'pending',
-      details: 'Withdrawal to Bank Account',
-      method: 'Bank Transfer'
-    },
-    {
-      id: 'ERN001',
-      type: 'earning',
-      date: '2024-01-19T12:00:00Z',
-      amount: 50,
-      currency: 'USD',
-      status: 'completed',
-      details: 'Daily earnings from Silver plan',
-      plan: 'Silver'
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/user-transactions');
+      const result = await response.json();
+      
+      if (result.success) {
+        setTransactions(result.data);
+      } else {
+        setError(result.error || 'Failed to fetch transactions');
+      }
+    } catch (err) {
+      setError('Failed to fetch transactions');
+      console.error('Error fetching transactions:', err);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const filteredLogs = mockLogs.filter(log => {
+  const filteredLogs = transactions.filter(log => {
     if (activeTab === 'all') return true;
     if (activeTab === 'deposits') return log.type === 'deposit';
     if (activeTab === 'withdrawals') return log.type === 'withdrawal';
@@ -161,11 +133,34 @@ const UnifiedLogsSection = () => {
               <span>{tab.label}</span>
             </button>
           ))}
+          <button
+            onClick={fetchTransactions}
+            disabled={loading}
+            className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors duration-200 disabled:opacity-50"
+          >
+            <History className="w-4 h-4" />
+            <span>{loading ? 'Refreshing...' : 'Refresh'}</span>
+          </button>
         </div>
 
         {/* Mobile Tile Layout */}
         <div className="block md:hidden space-y-3">
-          {filteredLogs.length > 0 ? (
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading transactions...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 text-red-600">
+              <p>{error}</p>
+              <button 
+                onClick={fetchTransactions}
+                className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Retry
+              </button>
+            </div>
+          ) : filteredLogs.length > 0 ? (
             filteredLogs.map(log => (
               <div key={log.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
                 <div className="flex items-center justify-between mb-2">
@@ -223,7 +218,28 @@ const UnifiedLogsSection = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredLogs.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-8">
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600"></div>
+                      <span className="text-gray-600">Loading transactions...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-8 text-red-600">
+                    <p>{error}</p>
+                    <button 
+                      onClick={fetchTransactions}
+                      className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    >
+                      Retry
+                    </button>
+                  </td>
+                </tr>
+              ) : filteredLogs.length > 0 ? (
                 filteredLogs.map(log => (
                   <tr key={log.id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4">

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { UserService } from '@/lib/auth/user';
 import { validatePassword } from '@/lib/auth/password';
 import { sendEmail } from '@/lib/email';
+import { NotificationService } from '@/lib/notifications/NotificationService';
 
 export async function POST(request: NextRequest) {
   try {
@@ -97,6 +98,25 @@ If you didn't create an account with Tesla Capital, please ignore this email.
     } catch (emailError) {
       console.error('Failed to send verification email:', emailError);
       // Don't fail registration if email fails
+    }
+
+    // Send registration notification to admins
+    try {
+      await NotificationService.createNotification({
+        title: 'New User Registration',
+        message: `New user ${result.user.firstName} ${result.user.lastName} (${result.user.email}) has registered.`,
+        type: 'broadcast',
+        recipients: 'all', // This will be filtered to admins only
+        sentBy: 'system',
+        metadata: {
+          userId: result.user._id?.toString(),
+          userEmail: result.user.email,
+          referralCode: referralCode || null
+        }
+      });
+    } catch (notificationError) {
+      console.error('Failed to send registration notification:', notificationError);
+      // Don't fail registration if notification fails
     }
 
     // Remove sensitive data from response

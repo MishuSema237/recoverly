@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyEmailVerificationToken } from '@/lib/auth/jwt';
 import { UserService } from '@/lib/auth/user';
+import { NotificationService } from '@/lib/notifications/NotificationService';
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,13 +32,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get user details for notifications
+    const user = await UserService.getUserById(payload.userId);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
     // Move referral earnings to main balance if user was referred
     try {
       await UserService.moveReferralEarningsToMainBalance(payload.userId);
+      
+      // Process referral bonus for the referrer
+      if (user.referredBy) {
+        const referrer = await UserService.getUserByReferralCode(user.referredBy);
+        if (referrer) {
+          const bonusAmount = 50; // $50 referral bonus
+          await NotificationService.processReferralBonus(
+            referrer._id?.toString() || '',
+            bonusAmount,
+            user.userCode || ''
+          );
+        }
+      }
     } catch (error) {
-      console.error('Error moving referral earnings:', error);
+      console.error('Error processing referral earnings:', error);
       // Don't fail the verification if this fails
     }
+
+    // Send notification to user about email verification
+    await NotificationService.createNotification({
+      title: 'Email Verified Successfully',
+      message: 'Your email has been verified successfully. You can now make deposits and access all features.',
+      type: 'individual',
+      recipients: [payload.userId],
+      sentBy: 'system'
+    });
 
     return NextResponse.json({
       success: true,

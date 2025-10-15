@@ -27,6 +27,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense, useMemo } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import DashboardLoader from '@/components/DashboardLoader';
+import { useSwipe } from '@/hooks/useSwipe';
 
 // Import dashboard components with dynamic loading
 import dynamic from 'next/dynamic';
@@ -85,6 +86,17 @@ const DashboardContent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  // Mobile swipe navigation
+  useSwipe({
+    onSwipeRight: () => {
+      // Only open sidebar on mobile devices
+      if (window.innerWidth < 1024) {
+        setIsSidebarOpen(true);
+      }
+    },
+    threshold: 50
+  });
 
   const dashboardLinks = useMemo(() => [
     { id: 'dashboard', name: 'Dashboard', icon: <BarChart3 className="w-5 h-5" /> },
@@ -340,7 +352,9 @@ const DashboardContent = () => {
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-xs lg:text-sm text-red-700 font-medium">Account Balance</p>
-                            <p className="text-xl lg:text-3xl font-bold text-red-900">$0.00</p>
+                            <p className="text-xl lg:text-3xl font-bold text-red-900">
+                              ${userProfile?.balances?.main?.toFixed(2) || '0.00'}
+                            </p>
                           </div>
                           <div className="bg-red-600 p-2 lg:p-3 rounded-xl">
                             <DollarSign className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
@@ -351,7 +365,9 @@ const DashboardContent = () => {
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-xs lg:text-sm text-green-700 font-medium">Total Deposit</p>
-                            <p className="text-xl lg:text-3xl font-bold text-green-900">$0.00</p>
+                            <p className="text-xl lg:text-3xl font-bold text-green-900">
+                              ${userProfile?.totalDeposit?.toFixed(2) || '0.00'}
+                            </p>
                           </div>
                           <div className="bg-green-600 p-2 lg:p-3 rounded-xl">
                             <ArrowDownUp className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
@@ -362,7 +378,9 @@ const DashboardContent = () => {
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-xs lg:text-sm text-blue-700 font-medium">Total Withdraw</p>
-                            <p className="text-xl lg:text-3xl font-bold text-blue-900">$0.00</p>
+                            <p className="text-xl lg:text-3xl font-bold text-blue-900">
+                              ${userProfile?.totalWithdraw?.toFixed(2) || '0.00'}
+                            </p>
                           </div>
                           <div className="bg-blue-600 p-2 lg:p-3 rounded-xl">
                             <ArrowUpDown className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
@@ -373,7 +391,9 @@ const DashboardContent = () => {
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-xs lg:text-sm text-purple-700 font-medium">Total Invest</p>
-                            <p className="text-xl lg:text-3xl font-bold text-purple-900">$0.00</p>
+                            <p className="text-xl lg:text-3xl font-bold text-purple-900">
+                              ${userProfile?.totalInvested?.toFixed(2) || '0.00'}
+                            </p>
                           </div>
                           <div className="bg-purple-600 p-2 lg:p-3 rounded-xl">
                             <TrendingUp className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
@@ -453,7 +473,9 @@ const DashboardContent = () => {
                       </button>
                     </div>
                     <div className="text-center p-4 bg-gray-50 rounded-lg">
-                      <p className="text-2xl font-bold text-gray-900">$0.00</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        ${userProfile?.referralEarnings?.toFixed(2) || '0.00'}
+                      </p>
                       <p className="text-sm text-gray-600">Referral Earnings</p>
                     </div>
                   </div>

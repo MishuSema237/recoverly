@@ -38,6 +38,11 @@ const DepositSection = () => {
   const [screenshotPreview, setScreenshotPreview] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Validation states
+  const depositAmount = parseFloat(amount) || 0;
+  const isAmountValid = depositAmount > 0;
+  const isFormValid = isAmountValid && selectedMethod && screenshot;
+
   useEffect(() => {
     loadPaymentMethods();
   }, []);
@@ -238,12 +243,26 @@ const DepositSection = () => {
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${
+                amount && !isAmountValid 
+                  ? 'border-red-500 focus:ring-red-500 bg-red-50' 
+                  : 'border-gray-300 focus:ring-red-500'
+              }`}
               placeholder="Enter amount to deposit"
               min="1"
               step="0.01"
               required
             />
+            {amount && !isAmountValid && (
+              <p className="mt-1 text-sm text-red-600">
+                Please enter a valid amount greater than $0
+              </p>
+            )}
+            {amount && isAmountValid && (
+              <p className="mt-1 text-sm text-green-600">
+                Amount: ${depositAmount.toFixed(2)}
+              </p>
+            )}
           </div>
 
           {/* Screenshot Upload */}
@@ -284,8 +303,12 @@ const DepositSection = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={!userProfile?.emailVerified || !selectedMethod || !amount || !screenshot || isSubmitting}
-            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2"
+            disabled={!isFormValid || isSubmitting || !userProfile?.emailVerified}
+            className={`w-full text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 ${
+              !isFormValid && !isSubmitting
+                ? 'bg-red-500 hover:bg-red-600'
+                : 'bg-red-600 hover:bg-red-700 disabled:bg-gray-400'
+            }`}
           >
             {isSubmitting ? (
               <>
