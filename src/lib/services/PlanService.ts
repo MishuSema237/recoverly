@@ -32,8 +32,9 @@ export class PlanService {
       return result.data;
     } catch (error) {
       console.error('Error fetching plans:', error);
-      // Return fallback plans if API fails
-      return this.getFallbackPlans();
+      // Return empty array instead of fallback plans when database is unavailable
+      // This ensures no plans are shown when database is empty or connection fails
+      return [];
     }
   }
 

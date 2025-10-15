@@ -80,14 +80,6 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
           setLoading(true);
         }
         
-        // Try to load from cache first for faster initial load
-        const cachedPlans = localStorage.getItem('investmentPlans');
-        if (cachedPlans && !showRefreshing) {
-          const parsedPlans = JSON.parse(cachedPlans);
-          setPlans(parsedPlans);
-          setLoading(false);
-        }
-        
         const planService = new PlanService();
         const mongoPlans = await planService.getAllPlans();
         
@@ -95,7 +87,9 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
           setPlans(mongoPlans);
           // Cache plans for offline use
           localStorage.setItem('investmentPlans', JSON.stringify(mongoPlans));
-        } else if (!cachedPlans) {
+        } else {
+          // Clear cached plans if database has no plans
+          localStorage.removeItem('investmentPlans');
           setPlans([]);
         }
         
@@ -107,15 +101,9 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
       } catch (error) {
         console.error('Error loading plans from MongoDB:', error);
         
-        // Try to load cached plans on error
-        const cachedPlans = localStorage.getItem('investmentPlans');
-        if (cachedPlans) {
-          const parsedPlans = JSON.parse(cachedPlans);
-          setPlans(parsedPlans);
-          setOfflinePlans(parsedPlans);
-        } else {
-          setPlans([]);
-        }
+        // Clear cached plans on error to ensure fresh data
+        localStorage.removeItem('investmentPlans');
+        setPlans([]);
         
         if (showRefreshing) {
           setRefreshing(false);
