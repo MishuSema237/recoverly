@@ -386,7 +386,6 @@ const LoginPage = () => {
             </div>
           </motion.div>
         </div>
-        </div>
       </div>
     </div>
   );
