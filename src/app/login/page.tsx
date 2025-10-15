@@ -96,17 +96,16 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="flex max-w-6xl w-full mx-auto shadow-2xl rounded-lg overflow-hidden">
         {/* Left Column - Login Form */}
-        <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-          <div className="max-w-md w-full">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="bg-white rounded-lg shadow-lg p-8"
-            >
+        <div className="flex-1">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white p-8 h-full flex flex-col justify-center"
+          >
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
                 <p className="text-gray-600">Sign in to your Tesla Capital account</p>
@@ -310,8 +309,8 @@ const LoginPage = () => {
         </div>
 
         {/* Right Column - Promotional Content */}
-        <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:px-8 bg-white">
-          <div className="max-w-md mx-auto space-y-4">
+        <div className="hidden lg:flex lg:flex-1 bg-white">
+          <div className="w-full p-8 flex flex-col justify-center space-y-6">
             {/* Access Your Investment Portfolio */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
