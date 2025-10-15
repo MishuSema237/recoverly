@@ -227,7 +227,7 @@ const LoginPage = () => {
                       <CheckCircle className="mx-auto h-12 w-12 text-green-600" />
                       <h3 className="text-lg font-medium text-gray-900">Check Your Email</h3>
                       <p className="text-gray-600">
-                        We&apos;ve sent a password reset link to your email address.
+                        We've sent a password reset link to your email address.
                       </p>
                       <button
                         onClick={() => {
@@ -244,7 +244,7 @@ const LoginPage = () => {
                       <div>
                         <h3 className="text-lg font-medium text-gray-900 mb-4">Reset Password</h3>
                         <p className="text-gray-600 mb-4">
-                          Enter your email address and we&apos;ll send you a link to reset your password.
+                          Enter your email address and we'll send you a link to reset your password.
                         </p>
                       </div>
 
@@ -295,7 +295,7 @@ const LoginPage = () => {
 
               <div className="mt-6 text-center">
                 <p className="text-gray-600">
-                  Don&apos;t have an account?{' '}
+                  Don't have an account?{' '}
                   <button
                     onClick={() => router.push('/signup')}
                     className="text-red-600 hover:text-red-500 font-medium"
