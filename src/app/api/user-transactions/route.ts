@@ -131,6 +131,6 @@ export const GET = requireAuth(async (request) => {
       error: error instanceof Error ? error.message : 'Failed to fetch transactions'
     }, { status: 500 });
   }
-}
+});
 
 
