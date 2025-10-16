@@ -3,10 +3,10 @@ import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { requireAuth } from '@/middleware/auth';
 
-export async function POST(request: NextRequest) {
+export const POST = requireAuth(async (request) => {
   try {
-    const { user } = await requireAuth(request);
     const { planName, amount } = await request.json();
+    const userId = request.user!.id;
 
     if (!planName || !amount) {
       return NextResponse.json({
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     // Add investment to user
     await db.collection('users').updateOne(
-      { _id: new ObjectId(user.id) },
+      { _id: new ObjectId(userId) },
       {
         $push: { investments: investment },
         $inc: { 
@@ -59,6 +59,6 @@ export async function POST(request: NextRequest) {
       error: error instanceof Error ? error.message : 'Failed to create investment'
     }, { status: 500 });
   }
-}
+});
 
 
