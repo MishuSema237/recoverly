@@ -63,6 +63,7 @@ interface AuthContextType {
   resetPassword: (token: string, password: string) => Promise<boolean>;
   updateProfile: (updates: Partial<User>) => Promise<boolean>;
   refreshUser: () => Promise<void>;
+  forceRefresh: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -83,11 +84,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
 
   // Check if user is authenticated on mount
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // Start polling when user is authenticated
+  useEffect(() => {
+    if (user) {
+      startPolling();
+    } else {
+      stopPolling();
+    }
+
+    return () => {
+      stopPolling();
+    };
+  }, [user]);
 
   const checkAuth = async () => {
     try {
@@ -107,6 +122,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const startPolling = () => {
+    // Clear any existing polling
+    stopPolling();
+    
+    // Poll every 10 seconds for user data updates
+    const interval = setInterval(async () => {
+      try {
+        await refreshUser();
+      } catch (error) {
+        console.error('Polling error:', error);
+      }
+    }, 10000); // 10 seconds
+
+    setPollingInterval(interval);
+  };
+
+  const stopPolling = () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      setPollingInterval(null);
+    }
+  };
+
+  const forceRefresh = async () => {
+    await refreshUser();
   };
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -338,6 +380,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     resetPassword,
     updateProfile,
     refreshUser,
+    forceRefresh,
   };
 
   return (

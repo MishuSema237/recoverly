@@ -36,7 +36,7 @@ interface WithdrawalRequest {
 }
 
 const WithdrawSection = () => {
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, forceRefresh } = useAuth();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
   const [amount, setAmount] = useState('');
@@ -125,6 +125,8 @@ const WithdrawSection = () => {
         setBankName('');
         setNetwork('');
         setSelectedMethod(null);
+        // Force refresh user data to get updated balances and notifications
+        await forceRefresh();
       } else {
         showError(result.error || 'Failed to submit withdrawal request');
       }

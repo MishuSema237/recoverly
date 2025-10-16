@@ -30,7 +30,7 @@ interface DepositRequest {
 }
 
 const DepositSection = () => {
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, forceRefresh } = useAuth();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
   const [amount, setAmount] = useState('');
@@ -122,6 +122,8 @@ const DepositSection = () => {
           setScreenshot(null);
           setScreenshotPreview('');
           setSelectedMethod(null);
+          // Force refresh user data to get updated balances and notifications
+          await forceRefresh();
         } else {
           showError(result.error || 'Failed to submit deposit request');
         }
