@@ -12,6 +12,8 @@ interface NotificationData {
     amount?: number;
     planName?: string;
     referralCode?: string;
+    userId?: string;
+    userEmail?: string;
   };
 }
 
