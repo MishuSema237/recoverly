@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function TestPage() {
-  const { userProfile, refreshUserProfile } = useAuth();
+  const { userProfile, refreshUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -14,7 +14,7 @@ export default function TestPage() {
       const response = await fetch('/api/test-daily-gains');
       const result = await response.json();
       setMessage(result.message);
-      await refreshUserProfile(); // Refresh user data
+      await refreshUser(); // Refresh user data
     } catch (error) {
       setMessage('Error: ' + error);
     } finally {
@@ -35,7 +35,7 @@ export default function TestPage() {
       });
       const result = await response.json();
       setMessage(result.message);
-      await refreshUserProfile(); // Refresh user data
+      await refreshUser(); // Refresh user data
     } catch (error) {
       setMessage('Error: ' + error);
     } finally {
@@ -89,7 +89,7 @@ export default function TestPage() {
           </button>
 
           <button
-            onClick={refreshUserProfile}
+            onClick={refreshUser}
             disabled={loading}
             className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50 ml-4"
           >
