@@ -64,8 +64,8 @@ export default function TestPage() {
           </div>
         </div>
         <div className="mt-4">
-          <p><strong>Investments:</strong> {userProfile?.investments?.length || 0}</p>
-          <p><strong>Transactions:</strong> {userProfile?.transactions?.length || 0}</p>
+          <p><strong>Current Investment:</strong> ${userProfile?.currentInvestment || 0}</p>
+          <p><strong>Investment Plan:</strong> {userProfile?.investmentPlan || 'None'}</p>
         </div>
       </div>
 
