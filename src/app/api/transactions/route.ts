@@ -262,7 +262,7 @@ async function updateUserBalance(userId: string, amount: number, operation: 'add
       ? currentBalance + amount 
       : Math.max(0, currentBalance - amount);
 
-    const updateData: any = {
+    const updateData: Record<string, number | Date> = {
       'balances.main': newBalance,
       'balances.total': (user.balances?.investment || 0) + (user.balances?.referral || 0) + newBalance,
       updatedAt: new Date()

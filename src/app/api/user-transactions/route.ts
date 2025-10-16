@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
     const userTransactions = userDoc?.transactions || [];
 
     // Transform user transactions (daily gains, referral bonuses, etc.)
-    const userTransactionLogs = userTransactions.map((transaction: any, index: number) => ({
+    const userTransactionLogs = userTransactions.map((transaction: Record<string, unknown>, index: number) => ({
       id: `${user.id}_${index}`,
       type: transaction.type === 'daily_gain' ? 'earning' : 
             transaction.type === 'referral_bonus' ? 'earning' :
