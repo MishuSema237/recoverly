@@ -28,8 +28,8 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
   const [currentPage, setCurrentPage] = useState(0);
   const plansPerPage = 3;
 
-  // Mock account balance - in real app, this would come from user profile
-  const accountBalance = userProfile?.totalInvested ? 10000 : 0; // Example: $10,000 if user has invested before
+  // Get actual account balance from user profile
+  const accountBalance = userProfile?.balances?.main || 0;
 
   // Recalculate when plan changes
   const handlePlanChange = (plan: InvestmentPlan | null) => {
@@ -45,6 +45,19 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
     } else {
       // Clear error when no plan is selected
       setAmountError('');
+    }
+
+    // Auto-scroll to calculator when a plan is selected
+    if (plan && !isDashboard) {
+      setTimeout(() => {
+        const calculatorElement = document.getElementById('investment-calculator');
+        if (calculatorElement) {
+          calculatorElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }, 100);
     }
   };
 
@@ -727,12 +740,12 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                 <div className="text-center">
                   <button
                     className={`py-3 px-8 rounded-lg font-semibold transition-colors duration-200 ${
-                      isProcessing || investmentAmount === 0 || amountError || accountBalance === 0
+                      isProcessing || investmentAmount === 0 || amountError || investmentAmount > accountBalance
                         ? 'bg-gray-400 cursor-not-allowed text-white'
                         : 'bg-red-600 hover:bg-red-700 text-white'
                     }`}
                     onClick={handleInvestment}
-                    disabled={isProcessing || investmentAmount === 0 || !!amountError || accountBalance === 0}
+                    disabled={isProcessing || investmentAmount === 0 || !!amountError || investmentAmount > accountBalance}
                   >
                     {isProcessing ? 'Processing...' : 'Confirm Investment'}
                   </button>
@@ -744,7 +757,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
 
         {/* Investment Calculator */}
         {!isDashboard && (
-          <div className="bg-white rounded-2xl shadow-lg p-8">
+          <div id="investment-calculator" className="bg-white rounded-2xl shadow-lg p-8">
             <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
               Investment Calculator
             </h3>
@@ -1006,12 +1019,12 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
             <div className="text-center">
               <button
                 className={`py-3 px-8 rounded-lg font-semibold transition-colors duration-200 ${
-                  isProcessing || investmentAmount === 0 || amountError || accountBalance === 0
+                  isProcessing || investmentAmount === 0 || amountError || investmentAmount > accountBalance
                     ? 'bg-gray-400 cursor-not-allowed text-white'
                     : 'bg-red-600 hover:bg-red-700 text-white'
                 }`}
                 onClick={handleInvestment}
-                disabled={isProcessing || investmentAmount === 0 || !!amountError || accountBalance === 0}
+                disabled={isProcessing || investmentAmount === 0 || !!amountError || investmentAmount > accountBalance}
               >
                 {isProcessing ? 'Processing...' : 'Confirm Investment'}
               </button>
