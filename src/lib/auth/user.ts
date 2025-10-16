@@ -237,6 +237,18 @@ export class UserService {
     return { ...user, _id: user._id!.toString() };
   }
 
+  static async getUserByReferralCode(referralCode: string): Promise<User | null> {
+    const db = await getDb();
+    const usersCollection = db.collection<User>('users');
+
+    const user = await usersCollection.findOne({ userCode: referralCode });
+    if (!user) {
+      return null;
+    }
+
+    return { ...user, _id: user._id!.toString() };
+  }
+
   static async verifyEmail(userId: string): Promise<boolean> {
     const db = await getDb();
     const usersCollection = db.collection<User>('users');
