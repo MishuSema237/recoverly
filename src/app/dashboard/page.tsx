@@ -412,14 +412,21 @@ const DashboardContent = () => {
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Plan</h3>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-2xl font-bold text-gray-900">N/A</p>
-                      <p className="text-sm text-gray-600">No active investment plan</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {userProfile?.investmentPlan || 'N/A'}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {userProfile?.currentInvestment ? 
+                          `Active investment: $${userProfile.currentInvestment.toLocaleString()}` : 
+                          'No active investment plan'
+                        }
+                      </p>
                     </div>
                     <button 
                       onClick={() => handleSectionChange('investment')}
                       className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200"
                     >
-                      Update Plan
+                      {userProfile?.currentInvestment ? 'Upgrade Plan' : 'Update Plan'}
                     </button>
                   </div>
                 </div>

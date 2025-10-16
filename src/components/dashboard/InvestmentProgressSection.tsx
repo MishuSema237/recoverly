@@ -1,0 +1,303 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  TrendingUp, 
+  DollarSign, 
+  Calendar, 
+  Target, 
+  ArrowUpRight,
+  RefreshCw,
+  BarChart3,
+  Clock,
+  CheckCircle,
+  AlertCircle
+} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+
+interface InvestmentProgress {
+  planName: string;
+  amount: number;
+  dailyEarnings: number;
+  totalEarnings: number;
+  daysActive: number;
+  daysRemaining: number;
+  nextPayout: string;
+  status: 'active' | 'completed' | 'pending';
+}
+
+interface InvestmentProgressSectionProps {
+  onUpgradePlan?: () => void;
+}
+
+const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionProps) => {
+  const { userProfile, forceRefresh } = useAuth();
+  const [progress, setProgress] = useState<InvestmentProgress | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (userProfile?.currentInvestment && userProfile?.investmentPlan) {
+      calculateProgress();
+    } else {
+      setLoading(false);
+    }
+  }, [userProfile]);
+
+  const calculateProgress = () => {
+    if (!userProfile?.currentInvestment || !userProfile?.investmentPlan) return;
+
+    // Mock calculation - in real app, this would come from API
+    const investmentAmount = userProfile.currentInvestment;
+    const planName = userProfile.investmentPlan;
+    
+    // Calculate daily earnings based on plan (this should come from plan data)
+    const dailyRate = getDailyRateForPlan(planName);
+    const dailyEarnings = (investmentAmount * dailyRate) / 100;
+    
+    // Mock days active (in real app, this would be calculated from investment date)
+    const daysActive = 5; // Mock value
+    const totalEarnings = dailyEarnings * daysActive;
+    
+    // Mock remaining days (30-day plan)
+    const daysRemaining = Math.max(0, 30 - daysActive);
+    
+    // Next payout (daily)
+    const nextPayout = new Date();
+    nextPayout.setDate(nextPayout.getDate() + 1);
+    nextPayout.setHours(0, 0, 0, 0);
+
+    setProgress({
+      planName,
+      amount: investmentAmount,
+      dailyEarnings,
+      totalEarnings,
+      daysActive,
+      daysRemaining,
+      nextPayout: nextPayout.toLocaleDateString(),
+      status: 'active'
+    });
+    
+    setLoading(false);
+  };
+
+  const getDailyRateForPlan = (planName: string): number => {
+    // Mock rates - in real app, this should come from plan data
+    const rates: { [key: string]: number } = {
+      'Probation': 3.33,
+      'Silver': 3.33,
+      'Gold': 5.0,
+      'Platinum': 6.66
+    };
+    return rates[planName] || 3.33;
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await forceRefresh();
+    calculateProgress();
+    setRefreshing(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded mb-2"></div>
+            <div className="h-4 bg-gray-200 rounded mb-6"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-24 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!progress) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Active Investment</h3>
+          <p className="text-gray-600">You don't have an active investment plan. Start investing to see your progress here.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="bg-white rounded-lg shadow-lg p-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="p-3 bg-green-100 rounded-full">
+              <TrendingUp className="w-6 h-6 text-green-600" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Investment Progress</h2>
+              <p className="text-gray-600">Track your {progress.planName} plan performance</p>
+            </div>
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="p-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+            title="Refresh data"
+          >
+            <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
+
+        {/* Progress Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-sm">Total Investment</p>
+                <p className="text-2xl font-bold">${progress.amount.toLocaleString()}</p>
+              </div>
+              <DollarSign className="w-8 h-8 text-green-200" />
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-100 text-sm">Total Earnings</p>
+                <p className="text-2xl font-bold">${progress.totalEarnings.toFixed(2)}</p>
+              </div>
+              <BarChart3 className="w-8 h-8 text-blue-200" />
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-100 text-sm">Daily Earnings</p>
+                <p className="text-2xl font-bold">${progress.dailyEarnings.toFixed(2)}</p>
+              </div>
+              <ArrowUpRight className="w-8 h-8 text-purple-200" />
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Detailed Progress */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Investment Timeline */}
+          <div className="bg-gray-50 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <Calendar className="w-5 h-5 mr-2" />
+              Investment Timeline
+            </h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Days Active:</span>
+                <span className="font-semibold text-gray-900">{progress.daysActive} days</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Days Remaining:</span>
+                <span className="font-semibold text-gray-900">{progress.daysRemaining} days</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Next Payout:</span>
+                <span className="font-semibold text-gray-900">{progress.nextPayout}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Status:</span>
+                <span className="flex items-center text-green-600">
+                  <CheckCircle className="w-4 h-4 mr-1" />
+                  Active
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Earnings Breakdown */}
+          <div className="bg-gray-50 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <Target className="w-5 h-5 mr-2" />
+              Earnings Breakdown
+            </h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Daily Rate:</span>
+                <span className="font-semibold text-gray-900">{getDailyRateForPlan(progress.planName)}%</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Daily Earnings:</span>
+                <span className="font-semibold text-green-600">${progress.dailyEarnings.toFixed(2)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Total Earned:</span>
+                <span className="font-semibold text-green-600">${progress.totalEarnings.toFixed(2)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Projected Total:</span>
+                <span className="font-semibold text-blue-600">
+                  ${(progress.dailyEarnings * 30).toFixed(2)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">Investment Progress</span>
+            <span className="text-sm font-medium text-gray-700">
+              {progress.daysActive}/30 days
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${(progress.daysActive / 30) * 100}%` }}
+              transition={{ duration: 1, delay: 0.5 }}
+              className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full"
+            />
+          </div>
+        </div>
+
+        {/* Upgrade Plan Button */}
+        {onUpgradePlan && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={onUpgradePlan}
+              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
+              Upgrade Plan
+            </button>
+            <p className="text-sm text-gray-600 mt-2">
+              Want to increase your investment? Upgrade to a higher plan for better returns.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default InvestmentProgressSection;

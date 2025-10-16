@@ -6,13 +6,18 @@ import Image from 'next/image';
 import { CheckCircle, Star, Zap, Crown, Gem, Mail, AlertCircle, TrendingUp, Diamond, Rocket, Shield, Gift, Target, Trophy, Flame, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
+import dynamic from 'next/dynamic';
+
+const InvestmentProgressSection = dynamic(() => import('@/components/dashboard/InvestmentProgressSection'), {
+  loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
+});
 
 interface InvestmentPlansProps {
   isDashboard?: boolean;
 }
 
 const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, forceRefresh } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<InvestmentPlan | null>(null);
   const [investmentAmount, setInvestmentAmount] = useState<number>(0);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
@@ -27,6 +32,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
   const [offlinePlans, setOfflinePlans] = useState<InvestmentPlan[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const plansPerPage = 3;
+  const [showUpgradeInterface, setShowUpgradeInterface] = useState(false);
 
   // Get actual account balance from user profile
   const accountBalance = userProfile?.balances?.main || 0;
@@ -340,6 +346,9 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
       setShowCalculation(false);
       setAmountError('');
 
+      // Force refresh user data to update current plan
+      await forceRefresh();
+
     } catch (error) {
       console.error('Error processing investment:', error);
       setMessage({ 
@@ -360,6 +369,42 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
     }
     return '';
   };
+
+  // If user has an active investment, show progress interface or upgrade interface
+  if (isDashboard && userProfile?.currentInvestment && userProfile?.investmentPlan) {
+    if (showUpgradeInterface) {
+      // Show plan selection interface for upgrade
+      return (
+        <section className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Header */}
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Upgrade Your Investment Plan
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Choose a new plan to upgrade your current investment for better returns.
+              </p>
+              <button
+                onClick={() => setShowUpgradeInterface(false)}
+                className="mt-4 text-red-600 hover:text-red-700 font-medium"
+              >
+                ← Back to Investment Progress
+              </button>
+            </div>
+            {/* Plan selection content will be rendered below */}
+          </div>
+        </section>
+      );
+    } else {
+      // Show progress interface with upgrade option
+      return (
+        <InvestmentProgressSection 
+          onUpgradePlan={() => setShowUpgradeInterface(true)}
+        />
+      );
+    }
+  }
 
   return (
     <section className="py-20 bg-gray-50">
