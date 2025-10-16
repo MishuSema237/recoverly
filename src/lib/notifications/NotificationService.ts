@@ -203,7 +203,7 @@ export class NotificationService {
                       status: 'completed'
                     }
                   }
-                }
+                } as Record<string, unknown>
               );
 
               // Send notification
