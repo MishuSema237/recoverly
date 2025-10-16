@@ -36,14 +36,14 @@ export const POST = requireAuth(async (request) => {
     await db.collection('users').updateOne(
       { _id: new ObjectId(userId) },
       {
-        $push: { investments: investment as Record<string, unknown> },
+        $push: { investments: investment },
         $inc: { 
           'balances.main': -parseFloat(amount),
           'balances.investment': parseFloat(amount),
           totalInvested: parseFloat(amount),
           currentInvestment: parseFloat(amount)
         }
-      }
+      } as Record<string, unknown>
     );
 
     return NextResponse.json({
