@@ -3,29 +3,29 @@ import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { requireAuth } from '@/middleware/auth';
 
-export async function GET(request: NextRequest) {
+export const GET = requireAuth(async (request) => {
   try {
-    const { user } = await requireAuth(request);
+    const userId = request.user!.id;
     const db = await getDb();
 
     // Fetch all transaction types for the user
     const [deposits, withdrawals, transfers, investments] = await Promise.all([
       // Deposit requests
-      db.collection('depositRequests').find({ userId: user.id }).sort({ createdAt: -1 }).toArray(),
+      db.collection('depositRequests').find({ userId }).sort({ createdAt: -1 }).toArray(),
       
       // Withdrawal requests  
-      db.collection('withdrawalRequests').find({ userId: user.id }).sort({ createdAt: -1 }).toArray(),
+      db.collection('withdrawalRequests').find({ userId }).sort({ createdAt: -1 }).toArray(),
       
       // Money transfers (if you have a transfers collection)
       db.collection('moneyTransfers').find({ 
         $or: [
-          { fromUserId: user.id },
-          { toUserId: user.id }
+          { fromUserId: userId },
+          { toUserId: userId }
         ]
       }).sort({ createdAt: -1 }).toArray(),
       
       // Investment transactions (if you have an investments collection)
-      db.collection('investments').find({ userId: user.id }).sort({ createdAt: -1 }).toArray()
+      db.collection('investments').find({ userId }).sort({ createdAt: -1 }).toArray()
     ]);
 
     // Transform deposits
@@ -62,11 +62,11 @@ export async function GET(request: NextRequest) {
       amount: transfer.amount,
       currency: 'USD',
       status: transfer.status === 'completed' ? 'completed' : transfer.status === 'failed' ? 'failed' : 'pending',
-      details: transfer.fromUserId === user.id 
+      details: transfer.fromUserId === userId 
         ? `Transfer to user ${transfer.toUserCode || 'Unknown'}`
         : `Transfer from user ${transfer.fromUserCode || 'Unknown'}`,
-      sender: transfer.fromUserId === user.id ? 'You' : transfer.fromUserCode,
-      receiver: transfer.toUserId === user.id ? 'You' : transfer.toUserCode,
+      sender: transfer.fromUserId === userId ? 'You' : transfer.fromUserCode,
+      receiver: transfer.toUserId === userId ? 'You' : transfer.toUserCode,
       fee: transfer.fee || 0,
       transactionId: transfer._id.toString()
     }));
@@ -85,12 +85,12 @@ export async function GET(request: NextRequest) {
     }));
 
     // Get user's transaction history from user document
-    const userDoc = await db.collection('users').findOne({ _id: new ObjectId(user.id) });
+    const userDoc = await db.collection('users').findOne({ _id: new ObjectId(userId) });
     const userTransactions = userDoc?.transactions || [];
 
     // Transform user transactions (daily gains, referral bonuses, etc.)
     const userTransactionLogs = userTransactions.map((transaction: Record<string, unknown>, index: number) => ({
-      id: `${user.id}_${index}`,
+      id: `${userId}_${index}`,
       type: transaction.type === 'daily_gain' ? 'earning' : 
             transaction.type === 'referral_bonus' ? 'earning' :
             transaction.type === 'investment' ? 'investment' : 'other',
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
         `Referral bonus from user ${transaction.referredUserCode || 'Unknown'}` :
         transaction.description || 'Transaction',
       plan: transaction.planName,
-      transactionId: `${user.id}_${index}`
+      transactionId: `${userId}_${index}`
     }));
 
     // Combine all transactions
