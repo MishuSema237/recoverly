@@ -39,7 +39,7 @@ export const POST = requireAdmin(async (request) => {
     // Calculate referral earnings from activity log
     let referralEarnings = 0;
     if (user.activityLog) {
-      user.activityLog.forEach(activity => {
+      user.activityLog.forEach((activity: { action: string }) => {
         if (activity.action.includes('Referral bonus')) {
           const match = activity.action.match(/\$(\d+)/);
           if (match) {
