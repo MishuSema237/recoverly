@@ -130,8 +130,6 @@ const AdminSection = () => {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [loadingPayments, setLoadingPayments] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   

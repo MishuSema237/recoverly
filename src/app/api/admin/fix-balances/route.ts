@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/middleware/auth';
 import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';

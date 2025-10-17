@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAuth, AuthenticatedRequest } from '@/middleware/auth';
 import { getDb } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
 
 export const GET = requireAuth(async (request: AuthenticatedRequest) => {
   try {
