@@ -37,14 +37,6 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    if (userProfile?.currentInvestment && userProfile?.investmentPlan) {
-      calculateProgress();
-    } else {
-      setLoading(false);
-    }
-  }, [userProfile, calculateProgress]);
-
   const calculateProgress = useCallback(() => {
     if (!userProfile?.currentInvestment || !userProfile?.investmentPlan) return;
 
@@ -92,6 +84,14 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
     };
     return rates[planName] || 3.33;
   };
+
+  useEffect(() => {
+    if (userProfile?.currentInvestment && userProfile?.investmentPlan) {
+      calculateProgress();
+    } else {
+      setLoading(false);
+    }
+  }, [userProfile, calculateProgress]);
 
   const handleRefresh = async () => {
     setRefreshing(true);

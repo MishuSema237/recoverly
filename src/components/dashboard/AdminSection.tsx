@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { 
   Users, 
@@ -175,7 +175,7 @@ const AdminSection = () => {
   } | null>(null);
 
   // MongoDB services
-  const planService = new PlanService();
+  const planService = useMemo(() => new PlanService(), []);
 
   // Check if user is admin
   const isAdmin = canAccessAdmin(userProfile);
