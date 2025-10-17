@@ -14,6 +14,10 @@ interface NotificationData {
     referralCode?: string;
     userId?: string;
     userEmail?: string;
+    receiverEmail?: string;
+    fee?: number;
+    senderEmail?: string;
+    transferAmount?: number;
   };
 }
 
