@@ -21,6 +21,7 @@ import {
   Award
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import UpgradePlanSection from './UpgradePlanSection';
 
 interface InvestmentProgress {
   planName: string;
@@ -47,6 +48,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
   const [progress, setProgress] = useState<InvestmentProgress | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showUpgradeInterface, setShowUpgradeInterface] = useState(false);
 
   const calculateProgress = useCallback(async () => {
     if (!userProfile?.currentInvestment || !userProfile?.investmentPlan) {
@@ -155,6 +157,43 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
     calculateProgress();
     setRefreshing(false);
   };
+
+  const handleUpgrade = async (plan: any, amount: number) => {
+    try {
+      // Call the original onUpgradePlan callback if provided
+      if (onUpgradePlan) {
+        onUpgradePlan();
+      }
+      
+      // Here you would typically make an API call to upgrade the investment
+      // For now, we'll just show a success message and refresh
+      console.log('Upgrading to plan:', plan.name, 'with amount:', amount);
+      
+      // Refresh the user profile to get updated data
+      await forceRefresh();
+      
+      // Go back to the progress view
+      setShowUpgradeInterface(false);
+      
+    } catch (error) {
+      console.error('Error upgrading investment:', error);
+      throw error;
+    }
+  };
+
+  const handleBackToProgress = () => {
+    setShowUpgradeInterface(false);
+  };
+
+  // Show upgrade interface if requested
+  if (showUpgradeInterface) {
+    return (
+      <UpgradePlanSection
+        onBack={handleBackToProgress}
+        onUpgrade={handleUpgrade}
+      />
+    );
+  }
 
   if (loading) {
     return (
@@ -338,19 +377,17 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
         </div>
 
         {/* Upgrade Plan Button */}
-        {onUpgradePlan && (
-          <div className="mt-8 text-center">
-            <button
-              onClick={onUpgradePlan}
-              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
-            >
-              Upgrade Plan
-            </button>
-            <p className="text-sm text-gray-600 mt-2">
-              Want to increase your investment? Upgrade to a higher plan for better returns.
-            </p>
-          </div>
-        )}
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => setShowUpgradeInterface(true)}
+            className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
+          >
+            Upgrade Plan
+          </button>
+          <p className="text-sm text-gray-600 mt-2">
+            Want to increase your investment? Upgrade to a higher plan for better returns.
+          </p>
+        </div>
       </div>
     </div>
   );
