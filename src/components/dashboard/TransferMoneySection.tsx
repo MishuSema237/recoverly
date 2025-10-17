@@ -11,6 +11,15 @@ const TransferMoneySection = () => {
   const [error, setError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const [receiverValid, setReceiverValid] = useState(false);
+  const [isTransferring, setIsTransferring] = useState(false);
+
+  // Reset validation when email or user code changes
+  useEffect(() => {
+    if (receiverValid) {
+      setReceiverValid(false);
+      setError('');
+    }
+  }, [receiverEmail, receiverUserCode]);
 
   const validateReceiver = useCallback(async () => {
     if (!receiverEmail || !receiverUserCode) {
@@ -55,33 +64,68 @@ const TransferMoneySection = () => {
 
   // Auto-validate when both email and user code are entered
   useEffect(() => {
-    if (receiverEmail && receiverUserCode && !isValidating) {
+    if (receiverEmail && receiverUserCode && !isValidating && !receiverValid) {
       const timeoutId = setTimeout(() => {
         validateReceiver();
       }, 500); // Debounce validation
 
       return () => clearTimeout(timeoutId);
     }
-  }, [receiverEmail, receiverUserCode, isValidating, validateReceiver]);
+  }, [receiverEmail, receiverUserCode, isValidating, receiverValid, validateReceiver]);
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const isValid = await validateReceiver();
-    if (!isValid) return;
-    
-    // Handle transfer logic here
-    console.log('Transfer:', { 
-      receiverEmail, 
-      receiverUserCode,
-      amount: transferAmount 
-    });
-    
-    // Reset form
-    setReceiverEmail('');
-    setReceiverUserCode('');
-    setTransferAmount('');
+    if (!receiverValid) {
+      setError('Please validate the receiver first');
+      return;
+    }
+
+    if (!transferAmount || parseFloat(transferAmount) < 1000 || parseFloat(transferAmount) > 10000) {
+      setError('Please enter a valid transfer amount between $1,000 and $10,000');
+      return;
+    }
+
+    setIsTransferring(true);
     setError('');
+
+    try {
+      // Here you would make the actual transfer API call
+      const response = await fetch('/api/transfers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          receiverEmail,
+          receiverUserCode,
+          amount: parseFloat(transferAmount)
+        })
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        setError(result.error || 'Transfer failed. Please try again.');
+        return;
+      }
+
+      // Success - show success message and reset form
+      alert('Transfer completed successfully!');
+      
+      // Reset form
+      setReceiverEmail('');
+      setReceiverUserCode('');
+      setTransferAmount('');
+      setError('');
+      setReceiverValid(false);
+      
+    } catch (error) {
+      console.error('Transfer error:', error);
+      setError('Transfer failed. Please try again.');
+    } finally {
+      setIsTransferring(false);
+    }
   };
 
   const transferFee = 2; // 2% fee
@@ -205,10 +249,20 @@ const TransferMoneySection = () => {
 
           <button
             type="submit"
-            disabled={!receiverValid || !transferAmount || parseFloat(transferAmount) < 1000 || parseFloat(transferAmount) > 10000}
-            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200"
+            disabled={!receiverValid || !transferAmount || parseFloat(transferAmount) < 1000 || parseFloat(transferAmount) > 10000 || isTransferring}
+            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
           >
-            Transfer Money
+            {isTransferring ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Processing Transfer...
+              </>
+            ) : (
+              'Transfer Money'
+            )}
           </button>
         </form>
       </div>
