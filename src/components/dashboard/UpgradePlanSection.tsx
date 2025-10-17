@@ -307,10 +307,10 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
                   }`}
                   onClick={() => handlePlanChange(plan)}
                 >
-                  <div className={`bg-gradient-to-r ${getColorGradient(plan.color)} p-6 rounded-t-2xl`}>
+                  <div className={`bg-gradient-to-r ${getColorGradient(plan.color || 'gray')} p-6 rounded-t-2xl`}>
                     <div className="flex items-center justify-between text-white">
                       <div className="flex items-center space-x-3">
-                        {getIcon(plan.icon)}
+                        {getIcon(plan.icon || 'star')}
                         <h3 className="text-xl font-bold">{plan.name}</h3>
                       </div>
                       <div className="text-right">
