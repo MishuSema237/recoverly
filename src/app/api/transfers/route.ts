@@ -182,7 +182,7 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
           title: 'Transfer Received',
           message: `You have received $${amount.toFixed(2)} from ${senderEmail}`,
           type: 'transfer_received',
-          recipients: [receiver._id],
+          recipients: [receiver._id?.toString() || ''],
           sentBy: 'system',
           metadata: {
             senderEmail,
