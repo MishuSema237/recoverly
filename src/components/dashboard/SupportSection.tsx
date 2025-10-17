@@ -28,23 +28,16 @@ const SupportSection = () => {
     setIsSubmitting(true);
 
     try {
-      // Send support message as notification to admins
-      const response = await fetch('/api/notifications', {
+      // Send support message to the support messages system
+      const response = await fetch('/api/support-messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: `Support Request: ${formData.subject}`,
-          message: `From: ${formData.fullName} (${formData.email})\n\nMessage: ${formData.message}`,
-          type: 'broadcast',
-          recipients: 'all', // This will be filtered to admins only
-          sentBy: user?._id || 'system',
-          metadata: {
-            supportRequest: true,
-            userEmail: formData.email,
-            userId: user?._id
-          }
+          subject: formData.subject,
+          message: formData.message,
+          priority: 'normal'
         })
       });
 

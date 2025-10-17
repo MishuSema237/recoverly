@@ -121,7 +121,7 @@ interface WithdrawalRequest {
 
 const AdminSection = () => {
   const { user, userProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'users' | 'plans' | 'payments' | 'transactions' | 'notifications'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'plans' | 'payments' | 'transactions' | 'notifications' | 'support'>('users');
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [plans, setPlans] = useState<InvestmentPlan[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -821,11 +821,12 @@ const AdminSection = () => {
             { id: 'plans', label: 'Investment Plans', icon: <TrendingUp className="w-4 h-4" /> },
             { id: 'payments', label: 'Payment Methods', icon: <CreditCard className="w-4 h-4" /> },
             { id: 'transactions', label: 'Transactions', icon: <DollarSign className="w-4 h-4" /> },
-            { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> }
+            { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
+            { id: 'support', label: 'Support Messages', icon: <MessageSquare className="w-4 h-4" /> }
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'users' | 'plans' | 'payments' | 'transactions' | 'notifications')}
+              onClick={() => setActiveTab(tab.id as 'users' | 'plans' | 'payments' | 'transactions' | 'notifications' | 'support')}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
                 activeTab === tab.id
                   ? 'bg-red-600 text-white'
