@@ -19,7 +19,7 @@ const TransferMoneySection = () => {
       setReceiverValid(false);
       setError('');
     }
-  }, [receiverEmail, receiverUserCode]);
+  }, [receiverEmail, receiverUserCode, receiverValid]);
 
   const validateReceiver = useCallback(async () => {
     if (!receiverEmail || !receiverUserCode) {

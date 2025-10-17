@@ -113,7 +113,7 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
             $set: {
               updatedAt: new Date()
             }
-          },
+          } as Record<string, unknown>,
           { session }
         );
 
@@ -141,7 +141,7 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
             $set: {
               updatedAt: new Date()
             }
-          },
+          } as Record<string, unknown>,
           { session }
         );
 
