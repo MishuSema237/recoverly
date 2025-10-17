@@ -150,8 +150,8 @@ export class NotificationService {
   // Daily Gain Notifications
   static async notifyDailyGain(userId: string, amount: number, planName: string) {
     await this.createNotification({
-      title: 'Daily Investment Gain',
-      message: `You have earned $${amount} from your ${planName} investment plan today.`,
+      title: 'Daily Earnings Received',
+      message: `You have received $${amount.toFixed(2)} in daily earnings from your ${planName} investment.`,
       type: 'daily_gain',
       recipients: [userId],
       sentBy: 'system',
@@ -168,18 +168,6 @@ export class NotificationService {
       recipients: [userId],
       sentBy: 'system',
       metadata: { amount, referralCode }
-    });
-  }
-
-  // Daily Gain Notifications
-  static async notifyDailyGain(userId: string, amount: number, planName: string) {
-    await this.createNotification({
-      title: 'Daily Earnings Received',
-      message: `You have received $${amount.toFixed(2)} in daily earnings from your ${planName} investment.`,
-      type: 'daily_gain',
-      recipients: [userId],
-      sentBy: 'system',
-      metadata: { amount, planName }
     });
   }
 
