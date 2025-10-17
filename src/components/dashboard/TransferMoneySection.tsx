@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { CreditCard, DollarSign } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const TransferMoneySection = () => {
@@ -22,9 +21,9 @@ const TransferMoneySection = () => {
 
       return () => clearTimeout(timeoutId);
     }
-  }, [receiverEmail, receiverUserCode]);
+  }, [receiverEmail, receiverUserCode, isValidating, validateReceiver]);
 
-  const validateReceiver = async () => {
+  const validateReceiver = useCallback(async () => {
     if (!receiverEmail || !receiverUserCode) {
       setError('Please enter both email and user code');
       return false;
@@ -63,7 +62,7 @@ const TransferMoneySection = () => {
     } finally {
       setIsValidating(false);
     }
-  };
+  }, [receiverEmail, receiverUserCode]);
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();

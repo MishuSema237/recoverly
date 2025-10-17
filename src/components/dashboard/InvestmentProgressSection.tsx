@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import UpgradePlanSection from './UpgradePlanSection';
+import { InvestmentPlan } from '@/lib/services/PlanService';
 
 interface InvestmentProgress {
   planName: string;
@@ -158,7 +159,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
     setRefreshing(false);
   };
 
-  const handleUpgrade = async (plan: any, amount: number) => {
+  const handleUpgrade = async (plan: InvestmentPlan, amount: number) => {
     try {
       // Call the original onUpgradePlan callback if provided
       if (onUpgradePlan) {

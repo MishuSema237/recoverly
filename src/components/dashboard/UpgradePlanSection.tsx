@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, Star, Zap, Crown, Gem, AlertCircle, TrendingUp, Diamond, Rocket, Shield, Gift, Target, Trophy, Flame, RefreshCw, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Star, Zap, Crown, Gem, AlertCircle, Diamond, Rocket, Shield, Gift, Target, Trophy, Flame, RefreshCw, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
 
