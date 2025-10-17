@@ -12,17 +12,6 @@ const TransferMoneySection = () => {
   const [isValidating, setIsValidating] = useState(false);
   const [receiverValid, setReceiverValid] = useState(false);
 
-  // Auto-validate when both email and user code are entered
-  useEffect(() => {
-    if (receiverEmail && receiverUserCode && !isValidating) {
-      const timeoutId = setTimeout(() => {
-        validateReceiver();
-      }, 500); // Debounce validation
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [receiverEmail, receiverUserCode, isValidating, validateReceiver]);
-
   const validateReceiver = useCallback(async () => {
     if (!receiverEmail || !receiverUserCode) {
       setError('Please enter both email and user code');
@@ -63,6 +52,17 @@ const TransferMoneySection = () => {
       setIsValidating(false);
     }
   }, [receiverEmail, receiverUserCode]);
+
+  // Auto-validate when both email and user code are entered
+  useEffect(() => {
+    if (receiverEmail && receiverUserCode && !isValidating) {
+      const timeoutId = setTimeout(() => {
+        validateReceiver();
+      }, 500); // Debounce validation
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [receiverEmail, receiverUserCode, isValidating, validateReceiver]);
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
