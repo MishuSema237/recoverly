@@ -743,6 +743,33 @@ const AdminSection = () => {
     }
   };
 
+  const handleFixBalances = async (userId: string) => {
+    try {
+      const response = await fetch('/api/admin/fix-balances', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        showSuccess('Balances fixed successfully!');
+        // Reload user details to show updated balances
+        await openUserDetail(userDetailData!);
+        // Reload users list
+        await loadUsers();
+      } else {
+        showError('Failed to fix balances: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error fixing balances:', error);
+      showError('Failed to fix balances');
+    }
+  };
+
   const filteredUsers = users.filter(user => 
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1981,6 +2008,22 @@ const AdminSection = () => {
                         <span className="text-sm font-semibold text-gray-900">Total Balance:</span>
                         <span className="font-bold text-red-600">${userDetailData.balances?.total || 0}</span>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Fix Balances Button */}
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-semibold text-yellow-800 mb-1">Balance Correction</h4>
+                        <p className="text-sm text-yellow-700">Recalculate balances from transaction history</p>
+                      </div>
+                      <button
+                        onClick={() => handleFixBalances(userDetailData._id!)}
+                        className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm font-medium"
+                      >
+                        Fix Balances
+                      </button>
                     </div>
                   </div>
                 </div>
