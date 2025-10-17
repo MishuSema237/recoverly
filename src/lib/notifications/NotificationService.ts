@@ -171,6 +171,18 @@ export class NotificationService {
     });
   }
 
+  // Daily Gain Notifications
+  static async notifyDailyGain(userId: string, amount: number, planName: string) {
+    await this.createNotification({
+      title: 'Daily Earnings Received',
+      message: `You have received $${amount.toFixed(2)} in daily earnings from your ${planName} investment.`,
+      type: 'daily_gain',
+      recipients: [userId],
+      sentBy: 'system',
+      metadata: { amount, planName }
+    });
+  }
+
   // Process daily gains for all active investments
   static async processDailyGains() {
     const db = await getDb();
@@ -193,7 +205,10 @@ export class NotificationService {
               await db.collection('users').updateOne(
                 { _id: user._id },
                 { 
-                  $inc: { 'balances.main': dailyGain },
+                  $inc: { 
+                    'balances.main': dailyGain,
+                    'balances.total': dailyGain
+                  },
                   $push: { 
                     'transactions': {
                       type: 'daily_gain',
@@ -202,6 +217,9 @@ export class NotificationService {
                       date: new Date(),
                       status: 'completed'
                     }
+                  },
+                  $set: {
+                    updatedAt: new Date()
                   }
                 } as Record<string, unknown>
               );

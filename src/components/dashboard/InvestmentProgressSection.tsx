@@ -10,9 +10,16 @@ import {
   ArrowUpRight,
   RefreshCw,
   BarChart3,
-  Clock,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Medal,
+  Star,
+  Crown,
+  Gem,
+  Zap,
+  Shield,
+  Trophy,
+  Award
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -25,6 +32,11 @@ interface InvestmentProgress {
   daysRemaining: number;
   nextPayout: string;
   status: 'active' | 'completed' | 'pending';
+  planIcon: string;
+  planDuration: number;
+  planROI: number;
+  planColor: string;
+  investmentDate: Date;
 }
 
 interface InvestmentProgressSectionProps {
@@ -37,52 +49,85 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const calculateProgress = useCallback(() => {
-    if (!userProfile?.currentInvestment || !userProfile?.investmentPlan) return;
+  const calculateProgress = useCallback(async () => {
+    if (!userProfile?.currentInvestment || !userProfile?.investmentPlan) {
+      setLoading(false);
+      return;
+    }
 
-    // Mock calculation - in real app, this would come from API
-    const investmentAmount = userProfile.currentInvestment;
-    const planName = userProfile.investmentPlan;
-    
-    // Calculate daily earnings based on plan (this should come from plan data)
-    const dailyRate = getDailyRateForPlan(planName);
-    const dailyEarnings = (investmentAmount * dailyRate) / 100;
-    
-    // Mock days active (in real app, this would be calculated from investment date)
-    const daysActive = 5; // Mock value
-    const totalEarnings = dailyEarnings * daysActive;
-    
-    // Mock remaining days (30-day plan)
-    const daysRemaining = Math.max(0, 30 - daysActive);
-    
-    // Next payout (daily)
-    const nextPayout = new Date();
-    nextPayout.setDate(nextPayout.getDate() + 1);
-    nextPayout.setHours(0, 0, 0, 0);
+    try {
+      // Fetch the actual plan data from the database
+      const planResponse = await fetch(`/api/plans?name=${userProfile.investmentPlan}`);
+      const planResult = await planResponse.json();
+      
+      if (!planResult.success || !planResult.data) {
+        console.error('Plan not found:', userProfile.investmentPlan);
+        setLoading(false);
+        return;
+      }
 
-    setProgress({
-      planName,
-      amount: investmentAmount,
-      dailyEarnings,
-      totalEarnings,
-      daysActive,
-      daysRemaining,
-      nextPayout: nextPayout.toLocaleDateString(),
-      status: 'active'
-    });
-    
-    setLoading(false);
+      const plan = planResult.data;
+      const investmentAmount = userProfile.currentInvestment;
+      
+      // Calculate daily earnings based on actual plan ROI
+      const dailyRate = plan.roi / plan.duration; // ROI divided by duration gives daily rate
+      const dailyEarnings = (investmentAmount * dailyRate) / 100;
+      
+      // Calculate days active from actual investment date
+      const investmentDate = userProfile.investments?.[0]?.createdAt || new Date();
+      const daysActive = Math.floor((new Date().getTime() - new Date(investmentDate).getTime()) / (1000 * 60 * 60 * 24));
+      
+      // Calculate total earnings from actual transactions
+      let totalEarnings = 0;
+      if (userProfile.transactions) {
+        totalEarnings = userProfile.transactions
+          .filter(t => t.type === 'daily_gain' && t.planName === plan.name)
+          .reduce((sum, t) => sum + t.amount, 0);
+      }
+      
+      // Calculate remaining days based on actual plan duration
+      const daysRemaining = Math.max(0, plan.duration - daysActive);
+      
+      // Next payout (daily)
+      const nextPayout = new Date();
+      nextPayout.setDate(nextPayout.getDate() + 1);
+      nextPayout.setHours(0, 0, 0, 0);
+
+      setProgress({
+        planName: plan.name,
+        amount: investmentAmount,
+        dailyEarnings,
+        totalEarnings,
+        daysActive: Math.max(0, daysActive),
+        daysRemaining,
+        nextPayout: nextPayout.toLocaleDateString(),
+        status: daysRemaining > 0 ? 'active' : 'completed',
+        planIcon: plan.icon || 'Medal',
+        planDuration: plan.duration,
+        planROI: plan.roi,
+        planColor: plan.color || 'pink',
+        investmentDate: new Date(investmentDate)
+      });
+      
+    } catch (error) {
+      console.error('Error calculating progress:', error);
+    } finally {
+      setLoading(false);
+    }
   }, [userProfile]);
 
-  const getDailyRateForPlan = (planName: string): number => {
-    // Mock rates - in real app, this should come from plan data
-    const rates: { [key: string]: number } = {
-      'Probation': 3.33,
-      'Silver': 3.33,
-      'Gold': 5.0,
-      'Platinum': 6.66
+  const getPlanIcon = (iconName: string) => {
+    const iconMap: { [key: string]: React.ReactNode } = {
+      'Medal': <Medal className="w-6 h-6" />,
+      'Star': <Star className="w-6 h-6" />,
+      'Crown': <Crown className="w-6 h-6" />,
+      'Gem': <Gem className="w-6 h-6" />,
+      'Zap': <Zap className="w-6 h-6" />,
+      'Shield': <Shield className="w-6 h-6" />,
+      'Trophy': <Trophy className="w-6 h-6" />,
+      'Award': <Award className="w-6 h-6" />
     };
-    return rates[planName] || 3.33;
+    return iconMap[iconName] || <Medal className="w-6 h-6" />;
   };
 
   useEffect(() => {
@@ -137,8 +182,8 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3">
-            <div className="p-3 bg-green-100 rounded-full">
-              <TrendingUp className="w-6 h-6 text-green-600" />
+            <div className={`p-3 bg-${progress.planColor}-100 rounded-full`}>
+              {getPlanIcon(progress.planIcon)}
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900">Investment Progress</h2>
@@ -243,7 +288,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Daily Rate:</span>
-                <span className="font-semibold text-gray-900">{getDailyRateForPlan(progress.planName)}%</span>
+                <span className="font-semibold text-gray-900">{(progress.planROI / progress.planDuration).toFixed(2)}%</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Daily Earnings:</span>
@@ -256,7 +301,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Projected Total:</span>
                 <span className="font-semibold text-blue-600">
-                  ${(progress.dailyEarnings * 30).toFixed(2)}
+                  ${(progress.dailyEarnings * progress.planDuration).toFixed(2)}
                 </span>
               </div>
             </div>
@@ -268,13 +313,13 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">Investment Progress</span>
             <span className="text-sm font-medium text-gray-700">
-              {progress.daysActive}/30 days
+              {progress.daysActive}/{progress.planDuration} days
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3">
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: `${(progress.daysActive / 30) * 100}%` }}
+              animate={{ width: `${(progress.daysActive / progress.planDuration) * 100}%` }}
               transition={{ duration: 1, delay: 0.5 }}
               className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full"
             />

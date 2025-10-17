@@ -132,7 +132,7 @@ const DashboardContent = () => {
     const fetchUnreadCount = async () => {
       if (userProfile?.userCode) {
         try {
-          const response = await fetch(`/api/user-notifications?referralCode=${userProfile.userCode}`);
+          const response = await fetch(`/api/user-notifications?userCode=${userProfile.userCode}`);
           const result = await response.json();
           
           if (result.success) {
@@ -353,7 +353,7 @@ const DashboardContent = () => {
                           <div>
                             <p className="text-xs lg:text-sm text-red-700 font-medium">Account Balance</p>
                             <p className="text-xl lg:text-3xl font-bold text-red-900">
-                              ${userProfile?.balances?.main?.toFixed(2) || '0.00'}
+                              ${((userProfile?.balances?.main || 0) + (userProfile?.balances?.investment || 0) + (userProfile?.balances?.referral || 0)).toFixed(2)}
                             </p>
                           </div>
                           <div className="bg-red-600 p-2 lg:p-3 rounded-xl">

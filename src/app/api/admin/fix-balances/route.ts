@@ -49,8 +49,18 @@ export const POST = requireAdmin(async (request) => {
       });
     }
 
+    // Calculate daily gains from transactions
+    let totalDailyGains = 0;
+    if (user.transactions) {
+      user.transactions.forEach(transaction => {
+        if (transaction.type === 'daily_gain') {
+          totalDailyGains += transaction.amount;
+        }
+      });
+    }
+
     // Calculate correct balances
-    const mainBalance = totalDeposits - totalWithdrawals;
+    const mainBalance = totalDeposits - totalWithdrawals + totalDailyGains;
     const investmentBalance = user.balances?.investment || 0;
     const referralBalance = referralEarnings;
     const totalBalance = mainBalance + investmentBalance + referralBalance;
