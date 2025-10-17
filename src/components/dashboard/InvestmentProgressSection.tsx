@@ -68,8 +68,12 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
       const plan = planResult.data;
       const investmentAmount = userProfile.currentInvestment;
       
+      // Convert duration to number if it's a string
+      const planDuration = typeof plan.duration === 'string' ? parseInt(plan.duration) : plan.duration;
+      
       // Calculate daily earnings based on actual plan ROI
-      const dailyRate = plan.roi / plan.duration; // ROI divided by duration gives daily rate
+      // ROI is the total return over the duration, so daily rate = ROI / duration
+      const dailyRate = plan.roi / planDuration;
       const dailyEarnings = (investmentAmount * dailyRate) / 100;
       
       // Calculate days active from actual investment date
@@ -85,7 +89,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
       }
       
       // Calculate remaining days based on actual plan duration
-      const daysRemaining = Math.max(0, plan.duration - daysActive);
+      const daysRemaining = Math.max(0, planDuration - daysActive);
       
       // Next payout (daily)
       const nextPayout = new Date();
@@ -102,7 +106,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
         nextPayout: nextPayout.toLocaleDateString(),
         status: daysRemaining > 0 ? 'active' : 'completed',
         planIcon: plan.icon || 'Medal',
-        planDuration: plan.duration,
+        planDuration: planDuration,
         planROI: plan.roi,
         planColor: plan.color || 'pink',
         investmentDate: new Date(investmentDate)
@@ -118,13 +122,21 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
   const getPlanIcon = (iconName: string) => {
     const iconMap: { [key: string]: React.ReactNode } = {
       'Medal': <Medal className="w-6 h-6" />,
+      'medal': <Medal className="w-6 h-6" />,
       'Star': <Star className="w-6 h-6" />,
+      'star': <Star className="w-6 h-6" />,
       'Crown': <Crown className="w-6 h-6" />,
+      'crown': <Crown className="w-6 h-6" />,
       'Gem': <Gem className="w-6 h-6" />,
+      'gem': <Gem className="w-6 h-6" />,
       'Zap': <Zap className="w-6 h-6" />,
+      'zap': <Zap className="w-6 h-6" />,
       'Shield': <Shield className="w-6 h-6" />,
+      'shield': <Shield className="w-6 h-6" />,
       'Trophy': <Trophy className="w-6 h-6" />,
-      'Award': <Award className="w-6 h-6" />
+      'trophy': <Trophy className="w-6 h-6" />,
+      'Award': <Award className="w-6 h-6" />,
+      'award': <Award className="w-6 h-6" />
     };
     return iconMap[iconName] || <Medal className="w-6 h-6" />;
   };
