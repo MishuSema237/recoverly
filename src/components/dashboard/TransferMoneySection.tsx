@@ -1,10 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CreditCard, DollarSign } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/config/firebase';
 
 const TransferMoneySection = () => {
   const { userProfile } = useAuth();
@@ -13,6 +11,18 @@ const TransferMoneySection = () => {
   const [transferAmount, setTransferAmount] = useState('');
   const [error, setError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
+  const [receiverValid, setReceiverValid] = useState(false);
+
+  // Auto-validate when both email and user code are entered
+  useEffect(() => {
+    if (receiverEmail && receiverUserCode && !isValidating) {
+      const timeoutId = setTimeout(() => {
+        validateReceiver();
+      }, 500); // Debounce validation
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [receiverEmail, receiverUserCode]);
 
   const validateReceiver = async () => {
     if (!receiverEmail || !receiverUserCode) {
@@ -24,29 +34,27 @@ const TransferMoneySection = () => {
     setError('');
 
     try {
-      // Check if user exists with matching email and user code
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('email', '==', receiverEmail));
-      const querySnapshot = await getDocs(q);
+      // Check if user exists with matching email and user code using MongoDB API
+      const response = await fetch('/api/users/lookup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: receiverEmail,
+          userCode: receiverUserCode
+        })
+      });
 
-      if (querySnapshot.empty) {
-        setError('No user found with this email address');
+      const result = await response.json();
+
+      if (!result.success) {
+        setError(result.error || 'Error validating receiver');
+        setReceiverValid(false);
         return false;
       }
 
-      const userDoc = querySnapshot.docs[0];
-      const userData = userDoc.data();
-
-      if (userData.userCode !== receiverUserCode) {
-        setError('Email and user code do not match. Please verify the details.');
-        return false;
-      }
-
-      if (userData._id === userProfile?._id) {
-        setError('You cannot transfer money to yourself');
-        return false;
-      }
-
+      setReceiverValid(true);
       return true;
     } catch (error) {
       console.error('Error validating receiver:', error);
@@ -102,12 +110,19 @@ const TransferMoneySection = () => {
             </label>
             <input
               type="email"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                receiverValid ? 'border-green-300 bg-green-50' : 
+                error && receiverEmail ? 'border-red-300 bg-red-50' : 
+                'border-gray-300'
+              }`}
               placeholder="receiver@example.com"
               value={receiverEmail}
               onChange={(e) => setReceiverEmail(e.target.value)}
               required
             />
+            {isValidating && (
+              <p className="text-sm text-blue-600 mt-1">Validating...</p>
+            )}
           </div>
           
           <div>
@@ -116,7 +131,11 @@ const TransferMoneySection = () => {
             </label>
             <input
               type="text"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                receiverValid ? 'border-green-300 bg-green-50' : 
+                error && receiverUserCode ? 'border-red-300 bg-red-50' : 
+                'border-gray-300'
+              }`}
               placeholder="ABC12345"
               value={receiverUserCode}
               onChange={(e) => setReceiverUserCode(e.target.value.toUpperCase())}
@@ -125,6 +144,9 @@ const TransferMoneySection = () => {
             <p className="text-sm text-gray-500 mt-1">
               Ask the receiver for their unique user code
             </p>
+            {receiverValid && (
+              <p className="text-sm text-green-600 mt-1">✓ Receiver validated successfully</p>
+            )}
           </div>
           
           <div>
@@ -184,7 +206,7 @@ const TransferMoneySection = () => {
 
           <button
             type="submit"
-            disabled={!receiverEmail || !receiverUserCode || !transferAmount || parseFloat(transferAmount) < 1000}
+            disabled={!receiverValid || !transferAmount || parseFloat(transferAmount) < 1000 || parseFloat(transferAmount) > 10000}
             className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200"
           >
             Transfer Money
