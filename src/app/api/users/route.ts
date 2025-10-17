@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/middleware/auth';
 import { UserService } from '@/lib/auth/user';
 
-export const GET = requireAdmin(async (request) => {
+export const GET = requireAdmin(async () => {
   try {
     const users = await UserService.getAllUsers();
     

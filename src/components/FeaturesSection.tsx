@@ -7,7 +7,6 @@ import {
   BarChart3, 
   Zap, 
   Users, 
-  Shield, 
   Mail, 
   ThumbsUp,
   CheckCircle,

@@ -2,6 +2,7 @@
 
 import { ShieldCheck, Smartphone, Key } from 'lucide-react';
 import { useState } from 'react';
+import Image from 'next/image';
 
 const TwoFactorSection = () => {
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
@@ -62,7 +63,7 @@ const TwoFactorSection = () => {
             <div className="text-center">
               <h5 className="font-semibold text-gray-900 mb-4">Scan QR Code</h5>
               <div className="inline-block p-4 bg-white border border-gray-200 rounded-lg">
-                <img src={qrCode} alt="QR Code" className="w-48 h-48" />
+                <Image src={qrCode} alt="QR Code" width={192} height={192} className="w-48 h-48" />
               </div>
               <p className="text-sm text-gray-600 mt-4">
                 Use your authenticator app to scan this QR code

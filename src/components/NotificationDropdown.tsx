@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, FileText, Download, Check, Trash2, Filter } from 'lucide-react';
+import { X, FileText, Download, Check, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Notification {
@@ -36,7 +36,6 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   userReferralCode,
   isOpen,
   onClose,
-  unreadCount,
   onMarkAsRead
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);

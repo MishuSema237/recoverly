@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -43,9 +43,9 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
     } else {
       setLoading(false);
     }
-  }, [userProfile]);
+  }, [userProfile, calculateProgress]);
 
-  const calculateProgress = () => {
+  const calculateProgress = useCallback(() => {
     if (!userProfile?.currentInvestment || !userProfile?.investmentPlan) return;
 
     // Mock calculation - in real app, this would come from API
@@ -80,7 +80,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
     });
     
     setLoading(false);
-  };
+  }, [userProfile]);
 
   const getDailyRateForPlan = (planName: string): number => {
     // Mock rates - in real app, this should come from plan data
@@ -125,7 +125,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
         <div className="bg-white rounded-lg shadow-lg p-8 text-center">
           <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">No Active Investment</h3>
-          <p className="text-gray-600">You don't have an active investment plan. Start investing to see your progress here.</p>
+          <p className="text-gray-600">You don&apos;t have an active investment plan. Start investing to see your progress here.</p>
         </div>
       </div>
     );

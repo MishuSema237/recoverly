@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Upload, CheckCircle, AlertCircle, CreditCard, DollarSign } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
@@ -190,7 +191,7 @@ const DepositSection = () => {
                 >
                   <div className="flex items-center space-x-3">
                     {method.logo && (
-                      <img src={method.logo} alt={method.name} className="w-8 h-8 rounded" />
+                      <Image src={method.logo} alt={method.name} width={32} height={32} className="w-8 h-8 rounded" />
                     )}
                             <div>
                               <h3 className="font-semibold text-gray-900">{method.name}</h3>
@@ -282,9 +283,11 @@ const DepositSection = () => {
               <label htmlFor="screenshot-upload" className="cursor-pointer">
                 {screenshotPreview ? (
                   <div className="space-y-4">
-                    <img 
+                    <Image 
                       src={screenshotPreview} 
                       alt="Screenshot preview" 
+                      width={400}
+                      height={400}
                       className="mx-auto max-w-full max-h-96 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200" 
                     />
                     <p className="text-sm text-gray-600">Click to change screenshot</p>

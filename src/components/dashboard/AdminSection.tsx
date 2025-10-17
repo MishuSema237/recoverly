@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { 
   Users, 
   DollarSign, 
@@ -247,7 +248,7 @@ const AdminSection = () => {
     } finally {
       setLoadingPlans(false);
     }
-  }, []);
+  }, [planService]);
 
   useEffect(() => {
     if (isAdmin) {
@@ -2093,9 +2094,11 @@ const AdminSection = () => {
                 {selectedTransactionType === 'deposits' && selectedTransaction && 'screenshot' in selectedTransaction && selectedTransaction.screenshot && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Payment Screenshot</label>
-                    <img 
+                    <Image 
                       src={selectedTransaction.screenshot} 
                       alt="Payment Screenshot" 
+                      width={400}
+                      height={300}
                       className="w-full max-w-md h-auto rounded border"
                     />
                   </div>

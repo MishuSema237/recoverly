@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { ArrowUpDown, CheckCircle, AlertCircle, CreditCard, DollarSign } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
@@ -178,7 +179,7 @@ const WithdrawSection = () => {
                 >
                     <div className="flex items-center space-x-3">
                     {method.logo && (
-                      <img src={method.logo} alt={method.name} className="w-8 h-8 rounded" />
+                      <Image src={method.logo} alt={method.name} width={32} height={32} className="w-8 h-8 rounded" />
                     )}
                       <div>
                               <h3 className="font-semibold text-gray-900">{method.name}</h3>

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { requireAuth } from '@/middleware/auth';
 import { UserService } from '@/lib/auth/user';
 import { verifyPassword, hashPassword } from '@/lib/auth/password';
@@ -61,5 +61,6 @@ export const POST = requireAuth(async (request) => {
     );
   }
 });
+
 
 

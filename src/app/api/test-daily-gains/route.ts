@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { NotificationService } from '@/lib/notifications/NotificationService';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Process daily gains for all users
     await NotificationService.processDailyGains();
@@ -18,5 +18,6 @@ export async function GET(request: NextRequest) {
     }, { status: 500 });
   }
 }
+
 
 
