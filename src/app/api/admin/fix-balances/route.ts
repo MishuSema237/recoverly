@@ -52,7 +52,7 @@ export const POST = requireAdmin(async (request) => {
     // Calculate daily gains from transactions
     let totalDailyGains = 0;
     if (user.transactions) {
-      user.transactions.forEach(transaction => {
+      user.transactions.forEach((transaction: { type: string; amount: number }) => {
         if (transaction.type === 'daily_gain') {
           totalDailyGains += transaction.amount;
         }

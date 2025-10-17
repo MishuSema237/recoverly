@@ -90,7 +90,9 @@ const TransferMoneySection = () => {
         
         <div className="mb-6 p-4 bg-gray-50 rounded-lg">
           <p className="text-sm text-gray-600">Current Balance</p>
-          <p className="text-2xl font-bold text-gray-900">$0.00 USD</p>
+          <p className="text-2xl font-bold text-gray-900">
+            ${((userProfile?.balances?.main || 0) + (userProfile?.balances?.investment || 0) + (userProfile?.balances?.referral || 0)).toFixed(2)} USD
+          </p>
         </div>
 
         <form onSubmit={handleTransfer} className="space-y-6">
