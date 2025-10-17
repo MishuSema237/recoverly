@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 interface NotificationData {
   title: string;
   message: string;
-  type: 'deposit_request' | 'withdrawal_request' | 'deposit_approval' | 'deposit_decline' | 'withdrawal_approval' | 'withdrawal_decline' | 'daily_gain' | 'referral_gain' | 'broadcast' | 'individual';
+  type: 'deposit_request' | 'withdrawal_request' | 'deposit_approval' | 'deposit_decline' | 'withdrawal_approval' | 'withdrawal_decline' | 'daily_gain' | 'referral_gain' | 'broadcast' | 'individual' | 'transfer_sent' | 'transfer_received';
   recipients: string[] | 'all';
   sentBy: string;
   metadata?: {
