@@ -21,7 +21,8 @@ import {
   Mail,
   Phone,
   MapPin,
-  Activity
+  Activity,
+  MessageSquare
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';

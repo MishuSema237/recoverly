@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { requireAdmin } from '@/middleware/auth';
 
@@ -11,7 +11,7 @@ export const GET = requireAdmin(async (request) => {
     const db = await getDb();
     const supportMessagesCollection = db.collection('supportMessages');
 
-    let query: any = {};
+    const query: Record<string, string> = {};
     
     if (status !== 'all') {
       query.status = status;
@@ -55,7 +55,7 @@ export const PUT = requireAdmin(async (request) => {
     const db = await getDb();
     const supportMessagesCollection = db.collection('supportMessages');
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       updatedAt: new Date()
     };
 
