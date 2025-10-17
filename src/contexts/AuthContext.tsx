@@ -31,6 +31,27 @@ interface User {
     referral: number;
     total: number;
   };
+  investments?: Array<{
+    _id: string;
+    planName: string;
+    amount: number;
+    status: 'active' | 'completed' | 'cancelled';
+    plan: {
+      name: string;
+      dailyRate: number;
+      duration: number;
+    };
+    createdAt: Date;
+    endDate: Date;
+  }>;
+  transactions?: Array<{
+    type: 'daily_gain' | 'referral_bonus' | 'deposit' | 'withdrawal' | 'investment';
+    amount: number;
+    planName?: string;
+    date: Date;
+    status: 'completed' | 'pending' | 'failed';
+    description?: string;
+  }>;
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string;
