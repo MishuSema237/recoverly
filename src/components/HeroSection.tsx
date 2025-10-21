@@ -7,19 +7,23 @@ import { ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const HeroSection = () => {
-  const [currentWord] = useState(0);
+  const [currentWord, setCurrentWord] = useState(0);
   
   const dynamicWords = [
-    'CRYPTO'
+    'CRYPTO',
+    'TRADING',
+    'INVESTMENT',
+    'FINANCE',
+    'WEALTH',
+    'FUTURE'
   ];
 
   useEffect(() => {
-    // No need for interval since we only have one word
-    // const interval = setInterval(() => {
-    //   setCurrentWord((prev) => (prev + 1) % dynamicWords.length);
-    // }, 2000);
+    const interval = setInterval(() => {
+      setCurrentWord((prev) => (prev + 1) % dynamicWords.length);
+    }, 3000); // Changed to 3 seconds for smoother experience
 
-    // return () => clearInterval(interval);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -44,26 +48,32 @@ const HeroSection = () => {
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={currentWord}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.5 }}
-                      className="flex justify-start space-x-2"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.6, ease: "easeInOut" }}
+                      className="flex justify-start"
+                      style={{ letterSpacing: '-0.02em' }}
                     >
                       {dynamicWords[currentWord].toUpperCase().split('').map((letter, index) => (
                         <motion.span
                           key={`${currentWord}-${index}`}
-                          initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                          initial={{ opacity: 0, y: 30, scale: 0.7 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           transition={{ 
-                            duration: 0.3, 
-                            delay: index * 0.1,
+                            duration: 0.4, 
+                            delay: index * 0.05,
                             type: "spring",
-                            stiffness: 200,
-                            damping: 20
+                            stiffness: 300,
+                            damping: 25
                           }}
                           className="text-red-400 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent"
-                          style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '1.2em', fontWeight: '700' }}
+                          style={{ 
+                            fontFamily: 'Montserrat, sans-serif', 
+                            fontSize: '1.2em', 
+                            fontWeight: '700',
+                            marginRight: '0.1em'
+                          }}
                         >
                           {letter}
                         </motion.span>

@@ -95,6 +95,12 @@ const DashboardContent = () => {
         setIsSidebarOpen(true);
       }
     },
+    onSwipeLeft: () => {
+      // Close sidebar when swiping left
+      if (window.innerWidth < 1024 && isSidebarOpen) {
+        setIsSidebarOpen(false);
+      }
+    },
     threshold: 50
   });
 
@@ -181,19 +187,28 @@ const DashboardContent = () => {
     <ProtectedRoute>
       <DashboardLoader>
 
-        <div className="h-screen bg-gray-50 flex">
+        <div className="h-screen bg-gray-50 flex overflow-hidden">
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity duration-300"
             onClick={() => setIsSidebarOpen(false)}
+            onTouchEnd={(e) => {
+              // Prevent event bubbling for better touch handling
+              e.stopPropagation();
+              setIsSidebarOpen(false);
+            }}
           />
         )}
 
         {/* Sidebar */}
         <div className={`w-64 bg-white shadow-lg flex flex-col fixed lg:relative z-50 h-full transform transition-transform duration-300 ease-in-out ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}>
+        }`} style={{ 
+          paddingTop: 'env(safe-area-inset-top)', 
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          height: '100dvh' // Use dynamic viewport height for better mobile support
+        }}>
           <div className="p-5 border-b border-gray-200 flex-shrink-0 flex items-center justify-between">
             <h1 className="text-2xl font-bold text-red-600">Tesla Capital</h1>
             <button
@@ -245,7 +260,9 @@ const DashboardContent = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden" style={{ 
+          height: '100dvh' // Use dynamic viewport height for better mobile support
+        }}>
           {/* Header */}
           <header className="bg-white shadow-sm border-b">
             <div className="px-6 py-4">
@@ -311,7 +328,9 @@ const DashboardContent = () => {
           )}
 
           {/* Dashboard Content */}
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto" style={{ 
+            WebkitOverflowScrolling: 'touch'
+          }}>
             {activeSection === 'dashboard' && (
               <div>
                 {/* Hero Section with Gradient Background - Only on Dashboard */}

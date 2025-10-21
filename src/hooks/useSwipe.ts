@@ -32,7 +32,11 @@ export const useSwipe = (options: SwipeOptions = {}) => {
   };
 
   const handleTouchMove = (e: TouchEvent) => {
-    if (preventDefaultTouchmoveEvent) {
+    // Only prevent default for horizontal swipes to avoid interfering with vertical scrolling
+    const deltaX = Math.abs(e.targetTouches[0].clientX - touchStartX.current);
+    const deltaY = Math.abs(e.targetTouches[0].clientY - touchStartY.current);
+    
+    if (preventDefaultTouchmoveEvent && deltaX > deltaY) {
       e.preventDefault();
     }
   };
@@ -95,6 +99,7 @@ export const useSwipe = (options: SwipeOptions = {}) => {
     touchEndY: touchEndY.current,
   };
 };
+
 
 
 
