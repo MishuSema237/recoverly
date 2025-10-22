@@ -293,13 +293,16 @@ const WithdrawSection = () => {
                         <strong>Allowed Times:</strong> {withdrawalSchedule.allowedTimes.start} - {withdrawalSchedule.allowedTimes.end} ({withdrawalSchedule.timezone})
                       </span>
                     </div>
-                    {getNextAllowedTime() && (
-                      <div className="mt-3 p-3 bg-orange-100 rounded-lg">
-                        <p className="text-sm text-orange-800">
-                          <strong>Next Available:</strong> {getNextAllowedTime()?.day.charAt(0).toUpperCase() + getNextAllowedTime()?.day.slice(1)} at {getNextAllowedTime()?.time}
-                        </p>
-                      </div>
-                    )}
+                    {(() => {
+                      const nextTime = getNextAllowedTime();
+                      return nextTime && (
+                        <div className="mt-3 p-3 bg-orange-100 rounded-lg">
+                          <p className="text-sm text-orange-800">
+                            <strong>Next Available:</strong> {nextTime.day.charAt(0).toUpperCase() + nextTime.day.slice(1)} at {nextTime.time}
+                          </p>
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
