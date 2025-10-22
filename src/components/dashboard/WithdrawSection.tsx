@@ -140,8 +140,8 @@ const WithdrawSection = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-lg p-8">
+    <div className="px-0 lg:px-6 py-6">
+      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-4 lg:p-8">
         <div className="flex items-center space-x-3 mb-8">
           <div className="p-3 bg-blue-100 rounded-full">
             <ArrowUpDown className="w-6 h-6 text-blue-600" />
