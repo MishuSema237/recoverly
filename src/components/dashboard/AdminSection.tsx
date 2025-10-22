@@ -2290,7 +2290,6 @@ const AdminSection = () => {
             <WithdrawalScheduleManager />
           </div>
         )}
-      </div>
     </div>
   );
 };
