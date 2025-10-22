@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAuth, AuthenticatedRequest } from '@/middleware/auth';
 import { getDb } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export const GET = requireAuth(async (request: AuthenticatedRequest) => {
   try {
@@ -20,7 +21,7 @@ export const GET = requireAuth(async (request: AuthenticatedRequest) => {
     const usersCollection = db.collection('users');
 
     // Get user info to check if admin
-    const user = await usersCollection.findOne({ _id: userId });
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
     const isAdmin = user?.isAdmin || false;
 
     let notifications;
