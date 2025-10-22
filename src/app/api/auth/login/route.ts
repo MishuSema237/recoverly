@@ -35,24 +35,6 @@ export async function POST(request: NextRequest) {
     // Remove sensitive data from response
     const { password: _password, emailVerificationToken: _emailToken, passwordResetToken: _resetToken, ...userWithoutSensitiveData } = result.user;
 
-    // Send login notification to admins
-    try {
-      await NotificationService.createNotification({
-        title: 'User Login',
-        message: `${result.user.email} has logged in successfully.`,
-        type: 'broadcast',
-        recipients: 'all', // This will be filtered to admins only
-        sentBy: 'system',
-        metadata: {
-          userId: result.user._id?.toString(),
-          userEmail: result.user.email
-        }
-      });
-    } catch (notificationError) {
-      console.error('Failed to send login notification:', notificationError);
-      // Don't fail login if notification fails
-    }
-
     // Set httpOnly cookie
     const response = NextResponse.json({
       success: true,
