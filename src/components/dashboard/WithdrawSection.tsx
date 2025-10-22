@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { ArrowUpDown, CheckCircle, AlertCircle, CreditCard, DollarSign } from 'lucide-react';
+import { ArrowUpDown, CheckCircle, AlertCircle, CreditCard, DollarSign, Clock, Calendar } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
 
@@ -36,6 +36,16 @@ interface WithdrawalRequest {
   status: 'pending' | 'processing' | 'completed' | 'rejected';
 }
 
+interface WithdrawalSchedule {
+  enabled: boolean;
+  allowedDays: string[];
+  allowedTimes: {
+    start: string;
+    end: string;
+  };
+  timezone: string;
+}
+
 const WithdrawSection = () => {
   const { user, userProfile, forceRefresh } = useAuth();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -46,11 +56,105 @@ const WithdrawSection = () => {
   const [bankName, setBankName] = useState('');
   const [network, setNetwork] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [withdrawalSchedule, setWithdrawalSchedule] = useState<WithdrawalSchedule | null>(null);
+  const [scheduleLoading, setScheduleLoading] = useState(true);
 
   // Validation states
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const availableBalance = userProfile?.balances?.main || 0;
   const withdrawalAmount = parseFloat(amount) || 0;
+
+  // Fetch withdrawal schedule
+  useEffect(() => {
+    const fetchWithdrawalSchedule = async () => {
+      try {
+        const response = await fetch('/api/withdrawal-schedule');
+        const result = await response.json();
+        
+        if (result.success) {
+          setWithdrawalSchedule(result.data);
+        }
+      } catch (error) {
+        console.error('Error fetching withdrawal schedule:', error);
+      } finally {
+        setScheduleLoading(false);
+      }
+    };
+
+    fetchWithdrawalSchedule();
+  }, []);
+
+  // Check if withdrawals are currently allowed
+  const isWithdrawalAllowed = () => {
+    if (!withdrawalSchedule || !withdrawalSchedule.enabled) {
+      return true; // If no schedule is set, allow withdrawals
+    }
+
+    const now = new Date();
+    const currentDay = now.toLocaleDateString('en-US', { weekday: 'lowercase' });
+    const currentTime = now.toLocaleTimeString('en-US', { 
+      hour12: false, 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+
+    // Check if current day is allowed
+    if (!withdrawalSchedule.allowedDays.includes(currentDay)) {
+      return false;
+    }
+
+    // Check if current time is within allowed range
+    const startTime = withdrawalSchedule.allowedTimes.start;
+    const endTime = withdrawalSchedule.allowedTimes.end;
+    
+    return currentTime >= startTime && currentTime <= endTime;
+  };
+
+  const getNextAllowedTime = () => {
+    if (!withdrawalSchedule || !withdrawalSchedule.enabled) {
+      return null;
+    }
+
+    const now = new Date();
+    const currentDay = now.toLocaleDateString('en-US', { weekday: 'lowercase' });
+    const currentTime = now.toLocaleTimeString('en-US', { 
+      hour12: false, 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+
+    // Find next allowed day
+    const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const currentDayIndex = daysOfWeek.indexOf(currentDay);
+    
+    for (let i = 0; i < 7; i++) {
+      const dayIndex = (currentDayIndex + i) % 7;
+      const day = daysOfWeek[dayIndex];
+      
+      if (withdrawalSchedule.allowedDays.includes(day)) {
+        const nextDate = new Date(now);
+        nextDate.setDate(now.getDate() + i);
+        
+        if (i === 0 && currentTime < withdrawalSchedule.allowedTimes.start) {
+          // Same day, but before start time
+          return {
+            date: nextDate.toLocaleDateString(),
+            time: withdrawalSchedule.allowedTimes.start,
+            day: day
+          };
+        } else if (i > 0) {
+          // Next allowed day
+          return {
+            date: nextDate.toLocaleDateString(),
+            time: withdrawalSchedule.allowedTimes.start,
+            day: day
+          };
+        }
+      }
+    }
+    
+    return null;
+  };
   const isAmountValid = withdrawalAmount <= availableBalance && withdrawalAmount > 0;
   const isFormValid = isAmountValid && selectedMethod && accountName && accountNumber;
 
@@ -152,6 +256,57 @@ const WithdrawSection = () => {
           </div>
         </div>
 
+        {/* Withdrawal Schedule Check */}
+        {scheduleLoading ? (
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+            </div>
+          </div>
+        ) : !isWithdrawalAllowed() ? (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <Clock className="h-6 w-6 text-orange-600" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-lg font-semibold text-orange-800 mb-2">
+                  Withdrawals Currently Not Available
+                </h3>
+                <p className="text-orange-700 mb-4">
+                  Withdrawals are only allowed during specific days and times as set by our administrators.
+                </p>
+                {withdrawalSchedule && (
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="h-4 w-4 text-orange-600" />
+                      <span className="text-sm text-orange-700">
+                        <strong>Allowed Days:</strong> {withdrawalSchedule.allowedDays.map(day => 
+                          day.charAt(0).toUpperCase() + day.slice(1)
+                        ).join(', ')}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Clock className="h-4 w-4 text-orange-600" />
+                      <span className="text-sm text-orange-700">
+                        <strong>Allowed Times:</strong> {withdrawalSchedule.allowedTimes.start} - {withdrawalSchedule.allowedTimes.end} ({withdrawalSchedule.timezone})
+                      </span>
+                    </div>
+                    {getNextAllowedTime() && (
+                      <div className="mt-3 p-3 bg-orange-100 rounded-lg">
+                        <p className="text-sm text-orange-800">
+                          <strong>Next Available:</strong> {getNextAllowedTime()?.day.charAt(0).toUpperCase() + getNextAllowedTime()?.day.slice(1)} at {getNextAllowedTime()?.time}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         {/* Balance Display */}
         <div className="bg-gray-50 rounded-lg p-4 mb-6">
           <div className="flex justify-between items-center">
@@ -160,7 +315,10 @@ const WithdrawSection = () => {
           </div>
           </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" style={{ 
+          opacity: !isWithdrawalAllowed() ? 0.5 : 1,
+          pointerEvents: !isWithdrawalAllowed() ? 'none' : 'auto'
+        }}>
           {/* Payment Method Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">Select Withdrawal Method</label>
