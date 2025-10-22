@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 interface NotificationData {
   title: string;
   message: string;
-  type: 'deposit_request' | 'withdrawal_request' | 'deposit_approval' | 'deposit_decline' | 'withdrawal_approval' | 'withdrawal_decline' | 'daily_gain' | 'referral_gain' | 'broadcast' | 'individual' | 'transfer_sent' | 'transfer_received';
+  type: 'deposit_request' | 'withdrawal_request' | 'deposit_approval' | 'deposit_decline' | 'withdrawal_approval' | 'withdrawal_decline' | 'daily_gain' | 'referral_gain' | 'broadcast' | 'individual' | 'transfer_sent' | 'transfer_received' | 'welcome' | 'plan_selected' | 'plan_updated' | 'support_sent' | 'support_reply' | 'login' | 'logout' | 'user_activity';
   recipients: string[] | 'all';
   sentBy: string;
   metadata?: {
@@ -18,6 +18,10 @@ interface NotificationData {
     fee?: number;
     senderEmail?: string;
     transferAmount?: number;
+    supportMessageId?: string;
+    loginTime?: string;
+    logoutTime?: string;
+    activityType?: string;
   };
 }
 
@@ -256,5 +260,140 @@ export class NotificationService {
       bonusAmount,
       referredUserCode
     );
+  }
+
+  // Welcome notification for new users
+  static async notifyWelcome(userId: string, userEmail: string) {
+    await this.createNotification({
+      title: 'Welcome to Tesla Capital!',
+      message: 'Welcome to Tesla Capital! Your account has been created successfully. Start investing and grow your wealth with our premium investment plans.',
+      type: 'welcome',
+      recipients: [userId],
+      sentBy: 'system',
+      metadata: { userEmail }
+    });
+  }
+
+  // Plan selection notification
+  static async notifyPlanSelected(userId: string, planName: string, amount: number) {
+    await this.createNotification({
+      title: 'Investment Plan Selected',
+      message: `You have successfully selected the ${planName} plan with an investment of $${amount}. Your investment is now active and earning daily returns.`,
+      type: 'plan_selected',
+      recipients: [userId],
+      sentBy: 'system',
+      metadata: { planName, amount }
+    });
+  }
+
+  // Plan update notification
+  static async notifyPlanUpdated(userId: string, oldPlan: string, newPlan: string, amount: number) {
+    await this.createNotification({
+      title: 'Investment Plan Updated',
+      message: `Your investment plan has been updated from ${oldPlan} to ${newPlan} with an investment of $${amount}.`,
+      type: 'plan_updated',
+      recipients: [userId],
+      sentBy: 'system',
+      metadata: { planName: newPlan, amount }
+    });
+  }
+
+  // Support message sent notification
+  static async notifySupportSent(userId: string, userEmail: string, messageId: string) {
+    const db = await getDb();
+    
+    // Get admin users
+    const adminUsers = await db.collection('users').find({ isAdmin: true }).toArray();
+    const adminIds = adminUsers.map(admin => admin._id?.toString()).filter(Boolean);
+    
+    // Notify user
+    await this.createNotification({
+      title: 'Support Message Sent',
+      message: 'Your support message has been sent successfully. Our team will respond within 24 hours.',
+      type: 'support_sent',
+      recipients: [userId],
+      sentBy: 'system',
+      metadata: { supportMessageId: messageId }
+    });
+
+    // Notify all admins
+    if (adminIds.length > 0) {
+      await this.createNotification({
+        title: 'New Support Message',
+        message: `${userEmail} has sent a new support message. Please review and respond.`,
+        type: 'support_sent',
+        recipients: adminIds,
+        sentBy: 'system',
+        metadata: { supportMessageId: messageId, userEmail }
+      });
+    }
+  }
+
+  // Support reply notification
+  static async notifySupportReply(userId: string, userEmail: string, messageId: string) {
+    await this.createNotification({
+      title: 'Support Reply Received',
+      message: 'You have received a reply to your support message. Please check your support inbox.',
+      type: 'support_reply',
+      recipients: [userId],
+      sentBy: 'system',
+      metadata: { supportMessageId: messageId }
+    });
+  }
+
+  // Login notification (for admins)
+  static async notifyLogin(userId: string, userEmail: string, isAdmin: boolean = false) {
+    if (isAdmin) {
+      // Only notify other admins about admin logins
+      const db = await getDb();
+      const adminUsers = await db.collection('users').find({ isAdmin: true }).toArray();
+      const adminIds = adminUsers.map(admin => admin._id?.toString()).filter(Boolean);
+      
+      await this.createNotification({
+        title: 'Admin Login',
+        message: `Admin ${userEmail} has logged in to the system.`,
+        type: 'login',
+        recipients: adminIds,
+        sentBy: 'system',
+        metadata: { userEmail, loginTime: new Date().toISOString() }
+      });
+    }
+  }
+
+  // Logout notification (for admins)
+  static async notifyLogout(userId: string, userEmail: string, isAdmin: boolean = false) {
+    if (isAdmin) {
+      // Only notify other admins about admin logouts
+      const db = await getDb();
+      const adminUsers = await db.collection('users').find({ isAdmin: true }).toArray();
+      const adminIds = adminUsers.map(admin => admin._id?.toString()).filter(Boolean);
+      
+      await this.createNotification({
+        title: 'Admin Logout',
+        message: `Admin ${userEmail} has logged out of the system.`,
+        type: 'logout',
+        recipients: adminIds,
+        sentBy: 'system',
+        metadata: { userEmail, logoutTime: new Date().toISOString() }
+      });
+    }
+  }
+
+  // User activity notification (for admins)
+  static async notifyUserActivity(userId: string, userEmail: string, activityType: string, details?: string) {
+    const db = await getDb();
+    const adminUsers = await db.collection('users').find({ isAdmin: true }).toArray();
+    const adminIds = adminUsers.map(admin => admin._id?.toString()).filter(Boolean);
+    
+    if (adminIds.length > 0) {
+      await this.createNotification({
+        title: 'User Activity',
+        message: `User ${userEmail} performed ${activityType}.${details ? ` Details: ${details}` : ''}`,
+        type: 'user_activity',
+        recipients: adminIds,
+        sentBy: 'system',
+        metadata: { userEmail, activityType, userId }
+      });
+    }
   }
 }

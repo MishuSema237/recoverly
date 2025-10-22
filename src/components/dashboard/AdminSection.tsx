@@ -22,12 +22,14 @@ import {
   Phone,
   MapPin,
   Activity,
-  MessageSquare
+  MessageSquare,
+  Clock
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
 import { canAccessAdmin } from '@/utils/adminUtils';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
+import WithdrawalScheduleManager from '@/components/admin/WithdrawalScheduleManager';
 // Note: UserService is server-side only, we'll use API calls instead
 
 interface PaymentMethod {
@@ -122,7 +124,7 @@ interface WithdrawalRequest {
 
 const AdminSection = () => {
   const { user, userProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'users' | 'plans' | 'payments' | 'transactions' | 'notifications' | 'support'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'plans' | 'payments' | 'transactions' | 'notifications' | 'support' | 'withdrawal-schedule'>('users');
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [plans, setPlans] = useState<InvestmentPlan[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -823,11 +825,12 @@ const AdminSection = () => {
             { id: 'payments', label: 'Payment Methods', icon: <CreditCard className="w-4 h-4" /> },
             { id: 'transactions', label: 'Transactions', icon: <DollarSign className="w-4 h-4" /> },
             { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
-            { id: 'support', label: 'Support Messages', icon: <MessageSquare className="w-4 h-4" /> }
+            { id: 'support', label: 'Support Messages', icon: <MessageSquare className="w-4 h-4" /> },
+            { id: 'withdrawal-schedule', label: 'Withdrawal Schedule', icon: <Clock className="w-4 h-4" /> }
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'users' | 'plans' | 'payments' | 'transactions' | 'notifications' | 'support')}
+              onClick={() => setActiveTab(tab.id as 'users' | 'plans' | 'payments' | 'transactions' | 'notifications' | 'support' | 'withdrawal-schedule')}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
                 activeTab === tab.id
                   ? 'bg-red-600 text-white'
@@ -2280,6 +2283,14 @@ const AdminSection = () => {
           </div>
         </div>
       )}
+
+        {/* Withdrawal Schedule Tab */}
+        {activeTab === 'withdrawal-schedule' && (
+          <div>
+            <WithdrawalScheduleManager />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

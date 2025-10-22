@@ -17,15 +17,33 @@ export const GET = requireAuth(async (request: AuthenticatedRequest) => {
 
     const db = await getDb();
     const notificationsCollection = db.collection('notifications');
+    const usersCollection = db.collection('users');
 
-    // Get notifications for this user (by userId, userCode, or 'all')
-    const notifications = await notificationsCollection.find({
-      $or: [
-        { recipients: userId },
-        { recipients: userCode },
-        { recipients: 'all' }
-      ]
-    }).sort({ sentAt: -1 }).toArray();
+    // Get user info to check if admin
+    const user = await usersCollection.findOne({ _id: userId });
+    const isAdmin = user?.isAdmin || false;
+
+    let notifications;
+
+    if (isAdmin) {
+      // Admins see all notifications including user activity, login/logout, etc.
+      notifications = await notificationsCollection.find({
+        $or: [
+          { recipients: userId },
+          { recipients: userCode },
+          { recipients: 'all' },
+          { type: { $in: ['login', 'logout', 'user_activity', 'deposit_request', 'withdrawal_request', 'support_sent'] } }
+        ]
+      }).sort({ sentAt: -1 }).toArray();
+    } else {
+      // Regular users only see their own notifications
+      notifications = await notificationsCollection.find({
+        $or: [
+          { recipients: userId },
+          { recipients: userCode }
+        ]
+      }).sort({ sentAt: -1 }).toArray();
+    }
 
     return NextResponse.json({
       success: true,
