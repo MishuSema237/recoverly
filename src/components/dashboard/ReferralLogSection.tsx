@@ -1,14 +1,48 @@
 'use client';
 
 import { Users, Copy } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+
+interface ReferralStats {
+  totalReferrals: number;
+  totalEarnings: number;
+  referrals: Array<{
+    name: string;
+    email: string;
+    joinedAt: string;
+  }>;
+}
 
 const ReferralLogSection = () => {
   const { userProfile } = useAuth();
   const [copySuccess, setCopySuccess] = useState(false);
+  const [referralStats, setReferralStats] = useState<ReferralStats | null>(null);
+  const [loading, setLoading] = useState(true);
   
   const referralLink = `https://tesla-capital.com/ref/${userProfile?.userCode || 'loading...'}`;
+
+  // Fetch referral stats
+  useEffect(() => {
+    const fetchReferralStats = async () => {
+      if (!userProfile?.userCode) return;
+      
+      try {
+        const response = await fetch('/api/referrals/stats');
+        const result = await response.json();
+        
+        if (result.success) {
+          setReferralStats(result.data);
+        }
+      } catch (error) {
+        console.error('Error fetching referral stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReferralStats();
+  }, [userProfile?.userCode]);
 
   const handleCopyLink = async () => {
     try {
@@ -60,7 +94,9 @@ const ReferralLogSection = () => {
             </button>
           </div>
           <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <p className="text-2xl font-bold text-gray-900">$0.00</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {loading ? 'Loading...' : `$${(referralStats?.totalEarnings || 0).toFixed(2)}`}
+            </p>
             <p className="text-sm text-gray-600">Referral Earnings</p>
           </div>
         </div>
@@ -74,12 +110,36 @@ const ReferralLogSection = () => {
         
         {/* Mobile Tile Layout */}
         <div className="block md:hidden space-y-3">
-          {/* Empty state */}
-          <div className="text-center py-8 text-gray-500">
-            <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-lg font-medium">No referrals yet</p>
-            <p className="text-sm">Share your link to start earning commissions</p>
-          </div>
+          {loading ? (
+            <div className="text-center py-8 text-gray-500">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-300 mx-auto mb-4"></div>
+              <p className="text-sm">Loading referrals...</p>
+            </div>
+          ) : referralStats && referralStats.referrals.length > 0 ? (
+            referralStats.referrals.map((referral, index) => (
+              <div key={index} className="bg-gray-50 rounded-lg p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="font-medium text-gray-900">{referral.name}</p>
+                    <p className="text-sm text-gray-600">{referral.email}</p>
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    {new Date(referral.joinedAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Commission Rate: 10%</span>
+                  <span className="font-medium text-green-600">$10.00</span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-lg font-medium">No referrals yet</p>
+              <p className="text-sm">Share your link to start earning commissions</p>
+            </div>
+          )}
         </div>
 
         {/* Desktop Table Layout */}
@@ -97,15 +157,44 @@ const ReferralLogSection = () => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td colSpan={7} className="text-center py-8 text-gray-500">
-                  <div className="flex flex-col items-center">
-                    <Users className="w-12 h-12 text-gray-300 mb-4" />
-                    <p className="text-lg font-medium">No referrals yet</p>
-                    <p className="text-sm">Share your link to start earning commissions</p>
-                  </div>
-                </td>
-              </tr>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-8 text-gray-500">
+                    <div className="flex flex-col items-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-300 mb-4"></div>
+                      <p className="text-sm">Loading referrals...</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : referralStats && referralStats.referrals.length > 0 ? (
+                referralStats.referrals.map((referral, index) => (
+                  <tr key={index} className="border-b border-gray-100">
+                    <td className="py-3 px-4 text-sm text-gray-900">REF-{index + 1}</td>
+                    <td className="py-3 px-4 text-sm text-gray-900">
+                      {new Date(referral.joinedAt).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-4 text-sm text-gray-900">{referral.name}</td>
+                    <td className="py-3 px-4 text-sm text-gray-900">10%</td>
+                    <td className="py-3 px-4 text-sm font-medium text-green-600">$10.00</td>
+                    <td className="py-3 px-4 text-sm">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Paid
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-sm text-gray-600">{referral.email}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="text-center py-8 text-gray-500">
+                    <div className="flex flex-col items-center">
+                      <Users className="w-12 h-12 text-gray-300 mb-4" />
+                      <p className="text-lg font-medium">No referrals yet</p>
+                      <p className="text-sm">Share your link to start earning commissions</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

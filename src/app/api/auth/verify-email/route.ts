@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       
       // Process referral bonus for the referrer
       if (user.referredBy) {
-        const referrer = await UserService.getUserByReferralCode(user.referredBy);
+        const referrer = await UserService.getUserById(user.referredBy);
         if (referrer) {
           const bonusAmount = 50; // $50 referral bonus
           await NotificationService.processReferralBonus(

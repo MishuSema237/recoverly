@@ -539,12 +539,22 @@ export class UserService {
 
     // Find all users referred by this user
     const referrals = await usersCollection.find({ 
-      referredBy: userId 
+      referredBy: user._id!.toString()
     }).sort({ createdAt: -1 }).toArray();
+
+    // Calculate total earnings from both referralEarnings and transactions
+    let totalEarnings = user.referralEarnings || 0;
+    
+    // Add earnings from referral bonus transactions
+    if (user.transactions) {
+      const referralTransactions = user.transactions.filter(t => t.type === 'referral_bonus');
+      const transactionEarnings = referralTransactions.reduce((sum, t) => sum + t.amount, 0);
+      totalEarnings += transactionEarnings;
+    }
 
     return {
       totalReferrals: referrals.length,
-      totalEarnings: user.referralEarnings || 0,
+      totalEarnings: totalEarnings,
       referrals: referrals.map(ref => ({
         name: `${ref.firstName} ${ref.lastName}`,
         email: ref.email,
