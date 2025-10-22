@@ -73,9 +73,9 @@ const ReferralLogSection = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-0 lg:px-6">
       {/* Referral Program */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-sm p-4 lg:p-6">
         <p className="text-gray-600 mb-6">
           Share your referral link and earn commissions when others join using your link.
         </p>
@@ -103,7 +103,7 @@ const ReferralLogSection = () => {
       </div>
 
       {/* Referral Log */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-sm p-4 lg:p-6">
         <p className="text-gray-600 mb-6">
           Track your referral activity and earnings from users who joined through your link.
         </p>

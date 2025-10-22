@@ -424,11 +424,11 @@ const DashboardContent = () => {
                 </div>
 
                 {/* Additional Dashboard Content */}
-                <div className="px-4 lg:px-6 py-6 space-y-6">
+                <div className="px-0 lg:px-6 py-6 space-y-6">
 
                 {/* Current Plan */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Plan</h3>
+                <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-sm p-4 lg:p-6">
+                  <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4">Current Plan</h3>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-2xl font-bold text-gray-900">
@@ -443,7 +443,7 @@ const DashboardContent = () => {
                     </div>
                     <button 
                       onClick={() => handleSectionChange('investment')}
-                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200"
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 lg:px-6 lg:py-2 rounded-lg text-sm lg:text-base font-semibold transition-colors duration-200"
                     >
                       {userProfile?.currentInvestment ? 'Upgrade Plan' : 'Update Plan'}
                     </button>
@@ -451,8 +451,8 @@ const DashboardContent = () => {
                 </div>
 
                 {/* Referral Section */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Referral Program</h3>
+                <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-sm p-4 lg:p-6">
+                  <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4">Referral Program</h3>
                   <div className="space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex-1 min-w-0">

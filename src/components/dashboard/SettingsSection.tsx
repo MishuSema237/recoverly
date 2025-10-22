@@ -99,7 +99,7 @@ const SettingsSection = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-0 lg:px-6">
       {/* Message Display */}
       {message.text && (
         <div className={`p-4 rounded-lg ${
@@ -111,7 +111,7 @@ const SettingsSection = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-sm p-4 lg:p-6">
         <p className="text-gray-600 mb-6">
           Configure your account preferences, security settings, and manage your password.
         </p>
@@ -129,21 +129,21 @@ const SettingsSection = () => {
                     Status: {is2FAEnabled ? 'Enabled' : 'Disabled'}
                   </p>
                 </div>
-                {is2FAEnabled ? (
-                  <button 
-                    onClick={handleDisable2FA}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-                  >
-                    Disable 2FA
-                  </button>
-                ) : (
-                  <button 
-                    onClick={handleEnable2FA}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-                  >
-                    Enable 2FA
-                  </button>
-                )}
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={is2FAEnabled}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setShow2FAForm(true);
+                      } else {
+                        handleDisable2FA();
+                      }
+                    }}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                </label>
               </div>
               
               <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
@@ -151,12 +151,15 @@ const SettingsSection = () => {
                   <h5 className="font-medium text-gray-900">Change Password</h5>
                   <p className="text-sm text-gray-600">Update your account password</p>
                 </div>
-                <button 
-                  onClick={() => setShowPasswordForm(!showPasswordForm)}
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-                >
-                  {showPasswordForm ? 'Cancel' : 'Change Password'}
-                </button>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={showPasswordForm}
+                    onChange={(e) => setShowPasswordForm(e.target.checked)}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                </label>
               </div>
             </div>
           </div>
@@ -235,7 +238,7 @@ const SettingsSection = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
+                    className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white px-4 py-2 lg:px-6 lg:py-3 rounded-lg text-sm lg:text-base font-semibold transition-colors duration-200"
                   >
                     {isLoading ? 'Updating...' : 'Update Password'}
                   </button>
@@ -246,7 +249,7 @@ const SettingsSection = () => {
                       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
                       setMessage({ type: '', text: '' });
                     }}
-                    className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 lg:px-6 lg:py-3 rounded-lg text-sm lg:text-base font-semibold transition-colors duration-200"
                   >
                     Cancel
                   </button>
@@ -283,13 +286,13 @@ const SettingsSection = () => {
                       setShow2FAForm(false);
                       setMessage({ type: 'success', text: '2FA enabled successfully!' });
                     }}
-                    className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 lg:px-6 lg:py-3 rounded-lg text-sm lg:text-base font-semibold transition-colors duration-200"
                   >
                     Enable 2FA
                   </button>
                   <button
                     onClick={() => setShow2FAForm(false)}
-                    className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 lg:px-6 lg:py-3 rounded-lg text-sm lg:text-base font-semibold transition-colors duration-200"
                   >
                     Cancel
                   </button>

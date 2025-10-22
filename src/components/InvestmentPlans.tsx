@@ -1062,7 +1062,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
             {/* Proceed Button */}
             <div className="text-center">
               <button
-                className={`py-3 px-8 rounded-lg font-semibold transition-colors duration-200 ${
+                className={`py-2 px-4 lg:py-3 lg:px-8 rounded-lg text-sm lg:text-base font-semibold transition-colors duration-200 ${
                   isProcessing || investmentAmount === 0 || amountError || investmentAmount > accountBalance
                     ? 'bg-gray-400 cursor-not-allowed text-white'
                     : 'bg-red-600 hover:bg-red-700 text-white'
