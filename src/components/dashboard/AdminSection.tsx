@@ -30,6 +30,7 @@ import { showSuccess, showError } from '@/utils/toast';
 import { canAccessAdmin } from '@/utils/adminUtils';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
 import WithdrawalScheduleManager from '@/components/admin/WithdrawalScheduleManager';
+import SupportMessagesManager from '@/components/admin/SupportMessagesManager';
 // Note: UserService is server-side only, we'll use API calls instead
 
 interface PaymentMethod {
@@ -2283,6 +2284,13 @@ const AdminSection = () => {
           </div>
         </div>
       )}
+
+        {/* Support Messages Tab */}
+        {activeTab === 'support' && (
+          <div>
+            <SupportMessagesManager />
+          </div>
+        )}
 
         {/* Withdrawal Schedule Tab */}
         {activeTab === 'withdrawal-schedule' && (
