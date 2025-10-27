@@ -316,21 +316,21 @@ const UnifiedLogsSection = () => {
               </div>
 
               <div className="space-y-4">
-                {/* Transaction ID on its own row */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Transaction ID</label>
-                  <p className="text-xs text-gray-900 font-mono break-all">{selectedLog.transactionId || selectedLog.id}</p>
+                {/* Transaction ID on its own row with proper wrapping */}
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Transaction ID</label>
+                  <p className="text-xs text-gray-900 font-mono break-all overflow-wrap-anywhere max-w-full">{selectedLog.transactionId || selectedLog.id}</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                  <div className="col-span-1">
                     <label className="block text-sm font-medium text-gray-700">Type</label>
                     <div className="flex items-center space-x-2">
                       {getTypeIcon(selectedLog.type)}
                       <span className="text-sm capitalize">{selectedLog.type}</span>
                     </div>
                   </div>
-                  <div>
+                  <div className="col-span-1">
                     <label className="block text-sm font-medium text-gray-700">Status</label>
                     <div className="flex items-center space-x-2">
                       {getStatusIcon(selectedLog.status)}
