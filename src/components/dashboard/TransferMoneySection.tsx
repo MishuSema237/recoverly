@@ -13,13 +13,21 @@ const TransferMoneySection = () => {
   const [receiverValid, setReceiverValid] = useState(false);
   const [isTransferring, setIsTransferring] = useState(false);
   const [validationError, setValidationError] = useState('');
+  const [lastValidationAttempt, setLastValidationAttempt] = useState({ email: '', code: '' });
 
   // Reset validation when email or user code changes
   useEffect(() => {
-    setReceiverValid(false);
-    setValidationError('');
-    setError('');
-  }, [receiverEmail, receiverUserCode]);
+    // Only reset if this is a new combination that hasn't been validated yet
+    const newAttempt = receiverEmail + receiverUserCode;
+    const oldAttempt = lastValidationAttempt.email + lastValidationAttempt.code;
+    
+    if (newAttempt !== oldAttempt) {
+      setReceiverValid(false);
+      setValidationError('');
+      setError('');
+      setLastValidationAttempt({ email: receiverEmail, code: receiverUserCode });
+    }
+  }, [receiverEmail, receiverUserCode, lastValidationAttempt]);
 
   const validateReceiver = useCallback(async () => {
     // Check user code length first
@@ -56,7 +64,7 @@ const TransferMoneySection = () => {
       const result = await response.json();
 
       if (!result.success) {
-        setValidationError(result.error || 'Invalid receiver');
+        setValidationError(result.error || 'Email and user code do not match. Please verify the details.');
         setReceiverValid(false);
         setIsValidating(false);
         return false;
@@ -76,14 +84,24 @@ const TransferMoneySection = () => {
 
   // Auto-validate when both email and user code are entered and code length is correct
   useEffect(() => {
-    if (receiverEmail && receiverUserCode && receiverUserCode.length === 8 && !isValidating && !receiverValid) {
+    // Only validate if fields have changed and we haven't already validated this combination
+    const currentAttempt = receiverEmail + receiverUserCode;
+    const lastAttempt = lastValidationAttempt.email + lastValidationAttempt.code;
+    const shouldValidate = currentAttempt !== lastAttempt && 
+                           receiverEmail && 
+                           receiverUserCode && 
+                           receiverUserCode.length === 8 && 
+                           !isValidating && 
+                           !receiverValid;
+
+    if (shouldValidate) {
       const timeoutId = setTimeout(() => {
         validateReceiver();
       }, 500); // Debounce validation
 
       return () => clearTimeout(timeoutId);
     }
-  }, [receiverEmail, receiverUserCode, isValidating, receiverValid, validateReceiver]);
+  }, [receiverEmail, receiverUserCode, isValidating, receiverValid, validateReceiver, lastValidationAttempt]);
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
