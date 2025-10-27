@@ -31,7 +31,7 @@ interface InvestmentProgress {
   totalEarnings: number;
   daysActive: number;
   daysRemaining: number;
-  nextPayout: string;
+  nextPayout: string; // ISO string format for proper Date parsing
   status: 'active' | 'completed' | 'pending';
   planIcon: string;
   planDuration: number;
@@ -118,7 +118,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
       // Calculate remaining days based on actual plan duration
       const daysRemaining = Math.max(0, planDuration - daysActive);
       
-      // Next payout (daily)
+      // Next payout (daily at midnight)
       const nextPayout = new Date();
       nextPayout.setDate(nextPayout.getDate() + 1);
       nextPayout.setHours(0, 0, 0, 0);
@@ -130,7 +130,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
         totalEarnings,
         daysActive: Math.max(0, daysActive),
         daysRemaining,
-        nextPayout: nextPayout.toLocaleDateString(),
+        nextPayout: nextPayout.toISOString(), // Store as ISO string for proper Date parsing
         status: daysRemaining > 0 ? 'active' : 'completed',
         planIcon: plan.icon || 'Medal',
         planDuration: planDuration,
@@ -315,7 +315,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm">Daily Earnings</p>
+                <p className="text-purple-100 text-sm">Today's Earnings</p>
                 <p className="text-2xl font-bold">${progress.dailyEarnings.toFixed(2)}</p>
               </div>
               <ArrowUpRight className="w-8 h-8 text-purple-200" />
@@ -340,9 +340,15 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
                 <span className="text-gray-600">Days Remaining:</span>
                 <span className="font-semibold text-gray-900">{progress.daysRemaining} days</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Next Payout:</span>
-                <span className="font-semibold text-gray-900">{progress.nextPayout}</span>
+              <div className="flex flex-col space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Next Payout:</span>
+                  <span className="font-semibold text-gray-900">{new Date(progress.nextPayout).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">Time:</span>
+                  <span className="font-medium text-gray-700">{new Date(progress.nextPayout).toLocaleTimeString()}</span>
+                </div>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Status:</span>
