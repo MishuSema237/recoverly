@@ -9,6 +9,49 @@ import './globals.css';
 export const metadata = {
   title: 'Tesla Capital - Investment Platform',
   description: 'Tesla Capital is a cutting-edge investment platform offering secure cryptocurrency and traditional investment opportunities with industry-leading returns.',
+  keywords: ['investment', 'crypto', 'bitcoin', 'trading', 'financial', 'tesla capital', 'investment platform'],
+  authors: [{ name: 'Tesla Capital' }],
+  creator: 'Tesla Capital',
+  publisher: 'Tesla Capital',
+  metadataBase: new URL('https://tesla-capital.com'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'Tesla Capital - Premium Investment Platform',
+    description: 'Join thousands of investors earning high returns on their investments. Tesla Capital offers secure, reliable investment opportunities with industry-leading returns.',
+    url: 'https://tesla-capital.com',
+    siteName: 'Tesla Capital',
+    images: [
+      {
+        url: '/tesla-capital-logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Tesla Capital - Investment Platform',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Tesla Capital - Premium Investment Platform',
+    description: 'Join thousands of investors earning high returns on their investments.',
+    images: ['/tesla-capital-logo.png'],
+    creator: '@teslacapital',
+    site: '@teslacapital',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: [
       { url: '/favicon/favicon.ico', sizes: 'any' },
