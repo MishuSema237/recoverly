@@ -366,7 +366,12 @@ const UnifiedLogsSection = () => {
                   {selectedLog.fee && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Transaction Fee</label>
-                      <p className="text-sm text-gray-900">${selectedLog.fee.toFixed(2)}</p>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-900">${selectedLog.fee.toFixed(2)}</p>
+                        <p className="text-xs text-gray-500">
+                          {((selectedLog.fee / selectedLog.amount) * 100).toFixed(2)}% fee
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
