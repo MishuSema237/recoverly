@@ -13,23 +13,10 @@ const TransferMoneySection = () => {
   const [receiverValid, setReceiverValid] = useState(false);
   const [isTransferring, setIsTransferring] = useState(false);
   const [validationError, setValidationError] = useState('');
-  const [lastValidationAttempt, setLastValidationAttempt] = useState({ email: '', code: '' });
-
-  // Reset validation when email or user code changes
-  useEffect(() => {
-    // Only reset if this is a new combination that hasn't been validated yet
-    const newAttempt = receiverEmail + receiverUserCode;
-    const oldAttempt = lastValidationAttempt.email + lastValidationAttempt.code;
-    
-    if (newAttempt !== oldAttempt) {
-      setReceiverValid(false);
-      setValidationError('');
-      setError('');
-      setLastValidationAttempt({ email: receiverEmail, code: receiverUserCode });
-    }
-  }, [receiverEmail, receiverUserCode, lastValidationAttempt]);
 
   const validateReceiver = useCallback(async () => {
+    // Prevent multiple simultaneous validations
+    if (isValidating) return false;
     // Check user code length first
     if (receiverUserCode.length !== 8) {
       setValidationError('User code must be exactly 8 characters');
@@ -84,15 +71,16 @@ const TransferMoneySection = () => {
 
   // Auto-validate when both email and user code are entered and code length is correct
   useEffect(() => {
-    // Only validate if fields have changed and we haven't already validated this combination
-    const currentAttempt = receiverEmail + receiverUserCode;
-    const lastAttempt = lastValidationAttempt.email + lastValidationAttempt.code;
-    const shouldValidate = currentAttempt !== lastAttempt && 
-                           receiverEmail && 
+    // Reset validation state when inputs change
+    setReceiverValid(false);
+    setValidationError('');
+    setError('');
+    
+    // Validate if all conditions are met
+    const shouldValidate = receiverEmail && 
                            receiverUserCode && 
                            receiverUserCode.length === 8 && 
-                           !isValidating && 
-                           !receiverValid;
+                           !isValidating;
 
     if (shouldValidate) {
       const timeoutId = setTimeout(() => {
@@ -101,7 +89,7 @@ const TransferMoneySection = () => {
 
       return () => clearTimeout(timeoutId);
     }
-  }, [receiverEmail, receiverUserCode, isValidating, receiverValid, validateReceiver, lastValidationAttempt]);
+  }, [receiverEmail, receiverUserCode, isValidating]);
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
