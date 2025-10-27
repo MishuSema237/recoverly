@@ -94,46 +94,57 @@ const DepositSection = () => {
       // Convert screenshot to base64
       const reader = new FileReader();
       reader.onload = async () => {
-        const base64Screenshot = reader.result as string;
-        
-        const depositRequest: DepositRequest = {
-          userId: user?._id || '',
-          paymentMethodId: selectedMethod._id,
-          amount: parseFloat(amount),
-          screenshot: base64Screenshot,
-          status: 'pending'
-        };
+        try {
+          const base64Screenshot = reader.result as string;
+          
+          const depositRequest: DepositRequest = {
+            userId: user?._id || '',
+            paymentMethodId: selectedMethod._id,
+            amount: parseFloat(amount),
+            screenshot: base64Screenshot,
+            status: 'pending'
+          };
 
-        const response = await fetch('/api/transactions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            type: 'deposit',
-            ...depositRequest
-          })
-        });
+          const response = await fetch('/api/transactions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              type: 'deposit',
+              ...depositRequest
+            })
+          });
 
-        const result = await response.json();
+          const result = await response.json();
 
-        if (result.success) {
-          showSuccess('Deposit request submitted successfully! Please wait for admin approval.');
-          setAmount('');
-          setScreenshot(null);
-          setScreenshotPreview('');
-          setSelectedMethod(null);
-          // Force refresh user data to get updated balances and notifications
-          await forceRefresh();
-        } else {
-          showError(result.error || 'Failed to submit deposit request');
+          if (result.success) {
+            showSuccess('Deposit request submitted successfully! Please wait for admin approval.');
+            setAmount('');
+            setScreenshot(null);
+            setScreenshotPreview('');
+            setSelectedMethod(null);
+            // Force refresh user data to get updated balances and notifications
+            await forceRefresh();
+          } else {
+            showError(result.error || 'Failed to submit deposit request');
+          }
+        } catch (error) {
+          console.error('Error submitting deposit request:', error);
+          showError('An error occurred while submitting your request');
+        } finally {
+          setIsSubmitting(false);
         }
+      };
+      reader.onerror = () => {
+        console.error('Error reading file');
+        showError('Error reading screenshot file');
+        setIsSubmitting(false);
       };
       reader.readAsDataURL(screenshot);
     } catch (error) {
       console.error('Error submitting deposit request:', error);
       showError('An error occurred while submitting your request');
-    } finally {
       setIsSubmitting(false);
     }
   };
