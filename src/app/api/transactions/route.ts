@@ -163,6 +163,73 @@ export async function PUT(request: NextRequest) {
             depositRequest.amount,
             depositRequest._id?.toString() || ''
           );
+
+          // Check if this is the user's FIRST deposit (check before adding current deposit)
+          const existingApprovedDeposits = await db.collection('depositRequests').find({
+            userId: depositRequest.userId,
+            status: 'approved'
+          }).toArray();
+
+          const isFirstDeposit = existingApprovedDeposits.length === 1; // Current one is the only approved
+
+          // Check if this is the user's FIRST deposit and they have a referrer
+          if (user?.referredBy && isFirstDeposit) {
+            // This is their first deposit - give referrer 5% commission
+            const commissionRate = 0.05; // 5%
+            const commissionAmount = depositRequest.amount * commissionRate;
+            const referrerId = user.referredBy;
+
+            console.log(`Processing referral commission: ${commissionAmount} to referrer ${referrerId} for user's first deposit`);
+
+            // Get referrer details
+            const referrer = await db.collection('users').findOne({ _id: new ObjectId(referrerId) });
+            if (referrer) {
+              // Add commission to referrer's main balance
+              const newMainBalance = (referrer.balances?.main || 0) + commissionAmount;
+              const newTotalBalance = (referrer.balances?.total || 0) + commissionAmount;
+
+              await db.collection('users').updateOne(
+                { _id: new ObjectId(referrerId) },
+                {
+                  $set: {
+                    'balances.main': newMainBalance,
+                    'balances.total': newTotalBalance,
+                    updatedAt: new Date()
+                  },
+                  $push: {
+                    transactions: {
+                      type: 'referral_bonus',
+                      amount: commissionAmount,
+                      date: new Date(),
+                      status: 'completed',
+                      description: `Commission: 5% of ${user.firstName} ${user.lastName}'s first deposit ($${depositRequest.amount})`
+                    },
+                    activityLog: {
+                      action: `Referral commission earned: $${commissionAmount.toFixed(2)} (5% of ${user.firstName}'s first deposit)`,
+                      timestamp: new Date().toISOString()
+                    }
+                  }
+                }
+              );
+
+              // Send notification to referrer
+              await NotificationService.createNotification({
+                title: 'Referral Commission Earned!',
+                message: `Congratulations! You earned $${commissionAmount.toFixed(2)} (5%) commission from ${user.firstName} ${user.lastName}'s first deposit of $${depositRequest.amount}.`,
+                type: 'success',
+                recipients: [referrerId],
+                sentBy: 'system',
+                sentAt: new Date(),
+                metadata: {
+                  commissionAmount,
+                  referredUserName: `${user.firstName} ${user.lastName}`,
+                  depositAmount: depositRequest.amount
+                }
+              });
+
+              console.log(`Referral commission of $${commissionAmount} added to referrer ${referrer.email}`);
+            }
+          }
         }
       } else if (status === 'rejected') {
         updateDoc = { ...updateDoc, rejectionReason };
