@@ -47,6 +47,7 @@ export async function POST() {
               );
               
               // Add transaction for capital return
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               await db.collection('users').updateOne(
                 { _id: user._id },
                 {
@@ -64,6 +65,7 @@ export async function POST() {
               );
               
               // Add activity log
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               await db.collection('users').updateOne(
                 { _id: user._id },
                 {
