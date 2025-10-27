@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { showSuccess, showError } from '@/utils/toast';
 
 const TransferMoneySection = () => {
   const { userProfile } = useAuth();
@@ -143,7 +144,7 @@ const TransferMoneySection = () => {
       }
 
       // Success - show success message and reset form
-      alert('Transfer completed successfully!');
+      showSuccess('Transfer completed successfully!');
       
       // Reset form
       setReceiverEmail('');
