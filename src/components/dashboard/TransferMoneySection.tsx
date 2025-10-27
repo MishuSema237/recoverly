@@ -12,23 +12,33 @@ const TransferMoneySection = () => {
   const [isValidating, setIsValidating] = useState(false);
   const [receiverValid, setReceiverValid] = useState(false);
   const [isTransferring, setIsTransferring] = useState(false);
+  const [validationError, setValidationError] = useState('');
 
   // Reset validation when email or user code changes
   useEffect(() => {
-    if (receiverValid) {
-      setReceiverValid(false);
-      setError('');
-    }
-  }, [receiverEmail, receiverUserCode, receiverValid]);
+    setReceiverValid(false);
+    setValidationError('');
+    setError('');
+  }, [receiverEmail, receiverUserCode]);
 
   const validateReceiver = useCallback(async () => {
+    // Check user code length first
+    if (receiverUserCode.length !== 8) {
+      setValidationError('User code must be exactly 8 characters');
+      setReceiverValid(false);
+      setIsValidating(false);
+      return false;
+    }
+
     if (!receiverEmail || !receiverUserCode) {
-      setError('Please enter both email and user code');
+      setValidationError('Please enter both email and user code');
+      setReceiverValid(false);
       return false;
     }
 
     setIsValidating(true);
     setError('');
+    setValidationError('');
 
     try {
       // Check if user exists with matching email and user code using MongoDB API
@@ -46,32 +56,34 @@ const TransferMoneySection = () => {
       const result = await response.json();
 
       if (!result.success) {
-        setError(result.error || 'Error validating receiver');
+        setValidationError(result.error || 'Invalid receiver');
         setReceiverValid(false);
+        setIsValidating(false);
         return false;
       }
 
       setReceiverValid(true);
+      setValidationError('');
+      setIsValidating(false);
       return true;
     } catch (error) {
       console.error('Error validating receiver:', error);
-      setError('Error validating receiver. Please try again.');
-      return false;
-    } finally {
+      setValidationError('Error validating receiver. Please try again.');
       setIsValidating(false);
+      return false;
     }
   }, [receiverEmail, receiverUserCode]);
 
-  // Auto-validate when both email and user code are entered
+  // Auto-validate when both email and user code are entered and code length is correct
   useEffect(() => {
-    if (receiverEmail && receiverUserCode && !isValidating && !receiverValid) {
+    if (receiverEmail && receiverUserCode && receiverUserCode.length === 8 && !isValidating && !receiverValid) {
       const timeoutId = setTimeout(() => {
         validateReceiver();
       }, 500); // Debounce validation
 
       return () => clearTimeout(timeoutId);
     }
-  }, [receiverEmail, receiverUserCode, isValidating, validateReceiver]);
+  }, [receiverEmail, receiverUserCode, isValidating, receiverValid, validateReceiver]);
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,9 +175,6 @@ const TransferMoneySection = () => {
               onChange={(e) => setReceiverEmail(e.target.value)}
               required
             />
-            {isValidating && (
-              <p className="text-sm text-blue-600 mt-1">Validating...</p>
-            )}
           </div>
           
           <div>
@@ -176,19 +185,33 @@ const TransferMoneySection = () => {
               type="text"
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
                 receiverValid ? 'border-green-300 bg-green-50' : 
-                error && receiverUserCode ? 'border-red-300 bg-red-50' : 
+                validationError && receiverUserCode ? 'border-red-300 bg-red-50' : 
+                receiverUserCode.length > 0 && receiverUserCode.length !== 8 ? 'border-orange-300 bg-orange-50' :
                 'border-gray-300'
               }`}
               placeholder="ABC12345"
               value={receiverUserCode}
               onChange={(e) => setReceiverUserCode(e.target.value.toUpperCase())}
+              minLength={8}
+              maxLength={8}
               required
             />
             <p className="text-sm text-gray-500 mt-1">
-              Ask the receiver for their unique user code
+              Ask the receiver for their unique user code (8 characters)
             </p>
             {receiverValid && (
               <p className="text-sm text-green-600 mt-1">✓ Receiver validated successfully</p>
+            )}
+            {validationError && (
+              <p className="text-sm text-red-600 mt-1">{validationError}</p>
+            )}
+            {receiverUserCode.length > 0 && receiverUserCode.length !== 8 && !validationError && (
+              <p className="text-sm text-orange-600 mt-1">
+                User code must be exactly 8 characters (currently {receiverUserCode.length})
+              </p>
+            )}
+            {isValidating && !validationError && (
+              <p className="text-sm text-blue-600 mt-1">Validating...</p>
             )}
           </div>
           
