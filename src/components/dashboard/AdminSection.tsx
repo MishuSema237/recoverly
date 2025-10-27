@@ -681,33 +681,25 @@ const AdminSection = () => {
   };
 
   const openUserDetail = async (user: AdminUser) => {
-    setUserDetailData(user);
-    setShowUserDetailModal(true);
-    
-    // Load additional user data
-    try {
-      // Load user's financial data, transactions, etc.
-      const userDetail = {
-        ...user,
-        balances: {
-          main: 0, // This would come from your database
-          investment: 0,
-          referral: 0,
-          total: 0
+    // Use the user's actual balances from the database
+    setUserDetailData({
+      ...user,
+      balances: user.balances || {
+        main: 0,
+        investment: 0,
+        referral: 0,
+        total: 0
+      },
+      activityLog: [
+        {
+          action: 'Account Created',
+          timestamp: user.createdAt ? (typeof user.createdAt === 'string' ? user.createdAt : new Date(user.createdAt).toISOString()) : new Date().toISOString(),
+          details: 'User account was created'
         },
-        transactions: [], // Load from database
-        activityLog: [
-          {
-            action: 'Account Created',
-            timestamp: user.createdAt ? (typeof user.createdAt === 'string' ? user.createdAt : new Date(user.createdAt).toISOString()) : new Date().toISOString(),
-            details: 'User account was created'
-          }
-        ]
-      };
-      setUserDetailData(userDetail);
-    } catch (error) {
-      console.error('Error loading user details:', error);
-    }
+        ...(user.activityLog || [])
+      ]
+    });
+    setShowUserDetailModal(true);
   };
 
   const sendUserNotification = async (userReferralCode: string, message: string) => {
@@ -923,7 +915,7 @@ const AdminSection = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-500">Plan:</span>
-                        <span className="text-sm text-gray-900">{user.investmentPlan || 'N/A'}</span>
+                        <span className="text-sm text-gray-900">{user.investmentPlan || 'No Active Plan'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-500">Status:</span>
