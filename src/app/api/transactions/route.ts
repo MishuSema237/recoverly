@@ -208,7 +208,7 @@ export async function PUT(request: NextRequest) {
                       action: `Referral commission earned: $${commissionAmount.toFixed(2)} (5% of ${user.firstName}'s first deposit)`,
                       timestamp: new Date().toISOString()
                     }
-                  }
+                  } as Record<string, unknown>
                 }
               );
 
