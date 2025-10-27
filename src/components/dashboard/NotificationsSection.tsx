@@ -90,6 +90,7 @@ const NotificationsSection = () => {
         markAsRead(notification._id);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notifications]);
 
   const toggleExpanded = (notificationId: string) => {
