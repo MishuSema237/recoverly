@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
 
 const ProfileSection = () => {
   const { user, userProfile, updateProfile } = useAuth();
+  const [referralCount, setReferralCount] = useState(0);
   
   const [formData, setFormData] = useState({
     firstName: userProfile?.firstName || '',
@@ -37,6 +38,25 @@ const ProfileSection = () => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch referral count
+  useEffect(() => {
+    const fetchReferralCount = async () => {
+      try {
+        const response = await fetch('/api/referrals/stats');
+        const result = await response.json();
+        if (result.success) {
+          setReferralCount(result.data.totalReferrals);
+        }
+      } catch (error) {
+        console.error('Error fetching referral count:', error);
+      }
+    };
+
+    if (user) {
+      fetchReferralCount();
+    }
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -276,7 +296,7 @@ const ProfileSection = () => {
             <div className="text-sm text-green-800">Current Plan</div>
           </div>
           <div className="text-center p-4 bg-purple-50 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600">0</div>
+            <div className="text-2xl font-bold text-purple-600">{referralCount}</div>
             <div className="text-sm text-purple-800">Referrals</div>
           </div>
         </div>
