@@ -76,14 +76,16 @@ const TransferMoneySection = () => {
 
   // Auto-validate when both email and user code are entered and code length is correct
   useEffect(() => {
-    // Reset validation state when inputs change
-    setReceiverValid(false);
-    setValidationError('');
-    setError('');
-    
     // Check if we've already validated this exact combination
     const currentCombination = receiverEmail + receiverUserCode;
     const lastCombination = lastValidatedRef.current.email + lastValidatedRef.current.code;
+    
+    // Only reset if it's a new combination
+    if (currentCombination !== lastCombination) {
+      setReceiverValid(false);
+      setValidationError('');
+      setError('');
+    }
     
     // Validate if all conditions are met and it's a different combination
     const shouldValidate = receiverEmail && 
@@ -94,12 +96,14 @@ const TransferMoneySection = () => {
 
     if (shouldValidate) {
       const timeoutId = setTimeout(() => {
+        console.log('Validating receiver...', receiverEmail, receiverUserCode);
         validateReceiver();
       }, 500); // Debounce validation
 
       return () => clearTimeout(timeoutId);
     }
-  }, [receiverEmail, receiverUserCode, isValidating, validateReceiver]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [receiverEmail, receiverUserCode, isValidating]);
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -202,7 +206,7 @@ const TransferMoneySection = () => {
             </label>
             <input
               type="text"
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors ${
                 receiverValid ? 'border-green-500 bg-green-50' : 
                 validationError && receiverUserCode.length === 8 ? 'border-red-500 bg-red-50' : 
                 receiverUserCode.length > 0 && receiverUserCode.length !== 8 ? 'border-orange-300 bg-orange-50' :
