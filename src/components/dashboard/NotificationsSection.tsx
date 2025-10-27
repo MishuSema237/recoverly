@@ -53,7 +53,7 @@ const NotificationsSection = () => {
     }
   }, [userProfile?.userCode, loadNotifications]);
 
-  const markAsRead = async (notificationId: string) => {
+  const markAsRead = useCallback(async (notificationId: string) => {
     try {
       const response = await fetch('/api/user-notifications', {
         method: 'PUT',
@@ -80,18 +80,19 @@ const NotificationsSection = () => {
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
-  };
+  }, [userProfile?.userCode]);
 
   // Auto-mark notifications as read when viewing the page
   useEffect(() => {
     if (notifications.length > 0) {
       const unreadNotifications = notifications.filter(n => !n.read);
-      unreadNotifications.forEach(notification => {
-        markAsRead(notification._id);
-      });
+      if (unreadNotifications.length > 0) {
+        unreadNotifications.forEach(notification => {
+          markAsRead(notification._id);
+        });
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notifications]);
+  }, [notifications, markAsRead]);
 
   const toggleExpanded = (notificationId: string) => {
     setExpandedNotifications(prev => {

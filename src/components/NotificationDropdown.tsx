@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { X, FileText, Download, Check, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -276,12 +277,12 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         
         {notifications.length > 0 && (
           <div className="px-4 py-2 border-t border-gray-100">
-            <button
-              onClick={() => {/* Navigate to full notifications page */}}
-              className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+            <Link
+              href="/dashboard?section=notifications"
+              className="block text-xs text-blue-600 hover:text-blue-700 font-medium text-center"
             >
               View all notifications
-            </button>
+            </Link>
           </div>
         )}
       </motion.div>
