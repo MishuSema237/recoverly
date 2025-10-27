@@ -152,9 +152,12 @@ const TransferMoneySection = () => {
         </p>
         
         <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-600">Current Balance</p>
+          <p className="text-sm text-gray-600">Available Balance (Transferable)</p>
           <p className="text-2xl font-bold text-gray-900">
-            ${((userProfile?.balances?.main || 0) + (userProfile?.balances?.investment || 0) + (userProfile?.balances?.referral || 0)).toFixed(2)} USD
+            ${(userProfile?.balances?.main || 0).toFixed(2)} USD
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            Investment & referral balances are locked and cannot be transferred
           </p>
         </div>
 
