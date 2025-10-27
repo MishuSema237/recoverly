@@ -182,7 +182,7 @@ const UnifiedLogsSection = () => {
                   </div>
                   <div className="text-right">
                     <p className={`font-semibold ${
-                      log.type === 'deposit' || log.type === 'earning' 
+                      log.type === 'deposit' || log.type === 'earning' || (log.type === 'transfer' && !log.isSent)
                         ? 'text-green-600' 
                         : 'text-red-600'
                     }`}>
@@ -262,7 +262,7 @@ const UnifiedLogsSection = () => {
                     </td>
                     <td className="py-3 px-4">
                       <span className={`font-semibold ${
-                        log.type === 'deposit' || log.type === 'earning' 
+                        log.type === 'deposit' || log.type === 'earning' || (log.type === 'transfer' && !log.isSent)
                           ? 'text-green-600' 
                           : 'text-red-600'
                       }`}>
