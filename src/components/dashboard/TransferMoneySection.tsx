@@ -71,7 +71,7 @@ const TransferMoneySection = () => {
 
       return () => clearTimeout(timeoutId);
     }
-  }, [receiverEmail, receiverUserCode, isValidating, receiverValid, validateReceiver]);
+  }, [receiverEmail, receiverUserCode, isValidating, validateReceiver]);
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,8 +81,8 @@ const TransferMoneySection = () => {
       return;
     }
 
-    if (!transferAmount || parseFloat(transferAmount) < 1000 || parseFloat(transferAmount) > 10000) {
-      setError('Please enter a valid transfer amount between $1,000 and $10,000');
+    if (!transferAmount || parseFloat(transferAmount) < 500 || parseFloat(transferAmount) > 10000) {
+      setError('Please enter a valid transfer amount between $500 and $10,000');
       return;
     }
 
@@ -202,7 +202,7 @@ const TransferMoneySection = () => {
               placeholder="0.00"
               value={transferAmount}
               onChange={(e) => setTransferAmount(e.target.value)}
-              min="1000"
+              min="500"
               step="0.01"
               required
             />
@@ -240,7 +240,7 @@ const TransferMoneySection = () => {
               <strong>Transfer Charge:</strong> {transferFee}%
             </p>
             <p className="text-sm text-yellow-800 mt-1">
-              <strong>Min Transfer Amount:</strong> 1000 USD
+              <strong>Min Transfer Amount:</strong> 500 USD
             </p>
             <p className="text-sm text-yellow-800">
               <strong>Max Transfer Amount:</strong> 10000 USD
@@ -249,7 +249,7 @@ const TransferMoneySection = () => {
 
           <button
             type="submit"
-            disabled={!receiverValid || !transferAmount || parseFloat(transferAmount) < 1000 || parseFloat(transferAmount) > 10000 || isTransferring}
+            disabled={!receiverValid || !transferAmount || parseFloat(transferAmount) < 500 || parseFloat(transferAmount) > 10000 || isTransferring}
             className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
           >
             {isTransferring ? (

@@ -20,9 +20,9 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
     }
 
     // Validate amount
-    if (amount < 1000 || amount > 10000) {
+    if (amount < 500 || amount > 10000) {
       return NextResponse.json(
-        { success: false, error: 'Transfer amount must be between $1,000 and $10,000' },
+        { success: false, error: 'Transfer amount must be between $500 and $10,000' },
         { status: 400 }
       );
     }
