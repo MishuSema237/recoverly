@@ -237,9 +237,8 @@ export async function PUT(request: NextRequest) {
                 recipients: [referrerId],
                 sentBy: 'system',
                 metadata: {
-                  commissionAmount,
-                  referredUserName: `${user.firstName} ${user.lastName}`,
-                  depositAmount: depositRequest.amount
+                  amount: commissionAmount,
+                  userEmail: user.email
                 }
               });
 
