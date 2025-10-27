@@ -203,8 +203,8 @@ const TransferMoneySection = () => {
             <input
               type="text"
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
-                receiverValid ? 'border-green-300 bg-green-50' : 
-                validationError && receiverUserCode ? 'border-red-300 bg-red-50' : 
+                receiverValid ? 'border-green-500 bg-green-50' : 
+                validationError && receiverUserCode.length === 8 ? 'border-red-500 bg-red-50' : 
                 receiverUserCode.length > 0 && receiverUserCode.length !== 8 ? 'border-orange-300 bg-orange-50' :
                 'border-gray-300'
               }`}
@@ -218,19 +218,10 @@ const TransferMoneySection = () => {
             <p className="text-sm text-gray-500 mt-1">
               Ask the receiver for their unique user code (8 characters)
             </p>
-            {receiverValid && (
-              <p className="text-sm text-green-600 mt-1">✓ Receiver validated successfully</p>
-            )}
-            {validationError && (
-              <p className="text-sm text-red-600 mt-1">{validationError}</p>
-            )}
-            {receiverUserCode.length > 0 && receiverUserCode.length !== 8 && !validationError && (
+            {receiverUserCode.length > 0 && receiverUserCode.length !== 8 && (
               <p className="text-sm text-orange-600 mt-1">
                 User code must be exactly 8 characters (currently {receiverUserCode.length})
               </p>
-            )}
-            {isValidating && !validationError && (
-              <p className="text-sm text-blue-600 mt-1">Validating...</p>
             )}
           </div>
           
