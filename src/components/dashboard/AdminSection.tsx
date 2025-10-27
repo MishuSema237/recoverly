@@ -693,8 +693,7 @@ const AdminSection = () => {
       activityLog: [
         {
           action: 'Account Created',
-          timestamp: user.createdAt ? (typeof user.createdAt === 'string' ? user.createdAt : new Date(user.createdAt).toISOString()) : new Date().toISOString(),
-          details: 'User account was created'
+          timestamp: user.createdAt ? (typeof user.createdAt === 'string' ? user.createdAt : new Date(user.createdAt).toISOString()) : new Date().toISOString()
         },
         ...(user.activityLog || [])
       ]

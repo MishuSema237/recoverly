@@ -36,6 +36,23 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
       );
     }
 
+    // Check daily transfer limit (3 transfers per day)
+    const db = await getDb();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const todayTransfers = await db.collection('transfers').countDocuments({
+      senderId: senderId,
+      createdAt: { $gte: today }
+    });
+
+    if (todayTransfers >= 3) {
+      return NextResponse.json(
+        { success: false, error: 'Daily transfer limit reached. You can only make 3 transfers per day.' },
+        { status: 400 }
+      );
+    }
+
     // Validate receiver
     const receiver = await UserService.getUserByEmail(receiverEmail.toLowerCase());
     if (!receiver) {
@@ -79,7 +96,6 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
       );
     }
 
-    const db = await getDb();
     const usersCollection = db.collection('users');
 
     // Start transaction
