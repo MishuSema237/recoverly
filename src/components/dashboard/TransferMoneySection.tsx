@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const TransferMoneySection = () => {
@@ -13,10 +13,14 @@ const TransferMoneySection = () => {
   const [receiverValid, setReceiverValid] = useState(false);
   const [isTransferring, setIsTransferring] = useState(false);
   const [validationError, setValidationError] = useState('');
+  
+  // Track the last validated combination to avoid re-validating
+  const lastValidatedRef = useRef({ email: '', code: '' });
 
   const validateReceiver = useCallback(async () => {
     // Prevent multiple simultaneous validations
     if (isValidating) return false;
+    
     // Check user code length first
     if (receiverUserCode.length !== 8) {
       setValidationError('User code must be exactly 8 characters');
@@ -60,6 +64,7 @@ const TransferMoneySection = () => {
       setReceiverValid(true);
       setValidationError('');
       setIsValidating(false);
+      lastValidatedRef.current = { email: receiverEmail, code: receiverUserCode };
       return true;
     } catch (error) {
       console.error('Error validating receiver:', error);
@@ -76,11 +81,16 @@ const TransferMoneySection = () => {
     setValidationError('');
     setError('');
     
-    // Validate if all conditions are met
+    // Check if we've already validated this exact combination
+    const currentCombination = receiverEmail + receiverUserCode;
+    const lastCombination = lastValidatedRef.current.email + lastValidatedRef.current.code;
+    
+    // Validate if all conditions are met and it's a different combination
     const shouldValidate = receiverEmail && 
                            receiverUserCode && 
                            receiverUserCode.length === 8 && 
-                           !isValidating;
+                           !isValidating &&
+                           currentCombination !== lastCombination;
 
     if (shouldValidate) {
       const timeoutId = setTimeout(() => {
@@ -89,7 +99,7 @@ const TransferMoneySection = () => {
 
       return () => clearTimeout(timeoutId);
     }
-  }, [receiverEmail, receiverUserCode, isValidating]);
+  }, [receiverEmail, receiverUserCode, isValidating, validateReceiver]);
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
