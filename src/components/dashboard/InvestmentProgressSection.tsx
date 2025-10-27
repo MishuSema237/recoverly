@@ -315,7 +315,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm">Today's Earnings</p>
+                <p className="text-purple-100 text-sm">Today&apos;s Earnings</p>
                 <p className="text-2xl font-bold">${progress.dailyEarnings.toFixed(2)}</p>
               </div>
               <ArrowUpRight className="w-8 h-8 text-purple-200" />
