@@ -188,30 +188,45 @@ export async function PUT(request: NextRequest) {
               const newMainBalance = (referrer.balances?.main || 0) + commissionAmount;
               const newTotalBalance = (referrer.balances?.total || 0) + commissionAmount;
 
-              const updateOps = {
-                $set: {
-                  'balances.main': newMainBalance,
-                  'balances.total': newTotalBalance,
-                  updatedAt: new Date()
-                },
-                $push: {
-                  transactions: {
-                    type: 'referral_bonus',
-                    amount: commissionAmount,
-                    date: new Date(),
-                    status: 'completed',
-                    description: `Commission: 5% of ${user.firstName} ${user.lastName}'s first deposit ($${depositRequest.amount})`
-                  },
-                  activityLog: {
-                    action: `Referral commission earned: $${commissionAmount.toFixed(2)} (5% of ${user.firstName}'s first deposit)`,
-                    timestamp: new Date().toISOString()
-                  }
-                }
-              };
-
+              // Update referrer's balance and add transaction
               await db.collection('users').updateOne(
                 { _id: new ObjectId(referrerId) },
-                updateOps as any
+                {
+                  $set: {
+                    'balances.main': newMainBalance,
+                    'balances.total': newTotalBalance,
+                    updatedAt: new Date()
+                  }
+                }
+              );
+
+              // Add transaction
+              await db.collection('users').updateOne(
+                { _id: new ObjectId(referrerId) },
+                {
+                  $push: {
+                    transactions: {
+                      type: 'referral_bonus',
+                      amount: commissionAmount,
+                      date: new Date(),
+                      status: 'completed',
+                      description: `Commission: 5% of ${user.firstName} ${user.lastName}'s first deposit ($${depositRequest.amount})`
+                    }
+                  }
+                }
+              );
+
+              // Add activity log
+              await db.collection('users').updateOne(
+                { _id: new ObjectId(referrerId) },
+                {
+                  $push: {
+                    activityLog: {
+                      action: `Referral commission earned: $${commissionAmount.toFixed(2)} (5% of ${user.firstName}'s first deposit)`,
+                      timestamp: new Date().toISOString()
+                    }
+                  }
+                }
               );
 
               // Send notification to referrer
