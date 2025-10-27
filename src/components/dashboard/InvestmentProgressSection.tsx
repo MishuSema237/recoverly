@@ -71,12 +71,36 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
       const plan = planResult.data;
       const investmentAmount = userProfile.currentInvestment;
       
-      // Convert duration to number if it's a string
-      const planDuration = typeof plan.duration === 'string' ? parseInt(plan.duration) : plan.duration;
+      console.log('Plan data from API:', plan);
+      
+      // Convert duration to number - handle string like "10 Days" or just "10"
+      let planDuration = 0;
+      if (typeof plan.duration === 'string') {
+        // Extract numbers from string like "10 Days" -> 10
+        const match = plan.duration.match(/\d+/);
+        planDuration = match ? parseInt(match[0]) : 0;
+      } else if (typeof plan.duration === 'number') {
+        planDuration = plan.duration;
+      }
+      
+      // Ensure ROI is a valid number
+      const planROI = typeof plan.roi === 'number' ? plan.roi : parseFloat(plan.roi || '0');
+      
+      // Validate plan data
+      if (!planDuration || isNaN(planDuration) || !planROI || isNaN(planROI)) {
+        console.error('Invalid plan data:', { 
+          duration: plan.duration, 
+          parsedDuration: planDuration,
+          roi: plan.roi,
+          parsedROI: planROI
+        });
+        setLoading(false);
+        return;
+      }
       
       // Calculate daily earnings based on actual plan ROI
       // ROI is the total return over the duration, so daily rate = ROI / duration
-      const dailyRate = plan.roi / planDuration;
+      const dailyRate = planROI / planDuration;
       const dailyEarnings = (investmentAmount * dailyRate) / 100;
       
       // Calculate days active from actual investment date
@@ -110,7 +134,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
         status: daysRemaining > 0 ? 'active' : 'completed',
         planIcon: plan.icon || 'Medal',
         planDuration: planDuration,
-        planROI: plan.roi,
+        planROI: planROI,
         planColor: plan.color || 'pink',
         investmentDate: new Date(investmentDate)
       });
