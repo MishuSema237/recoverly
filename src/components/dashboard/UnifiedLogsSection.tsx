@@ -316,24 +316,19 @@ const UnifiedLogsSection = () => {
               </div>
 
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Transaction ID</label>
-                    <p className="text-sm text-gray-900 font-mono">{selectedLog.id}</p>
-                  </div>
+                {/* Transaction ID on its own row */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Transaction ID</label>
+                  <p className="text-xs text-gray-900 font-mono break-all">{selectedLog.transactionId || selectedLog.id}</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Type</label>
                     <div className="flex items-center space-x-2">
                       {getTypeIcon(selectedLog.type)}
                       <span className="text-sm capitalize">{selectedLog.type}</span>
                     </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Date & Time</label>
-                    <p className="text-sm text-gray-900">{formatDate(selectedLog.date)}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Status</label>
@@ -344,7 +339,18 @@ const UnifiedLogsSection = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Date & Time</label>
+                    <p className="text-sm text-gray-900">{formatDate(selectedLog.date)}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Currency</label>
+                    <p className="text-sm text-gray-900">{selectedLog.currency}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Amount</label>
                     <p className={`text-lg font-semibold ${
@@ -352,13 +358,15 @@ const UnifiedLogsSection = () => {
                         ? 'text-green-600' 
                         : 'text-red-600'
                     }`}>
-                      {formatAmount(selectedLog.amount, selectedLog.type)}
+                      {formatAmount(selectedLog.amount, selectedLog.type, selectedLog.isSent)}
                     </p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Currency</label>
-                    <p className="text-sm text-gray-900">{selectedLog.currency}</p>
-                  </div>
+                  {selectedLog.fee && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Transaction Fee</label>
+                      <p className="text-sm text-gray-900">${selectedLog.fee.toFixed(2)}</p>
+                    </div>
+                  )}
                 </div>
 
                 {selectedLog.method && (
