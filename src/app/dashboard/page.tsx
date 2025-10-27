@@ -370,10 +370,11 @@ const DashboardContent = () => {
                       <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 lg:p-6 border border-red-200">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-xs lg:text-sm text-red-700 font-medium">Account Balance</p>
+                            <p className="text-xs lg:text-sm text-red-700 font-medium">Available Balance</p>
                             <p className="text-xl lg:text-3xl font-bold text-red-900">
-                              ${((userProfile?.balances?.main || 0) + (userProfile?.balances?.investment || 0) + (userProfile?.balances?.referral || 0)).toFixed(2)}
+                              ${(userProfile?.balances?.main || 0).toFixed(2)}
                             </p>
+                            <p className="text-xs text-red-600 mt-1">Transferable & withdrawable</p>
                           </div>
                           <div className="bg-red-600 p-2 lg:p-3 rounded-xl">
                             <DollarSign className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
