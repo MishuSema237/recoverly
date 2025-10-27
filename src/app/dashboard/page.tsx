@@ -372,7 +372,7 @@ const DashboardContent = () => {
                           <div>
                             <p className="text-xs lg:text-sm text-red-700 font-medium">Available Balance</p>
                             <p className="text-xl lg:text-3xl font-bold text-red-900">
-                              ${(userProfile?.balances?.main || 0).toFixed(2)}
+                              ${((userProfile?.balances?.main || 0) + (userProfile?.balances?.referral || 0)).toFixed(2)}
                             </p>
                             <p className="text-xs text-red-600 mt-1">Transferable & withdrawable</p>
                           </div>
