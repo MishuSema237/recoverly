@@ -58,8 +58,8 @@ export async function POST() {
                       date: now,
                       status: 'completed',
                       description: `Capital returned from ${investment.planName} investment`
-                    }
-                  } as Record<string, unknown>
+                    } as any
+                  } as any
                 }
               );
               
@@ -71,8 +71,8 @@ export async function POST() {
                     activityLog: {
                       action: `Capital of $${investmentAmount} returned from ${investment.planName}`,
                       timestamp: now.toISOString()
-                    }
-                  } as Record<string, unknown>
+                    } as any
+                  } as any
                 }
               );
             } else {

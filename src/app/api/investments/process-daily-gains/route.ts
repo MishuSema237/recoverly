@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-import NotificationService from '@/lib/notifications/NotificationService';
+import { NotificationService } from '@/lib/notifications/NotificationService';
 
 export async function POST() {
   try {
