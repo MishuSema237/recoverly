@@ -94,24 +94,35 @@ export const GET = requireAuth(async (request) => {
       const isTransfer = transaction.type === 'transfer_sent' || transaction.type === 'transfer_received';
       const isSent = transaction.type === 'transfer_sent';
       
+      // Determine transaction type and details
+      let txType = 'other';
+      let details = transaction.description || 'Transaction';
+      
+      if (transaction.type === 'daily_gain') {
+        txType = 'earning';
+        details = `Daily earnings from ${transaction.planName || 'Investment Plan'}`;
+      } else if (transaction.type === 'referral_bonus') {
+        txType = 'earning';
+        details = `Referral bonus from user ${transaction.referredUserCode || 'Unknown'}`;
+      } else if (transaction.type === 'investment') {
+        txType = 'investment';
+        details = `Investment in ${transaction.planName || 'Investment Plan'}`;
+      } else if (isTransfer) {
+        txType = 'transfer';
+        details = transaction.description || 'Transfer';
+      }
+      
       return {
         id: `${userId}_${index}`,
-        type: transaction.type === 'daily_gain' ? 'earning' : 
-              transaction.type === 'referral_bonus' ? 'earning' :
-              transaction.type === 'investment' ? 'investment' :
-              isTransfer ? 'transfer' : 'other',
+        type: txType,
         date: transaction.date || new Date(),
         amount: transaction.amount,
         currency: 'USD',
         status: 'completed',
-        details: transaction.type === 'daily_gain' ? 
-          `Daily earnings from ${transaction.planName || 'Investment Plan'}` :
-          transaction.type === 'referral_bonus' ?
-          `Referral bonus from user ${transaction.referredUserCode || 'Unknown'}` :
-          transaction.description || 'Transaction',
+        details: details,
         plan: transaction.planName,
         transactionId: `${userId}_${index}`,
-        isSent: isSent, // Flag to determine if it's a sent transfer
+        isSent: isSent,
         metadata: transaction.metadata || {}
       };
     });
