@@ -1,150 +1,171 @@
-# Email Service Setup Guide
+# Email Service Setup Guide - Using EmailJS
 
 ## Overview
-Tesla Capital uses email for password resets and user notifications. MongoDB **does not have an email service** - you need to use a third-party email provider.
+Tesla Capital uses **EmailJS** for sending emails (password resets, notifications, etc.). EmailJS is free, easy to set up, and doesn't require a backend email server.
 
-## Option 1: Gmail (Free - Best for Development)
+**MongoDB does not have an email service** - MongoDB is just a database. EmailJS handles all email delivery for us!
 
-### Setup Steps:
+## Quick Setup with EmailJS (5 minutes)
 
-1. **Enable 2-Factor Authentication on your Gmail account**
-   - Go to Google Account settings
-   - Security → 2-Step Verification
-   - Enable it
+### Step 1: Sign Up for EmailJS
+1. Go to https://www.emailjs.com
+2. Click "Sign Up" and create a free account (Google sign-in works too)
+3. Free tier: **200 emails/month** - perfect for development!
 
-2. **Generate an App Password**
-   - Go to Google Account settings
-   - Security → 2-Step Verification
-   - Scroll down to "App passwords"
-   - Click "Select app" → Choose "Mail"
-   - Click "Select device" → Choose "Other" and type "Tesla Capital"
-   - Click "Generate"
-   - **Copy the 16-character password** (no spaces)
+### Step 2: Add an Email Service
+1. Once logged in, go to **"Add New Service"**
+2. Choose **"Gmail"** (or Gmail API, Outlook, etc.)
+3. Click **"Connect Account"**
+4. Authorize EmailJS to send emails from your Gmail
+5. **Copy the Service ID** - you'll need this
 
-3. **Add to your `.env.local` file**
-   ```env
-   # Email Configuration (Development - Gmail)
-   EMAIL_USER=your-email@gmail.com
-   EMAIL_APP_PASSWORD=your-16-character-app-password
-   EMAIL_FROM=noreply@teslacapital.com
-   
-   # App URL
-   NEXT_PUBLIC_APP_URL=http://localhost:3000
-   ```
+### Step 3: Create an Email Template
+1. Go to **"Email Templates"** → **"Create New Template"**
+2. Give it a name: **"Password Reset"**
+3. Set up your template like this:
 
-4. **Create `.env.local` file** in the project root:
-   ```bash
-   touch .env.local
-   ```
-
-## Option 2: SendGrid (Recommended for Production)
-
-### Setup Steps:
-
-1. **Sign up at SendGrid** (https://sendgrid.com)
-   - Free tier: 100 emails/day forever
-
-2. **Create an API Key**
-   - Dashboard → Settings → API Keys
-   - Click "Create API Key"
-   - Name it "Tesla Capital"
-   - Permissions: "Full Access" (or "Mail Send")
-   - Copy the API key
-
-3. **Verify your sender email**
-   - Settings → Sender Authentication
-   - Verify Single Sender or domain
-
-4. **Add to your production environment variables:**
-   ```env
-   # Email Configuration (Production - SendGrid)
-   SMTP_HOST=smtp.sendgrid.net
-   SMTP_PORT=587
-   SMTP_USER=apikey
-   SMTP_PASSWORD=your-sendgrid-api-key
-   SMTP_SECURE=false
-   EMAIL_FROM=noreply@teslacapital.com
-   
-   # App URL (Production)
-   NEXT_PUBLIC_APP_URL=https://your-domain.com
-   ```
-
-## Option 3: Mailgun (Production Alternative)
-
-### Setup Steps:
-
-1. **Sign up at Mailgun** (https://www.mailgun.com)
-   - Free tier: 5,000 emails/month for 3 months
-
-2. **Get your SMTP credentials**
-   - Dashboard → Sending → SMTP credentials
-   - Copy the credentials
-
-3. **Add to your production environment variables:**
-   ```env
-   # Email Configuration (Production - Mailgun)
-   SMTP_HOST=smtp.mailgun.org
-   SMTP_PORT=587
-   SMTP_USER=your-mailgun-username
-   SMTP_PASSWORD=your-mailgun-password
-   SMTP_SECURE=false
-   EMAIL_FROM=noreply@teslacapital.com
-   NEXT_PUBLIC_APP_URL=https://your-domain.com
-   ```
-
-## Option 4: AWS SES (For High Volume)
-
-Best for large-scale applications. More complex setup but very reliable and cost-effective at scale.
-
-## Testing Your Email Setup
-
-After setting up your credentials, test with:
-
-```bash
-# Start your development server
-npm run dev
+**Subject:**
+```
+Password Reset Request - Tesla Capital
 ```
 
-Try the forgot password feature on your login page - it should work!
+**Content:**
+```
+You requested a password reset for your Tesla Capital account.
+
+Click the link below to reset your password:
+{{reset_url}}
+
+This link will expire in 1 hour.
+
+If you didn't request this password reset, please ignore this email.
+
+© 2024 Tesla Capital. All rights reserved.
+```
+
+**Important:** Add a placeholder `{{message}}` in your template - this is where the HTML email content will go.
+
+4. **Copy the Template ID**
+
+### Step 4: Get Your Public Key
+1. Go to **"Account"** → **"General"** (or Settings)
+2. Find your **"Public Key"** (also called User ID)
+3. **Copy the Public Key**
+
+### Step 5: Add Environment Variables
+Create a `.env.local` file in your project root (if it doesn't exist):
+
+```bash
+# Create the file
+touch .env.local
+```
+
+Add these three variables:
+
+```env
+# EmailJS Configuration
+EMAILJS_SERVICE_ID=your_service_id_here
+EMAILJS_TEMPLATE_ID=your_template_id_here
+EMAILJS_PUBLIC_KEY=your_public_key_here
+
+# Optional: Where to send replies
+EMAIL_FROM=noreply@teslacapital.com
+
+# App URL
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+**Example:**
+```env
+EMAILJS_SERVICE_ID=service_abc123
+EMAILJS_TEMPLATE_ID=template_xyz789
+EMAILJS_PUBLIC_KEY=abcdefghijklmnop
+EMAIL_FROM=noreply@teslacapital.com
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### Step 6: Test It!
+1. Restart your development server:
+   ```bash
+   npm run dev
+   ```
+
+2. Go to your login page and try "Forgot Password"
+3. Enter an email address
+4. Check that email's inbox - you should receive the reset email!
+
+## EmailJS Free Tier Limits
+- ✅ **200 emails per month** - FREE forever
+- ✅ No credit card required
+- ✅ Perfect for development and small deployments
+- ✅ Upgrade to paid plans for more volume
+
+## Alternative Setup Options
+
+### Option 1: Gmail (with nodemailer) - Previous Method
+If you prefer using Gmail directly, see the old setup in the git history.
+
+### Option 2: SendGrid (For Production)
+For production apps sending 1000+ emails/month:
+- Visit https://sendgrid.com
+- Free tier: 100 emails/day
+- More setup required
+
+### Option 3: AWS SES
+For high-volume production apps
+- Most cost-effective at scale
+- More complex setup
 
 ## Troubleshooting
 
-### Error: "Email configuration is missing"
-- Check that your `.env.local` file exists
-- Verify all required environment variables are set
-- Restart your development server after adding environment variables
+### Error: "EmailJS configuration is missing"
+- Check that your `.env.local` file exists in the project root
+- Verify all three EmailJS variables are set
+- **Important:** Restart your dev server after changing `.env.local`
 
-### Gmail: "Less secure app access"
-- This is normal - use App Passwords instead (not your regular Gmail password)
-- Make sure you generated an App Password, not using 2FA code
+### Error: "EmailJS API error"
+- Verify your Service ID, Template ID, and Public Key are correct
+- Make sure your EmailJS account is active
+- Check your monthly email limit (200/month on free tier)
 
-### SendGrid: "Authentication failed"
-- Verify your API key is correct
-- Check that "Mail Send" permission is enabled
-- Ensure sender email is verified
+### Emails not sending?
+1. Check the server console for errors
+2. Verify your EmailJS template includes `{{message}}` placeholder
+3. Test your EmailJS service directly on emailjs.com dashboard
+4. Make sure your Gmail account is properly connected to EmailJS
+
+### Template variables not working?
+- EmailJS uses `{{variable_name}}` syntax
+- Common variables: `{{to_email}}`, `{{subject}}`, `{{message}}`
+- Check EmailJS documentation for template setup
 
 ## Security Notes
 
+⚠️ **Important:**
 1. **Never commit `.env.local` to git** - it's already in `.gitignore`
-2. **For production**, set environment variables in your hosting platform (Vercel, Heroku, etc.)
-3. **App passwords** for Gmail are safer than your main password
-4. **Rate limits**: Gmail has limits (500/day), SendGrid free tier is 100/day
+2. **For production**, add these environment variables to your hosting platform:
+   - Vercel: Project Settings → Environment Variables
+   - Heroku: Dashboard → Settings → Config Vars
+   - Netlify: Site Settings → Environment Variables
 
-## Quick Setup Summary
+3. **EmailJS Public Key** is safe to be public (hence "public" key), but keep your Service ID and Template ID private
 
-**For Development:**
-```env
-EMAIL_USER=your-email@gmail.com
-EMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx
-```
+## Quick Start Checklist
 
-**For Production:**
-```env
-SMTP_HOST=smtp.sendgrid.net
-SMTP_PORT=587
-SMTP_USER=apikey
-SMTP_PASSWORD=your-api-key
-```
+- [ ] Sign up for EmailJS (free)
+- [ ] Add Gmail service to EmailJS
+- [ ] Create email template in EmailJS
+- [ ] Copy Service ID, Template ID, and Public Key
+- [ ] Create `.env.local` file in project root
+- [ ] Add EmailJS credentials to `.env.local`
+- [ ] Restart dev server: `npm run dev`
+- [ ] Test "Forgot Password" feature
+- [ ] ✅ Done!
 
-That's it! Your forgot password feature will work once these are configured. 🚀
+## Need Help?
 
+- **EmailJS Docs:** https://www.emailjs.com/docs/
+- **EmailJS Support:** https://www.emailjs.com/support/
+- **Check console logs** for detailed error messages
+
+Your forgot password feature will work immediately once EmailJS is configured! 🚀

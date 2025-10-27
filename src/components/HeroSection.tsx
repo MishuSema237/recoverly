@@ -63,13 +63,13 @@ const HeroSection = () => {
                         sequential={true}
                         revealDirection="start"
                         animateOn="view"
-                        className="text-red-400 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent"
+                          className="text-red-400 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent"
                         encryptedClassName="text-gray-400 opacity-50"
-                        style={{ 
-                          fontFamily: 'Montserrat, sans-serif', 
-                          fontSize: '1.2em', 
+                          style={{ 
+                            fontFamily: 'Montserrat, sans-serif', 
+                            fontSize: '1.2em', 
                           fontWeight: '700'
-                        }}
+                          }}
                       />
                     </motion.div>
                   </AnimatePresence>

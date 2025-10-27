@@ -1,5 +1,3 @@
-import nodemailer from 'nodemailer';
-
 interface EmailOptions {
   to: string;
   subject: string;
@@ -7,69 +5,51 @@ interface EmailOptions {
   text: string;
 }
 
-// Check if email is configured
+// Check if EmailJS is configured
 const isEmailConfigured = () => {
-  if (process.env.NODE_ENV === 'development') {
-    return !!(process.env.EMAIL_USER && process.env.EMAIL_APP_PASSWORD);
-  } else {
-    return !!(
-      process.env.SMTP_HOST &&
-      process.env.SMTP_PORT &&
-      process.env.SMTP_USER &&
-      process.env.SMTP_PASSWORD
-    );
-  }
-};
-
-// Create transporter
-const createTransporter = () => {
-  // For development, you can use a service like Gmail or a professional email service
-  // For production, use a service like SendGrid, Mailgun, or AWS SES
-  
-  if (!isEmailConfigured()) {
-    throw new Error('Email configuration is missing. Please set up EMAIL_USER and EMAIL_APP_PASSWORD for development, or SMTP credentials for production.');
-  }
-  
-  if (process.env.NODE_ENV === 'development') {
-    // Gmail configuration for development
-    return nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER!, // Your Gmail address
-        pass: process.env.EMAIL_APP_PASSWORD!, // Gmail App Password
-      },
-    });
-  } else {
-    // Production email service (e.g., SendGrid, Mailgun, AWS SES)
-    return nodemailer.createTransport({
-      host: process.env.SMTP_HOST!,
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER!,
-        pass: process.env.SMTP_PASSWORD!,
-      },
-    });
-  }
+  return !!(
+    process.env.EMAILJS_SERVICE_ID &&
+    process.env.EMAILJS_TEMPLATE_ID &&
+    process.env.EMAILJS_PUBLIC_KEY
+  );
 };
 
 export const sendEmail = async (options: EmailOptions): Promise<void> => {
   try {
-    const transporter = createTransporter();
-    
-    const mailOptions = {
-      from: {
-        name: 'Tesla Capital',
-        address: process.env.EMAIL_FROM || 'noreply@teslacapital.com',
-      },
-      to: options.to,
-      subject: options.subject,
-      html: options.html,
-      text: options.text,
-    };
+    if (!isEmailConfigured()) {
+      throw new Error('EmailJS configuration is missing. Please set up EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, and EMAILJS_PUBLIC_KEY in your environment variables.');
+    }
 
-    const result = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', result.messageId);
+    // Send email using EmailJS REST API
+    const emailjsServiceId = process.env.EMAILJS_SERVICE_ID;
+    const emailjsTemplateId = process.env.EMAILJS_TEMPLATE_ID;
+    const emailjsPublicKey = process.env.EMAILJS_PUBLIC_KEY;
+
+    const response = await fetch(`https://api.emailjs.com/api/v1.0/email/send`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        service_id: emailjsServiceId,
+        template_id: emailjsTemplateId,
+        user_id: emailjsPublicKey,
+        template_params: {
+          to_email: options.to,
+          subject: options.subject,
+          message: options.html,
+          from_name: 'Tesla Capital',
+          reply_to: process.env.EMAIL_FROM || 'noreply@teslacapital.com',
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`EmailJS API error: ${response.status} ${errorText}`);
+    }
+
+    console.log('Email sent successfully via EmailJS to:', options.to);
   } catch (error) {
     console.error('Email sending failed:', error);
     throw new Error('Failed to send email');
