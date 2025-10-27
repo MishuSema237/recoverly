@@ -355,7 +355,8 @@ const UnifiedLogsSection = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Amount</label>
                     <p className={`text-lg font-semibold ${
-                      selectedLog.type === 'deposit' || selectedLog.type === 'earning' 
+                      selectedLog.type === 'deposit' || selectedLog.type === 'earning' || 
+                      (selectedLog.type === 'transfer' && !selectedLog.isSent)
                         ? 'text-green-600' 
                         : 'text-red-600'
                     }`}>
