@@ -97,9 +97,25 @@ export const POST = requireAuth(async (request) => {
           'balances.investment': (user.balances?.investment || 0) + amount,
           'balances.total': (user.balances?.main || 0) - amount + (user.balances?.investment || 0) + amount,
           updatedAt: now
-        },
+        }
+      }
+    );
+
+    // Add investment
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      {
         $push: {
-          investments: investment,
+          investments: investment
+        }
+      } as Record<string, unknown>
+    );
+
+    // Add transaction
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      {
+        $push: {
           transactions: {
             type: 'investment',
             amount: amount,
@@ -107,13 +123,22 @@ export const POST = requireAuth(async (request) => {
             date: now,
             status: 'completed',
             description: `Invested $${amount} in ${planName} plan`
-          },
+          }
+        }
+      } as Record<string, unknown>
+    );
+
+    // Add activity log
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      {
+        $push: {
           activityLog: {
             action: `Invested $${amount} in ${planName} plan`,
             timestamp: now.toISOString()
           }
         }
-      }
+      } as Record<string, unknown>
     );
 
     // Create notification for user
