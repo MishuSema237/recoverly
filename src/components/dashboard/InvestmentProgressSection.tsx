@@ -222,8 +222,8 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
 
   if (loading) {
     return (
-      <div className="w-full p-6">
-        <div className="p-8">
+      <div className="w-full px-0 lg:px-6 py-6">
+        <div className="p-4 lg:p-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded mb-4"></div>
             <div className="h-4 bg-gray-200 rounded mb-2"></div>
@@ -241,8 +241,8 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
 
   if (!progress) {
     return (
-      <div className="w-full p-6">
-        <div className="p-8 text-center">
+      <div className="w-full px-0 lg:px-6 py-6">
+        <div className="p-4 lg:p-8 text-center">
           <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">No Active Investment</h3>
           <p className="text-gray-600">You don&apos;t have an active investment plan. Start investing to see your progress here.</p>
@@ -252,8 +252,8 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
   }
 
   return (
-    <div className="w-full p-6">
-      <div className="p-8">
+    <div className="w-full px-0 lg:px-6 py-6">
+      <div className="p-4 lg:p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3">
