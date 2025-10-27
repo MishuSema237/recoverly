@@ -26,19 +26,14 @@
   body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     /* Fix iOS Safari scrolling issues */
-    height: 100%;
     overflow-x: hidden;
     /* Prevent iOS Safari bounce effect */
-    position: fixed;
-    width: 100%;
     -webkit-overflow-scrolling: touch;
   }
   
-  /* Ensure proper scrolling on iOS */
+  /* Ensure proper scrolling */
   #__next {
-    height: 100%;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    min-height: 100vh;
   }
 }
 
@@ -131,7 +126,6 @@
 @supports (-webkit-touch-callout: none) {
   body {
     /* Fix iOS Safari viewport issues */
-    position: relative;
     height: 100vh;
     height: 100dvh;
   }

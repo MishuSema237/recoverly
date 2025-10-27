@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import DecryptedText from './DecryptedText';
 
 const HeroSection = () => {
   const [currentWord, setCurrentWord] = useState(0);
@@ -55,29 +56,21 @@ const HeroSection = () => {
                       className="flex justify-start"
                       style={{ letterSpacing: '-0.02em' }}
                     >
-                      {dynamicWords[currentWord].toUpperCase().split('').map((letter, index) => (
-                        <motion.span
-                          key={`${currentWord}-${index}`}
-                          initial={{ opacity: 0, y: 30, scale: 0.7 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          transition={{ 
-                            duration: 0.4, 
-                            delay: index * 0.05,
-                            type: "spring",
-                            stiffness: 300,
-                            damping: 25
-                          }}
-                          className="text-red-400 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent"
-                          style={{ 
-                            fontFamily: 'Montserrat, sans-serif', 
-                            fontSize: '1.2em', 
-                            fontWeight: '700',
-                            marginRight: '0.1em'
-                          }}
-                        >
-                          {letter}
-                        </motion.span>
-                      ))}
+                      <DecryptedText
+                        text={dynamicWords[currentWord].toUpperCase()}
+                        speed={100}
+                        maxIterations={20}
+                        sequential={true}
+                        revealDirection="start"
+                        animateOn="view"
+                        className="text-red-400 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent"
+                        encryptedClassName="text-gray-400 opacity-50"
+                        style={{ 
+                          fontFamily: 'Montserrat, sans-serif', 
+                          fontSize: '1.2em', 
+                          fontWeight: '700'
+                        }}
+                      />
                     </motion.div>
                   </AnimatePresence>
                 </span>
