@@ -212,7 +212,7 @@ export async function PUT(request: NextRequest) {
                       status: 'completed',
                       description: `Commission: 5% of ${user.firstName} ${user.lastName}'s first deposit ($${depositRequest.amount})`
                     }
-                  }
+                  } as Record<string, any>
                 }
               );
 
@@ -225,7 +225,7 @@ export async function PUT(request: NextRequest) {
                       action: `Referral commission earned: $${commissionAmount.toFixed(2)} (5% of ${user.firstName}'s first deposit)`,
                       timestamp: new Date().toISOString()
                     }
-                  }
+                  } as Record<string, any>
                 }
               );
 
