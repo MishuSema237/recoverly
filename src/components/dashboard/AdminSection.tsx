@@ -157,6 +157,9 @@ const AdminSection = () => {
   const [editingPayment, setEditingPayment] = useState<PaymentMethod | null>(null);
   const [newPlan, setNewPlan] = useState<Partial<InvestmentPlan>>({});
   const [newPayment, setNewPayment] = useState<Partial<PaymentMethod>>({});
+  const [paymentLogoFile, setPaymentLogoFile] = useState<File | null>(null);
+  const [paymentLogoPreview, setPaymentLogoPreview] = useState<string>('');
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [isProcessingPlan, setIsProcessingPlan] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
@@ -546,8 +549,35 @@ const AdminSection = () => {
   const savePaymentMethod = async () => {
     setIsProcessingPayment(true);
     try {
+      // Upload logo if file is selected
+      let logoUrl = newPayment.logo || '';
+      
+      if (paymentLogoFile) {
+        setIsUploadingLogo(true);
+        const formData = new FormData();
+        formData.append('file', paymentLogoFile);
+        formData.append('folder', 'payment-methods');
+        
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const uploadResult = await uploadResponse.json();
+        
+        if (uploadResult.success) {
+          logoUrl = uploadResult.url;
+        } else {
+          setMessage({ type: 'error', text: 'Failed to upload logo image' });
+          setIsProcessingPayment(false);
+          setIsUploadingLogo(false);
+          return;
+        }
+        setIsUploadingLogo(false);
+      }
+      
       // Validate required fields
-      if (!newPayment.name || !newPayment.logo || !newPayment.accountDetails?.accountName || !newPayment.accountDetails?.accountNumber || !newPayment.instructions) {
+      if (!newPayment.name || !logoUrl || !newPayment.accountDetails?.accountName || !newPayment.accountDetails?.accountNumber || !newPayment.instructions) {
         setMessage({ type: 'error', text: 'Please fill in all required fields' });
         setIsProcessingPayment(false);
         return;
@@ -555,7 +585,7 @@ const AdminSection = () => {
 
       const paymentData = {
         name: newPayment.name,
-        logo: newPayment.logo,
+        logo: logoUrl,
         accountDetails: newPayment.accountDetails,
         instructions: newPayment.instructions,
         isActive: newPayment.isActive !== false
@@ -582,6 +612,8 @@ const AdminSection = () => {
           setShowPaymentModal(false);
           setEditingPayment(null);
           setNewPayment({});
+          setPaymentLogoFile(null);
+          setPaymentLogoPreview('');
         } else {
           setMessage({ type: 'error', text: result.error || 'Failed to update payment method' });
         }
@@ -602,6 +634,8 @@ const AdminSection = () => {
           loadPaymentMethods();
           setShowPaymentModal(false);
           setNewPayment({});
+          setPaymentLogoFile(null);
+          setPaymentLogoPreview('');
         } else {
           setMessage({ type: 'error', text: result.error || 'Failed to create payment method' });
         }
@@ -1110,6 +1144,9 @@ const AdminSection = () => {
               <button
                 onClick={() => {
                   setEditingPayment(null);
+                  setNewPayment({});
+                  setPaymentLogoFile(null);
+                  setPaymentLogoPreview('');
                   setShowPaymentModal(true);
                 }}
                 className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
@@ -1134,6 +1171,8 @@ const AdminSection = () => {
                         onClick={() => {
                           setEditingPayment(method);
                           setNewPayment(method);
+                          setPaymentLogoFile(null);
+                          setPaymentLogoPreview('');
                           setShowPaymentModal(true);
                         }}
                         className="p-1 text-blue-600 hover:text-blue-800"
@@ -1612,14 +1651,35 @@ const AdminSection = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Logo URL</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Logo</label>
                   <input
-                    type="url"
-                    value={newPayment.logo || ''}
-                    onChange={(e) => setNewPayment({ ...newPayment, logo: e.target.value })}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setPaymentLogoFile(file);
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setPaymentLogoPreview(reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    placeholder="https://example.com/logo.png"
                   />
+                  {paymentLogoPreview && (
+                    <div className="mt-3">
+                      <p className="text-sm text-gray-600 mb-2">Preview:</p>
+                      <img src={paymentLogoPreview} alt="Logo preview" className="w-24 h-24 object-contain border border-gray-300 rounded" />
+                    </div>
+                  )}
+                  {editingPayment && editingPayment.logo && !paymentLogoPreview && (
+                    <div className="mt-3">
+                      <p className="text-sm text-gray-600 mb-2">Current Logo:</p>
+                      <img src={editingPayment.logo} alt="Current logo" className="w-24 h-24 object-contain border border-gray-300 rounded" />
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -1733,6 +1793,8 @@ const AdminSection = () => {
                     setShowPaymentModal(false);
                     setEditingPayment(null);
                     setNewPayment({});
+                    setPaymentLogoFile(null);
+                    setPaymentLogoPreview('');
                   }}
                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
                 >
