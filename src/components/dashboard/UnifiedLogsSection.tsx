@@ -33,6 +33,7 @@ interface LogEntry {
   fee?: number;
   isSent?: boolean;
   metadata?: Record<string, unknown>;
+  transactionId?: string;
 }
 
 const UnifiedLogsSection = () => {
