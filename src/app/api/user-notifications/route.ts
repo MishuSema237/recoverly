@@ -59,6 +59,57 @@ export const GET = requireAuth(async (request: AuthenticatedRequest) => {
   }
 });
 
+export const PUT = requireAuth(async (request: AuthenticatedRequest) => {
+  try {
+    const { notificationId, userCode } = await request.json();
+    const userId = request.user!.id;
+
+    if (!notificationId) {
+      return NextResponse.json(
+        { success: false, error: 'Notification ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const db = await getDb();
+    const notificationsCollection = db.collection('notifications');
+
+    // Mark notification as read by adding userId and userCode to readBy array
+    const result = await notificationsCollection.updateOne(
+      { _id: new ObjectId(notificationId) },
+      {
+        $addToSet: {
+          readBy: { userId, userCode: userCode || userId, readAt: new Date() }
+        }
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Notification not found' },
+        { status: 404 }
+      );
+    }
+
+    // Also update the read status directly for backward compatibility
+    await notificationsCollection.updateOne(
+      { _id: new ObjectId(notificationId) },
+      { $set: { read: true } }
+    );
+
+    return NextResponse.json({
+      success: true,
+      message: 'Notification marked as read'
+    });
+  } catch (error) {
+    console.error('Mark as read error:', error);
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : 'An unknown error occurred' },
+      { status: 500 }
+    );
+  }
+});
+
 export const DELETE = requireAuth(async (request: AuthenticatedRequest) => {
   try {
     const { notificationId } = await request.json();
