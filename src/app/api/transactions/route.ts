@@ -188,28 +188,30 @@ export async function PUT(request: NextRequest) {
               const newMainBalance = (referrer.balances?.main || 0) + commissionAmount;
               const newTotalBalance = (referrer.balances?.total || 0) + commissionAmount;
 
+              const updateOps = {
+                $set: {
+                  'balances.main': newMainBalance,
+                  'balances.total': newTotalBalance,
+                  updatedAt: new Date()
+                },
+                $push: {
+                  transactions: {
+                    type: 'referral_bonus',
+                    amount: commissionAmount,
+                    date: new Date(),
+                    status: 'completed',
+                    description: `Commission: 5% of ${user.firstName} ${user.lastName}'s first deposit ($${depositRequest.amount})`
+                  },
+                  activityLog: {
+                    action: `Referral commission earned: $${commissionAmount.toFixed(2)} (5% of ${user.firstName}'s first deposit)`,
+                    timestamp: new Date().toISOString()
+                  }
+                }
+              };
+
               await db.collection('users').updateOne(
                 { _id: new ObjectId(referrerId) },
-                {
-                  $set: {
-                    'balances.main': newMainBalance,
-                    'balances.total': newTotalBalance,
-                    updatedAt: new Date()
-                  },
-                  $push: {
-                    transactions: {
-                      type: 'referral_bonus',
-                      amount: commissionAmount,
-                      date: new Date(),
-                      status: 'completed',
-                      description: `Commission: 5% of ${user.firstName} ${user.lastName}'s first deposit ($${depositRequest.amount})`
-                    },
-                    activityLog: {
-                      action: `Referral commission earned: $${commissionAmount.toFixed(2)} (5% of ${user.firstName}'s first deposit)`,
-                      timestamp: new Date().toISOString()
-                    }
-                  } as Record<string, unknown>
-                }
+                updateOps as any
               );
 
               // Send notification to referrer
