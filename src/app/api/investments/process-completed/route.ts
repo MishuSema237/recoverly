@@ -47,10 +47,10 @@ export async function POST() {
               );
               
               // Add transaction for capital return
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               await db.collection('users').updateOne(
                 { _id: user._id },
                 {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   $push: {
                     transactions: {
                       type: 'capital_return',
@@ -65,10 +65,10 @@ export async function POST() {
               );
               
               // Add activity log
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               await db.collection('users').updateOne(
                 { _id: user._id },
                 {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   $push: {
                     activityLog: {
                       action: `Capital of $${investmentAmount} returned from ${investment.planName}`,
