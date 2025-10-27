@@ -233,10 +233,9 @@ export async function PUT(request: NextRequest) {
               await NotificationService.createNotification({
                 title: 'Referral Commission Earned!',
                 message: `Congratulations! You earned $${commissionAmount.toFixed(2)} (5%) commission from ${user.firstName} ${user.lastName}'s first deposit of $${depositRequest.amount}.`,
-                type: 'success',
+                type: 'referral_gain',
                 recipients: [referrerId],
                 sentBy: 'system',
-                sentAt: new Date(),
                 metadata: {
                   commissionAmount,
                   referredUserName: `${user.firstName} ${user.lastName}`,
