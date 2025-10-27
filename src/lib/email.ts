@@ -7,29 +7,47 @@ interface EmailOptions {
   text: string;
 }
 
+// Check if email is configured
+const isEmailConfigured = () => {
+  if (process.env.NODE_ENV === 'development') {
+    return !!(process.env.EMAIL_USER && process.env.EMAIL_APP_PASSWORD);
+  } else {
+    return !!(
+      process.env.SMTP_HOST &&
+      process.env.SMTP_PORT &&
+      process.env.SMTP_USER &&
+      process.env.SMTP_PASSWORD
+    );
+  }
+};
+
 // Create transporter
 const createTransporter = () => {
   // For development, you can use a service like Gmail or a professional email service
   // For production, use a service like SendGrid, Mailgun, or AWS SES
+  
+  if (!isEmailConfigured()) {
+    throw new Error('Email configuration is missing. Please set up EMAIL_USER and EMAIL_APP_PASSWORD for development, or SMTP credentials for production.');
+  }
   
   if (process.env.NODE_ENV === 'development') {
     // Gmail configuration for development
     return nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER, // Your Gmail address
-        pass: process.env.EMAIL_APP_PASSWORD, // Gmail App Password
+        user: process.env.EMAIL_USER!, // Your Gmail address
+        pass: process.env.EMAIL_APP_PASSWORD!, // Gmail App Password
       },
     });
   } else {
     // Production email service (e.g., SendGrid, Mailgun, AWS SES)
     return nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
+      host: process.env.SMTP_HOST!,
       port: parseInt(process.env.SMTP_PORT || '587'),
       secure: process.env.SMTP_SECURE === 'true',
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
+        user: process.env.SMTP_USER!,
+        pass: process.env.SMTP_PASSWORD!,
       },
     });
   }

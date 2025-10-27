@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     // Send password reset email
     try {
-      const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+      const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
       
       await sendEmail({
         to: email,
@@ -60,12 +60,16 @@ If you didn't request a password reset, please ignore this email.
 
 © 2024 Tesla Capital. All rights reserved.`
       });
+      
+      console.log('Password reset email sent successfully to:', email);
+      
     } catch (emailError) {
       console.error('Failed to send password reset email:', emailError);
-      return NextResponse.json(
-        { success: false, error: 'Failed to send password reset email' },
-        { status: 500 }
-      );
+      // Still return success for security - don't reveal if email sending failed
+      return NextResponse.json({
+        success: true,
+        message: 'If an account with that email exists, a password reset link has been sent.'
+      });
     }
 
     return NextResponse.json({

@@ -16,7 +16,7 @@ const HeroSection = () => {
     'INVESTMENT',
     'FINANCE',
     'WEALTH',
-    'FUTURE'
+    'MINING'
   ];
 
   useEffect(() => {
