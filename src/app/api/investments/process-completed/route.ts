@@ -47,7 +47,6 @@ export async function POST() {
               );
               
               // Add transaction for capital return
-              // eslint-disable @typescript-eslint/no-explicit-any
               await db.collection('users').updateOne(
                 { _id: user._id },
                 {
@@ -59,14 +58,14 @@ export async function POST() {
                       date: now,
                       status: 'completed',
                       description: `Capital returned from ${investment.planName} investment`
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     } as any
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   } as any
                 }
               );
-              // eslint-enable @typescript-eslint/no-explicit-any
               
               // Add activity log
-              // eslint-disable @typescript-eslint/no-explicit-any
               await db.collection('users').updateOne(
                 { _id: user._id },
                 {
@@ -74,11 +73,12 @@ export async function POST() {
                     activityLog: {
                       action: `Capital of $${investmentAmount} returned from ${investment.planName}`,
                       timestamp: now.toISOString()
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     } as any
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   } as any
                 }
               );
-              // eslint-enable @typescript-eslint/no-explicit-any
             } else {
               // No capital back - just update investment status
               await db.collection('users').updateOne(
