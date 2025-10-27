@@ -20,7 +20,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface LogEntry {
   id: string;
-  type: 'deposit' | 'withdrawal' | 'transfer' | 'investment' | 'earning';
+  type: 'deposit' | 'withdrawal' | 'transfer' | 'investment' | 'earning' | 'other';
   date: string;
   amount: number;
   currency: string;
@@ -31,6 +31,8 @@ interface LogEntry {
   receiver?: string;
   plan?: string;
   fee?: number;
+  isSent?: boolean;
+  metadata?: Record<string, unknown>;
 }
 
 const UnifiedLogsSection = () => {
@@ -103,9 +105,15 @@ const UnifiedLogsSection = () => {
     });
   };
 
-  const formatAmount = (amount: number, type: string) => {
+  const formatAmount = (amount: number, type: string, isSent?: boolean) => {
+    // For transfers, use isSent to determine prefix
+    if (type === 'transfer') {
+      const prefix = isSent ? '-' : '+';
+      return `${prefix}$${Math.abs(amount).toLocaleString()}`;
+    }
+    // For other types, use type to determine prefix
     const prefix = type === 'deposit' || type === 'earning' ? '+' : '-';
-    return `${prefix}$${amount.toLocaleString()}`;
+    return `${prefix}$${Math.abs(amount).toLocaleString()}`;
   };
 
   return (
@@ -177,7 +185,7 @@ const UnifiedLogsSection = () => {
                         ? 'text-green-600' 
                         : 'text-red-600'
                     }`}>
-                      {formatAmount(log.amount, log.type)}
+                      {formatAmount(log.amount, log.type, log.isSent)}
                     </p>
                     <div className="flex items-center space-x-1 mt-1">
                       {getStatusIcon(log.status)}
@@ -257,7 +265,7 @@ const UnifiedLogsSection = () => {
                           ? 'text-green-600' 
                           : 'text-red-600'
                       }`}>
-                        {formatAmount(log.amount, log.type)}
+                        {formatAmount(log.amount, log.type, log.isSent)}
                       </span>
                     </td>
                     <td className="py-3 px-4">

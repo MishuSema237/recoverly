@@ -16,11 +16,11 @@ export const GET = requireAuth(async (request) => {
       // Withdrawal requests  
       db.collection('withdrawalRequests').find({ userId }).sort({ createdAt: -1 }).toArray(),
       
-      // Money transfers (if you have a transfers collection)
-      db.collection('moneyTransfers').find({ 
+      // Money transfers
+      db.collection('transfers').find({ 
         $or: [
-          { fromUserId: userId },
-          { toUserId: userId }
+          { senderId: userId },
+          { receiverId: userId }
         ]
       }).sort({ createdAt: -1 }).toArray(),
       
@@ -62,13 +62,14 @@ export const GET = requireAuth(async (request) => {
       amount: transfer.amount,
       currency: 'USD',
       status: transfer.status === 'completed' ? 'completed' : transfer.status === 'failed' ? 'failed' : 'pending',
-      details: transfer.fromUserId === userId 
-        ? `Transfer to user ${transfer.toUserCode || 'Unknown'}`
-        : `Transfer from user ${transfer.fromUserCode || 'Unknown'}`,
-      sender: transfer.fromUserId === userId ? 'You' : transfer.fromUserCode,
-      receiver: transfer.toUserId === userId ? 'You' : transfer.toUserCode,
+      details: transfer.senderId === userId 
+        ? `Transfer to ${transfer.receiverEmail}`
+        : `Transfer from ${transfer.senderEmail}`,
+      sender: transfer.senderEmail,
+      receiver: transfer.receiverEmail,
       fee: transfer.fee || 0,
-      transactionId: transfer._id.toString()
+      transactionId: transfer._id.toString(),
+      isSent: transfer.senderId === userId
     }));
 
     // Transform investments
@@ -88,24 +89,32 @@ export const GET = requireAuth(async (request) => {
     const userDoc = await db.collection('users').findOne({ _id: new ObjectId(userId) });
     const userTransactions = userDoc?.transactions || [];
 
-    // Transform user transactions (daily gains, referral bonuses, etc.)
-    const userTransactionLogs = userTransactions.map((transaction: Record<string, unknown>, index: number) => ({
-      id: `${userId}_${index}`,
-      type: transaction.type === 'daily_gain' ? 'earning' : 
-            transaction.type === 'referral_bonus' ? 'earning' :
-            transaction.type === 'investment' ? 'investment' : 'other',
-      date: transaction.date || new Date(),
-      amount: transaction.amount,
-      currency: 'USD',
-      status: 'completed',
-      details: transaction.type === 'daily_gain' ? 
-        `Daily earnings from ${transaction.planName || 'Investment Plan'}` :
-        transaction.type === 'referral_bonus' ?
-        `Referral bonus from user ${transaction.referredUserCode || 'Unknown'}` :
-        transaction.description || 'Transaction',
-      plan: transaction.planName,
-      transactionId: `${userId}_${index}`
-    }));
+    // Transform user transactions (daily gains, referral bonuses, transfers, etc.)
+    const userTransactionLogs = userTransactions.map((transaction: Record<string, unknown>, index: number) => {
+      const isTransfer = transaction.type === 'transfer_sent' || transaction.type === 'transfer_received';
+      const isSent = transaction.type === 'transfer_sent';
+      
+      return {
+        id: `${userId}_${index}`,
+        type: transaction.type === 'daily_gain' ? 'earning' : 
+              transaction.type === 'referral_bonus' ? 'earning' :
+              transaction.type === 'investment' ? 'investment' :
+              isTransfer ? 'transfer' : 'other',
+        date: transaction.date || new Date(),
+        amount: transaction.amount,
+        currency: 'USD',
+        status: 'completed',
+        details: transaction.type === 'daily_gain' ? 
+          `Daily earnings from ${transaction.planName || 'Investment Plan'}` :
+          transaction.type === 'referral_bonus' ?
+          `Referral bonus from user ${transaction.referredUserCode || 'Unknown'}` :
+          transaction.description || 'Transaction',
+        plan: transaction.planName,
+        transactionId: `${userId}_${index}`,
+        isSent: isSent, // Flag to determine if it's a sent transfer
+        metadata: transaction.metadata || {}
+      };
+    });
 
     // Combine all transactions
     const allTransactions = [
