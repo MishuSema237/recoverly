@@ -70,11 +70,11 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
     const transferFee = amount * 0.02;
     const totalDeduction = amount + transferFee;
 
-    // Check if sender has sufficient balance
-    const senderBalance = (sender.balances?.main || 0) + (sender.balances?.investment || 0) + (sender.balances?.referral || 0);
-    if (senderBalance < totalDeduction) {
+    // Check if sender has sufficient MAIN balance (NOT investment balance)
+    const senderMainBalance = sender.balances?.main || 0;
+    if (senderMainBalance < totalDeduction) {
       return NextResponse.json(
-        { success: false, error: 'Insufficient balance' },
+        { success: false, error: `Insufficient main balance. You have $${senderMainBalance.toFixed(2)} available. Investment balances cannot be transferred.` },
         { status: 400 }
       );
     }
