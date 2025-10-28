@@ -347,9 +347,10 @@ const DashboardContent = () => {
                         className="text-center space-y-6"
                       >
                         <h1 className="text-3xl lg:text-5xl font-bold leading-tight">
-                          Welcome back, <span className="text-red-400">
-                            {userProfile?.firstName || 
-                             user?.displayName?.split(' ')[0] || 
+                          Welcome, <span className="text-red-400">
+                            {userProfile?.firstName && userProfile?.lastName
+                              ? `${userProfile.firstName} ${userProfile.lastName}`
+                              : user?.displayName || 
                              user?.email?.split('@')[0] || 
                              'Investor'}
                           </span>

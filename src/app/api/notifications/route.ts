@@ -43,6 +43,32 @@ export async function POST(request: NextRequest) {
     const db = await getDb();
     const notificationData: Notification = await request.json();
     
+    // If this is a broadcast to all users, create notifications for each user
+    if (notificationData.type === 'broadcast' && notificationData.recipients === 'all') {
+      // Get all active users
+      const users = await db.collection('users').find({ isActive: true }).toArray();
+      
+      // Create individual notifications for each user
+      const notifications = users.map(user => ({
+        ...notificationData,
+        recipients: [user._id?.toString()],
+        sentAt: new Date(),
+        read: false
+      }));
+      
+      // Insert all notifications
+      if (notifications.length > 0) {
+        await db.collection('notifications').insertMany(notifications);
+      }
+      
+      return NextResponse.json({
+        success: true,
+        message: `Broadcast notification sent to ${notifications.length} users`,
+        data: { count: notifications.length }
+      });
+    }
+    
+    // For individual notifications or non-broadcast
     const notification = {
       ...notificationData,
       sentAt: new Date(),

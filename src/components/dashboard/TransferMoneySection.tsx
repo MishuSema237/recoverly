@@ -6,6 +6,7 @@ import { showSuccess, showError } from '@/utils/toast';
 
 const TransferMoneySection = () => {
   const { userProfile } = useAuth();
+  const [currentStep, setCurrentStep] = useState(1);
   const [receiverEmail, setReceiverEmail] = useState('');
   const [receiverUserCode, setReceiverUserCode] = useState('');
   const [transferAmount, setTransferAmount] = useState('');
@@ -152,6 +153,8 @@ const TransferMoneySection = () => {
       setTransferAmount('');
       setError('');
       setReceiverValid(false);
+      setCurrentStep(1);
+      lastValidatedRef.current = { email: '', code: '' };
       
     } catch (error) {
       console.error('Transfer error:', error);
@@ -164,6 +167,19 @@ const TransferMoneySection = () => {
   const transferFee = 2; // 2% fee
   const feeAmount = parseFloat(transferAmount) * (transferFee / 100);
   const totalAmount = parseFloat(transferAmount) + feeAmount;
+
+  const handleNext = () => {
+    if (receiverValid) {
+      setCurrentStep(2);
+      setError('');
+      setValidationError('');
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentStep(1);
+    setTransferAmount('');
+  };
 
   return (
     <div className="space-y-6">
@@ -182,127 +198,195 @@ const TransferMoneySection = () => {
           </p>
         </div>
 
-        <form onSubmit={handleTransfer} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Receiver Email
-            </label>
-            <input
-              type="email"
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
-                receiverValid ? 'border-green-300 bg-green-50' : 
-                error && receiverEmail ? 'border-red-300 bg-red-50' : 
-                'border-gray-300'
-              }`}
-              placeholder="receiver@example.com"
-              value={receiverEmail}
-              onChange={(e) => setReceiverEmail(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Receiver User Code
-            </label>
-            <input
-              type="text"
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors ${
-                receiverValid ? 'border-green-500 bg-green-50' : 
-                validationError && receiverUserCode.length === 8 ? 'border-red-500 bg-red-50' : 
-                receiverUserCode.length > 0 && receiverUserCode.length !== 8 ? 'border-orange-300 bg-orange-50' :
-                'border-gray-300'
-              }`}
-              placeholder="ABC12345"
-              value={receiverUserCode}
-              onChange={(e) => setReceiverUserCode(e.target.value.toUpperCase())}
-              minLength={8}
-              maxLength={8}
-              required
-            />
-            <p className="text-sm text-gray-500 mt-1">
-              Ask the receiver for their unique user code (8 characters)
-            </p>
-            {receiverUserCode.length > 0 && receiverUserCode.length !== 8 && (
-              <p className="text-sm text-orange-600 mt-1">
-                User code must be exactly 8 characters (currently {receiverUserCode.length})
-              </p>
-            )}
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Transfer Amount
-            </label>
-            <input
-              type="number"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              placeholder="0.00"
-              value={transferAmount}
-              onChange={(e) => setTransferAmount(e.target.value)}
-              min="500"
-              step="0.01"
-              required
-            />
-          </div>
-          
-          {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800 text-sm">{error}</p>
+        {/* Step 1: Receiver Details */}
+        {currentStep === 1 && (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Receiver Email
+              </label>
+              <input
+                type="email"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                  receiverValid ? 'border-green-300 bg-green-50' : 
+                  error && receiverEmail ? 'border-red-300 bg-red-50' : 
+                  'border-gray-300'
+                }`}
+                placeholder="receiver@example.com"
+                value={receiverEmail}
+                onChange={(e) => setReceiverEmail(e.target.value)}
+                disabled={isValidating || receiverValid}
+                required
+              />
+              {isValidating && (
+                <p className="text-sm text-blue-600 mt-2">✓ Checking and validating...</p>
+              )}
             </div>
-          )}
-          
-          {transferAmount && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="font-semibold text-blue-900 mb-2">Transfer Summary</h4>
-              <div className="space-y-1 text-sm text-blue-800">
-                <div className="flex justify-between">
-                  <span>Transfer Amount:</span>
-                  <span className="font-semibold">${parseFloat(transferAmount).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Transfer Fee ({transferFee}%):</span>
-                  <span className="font-semibold">${feeAmount.toFixed(2)}</span>
-                </div>
-                <hr className="my-2" />
-                <div className="flex justify-between font-semibold">
-                  <span>Total Deducted:</span>
-                  <span>${totalAmount.toFixed(2)}</span>
-                </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Receiver User Code
+              </label>
+              <input
+                type="text"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors ${
+                  receiverValid ? 'border-green-500 bg-green-50' : 
+                  validationError && receiverUserCode.length === 8 ? 'border-red-500 bg-red-50' : 
+                  receiverUserCode.length > 0 && receiverUserCode.length !== 8 ? 'border-orange-300 bg-orange-50' :
+                  'border-gray-300'
+                }`}
+                placeholder="ABC12345"
+                value={receiverUserCode}
+                onChange={(e) => setReceiverUserCode(e.target.value.toUpperCase())}
+                minLength={8}
+                maxLength={8}
+                disabled={isValidating || receiverValid}
+                required
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                Ask the receiver for their unique user code (8 characters)
+              </p>
+              {receiverUserCode.length > 0 && receiverUserCode.length !== 8 && !receiverValid && (
+                <p className="text-sm text-orange-600 mt-1">
+                  User code must be exactly 8 characters (currently {receiverUserCode.length})
+                </p>
+              )}
+              {validationError && (
+                <p className="text-sm text-red-600 mt-1">{validationError}</p>
+              )}
+              {receiverValid && (
+                <p className="text-sm text-green-600 mt-1">✓ Validated successfully!</p>
+              )}
+            </div>
+            
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-800 text-sm">{error}</p>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={!receiverValid || isValidating}
+              className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
+            >
+              Next: Enter Amount →
+            </button>
+          </div>
+        )}
+
+        {/* Step 2: Transfer Amount */}
+        {currentStep === 2 && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-medium text-gray-700">Receiver Details (Verified)</p>
+              <button
+                type="button"
+                onClick={handleBack}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
+                Change
+              </button>
+            </div>
+            
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg mb-6">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="text-sm font-semibold text-green-900">Receiver Email:</span>
+                <span className="text-sm text-green-800">{receiverEmail}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-semibold text-green-900">User Code:</span>
+                <span className="text-sm text-green-800">{receiverUserCode}</span>
               </div>
             </div>
-          )}
-          
-          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-800">
-              <strong>Transfer Charge:</strong> {transferFee}%
-            </p>
-            <p className="text-sm text-yellow-800 mt-1">
-              <strong>Min Transfer Amount:</strong> 500 USD
-            </p>
-            <p className="text-sm text-yellow-800">
-              <strong>Max Transfer Amount:</strong> 10000 USD
-            </p>
-          </div>
 
-          <button
-            type="submit"
-            disabled={!receiverValid || !transferAmount || parseFloat(transferAmount) < 500 || parseFloat(transferAmount) > 10000 || isTransferring}
-            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
-          >
-            {isTransferring ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processing Transfer...
-              </>
-            ) : (
-              'Transfer Money'
-            )}
-          </button>
-        </form>
+            <form onSubmit={handleTransfer} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Transfer Amount
+                </label>
+                <input
+                  type="number"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  placeholder="0.00"
+                  value={transferAmount}
+                  onChange={(e) => setTransferAmount(e.target.value)}
+                  min="500"
+                  step="0.01"
+                  autoFocus
+                  required
+                />
+              </div>
+              
+              {error && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-800 text-sm">{error}</p>
+                </div>
+              )}
+              
+              {transferAmount && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="font-semibold text-blue-900 mb-2">Transfer Summary</h4>
+                  <div className="space-y-1 text-sm text-blue-800">
+                    <div className="flex justify-between">
+                      <span>Transfer Amount:</span>
+                      <span className="font-semibold">${parseFloat(transferAmount).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Transfer Fee ({transferFee}%):</span>
+                      <span className="font-semibold">${feeAmount.toFixed(2)}</span>
+                    </div>
+                    <hr className="my-2" />
+                    <div className="flex justify-between font-semibold">
+                      <span>Total Deducted:</span>
+                      <span>${totalAmount.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  <strong>Transfer Charge:</strong> {transferFee}%
+                </p>
+                <p className="text-sm text-yellow-800 mt-1">
+                  <strong>Min Transfer Amount:</strong> 500 USD
+                </p>
+                <p className="text-sm text-yellow-800">
+                  <strong>Max Transfer Amount:</strong> 10000 USD
+                </p>
+              </div>
+
+              <div className="flex space-x-4">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold transition-colors duration-200"
+                >
+                  ← Back
+                </button>
+                <button
+                  type="submit"
+                  disabled={!transferAmount || parseFloat(transferAmount) < 500 || parseFloat(transferAmount) > 10000 || isTransferring}
+                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
+                >
+                  {isTransferring ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing Transfer...
+                    </>
+                  ) : (
+                    'Transfer Money'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );

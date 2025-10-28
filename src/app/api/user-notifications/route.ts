@@ -26,25 +26,31 @@ export const GET = requireAuth(async (request: AuthenticatedRequest) => {
 
     let notifications;
 
+    let query;
     if (isAdmin) {
       // Admins see all notifications including user activity, login/logout, etc.
-      notifications = await notificationsCollection.find({
+      query = {
         $or: [
           { recipients: userId },
           { recipients: userCode },
           { recipients: 'all' },
           { type: { $in: ['login', 'logout', 'user_activity', 'deposit_request', 'withdrawal_request', 'support_sent'] } }
         ]
-      }).sort({ sentAt: -1 }).toArray();
+      };
     } else {
       // Regular users only see their own notifications
-      notifications = await notificationsCollection.find({
+      query = {
         $or: [
           { recipients: userId },
           { recipients: userCode }
         ]
-      }).sort({ sentAt: -1 }).toArray();
+      };
     }
+
+    // Fetch notifications and include all fields including attachments
+    notifications = await notificationsCollection.find(query)
+      .sort({ sentAt: -1 })
+      .toArray();
 
     return NextResponse.json({
       success: true,

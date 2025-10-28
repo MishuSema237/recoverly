@@ -136,6 +136,7 @@ const AdminSection = () => {
   const [loadingPayments, setLoadingPayments] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [transactionSearchTerm, setTransactionSearchTerm] = useState('');
   
   // Notification states
   const [showNotificationModal, setShowNotificationModal] = useState(false);
@@ -332,13 +333,55 @@ const AdminSection = () => {
   };
 
   const getFilteredDeposits = () => {
-    if (depositFilter === 'all') return depositRequests;
-    return depositRequests.filter(deposit => deposit.status === depositFilter);
+    let filtered = depositRequests;
+    
+    // Filter by status
+    if (depositFilter !== 'all') {
+      filtered = filtered.filter(deposit => deposit.status === depositFilter);
+    }
+    
+    // Filter by search term
+    if (transactionSearchTerm) {
+      filtered = filtered.filter(deposit => {
+        const userInfo = getUserInfo(deposit.userId);
+        const searchLower = transactionSearchTerm.toLowerCase();
+        return (
+          userInfo.name.toLowerCase().includes(searchLower) ||
+          userInfo.email.toLowerCase().includes(searchLower) ||
+          userInfo.userCode.toLowerCase().includes(searchLower) ||
+          deposit.amount.toString().includes(searchLower) ||
+          deposit._id?.toString().includes(searchLower)
+        );
+      });
+    }
+    
+    return filtered;
   };
 
   const getFilteredWithdrawals = () => {
-    if (withdrawalFilter === 'all') return withdrawalRequests;
-    return withdrawalRequests.filter(withdrawal => withdrawal.status === withdrawalFilter);
+    let filtered = withdrawalRequests;
+    
+    // Filter by status
+    if (withdrawalFilter !== 'all') {
+      filtered = filtered.filter(withdrawal => withdrawal.status === withdrawalFilter);
+    }
+    
+    // Filter by search term
+    if (transactionSearchTerm) {
+      filtered = filtered.filter(withdrawal => {
+        const userInfo = getUserInfo(withdrawal.userId);
+        const searchLower = transactionSearchTerm.toLowerCase();
+        return (
+          userInfo.name.toLowerCase().includes(searchLower) ||
+          userInfo.email.toLowerCase().includes(searchLower) ||
+          userInfo.userCode.toLowerCase().includes(searchLower) ||
+          withdrawal.amount.toString().includes(searchLower) ||
+          withdrawal._id?.toString().includes(searchLower)
+        );
+      });
+    }
+    
+    return filtered;
   };
 
   const updateTransactionStatus = async (transactionId: string, type: 'deposit' | 'withdrawal', status: string, rejectionReason?: string) => {
@@ -1213,21 +1256,35 @@ const AdminSection = () => {
         {/* Transactions Tab */}
         {activeTab === 'transactions' && (
           <div>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Transaction Management</h3>
-              <div className="flex items-center space-x-4">
-                <button 
-                  onClick={loadTransactions}
-                  disabled={isLoadingTransactions}
-                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg"
-                >
-                  {isLoadingTransactions ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  ) : (
-                    <RefreshCw className="w-4 h-4" />
-                  )}
-                  <span>{isLoadingTransactions ? 'Loading...' : 'Refresh'}</span>
-                </button>
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Transaction Management</h3>
+                <div className="flex items-center space-x-4">
+                  <button 
+                    onClick={loadTransactions}
+                    disabled={isLoadingTransactions}
+                    className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg"
+                  >
+                    {isLoadingTransactions ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    ) : (
+                      <RefreshCw className="w-4 h-4" />
+                    )}
+                    <span>{isLoadingTransactions ? 'Loading...' : 'Refresh'}</span>
+                  </button>
+                </div>
+              </div>
+              
+              {/* Search Input */}
+              <div className="relative max-w-md">
+                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search transactions by name, email, code, or amount..."
+                  value={transactionSearchTerm}
+                  onChange={(e) => setTransactionSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
               </div>
             </div>
 
