@@ -43,6 +43,7 @@ export async function POST() {
                 'balances.main': dailyGain,
                 'balances.total': dailyGain
               },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               $push: {
                 transactions: {
                   type: 'daily_gain',
@@ -52,7 +53,7 @@ export async function POST() {
                   status: 'completed',
                   description: `Daily earnings from ${investment.planName}`
                 }
-              } as Record<string, unknown>,
+              } as any,
               $set: {
                 updatedAt: now
               }
@@ -66,7 +67,7 @@ export async function POST() {
               $set: {
                 'investments.$.lastGainDate': now
               }
-            } as Record<string, unknown>
+            } as any
           );
           
           // Send notification
