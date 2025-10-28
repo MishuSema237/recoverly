@@ -170,6 +170,17 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
 
   useEffect(() => {
     if (userProfile?.currentInvestment && userProfile?.investmentPlan) {
+      // Process daily gains for this user's investment
+      const processDailyGains = async () => {
+        try {
+          await fetch('/api/investments/process-daily-gains', {
+            method: 'POST'
+          });
+        } catch (error) {
+          console.error('Error processing daily gains:', error);
+        }
+      };
+      processDailyGains();
       calculateProgress();
     } else {
       setLoading(false);
