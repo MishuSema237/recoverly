@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
-export async function generateMetadata({ params }: { params: { code: string } }): Promise<Metadata> {
-  const referralCode = params.code;
+export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
+  const { code: referralCode } = await params;
 
   return {
     title: 'Join Tesla Capital - Premium Investment Platform',
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: { code: string } })
   };
 }
 
-export default function ReferralLayout({
+export default async function ReferralLayout({
   children,
 }: {
   children: React.ReactNode;
