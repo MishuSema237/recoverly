@@ -26,7 +26,7 @@ export const metadata = {
     description: 'Join thousands of investors earning high returns on their investments. Tesla Capital offers secure, reliable investment opportunities with industry-leading returns.',
     images: [
       {
-        url: 'https://tesla-capital.com/tesla-capital-logo.png',
+        url: '/tesla-capital-logo.png',
         width: 1200,
         height: 630,
         alt: 'Tesla Capital - Investment Platform',
@@ -37,7 +37,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Tesla Capital - Premium Investment Platform',
     description: 'Join thousands of investors earning high returns on their investments.',
-    images: ['https://tesla-capital.com/tesla-capital-logo.png'],
+    images: ['/tesla-capital-logo.png'],
   },
   robots: {
     index: true,
