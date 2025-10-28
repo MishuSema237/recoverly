@@ -17,9 +17,10 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   const isSignup = pathname === '/signup';
   const isVerifyEmail = pathname === '/verify-email';
   const isResetPassword = pathname === '/reset-password';
+  const isReferral = pathname?.startsWith('/ref/');
 
-  // Pages with no layout (dashboard, auth pages except signup and login)
-  if (isDashboard || isActivateEmail || isVerifyEmail || isResetPassword) {
+  // Pages with no layout (dashboard, auth pages except signup and login, referral pages)
+  if (isDashboard || isActivateEmail || isVerifyEmail || isResetPassword || isReferral) {
     return <>{children}</>;
   }
 

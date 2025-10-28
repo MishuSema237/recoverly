@@ -36,7 +36,7 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
         user_id: emailjsPublicKey,
         template_params: {
           to_email: options.to,
-          subject: options.subject,
+      subject: options.subject,
           message: options.html,
           from_name: 'Tesla Capital',
           reply_to: process.env.EMAIL_FROM || 'noreply@teslacapital.com',

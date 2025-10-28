@@ -23,8 +23,8 @@ export default function ReferralPage() {
       if (user) {
         router.push('/dashboard');
       } else {
-        // If not logged in, redirect to signup
-        router.push('/signup');
+        // If not logged in, redirect to signup with referral code
+        router.push(`/signup?ref=${referralCode}`);
       }
     }
   }, [referralCode, user, router]);
