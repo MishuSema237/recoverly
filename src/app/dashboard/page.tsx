@@ -459,13 +459,13 @@ const DashboardContent = () => {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-gray-600">Your Referral Link</p>
                         <p className="text-sm sm:text-lg font-mono text-gray-900 break-all">
-                          https://tesla-capital.com/ref/{userProfile?.userCode || 'loading...'}
+                          https://tesla-capital.vercel.app/ref/{userProfile?.userCode || 'loading...'}
                         </p>
                       </div>
                       <button 
                         onClick={async () => {
                           try {
-                            const referralLink = `https://tesla-capital.com/ref/${userProfile?.userCode || ''}`;
+                            const referralLink = `https://tesla-capital.vercel.app/ref/${userProfile?.userCode || ''}`;
                             
                             // Check if clipboard API is available
                             if (navigator.clipboard && window.isSecureContext) {

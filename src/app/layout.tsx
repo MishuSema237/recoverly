@@ -13,20 +13,20 @@ export const metadata = {
   authors: [{ name: 'Tesla Capital' }],
   creator: 'Tesla Capital',
   publisher: 'Tesla Capital',
-  metadataBase: new URL('https://tesla-capital.com'),
+  metadataBase: new URL('https://tesla-capital.vercel.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://tesla-capital.com',
+    url: 'https://tesla-capital.vercel.app',
     siteName: 'Tesla Capital',
     title: 'Tesla Capital - Premium Investment Platform',
     description: 'Join thousands of investors earning high returns on their investments. Tesla Capital offers secure, reliable investment opportunities with industry-leading returns.',
     images: [
       {
-        url: 'https://tesla-capital.com/tesla-capital-logo.png',
+          url: 'https://tesla-capital.vercel.app/tesla-capital-logo.png',
         width: 1200,
         height: 630,
         alt: 'Tesla Capital - Investment Platform',
@@ -37,7 +37,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Tesla Capital - Premium Investment Platform',
     description: 'Join thousands of investors earning high returns on their investments.',
-    images: ['https://tesla-capital.com/tesla-capital-logo.png'],
+    images: ['https://tesla-capital.vercel.app/tesla-capital-logo.png'],
   },
   robots: {
     index: true,

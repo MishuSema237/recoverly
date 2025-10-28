@@ -20,7 +20,7 @@ const ReferralLogSection = () => {
   const [referralStats, setReferralStats] = useState<ReferralStats | null>(null);
   const [loading, setLoading] = useState(true);
   
-  const referralLink = `https://tesla-capital.com/ref/${userProfile?.userCode || 'loading...'}`;
+  const referralLink = `https://tesla-capital.vercel.app/ref/${userProfile?.userCode || 'loading...'}`;
 
   // Fetch referral stats
   useEffect(() => {
