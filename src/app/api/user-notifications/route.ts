@@ -24,8 +24,6 @@ export const GET = requireAuth(async (request: AuthenticatedRequest) => {
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
     const isAdmin = user?.isAdmin || false;
 
-    let notifications;
-
     let query;
     if (isAdmin) {
       // Admins see all notifications including user activity, login/logout, etc.
@@ -48,7 +46,7 @@ export const GET = requireAuth(async (request: AuthenticatedRequest) => {
     }
 
     // Fetch notifications and include all fields including attachments
-    notifications = await notificationsCollection.find(query)
+    const notifications = await notificationsCollection.find(query)
       .sort({ sentAt: -1 })
       .toArray();
 
