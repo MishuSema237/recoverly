@@ -40,6 +40,24 @@ interface InvestmentProgress {
   investmentDate: Date;
 }
 
+// Lightweight shapes for user profile data to avoid any
+interface UserInvestment {
+  status?: string;
+  amount?: number;
+  createdAt?: string | Date;
+  plan?: {
+    name?: string;
+    dailyRate?: number; // percent per day
+    duration?: number;  // days
+  };
+}
+
+interface UserTransaction {
+  type?: string;
+  planName?: string;
+  amount?: number;
+}
+
 interface InvestmentProgressSectionProps {
   onUpgradePlan?: () => void;
 }
@@ -53,8 +71,9 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
 
   const calculateProgress = useCallback(async () => {
     // Prefer reading the actual active investment from the user's profile
-    const activeInvestment = userProfile?.investments?.find((inv: any) => inv?.status === 'active')
-      || userProfile?.investments?.[0];
+    const activeInvestment: UserInvestment | undefined = Array.isArray(userProfile?.investments)
+      ? (userProfile.investments as UserInvestment[]).find((inv) => inv?.status === 'active') || (userProfile.investments as UserInvestment[])[0]
+      : undefined;
 
     // If no recorded investment, stop
     if (!activeInvestment && (!userProfile?.currentInvestment || !userProfile?.investmentPlan)) {
@@ -120,9 +139,10 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
       // Compute earnings from transactions if available; otherwise estimate 0 for now
       let totalEarnings = 0;
       if (Array.isArray(userProfile?.transactions)) {
-        totalEarnings = userProfile.transactions
-          .filter((t: any) => t?.type === 'daily_gain' && (t?.planName === planName || !t?.planName))
-          .reduce((sum: number, t: any) => sum + Number(t?.amount || 0), 0);
+        const txs = userProfile.transactions as UserTransaction[];
+        totalEarnings = txs
+          .filter((t) => t?.type === 'daily_gain' && (t?.planName === planName || !t?.planName))
+          .reduce((sum, t) => sum + Number(t?.amount || 0), 0);
       }
 
       const dailyEarnings = (amount * safeDailyRatePct) / 100;
