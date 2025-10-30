@@ -136,6 +136,10 @@ const AdminSection = () => {
   const [loadingPayments, setLoadingPayments] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [emailVerifiedFilter, setEmailVerifiedFilter] = useState<'all' | 'verified' | 'unverified'>('all');
+  const [planFilter, setPlanFilter] = useState<string>('all');
+  const [investmentFilter, setInvestmentFilter] = useState<'all' | 'hasActive' | 'none'>('all');
   const [transactionSearchTerm, setTransactionSearchTerm] = useState('');
   
   // Notification states
@@ -842,12 +846,35 @@ const AdminSection = () => {
     }
   };
 
-  const filteredUsers = users.filter(user => 
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.userCode.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = users
+    .filter(user => 
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.userCode.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .filter(user => {
+      if (userStatusFilter === 'active' && user.isActive === false) return false;
+      if (userStatusFilter === 'inactive' && user.isActive !== false) return false;
+      return true;
+    })
+    .filter(user => {
+      if (emailVerifiedFilter === 'verified' && user.emailVerified !== true) return false;
+      if (emailVerifiedFilter === 'unverified' && user.emailVerified === true) return false;
+      return true;
+    })
+    .filter(user => {
+      if (planFilter !== 'all') {
+        return (user.investmentPlan || '').toLowerCase() === planFilter.toLowerCase();
+      }
+      return true;
+    })
+    .filter(user => {
+      const hasActive = Array.isArray((user as any).investments) && (user as any).investments.some((inv: any) => inv?.status === 'active');
+      if (investmentFilter === 'hasActive' && !hasActive) return false;
+      if (investmentFilter === 'none' && (hasActive || !!user.currentInvestment)) return false;
+      return true;
+    });
 
   if (!isAdmin) {
     return (
@@ -933,6 +960,44 @@ const AdminSection = () => {
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
+                {/* Filters */}
+                <select
+                  value={userStatusFilter}
+                  onChange={(e) => setUserStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+                  className="py-2 px-3 border border-gray-300 rounded-lg"
+                  title="Status"
+                >
+                  <option value="all">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+                <select
+                  value={emailVerifiedFilter}
+                  onChange={(e) => setEmailVerifiedFilter(e.target.value as 'all' | 'verified' | 'unverified')}
+                  className="py-2 px-3 border border-gray-300 rounded-lg"
+                  title="Email Verified"
+                >
+                  <option value="all">All Emails</option>
+                  <option value="verified">Verified</option>
+                  <option value="unverified">Unverified</option>
+                </select>
+                <input
+                  type="text"
+                  placeholder="Filter by plan (e.g., Advanced Scout)"
+                  value={planFilter === 'all' ? '' : planFilter}
+                  onChange={(e) => setPlanFilter(e.target.value.trim() || 'all')}
+                  className="py-2 px-3 border border-gray-300 rounded-lg"
+                />
+                <select
+                  value={investmentFilter}
+                  onChange={(e) => setInvestmentFilter(e.target.value as 'all' | 'hasActive' | 'none')}
+                  className="py-2 px-3 border border-gray-300 rounded-lg"
+                  title="Investment"
+                >
+                  <option value="all">All Investments</option>
+                  <option value="hasActive">Has Active</option>
+                  <option value="none">No Active</option>
+                </select>
               </div>
               <button
                 onClick={loadUsers}
