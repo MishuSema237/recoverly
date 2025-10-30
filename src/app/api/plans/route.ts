@@ -13,8 +13,10 @@ export async function GET(request: NextRequest) {
     
     let plans;
     if (name) {
-      // Find plan by name
-      plans = await db.collection('investmentPlans').findOne({ name: name });
+      // Find plan by name (case-insensitive exact match)
+      plans = await db.collection('investmentPlans').findOne({
+        name: { $regex: `^${name}$`, $options: 'i' }
+      });
       console.log(`Found plan: ${name}`, plans);
       
       if (!plans) {

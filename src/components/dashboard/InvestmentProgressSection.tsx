@@ -63,7 +63,22 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
       const planResult = await planResponse.json();
       
       if (!planResult.success || !planResult.data) {
-        console.error('Plan not found:', userProfile.investmentPlan);
+        console.warn('Plan not found, falling back to basic progress:', userProfile.investmentPlan);
+        setProgress({
+          planName: userProfile.investmentPlan,
+          amount: investmentAmount,
+          dailyEarnings: 0,
+          totalEarnings: 0,
+          daysActive: 0,
+          daysRemaining: 0,
+          nextPayout: new Date().toISOString(),
+          status: 'active',
+          planIcon: 'Medal',
+          planDuration: 0,
+          planROI: 0,
+          planColor: 'red',
+          investmentDate: new Date(userProfile.investments?.[0]?.createdAt || new Date())
+        });
         setLoading(false);
         return;
       }
