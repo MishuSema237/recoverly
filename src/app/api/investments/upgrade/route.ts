@@ -3,6 +3,44 @@ import { requireAuth, AuthenticatedRequest } from '@/middleware/auth';
 import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
+interface InvestmentSnapshot {
+  _id: string;
+  planName: string;
+  amount: number;
+  status: 'active' | 'completed' | 'pending';
+  plan: {
+    name: string;
+    dailyRate: number; // percent per day
+    duration: number;  // days
+  };
+  createdAt: Date;
+  endDate: Date;
+}
+
+interface UserBalances {
+  main?: number;
+  investment?: number;
+  total?: number;
+}
+
+interface UserDoc {
+  _id: ObjectId;
+  email: string;
+  balances?: UserBalances;
+  investments?: InvestmentSnapshot[];
+  currentInvestment?: number;
+  investmentPlan?: string;
+  activityLog?: Array<{ action: string; timestamp: string }>;
+  transactions?: Array<{
+    type: string;
+    amount: number;
+    planName: string;
+    date: Date;
+    status: string;
+    description: string;
+  }>;
+}
+
 export const POST = requireAuth(async (request: AuthenticatedRequest) => {
   try {
     const { planId, planName, amount } = await request.json();
@@ -16,7 +54,7 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
     const users = db.collection('users');
     const plans = db.collection('investmentPlans');
 
-    const user = await users.findOne({ _id: new ObjectId(userId) });
+    const user = (await users.findOne({ _id: new ObjectId(userId) })) as UserDoc | null;
     if (!user) {
       return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
     }
@@ -34,13 +72,16 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
     // Close previous active investment if any
     let prevActiveIndex = -1;
     if (Array.isArray(user.investments)) {
-      prevActiveIndex = user.investments.findIndex((inv: any) => inv?.status === 'active');
+      prevActiveIndex = user.investments.findIndex((inv) => inv?.status === 'active');
     }
     const now = new Date();
 
+    const updatedInvestments: InvestmentSnapshot[] = Array.isArray(user.investments)
+      ? [...user.investments]
+      : [];
     if (prevActiveIndex >= 0) {
-      const prev = user.investments[prevActiveIndex];
-      user.investments[prevActiveIndex] = {
+      const prev = updatedInvestments[prevActiveIndex];
+      updatedInvestments[prevActiveIndex] = {
         ...prev,
         status: 'completed',
         endDate: now
@@ -59,7 +100,7 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
     const roi = typeof plan.roi === 'number' ? plan.roi : parseFloat(plan.roi || '0');
     const dailyRate = durationDays > 0 ? roi / durationDays : 0; // percent per day
 
-    const newInvestment = {
+    const newInvestment: InvestmentSnapshot = {
       _id: new ObjectId().toString(),
       planName,
       amount: Number(amount),
@@ -84,9 +125,10 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
           'balances.investment': (user.balances?.investment || 0) + Number(amount),
           'balances.total': (user.balances?.total || 0),
           updatedAt: now,
-          investments: Array.isArray(user.investments)
-            ? [...user.investments.filter((inv: any, idx: number) => idx !== prevActiveIndex), newInvestment]
-            : [newInvestment]
+          investments:
+            prevActiveIndex >= 0
+              ? updatedInvestments.map((inv, idx) => (idx === prevActiveIndex ? inv : inv)).concat(newInvestment)
+              : updatedInvestments.concat(newInvestment)
         },
         $push: {
           transactions: {
