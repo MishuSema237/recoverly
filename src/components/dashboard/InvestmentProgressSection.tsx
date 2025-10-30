@@ -66,7 +66,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
         console.warn('Plan not found, falling back to basic progress:', userProfile.investmentPlan);
         setProgress({
           planName: userProfile.investmentPlan,
-          amount: investmentAmount,
+          amount: Number(userProfile.currentInvestment || 0),
           dailyEarnings: 0,
           totalEarnings: 0,
           daysActive: 0,
