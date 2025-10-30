@@ -115,6 +115,7 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
     };
 
     // Apply balance updates
+    // Update core fields and investments array
     await users.updateOne(
       { _id: new ObjectId(userId) },
       {
@@ -123,13 +124,20 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
           currentInvestment: Number(amount),
           'balances.main': mainBalance - Number(amount),
           'balances.investment': (user.balances?.investment || 0) + Number(amount),
-          'balances.total': (user.balances?.total || 0),
+          'balances.total': user.balances?.total ?? 0,
           updatedAt: now,
           investments:
             prevActiveIndex >= 0
               ? updatedInvestments.map((inv, idx) => (idx === prevActiveIndex ? inv : inv)).concat(newInvestment)
               : updatedInvestments.concat(newInvestment)
-        },
+        }
+      }
+    );
+
+    // Push transaction entry
+    await users.updateOne(
+      { _id: new ObjectId(userId) },
+      {
         $push: {
           transactions: {
             type: 'investment',
@@ -138,7 +146,16 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
             date: now,
             status: 'completed',
             description: `Upgraded investment by $${Number(amount)} to ${planName}`
-          },
+          }
+        }
+      }
+    );
+
+    // Push activity log entry
+    await users.updateOne(
+      { _id: new ObjectId(userId) },
+      {
+        $push: {
           activityLog: {
             action: `Upgraded plan to ${planName} with $${Number(amount)}`,
             timestamp: now.toISOString()
