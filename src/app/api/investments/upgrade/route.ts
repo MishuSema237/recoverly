@@ -115,6 +115,12 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
     };
 
     // Apply balance updates
+    // Compute new balances and totals
+    const newMain = mainBalance - Number(amount);
+    const newInvestmentBal = (user.balances?.investment || 0) + Number(amount);
+    const referralBal = user.balances?.referral || 0;
+    const newTotal = newMain + newInvestmentBal + referralBal;
+
     // Update core fields and investments array
     await users.updateOne(
       { _id: new ObjectId(userId) },
@@ -122,9 +128,10 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
         $set: {
           investmentPlan: planName,
           currentInvestment: Number(amount),
-          'balances.main': mainBalance - Number(amount),
-          'balances.investment': (user.balances?.investment || 0) + Number(amount),
-          'balances.total': user.balances?.total ?? 0,
+          'balances.main': newMain,
+          'balances.investment': newInvestmentBal,
+          'balances.total': newTotal,
+          totalInvested: (user as any).totalInvested ? Number((user as any).totalInvested) + Number(amount) : Number(amount),
           updatedAt: now,
           investments:
             prevActiveIndex >= 0
