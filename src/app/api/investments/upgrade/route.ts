@@ -140,15 +140,19 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
       {
         $push: {
           transactions: {
-            type: 'investment',
-            amount: Number(amount),
-            planName,
-            date: now,
-            status: 'completed',
-            description: `Upgraded investment by $${Number(amount)} to ${planName}`
+            $each: [
+              {
+                type: 'investment',
+                amount: Number(amount),
+                planName,
+                date: now,
+                status: 'completed',
+                description: `Upgraded investment by $${Number(amount)} to ${planName}`
+              }
+            ]
           }
         }
-      }
+      } as unknown as Record<string, unknown>
     );
 
     // Push activity log entry
@@ -157,11 +161,15 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
       {
         $push: {
           activityLog: {
-            action: `Upgraded plan to ${planName} with $${Number(amount)}`,
-            timestamp: now.toISOString()
+            $each: [
+              {
+                action: `Upgraded plan to ${planName} with $${Number(amount)}`,
+                timestamp: now.toISOString()
+              }
+            ]
           }
         }
-      }
+      } as unknown as Record<string, unknown>
     );
 
     return NextResponse.json({ success: true, data: { investment: newInvestment } });
