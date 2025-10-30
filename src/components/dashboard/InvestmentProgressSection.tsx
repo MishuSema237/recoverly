@@ -52,108 +52,101 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
   const [showUpgradeInterface, setShowUpgradeInterface] = useState(false);
 
   const calculateProgress = useCallback(async () => {
-    if (!userProfile?.currentInvestment || !userProfile?.investmentPlan) {
+    // Prefer reading the actual active investment from the user's profile
+    const activeInvestment = userProfile?.investments?.find((inv: any) => inv?.status === 'active')
+      || userProfile?.investments?.[0];
+
+    // If no recorded investment, stop
+    if (!activeInvestment && (!userProfile?.currentInvestment || !userProfile?.investmentPlan)) {
       setLoading(false);
       return;
     }
 
     try {
-      // Fetch the actual plan data from the database
-      const planResponse = await fetch(`/api/plans?name=${userProfile.investmentPlan}`);
-      const planResult = await planResponse.json();
-      
-      if (!planResult.success || !planResult.data) {
-        console.warn('Plan not found, falling back to basic progress:', userProfile.investmentPlan);
-        setProgress({
-          planName: userProfile.investmentPlan,
-          amount: Number(userProfile.currentInvestment || 0),
-          dailyEarnings: 0,
-          totalEarnings: 0,
-          daysActive: 0,
-          daysRemaining: 0,
-          nextPayout: new Date().toISOString(),
-          status: 'active',
-          planIcon: 'Medal',
-          planDuration: 0,
-          planROI: 0,
-          planColor: 'red',
-          investmentDate: new Date(userProfile.investments?.[0]?.createdAt || new Date())
-        });
+      // Base values from the investment record or legacy fields
+      const amount = Number(activeInvestment?.amount ?? userProfile?.currentInvestment ?? 0);
+      const investmentDateRaw = activeInvestment?.createdAt ?? new Date();
+      const investmentDate = new Date(investmentDateRaw);
+      const planName: string = activeInvestment?.plan?.name ?? userProfile?.investmentPlan ?? 'Investment Plan';
+      let durationDays: number | null = null;
+      let dailyRatePct: number | null = null; // percent per day
+
+      // If the investment already stores plan details, use them (most reliable)
+      if (activeInvestment?.plan) {
+        const p = activeInvestment.plan;
+        // dailyRate is stored as a fraction (e.g., total ROI/duration). Convert to percent.
+        if (typeof p.dailyRate === 'number' && isFinite(p.dailyRate)) {
+          dailyRatePct = p.dailyRate;
+        }
+        if (typeof p.duration === 'number' && isFinite(p.duration)) {
+          durationDays = p.duration;
+        }
+      }
+
+      // If missing details, fetch the plan by name for metadata
+      if (durationDays === null || dailyRatePct === null) {
+        const planResponse = await fetch(`/api/plans?name=${encodeURIComponent(planName)}`);
+        const planResult = await planResponse.json();
+        if (planResult?.success && planResult?.data) {
+          const plan = planResult.data;
+          // Parse duration
+          if (typeof plan.duration === 'number') durationDays = plan.duration;
+          if (typeof plan.duration === 'string') {
+            const m = plan.duration.match(/\d+/);
+            durationDays = m ? parseInt(m[0]) : null;
+          }
+          // Parse ROI -> daily rate
+          const planROI = typeof plan.roi === 'number' ? plan.roi : parseFloat(plan.roi || '0');
+          if (isFinite(planROI) && durationDays && durationDays > 0) {
+            dailyRatePct = planROI / durationDays; // percent per day
+          }
+        }
+      }
+
+      // Guard against missing/invalid numbers
+      if (!isFinite(amount) || amount <= 0) {
+        setProgress(null);
         setLoading(false);
         return;
       }
 
-      const plan = planResult.data;
-      const investmentAmount = userProfile.currentInvestment;
-      
-      console.log('Plan data from API:', plan);
-      
-      // Convert duration to number - handle string like "10 Days" or just "10"
-      let planDuration = 0;
-      if (typeof plan.duration === 'string') {
-        // Extract numbers from string like "10 Days" -> 10
-        const match = plan.duration.match(/\d+/);
-        planDuration = match ? parseInt(match[0]) : 0;
-      } else if (typeof plan.duration === 'number') {
-        planDuration = plan.duration;
-      }
-      
-      // Ensure ROI is a valid number
-      const planROI = typeof plan.roi === 'number' ? plan.roi : parseFloat(plan.roi || '0');
-      
-      // Validate plan data
-      if (!planDuration || isNaN(planDuration) || !planROI || isNaN(planROI)) {
-        console.error('Invalid plan data:', { 
-          duration: plan.duration, 
-          parsedDuration: planDuration,
-          roi: plan.roi,
-          parsedROI: planROI
-        });
-        setLoading(false);
-        return;
-      }
-      
-      // Calculate daily earnings based on actual plan ROI
-      // ROI is the total return over the duration, so daily rate = ROI / duration
-      const dailyRate = planROI / planDuration;
-      const dailyEarnings = (investmentAmount * dailyRate) / 100;
-      
-      // Calculate days active from actual investment date
-      const investmentDate = userProfile.investments?.[0]?.createdAt || new Date();
-      const daysActive = Math.floor((new Date().getTime() - new Date(investmentDate).getTime()) / (1000 * 60 * 60 * 24));
-      
-      // Calculate total earnings from actual transactions
+      const safeDuration = isFinite(Number(durationDays)) && Number(durationDays) > 0 ? Number(durationDays) : 0;
+      const safeDailyRatePct = isFinite(Number(dailyRatePct)) ? Number(dailyRatePct) : 0;
+
+      const now = new Date();
+      const daysActive = Math.max(0, Math.floor((now.getTime() - investmentDate.getTime()) / (1000 * 60 * 60 * 24)));
+      const daysRemaining = safeDuration > 0 ? Math.max(0, safeDuration - daysActive) : 0;
+
+      // Compute earnings from transactions if available; otherwise estimate 0 for now
       let totalEarnings = 0;
-      if (userProfile.transactions) {
+      if (Array.isArray(userProfile?.transactions)) {
         totalEarnings = userProfile.transactions
-          .filter(t => t.type === 'daily_gain' && t.planName === plan.name)
-          .reduce((sum, t) => sum + t.amount, 0);
+          .filter((t: any) => t?.type === 'daily_gain' && (t?.planName === planName || !t?.planName))
+          .reduce((sum: number, t: any) => sum + Number(t?.amount || 0), 0);
       }
-      
-      // Calculate remaining days based on actual plan duration
-      const daysRemaining = Math.max(0, planDuration - daysActive);
-      
-      // Next payout (daily at midnight)
+
+      const dailyEarnings = (amount * safeDailyRatePct) / 100;
+
       const nextPayout = new Date();
       nextPayout.setDate(nextPayout.getDate() + 1);
       nextPayout.setHours(0, 0, 0, 0);
 
       setProgress({
-        planName: plan.name,
-        amount: investmentAmount,
-        dailyEarnings,
-        totalEarnings,
-        daysActive: Math.max(0, daysActive),
+        planName,
+        amount,
+        dailyEarnings: isFinite(dailyEarnings) ? dailyEarnings : 0,
+        totalEarnings: isFinite(totalEarnings) ? totalEarnings : 0,
+        daysActive,
         daysRemaining,
-        nextPayout: nextPayout.toISOString(), // Store as ISO string for proper Date parsing
+        nextPayout: nextPayout.toISOString(),
         status: daysRemaining > 0 ? 'active' : 'completed',
-        planIcon: plan.icon || 'Medal',
-        planDuration: planDuration,
-        planROI: planROI,
-        planColor: plan.color || 'pink',
-        investmentDate: new Date(investmentDate)
+        planIcon: 'Medal',
+        planDuration: safeDuration,
+        planROI: safeDuration > 0 ? safeDailyRatePct * safeDuration : 0,
+        planColor: 'red',
+        investmentDate
       });
-      
+
     } catch (error) {
       console.error('Error calculating progress:', error);
     } finally {
