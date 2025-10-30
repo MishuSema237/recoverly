@@ -89,6 +89,8 @@ interface AdminUser {
   }>;
 }
 
+type AdminUserWithInvestments = AdminUser & { investments?: Array<{ status?: string }> };
+
 interface DepositRequest {
   _id?: string;
   userId: string;
@@ -870,7 +872,8 @@ const AdminSection = () => {
       return true;
     })
     .filter(user => {
-      const hasActive = Array.isArray((user as any).investments) && (user as any).investments.some((inv: any) => inv?.status === 'active');
+      const u = user as AdminUserWithInvestments;
+      const hasActive = Array.isArray(u.investments) && u.investments.some(inv => inv?.status === 'active');
       if (investmentFilter === 'hasActive' && !hasActive) return false;
       if (investmentFilter === 'none' && (hasActive || !!user.currentInvestment)) return false;
       return true;
