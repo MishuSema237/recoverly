@@ -20,6 +20,7 @@ interface InvestmentSnapshot {
 interface UserBalances {
   main?: number;
   investment?: number;
+  referral?: number;
   total?: number;
 }
 
