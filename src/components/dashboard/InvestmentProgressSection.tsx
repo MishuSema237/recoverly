@@ -224,21 +224,13 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
 
   const handleUpgrade = async (plan: InvestmentPlan, amount: number) => {
     try {
-      // Call the original onUpgradePlan callback if provided
-      if (onUpgradePlan) {
-        onUpgradePlan();
-      }
-      
-      // Here you would typically make an API call to upgrade the investment
-      // For now, we'll just show a success message and refresh
-      console.log('Upgrading to plan:', plan.name, 'with amount:', amount);
-      
-      // Refresh the user profile to get updated data
+      await fetch('/api/investments/upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId: plan._id, planName: plan.name, amount })
+      });
       await forceRefresh();
-      
-      // Go back to the progress view
       setShowUpgradeInterface(false);
-      
     } catch (error) {
       console.error('Error upgrading investment:', error);
       throw error;
