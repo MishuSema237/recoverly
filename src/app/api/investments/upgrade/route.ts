@@ -30,6 +30,7 @@ interface UserDoc {
   investments?: InvestmentSnapshot[];
   currentInvestment?: number;
   investmentPlan?: string;
+  totalInvested?: number;
   activityLog?: Array<{ action: string; timestamp: string }>;
   transactions?: Array<{
     type: string;
@@ -131,7 +132,7 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
           'balances.main': newMain,
           'balances.investment': newInvestmentBal,
           'balances.total': newTotal,
-          totalInvested: (user as any).totalInvested ? Number((user as any).totalInvested) + Number(amount) : Number(amount),
+          totalInvested: user.totalInvested ? Number(user.totalInvested) + Number(amount) : Number(amount),
           updatedAt: now,
           investments:
             prevActiveIndex >= 0
