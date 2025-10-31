@@ -29,6 +29,10 @@ const NewsletterSection = dynamic(() => import('@/components/NewsletterSection')
   loading: () => <div className="h-96 bg-gray-200 animate-pulse" />
 });
 
+const TrustedPartnersSection = dynamic(() => import('@/components/TrustedPartnersSection'), {
+  loading: () => <div className="h-96 bg-gray-200 animate-pulse" />
+});
+
 export default function Home() {
   const { loading } = useAuth();
 
@@ -47,6 +51,7 @@ export default function Home() {
         <HeroSection />
         <InvestmentPlans />
         <FeaturesSection />
+        <TrustedPartnersSection />
         <TestimonialsSection />
         <FAQSection />
         <NewsletterSection />

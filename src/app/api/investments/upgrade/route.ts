@@ -71,16 +71,32 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
       return NextResponse.json({ success: false, error: 'Insufficient balance' }, { status: 400 });
     }
 
-    // Close previous active investment if any
+    const now = new Date();
+
+    // Check if user has an active investment that hasn't finished yet
     let prevActiveIndex = -1;
     let prevInvestmentAmount = 0;
+    let prevInvestment: InvestmentSnapshot | null = null;
     if (Array.isArray(user.investments)) {
       prevActiveIndex = user.investments.findIndex((inv) => inv?.status === 'active');
       if (prevActiveIndex >= 0) {
-        prevInvestmentAmount = user.investments[prevActiveIndex]?.amount || 0;
+        prevInvestment = user.investments[prevActiveIndex] as InvestmentSnapshot;
+        prevInvestmentAmount = prevInvestment?.amount || 0;
+        
+        // Check if the previous investment has finished (endDate < now)
+        if (prevInvestment?.endDate) {
+          const endDate = new Date(prevInvestment.endDate);
+          if (endDate > now) {
+            // Investment hasn't finished yet - user must wait
+            const daysRemaining = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+            return NextResponse.json({ 
+              success: false, 
+              error: `You cannot upgrade your plan yet. Your current plan will finish in ${daysRemaining} day(s). Please wait for your current plan to complete before upgrading.` 
+            }, { status: 400 });
+          }
+        }
       }
     }
-    const now = new Date();
 
     const updatedInvestments: InvestmentSnapshot[] = Array.isArray(user.investments)
       ? [...user.investments]
@@ -123,10 +139,12 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
     // Apply balance updates
     // Compute new balances and totals
     // When upgrading, we complete the previous investment and create a new one
-    // The previous investment's principal and gains go back to main balance
+    // The previous investment's principal goes back to main balance
     // Then we deduct the new investment amount from main balance
-    const newMain = mainBalance - Number(amount);
-    const newInvestmentBal = (user.balances?.investment || 0) - prevInvestmentAmount + Number(amount);
+    const prevPrincipal = prevInvestmentAmount || 0;
+    const returnedPrincipal = prevPrincipal; // Return the principal to main balance
+    const newMain = mainBalance + returnedPrincipal - Number(amount);
+    const newInvestmentBal = (user.balances?.investment || 0) - prevPrincipal + Number(amount);
     const referralBal = user.balances?.referral || 0;
     const newTotal = newMain + newInvestmentBal + referralBal;
 

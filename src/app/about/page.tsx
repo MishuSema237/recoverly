@@ -51,8 +51,9 @@ const AboutPage = () => {
               About <span className="text-red-400">Tesla Capital</span>
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-12">
-              Tesla Capital is a cutting-edge investment platform offering secure cryptocurrency 
-              and traditional investment opportunities with industry-leading returns and expert guidance.
+              Tesla Capital is a trusted investment middleman that takes your money and invests it into 
+              top-performing stocks on the stock exchange market, plus engages in crypto mining operations. 
+              We handle all the complex work while you simply wait and watch your money grow.
             </p>
           </motion.div>
         </div>
@@ -90,16 +91,25 @@ const AboutPage = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">Our Mission</h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-6">How We Work</h2>
               <p className="text-lg text-gray-600 mb-6">
-                At Tesla Capital, we believe that everyone deserves access to sophisticated 
-                investment opportunities. Our mission is to democratize high-quality 
-                investment strategies through cutting-edge technology and expert guidance.
+                Tesla Capital acts as a middleman between you and the stock market. We understand how the 
+                stock market works and we have the expertise to identify and invest in top-performing 
+                stocks that multiply money. Here's how it works:
               </p>
               <p className="text-lg text-gray-600 mb-6">
-                We combine traditional financial expertise with innovative blockchain 
-                technology to create a platform that delivers consistent, transparent, 
-                and secure investment returns for our clients.
+                <strong>1. You Invest:</strong> Choose an investment plan and deposit your funds.<br/>
+                <strong>2. We Invest:</strong> We take your money and strategically invest it into top stocks 
+                and use it for crypto mining operations.<br/>
+                <strong>3. Money Multiplies:</strong> Your investments grow through our expert stock market 
+                strategies and crypto mining operations.<br/>
+                <strong>4. You Profit:</strong> We return your money with profits based on your chosen plan, 
+                and we keep our share. It's a win-win for everybody!
+              </p>
+              <p className="text-lg text-gray-600 mb-6">
+                <strong>You don't do any hard work - Tesla Capital does it all.</strong> You simply wait for 
+                the days on your plan and watch your money increase. We handle all the complex analysis, 
+                market research, and investment management.
               </p>
               <div className="bg-red-600 text-white px-6 py-3 rounded-lg inline-block font-semibold">
                 Join Our Mission

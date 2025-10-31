@@ -10,7 +10,23 @@ const FAQSection = () => {
   const faqs = [
     {
       question: 'What is Tesla Capital?',
-      answer: 'Tesla Capital is a world-class investment platform which provides a full investment service focused on Cryptocurrency and Traditional Investments with cutting-edge technology and expert guidance.',
+      answer: 'Tesla Capital is a world-class investment platform that acts as a trusted middleman for your investments. We take your money and invest it into top-performing stocks on the stock exchange market, plus engage in crypto mining operations. We handle all the complex work of analyzing market trends, selecting high-performing stocks, and managing crypto mining operations. You simply choose an investment plan, deposit your funds, and watch your money grow. Tesla Capital manages everything for you, ensuring your investments multiply while we take our share of the profits. It\'s a win-win situation where you don\'t have to worry about the complexities of the stock market or crypto mining - we do all the hard work.',
+    },
+    {
+      question: 'How does Tesla Capital make my money grow?',
+      answer: 'Tesla Capital invests your money into top-performing stocks that multiply your capital. We also engage in crypto mining operations using your money as capital. Our expert team knows how the stock market works and identifies the best investment opportunities. We take your funds, invest them strategically in high-performing stocks, manage crypto mining operations, and then return your money with profits based on the plan you choose. The rest of the profit is ours. You don\'t need to do any work - just wait for the days on your plan and watch your money increase.',
+    },
+    {
+      question: 'What is Daily Rate and ROI?',
+      answer: 'ROI (Return on Investment) is the total percentage return you\'ll earn over the entire duration of your investment plan. Daily Rate is calculated by dividing the total ROI by the number of days in your plan. For example, if a plan offers 60% ROI over 30 days, the daily rate is 2% per day. Tesla Capital calculates these rates based on our actual investment performance in top stocks and crypto mining operations. The daily rate determines how much you earn each day, starting from the day after you make your investment (your first daily earning comes the next day).',
+    },
+    {
+      question: 'When will I receive my first daily earning?',
+      answer: 'Your first daily earning will be credited to your account the day after you make your investment. For example, if you invest on Monday, your first daily earning will be added on Tuesday. This ensures fairness and prevents users from repeatedly upgrading plans just to gain immediate earnings.',
+    },
+    {
+      question: 'Can I upgrade my plan while it\'s still active?',
+      answer: 'No, you must wait for your current plan to finish before you can upgrade to a new one. This ensures that you receive the full benefits of your current investment plan. Once your plan duration is complete, you can then upgrade to a better plan with higher returns.',
     },
     {
       question: 'How do I Create an Account?',

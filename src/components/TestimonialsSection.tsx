@@ -1,40 +1,43 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
-import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
+import CircularGallery from './CircularGallery.jsx';
 
 const TestimonialsSection = () => {
   const testimonials = [
     {
-      name: 'Benita Rodriguez',
-      role: 'Investor',
-      content: 'Tesla Capital provides an excellent service, be it on a business or on a personal level. I have found the company\'s advice regarding investment opportunities particularly helpful - everything is explained fully, no matter how complex the subject. I\'m happy.',
-      rating: 5,
-      avatar: 'BR',
+      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&h=600&fit=crop',
+      text: 'Benita Rodriguez - Investor'
     },
     {
-      name: 'Frederick Johnson',
-      role: 'Investor',
-      content: 'I have been with Tesla Capital for over a decade now, and I can tell you that they are solid. They have a great team of experts which makes them one of the best performing fund management companies. Keep the good work Tesla Capital.',
-      rating: 5,
-      avatar: 'FJ',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop',
+      text: 'Frederick Johnson - Investor'
     },
     {
-      name: 'Sandra Olson',
-      role: 'Investor',
-      content: 'Through in-depth discussion, Tesla Capital encourages us to regularly focus and then to financially plan with us to reach our aims. This approach fully integrates life plans with financial plans, which makes life good. I love Tesla Capital always.',
-      rating: 5,
-      avatar: 'SO',
+      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&h=600&fit=crop',
+      text: 'Sandra Olson - Investor'
     },
     {
-      name: 'Eric Barnes',
-      role: 'Investor',
-      content: 'Every time I invest with Tesla Capital I am glad I did. If not for their experts that are very professional, I wouldn\'t be able to manage my investment portfolios. You answer my questions quickly too. Thank you!',
-      rating: 5,
-      avatar: 'EB',
+      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&h=600&fit=crop',
+      text: 'Eric Barnes - Investor'
     },
+    {
+      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&h=600&fit=crop',
+      text: 'Michael Chen - Investor'
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&h=600&fit=crop',
+      text: 'Sarah Williams - Investor'
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&h=600&fit=crop',
+      text: 'David Thompson - Investor'
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&h=600&fit=crop',
+      text: 'Emily Davis - Investor'
+    }
   ];
 
   const topInvestors = [
@@ -55,26 +58,6 @@ const TestimonialsSection = () => {
     },
   ];
 
-  const [currentPage, setCurrentPage] = useState(0);
-  const reviewsPerPage = 2;
-  const totalPages = Math.ceil(testimonials.length / reviewsPerPage);
-
-  const nextPage = () => {
-    setCurrentPage((prev) => (prev + 1) % totalPages);
-  };
-
-  const prevPage = () => {
-    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
-  };
-
-  const goToPage = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const startIndex = currentPage * reviewsPerPage;
-  const endIndex = startIndex + reviewsPerPage;
-  const currentTestimonials = testimonials.slice(startIndex, endIndex);
-
   return (
     <section className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -90,79 +73,9 @@ const TestimonialsSection = () => {
             </p>
           </div>
 
-          {/* Testimonials with Pagination */}
-          <div className="relative">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              {currentTestimonials.map((testimonial, index) => (
-                <motion.div
-                  key={`${currentPage}-${index}`}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="flex items-center mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  
-                  <Quote className="w-8 h-8 text-red-600 mb-4" />
-                  
-                  <p className="text-gray-600 mb-6 leading-relaxed">
-                    &ldquo;{testimonial.content}&rdquo;
-                  </p>
-                  
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      {testimonial.avatar}
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
-                      <p className="text-gray-500 text-sm">{testimonial.role}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center space-x-4">
-                {/* Previous Button */}
-                <button
-                  onClick={prevPage}
-                  className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-all duration-200 hover:bg-red-50"
-                  disabled={currentPage === 0}
-                >
-                  <ChevronLeft className="w-5 h-5 text-gray-600" />
-                </button>
-
-                {/* Pagination Dots */}
-                <div className="flex space-x-2">
-                  {Array.from({ length: totalPages }, (_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => goToPage(index)}
-                      className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                        currentPage === index
-                          ? 'bg-red-600 scale-125'
-                          : 'bg-gray-300 hover:bg-gray-400'
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                {/* Next Button */}
-                <button
-                  onClick={nextPage}
-                  className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-all duration-200 hover:bg-red-50"
-                  disabled={currentPage === totalPages - 1}
-                >
-                  <ChevronRight className="w-5 h-5 text-gray-600" />
-                </button>
-              </div>
-            )}
+          {/* Circular Gallery for Testimonials */}
+          <div style={{ height: '600px', position: 'relative' }}>
+            <CircularGallery bend={3} textColor="#ffffff" borderRadius={0.05} scrollEase={0.02} items={testimonials} />
           </div>
         </div>
 

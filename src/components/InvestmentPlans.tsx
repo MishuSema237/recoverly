@@ -6,6 +6,7 @@ import { CheckCircle, Star, Zap, Crown, Gem, AlertCircle, TrendingUp, Diamond, R
 import { useAuth } from '@/contexts/AuthContext';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
 import dynamic from 'next/dynamic';
+import ElectricBorder from './ElectricBorder.jsx';
 
 const InvestmentProgressSection = dynamic(() => import('@/components/dashboard/InvestmentProgressSection'), {
   loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
@@ -455,8 +456,15 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
           <div className="relative">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
               {paginatedPlans.map((plan, index) => (
-            <motion.div
+            <ElectricBorder
               key={plan._id || `${index}`}
+              color="#7df9ff"
+              speed={1}
+              chaos={0.5}
+              thickness={2}
+              style={{ borderRadius: 16 }}
+            >
+            <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -531,6 +539,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                 </button>
               </div>
             </motion.div>
+            </ElectricBorder>
           ))}
             </div>
 
@@ -696,6 +705,13 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                     <div className="flex justify-between items-center py-2 border-b border-gray-200">
                       <span className="text-gray-700">ROI Rate:</span>
                       <span className="font-semibold text-green-600">{selectedPlan.roi}%</span>
+                    </div>
+                    <div className="bg-blue-50 rounded-lg p-3 mt-2 mb-2">
+                      <p className="text-xs text-blue-800">
+                        <strong>Note:</strong> ROI (Return on Investment) is calculated by Tesla Capital based on our actual 
+                        investment performance in top stocks and crypto mining operations. Daily Rate = ROI ÷ Duration days.
+                        Your first daily earning comes the next day after investment.
+                      </p>
                     </div>
                     
                     <div className="flex justify-between items-center py-2 border-b border-gray-200">

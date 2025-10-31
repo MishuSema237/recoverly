@@ -367,7 +367,7 @@ const DashboardContent = () => {
                 <div className="px-4 lg:px-6 -mt-8 relative z-10">
                   <div className="bg-white rounded-2xl shadow-xl p-6 lg:p-8">
                     <h3 className="text-xl font-semibold text-gray-900 mb-6">Account Overview</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
                       <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 lg:p-6 border border-red-200">
                         <div className="flex items-center justify-between">
                           <div>
@@ -405,19 +405,6 @@ const DashboardContent = () => {
                           </div>
                           <div className="bg-blue-600 p-2 lg:p-3 rounded-xl">
                             <ArrowUpDown className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 lg:p-6 border border-purple-200">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-xs lg:text-sm text-purple-700 font-medium">Total Invest</p>
-                            <p className="text-xl lg:text-3xl font-bold text-purple-900">
-                              ${userProfile?.totalInvested?.toFixed(2) || '0.00'}
-                            </p>
-                          </div>
-                          <div className="bg-purple-600 p-2 lg:p-3 rounded-xl">
-                            <TrendingUp className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
                           </div>
                         </div>
                       </div>

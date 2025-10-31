@@ -31,6 +31,15 @@ export async function POST(request: NextRequest) {
       for (const investment of user.investments) {
         if (investment.status !== 'active' || !investment.plan) continue;
         
+        // Check if investment was created today - if so, first earning comes tomorrow
+        const investmentDate = investment.createdAt ? new Date(investment.createdAt) : null;
+        const investmentDateOnly = investmentDate ? new Date(investmentDate.getFullYear(), investmentDate.getMonth(), investmentDate.getDate()) : null;
+        
+        // If investment was created today, skip processing (first earning comes tomorrow)
+        if (investmentDateOnly && investmentDateOnly.getTime() === today.getTime()) {
+          continue; // Skip first day - first earning comes tomorrow
+        }
+        
         // Check if we already processed today's gain for this investment
         const lastGainDate = investment.lastGainDate ? new Date(investment.lastGainDate) : null;
         const lastGainDateOnly = lastGainDate ? new Date(lastGainDate.getFullYear(), lastGainDate.getMonth(), lastGainDate.getDate()) : null;
