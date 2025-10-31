@@ -95,7 +95,7 @@ const AboutPage = () => {
               <p className="text-lg text-gray-600 mb-6">
                 Tesla Capital acts as a middleman between you and the stock market. We understand how the 
                 stock market works and we have the expertise to identify and invest in top-performing 
-                stocks that multiply money. Here's how it works:
+                stocks that multiply money. Here&apos;s how it works:
               </p>
               <p className="text-lg text-gray-600 mb-6">
                 <strong>1. You Invest:</strong> Choose an investment plan and deposit your funds.<br/>
@@ -104,10 +104,10 @@ const AboutPage = () => {
                 <strong>3. Money Multiplies:</strong> Your investments grow through our expert stock market 
                 strategies and crypto mining operations.<br/>
                 <strong>4. You Profit:</strong> We return your money with profits based on your chosen plan, 
-                and we keep our share. It's a win-win for everybody!
+                and we keep our share. It&apos;s a win-win for everybody!
               </p>
               <p className="text-lg text-gray-600 mb-6">
-                <strong>You don't do any hard work - Tesla Capital does it all.</strong> You simply wait for 
+                <strong>You don&apos;t do any hard work - Tesla Capital does it all.</strong> You simply wait for 
                 the days on your plan and watch your money increase. We handle all the complex analysis, 
                 market research, and investment management.
               </p>

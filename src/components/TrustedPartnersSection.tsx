@@ -65,7 +65,7 @@ const TrustedPartnersSection = () => {
             Our Trusted Investment Partners
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Tesla Capital invests in top-performing stocks from the world's leading companies. 
+            Tesla Capital invests in top-performing stocks from the world&apos;s leading companies. 
             These are the powerful corporations on the stock exchange market where we strategically 
             place your investments to multiply your money.
           </p>

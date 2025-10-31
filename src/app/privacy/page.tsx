@@ -112,7 +112,7 @@ const PrivacyPage = () => {
                   our services. You can control cookie preferences through your browser settings.
                 </p>
 
-                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">9. Children's Privacy</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">9. Children&apos;s Privacy</h2>
                 <p className="text-gray-700 mb-6">
                   Tesla Capital services are not intended for individuals under 18 years of age. We do not knowingly collect 
                   personal information from children.

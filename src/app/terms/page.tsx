@@ -48,7 +48,7 @@ const TermsPage = () => {
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">2. Investment Plans and Returns</h2>
                 <p className="text-gray-700 mb-6">
                   <strong>Daily Rate and ROI:</strong> ROI (Return on Investment) represents the total percentage return 
-                  you'll earn over the entire duration of your investment plan. Daily Rate is calculated by dividing the 
+                  you&apos;ll earn over the entire duration of your investment plan. Daily Rate is calculated by dividing the 
                   total ROI by the number of days in your plan. Tesla Capital calculates these rates based on our actual 
                   investment performance in top stocks and crypto mining operations. The rates reflect our expertise in 
                   identifying profitable stock market opportunities and managing crypto mining operations.
