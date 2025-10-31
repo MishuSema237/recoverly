@@ -126,15 +126,12 @@ const AboutPage = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative"
             >
-              <div className="relative rounded-2xl overflow-hidden h-96 w-full">
-                <Image
-                  src="/DrawKit - Economy & Finance/PNG/undraw_maker-launch_fwzi.png"
+              <div className="relative rounded-2xl overflow-hidden h-96 w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+                <img
+                  src="/DrawKit%20-%20Economy%20%26%20Finance/PNG/undraw_maker-launch_fwzi.png"
                   alt="Mission Illustration - Tesla Capital Investment Platform"
-                  width={800}
-                  height={600}
                   className="object-contain w-full h-full"
-                  priority
-                  unoptimized
+                  style={{ maxHeight: '100%' }}
                 />
               </div>
             </motion.div>
