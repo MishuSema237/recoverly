@@ -134,6 +134,7 @@ const AboutPage = () => {
                   height={600}
                   className="object-contain w-full h-full"
                   priority
+                  unoptimized
                 />
               </div>
             </motion.div>
