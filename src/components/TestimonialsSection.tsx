@@ -1,44 +1,142 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import CircularGallery from './CircularGallery.jsx';
 
+// Function to create a review card image with text and star ratings
+const createReviewCardImage = (reviewText: string, rating: number, author: string): string => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return '';
+  
+  canvas.width = 800;
+  canvas.height = 600;
+  
+  // Gradient background
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  gradient.addColorStop(0, '#1f2937');
+  gradient.addColorStop(1, '#111827');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Text properties
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  // Review text
+  ctx.font = 'bold 32px Arial';
+  const maxWidth = canvas.width - 100;
+  const lines = [];
+  const words = reviewText.split(' ');
+  let currentLine = words[0];
+  
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i];
+    const testLine = currentLine + ' ' + word;
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && i > 0) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  }
+  lines.push(currentLine);
+  
+  // Draw review text lines
+  const startY = canvas.height / 2 - (lines.length - 1) * 40 / 2;
+  lines.forEach((line, index) => {
+    ctx.fillText(line, canvas.width / 2, startY + index * 40);
+  });
+  
+  // Draw stars
+  const starSize = 30;
+  const starSpacing = 40;
+  const starsX = (canvas.width - (starSpacing * 5 - starSpacing)) / 2;
+  const starsY = startY + lines.length * 40 + 30;
+  
+  for (let i = 0; i < 5; i++) {
+    ctx.fillStyle = i < rating ? '#fbbf24' : '#6b7280';
+    ctx.beginPath();
+    ctx.moveTo(starsX + i * starSpacing, starsY);
+    for (let j = 0; j < 5; j++) {
+      const angle = (Math.PI / 5) * j - Math.PI / 2;
+      const x = starsX + i * starSpacing + Math.cos(angle) * starSize / 2;
+      const y = starsY + Math.sin(angle) * starSize / 2;
+      if (j === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+  
+  // Author name
+  ctx.fillStyle = '#9ca3af';
+  ctx.font = '24px Arial';
+  ctx.fillText(`- ${author}`, canvas.width / 2, starsY + 50);
+  
+  return canvas.toDataURL('image/png');
+};
+
 const TestimonialsSection = () => {
-  const testimonials = [
+  const reviews = [
     {
-      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&h=600&fit=crop',
-      text: 'Benita Rodriguez - Investor'
+      text: 'Tesla Capital has transformed my investment portfolio. The returns are consistent and the platform is easy to use. Highly recommended!',
+      rating: 5,
+      author: 'Benita Rodriguez'
     },
     {
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop',
-      text: 'Frederick Johnson - Investor'
+      text: 'Outstanding service and impressive returns. The team is professional and always responsive to questions.',
+      rating: 5,
+      author: 'Frederick Johnson'
     },
     {
-      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&h=600&fit=crop',
-      text: 'Sandra Olson - Investor'
+      text: 'Great experience overall. The investment plans are clear and the profits are delivered as promised.',
+      rating: 4,
+      author: 'Sandra Olson'
     },
     {
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&h=600&fit=crop',
-      text: 'Eric Barnes - Investor'
+      text: 'Very satisfied with my investment. The daily earnings are consistent and the withdrawal process is smooth.',
+      rating: 5,
+      author: 'Eric Barnes'
     },
     {
-      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&h=600&fit=crop',
-      text: 'Michael Chen - Investor'
+      text: 'Excellent platform for growing wealth. The referral program is a great bonus feature.',
+      rating: 4,
+      author: 'Michael Chen'
     },
     {
-      image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&h=600&fit=crop',
-      text: 'Sarah Williams - Investor'
+      text: 'Professional service with transparent processes. My investments have been performing well.',
+      rating: 5,
+      author: 'Sarah Williams'
     },
     {
-      image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&h=600&fit=crop',
-      text: 'David Thompson - Investor'
+      text: 'Good returns and reliable service. The customer support team is helpful and knowledgeable.',
+      rating: 4,
+      author: 'David Thompson'
     },
     {
-      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&h=600&fit=crop',
-      text: 'Emily Davis - Investor'
+      text: 'I\'ve been investing for 6 months now and the results exceed my expectations. Thank you Tesla Capital!',
+      rating: 5,
+      author: 'Emily Davis'
     }
   ];
+
+  const testimonials = useMemo(() => {
+    if (typeof window === 'undefined') {
+      // Return placeholder during SSR
+      return reviews.map(review => ({
+        image: '',
+        text: `${review.author} - ${review.rating}★`
+      }));
+    }
+    return reviews.map(review => ({
+      image: createReviewCardImage(review.text, review.rating, review.author),
+      text: `${review.author} - ${review.rating}★`
+    }));
+  }, []);
 
   const topInvestors = [
     {

@@ -167,59 +167,6 @@ const AboutPage = () => {
       </section>
 
       {/* Team Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Team</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Meet the experts behind Tesla Capital&apos;s success
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                name: 'Elon Musk',
-                role: 'CEO & Founder',
-                description: 'Visionary leader with expertise in technology and sustainable energy.',
-                avatar: 'EM',
-              },
-              {
-                name: 'Sarah Johnson',
-                role: 'Chief Investment Officer',
-                description: '15+ years experience in traditional and crypto investments.',
-                avatar: 'SJ',
-              },
-              {
-                name: 'Michael Chen',
-                role: 'CTO',
-                description: 'Blockchain expert and security specialist.',
-                avatar: 'MC',
-              },
-            ].map((member, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                {/* Team Member Image Placeholder */}
-                <div className="w-20 h-20 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <div className="text-center text-gray-500">
-                    <div className="w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center text-white text-lg font-bold">
-                      {member.avatar}
-                    </div>
-                  </div>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{member.name}</h3>
-                <p className="text-red-600 font-semibold mb-4">{member.role}</p>
-                <p className="text-gray-600">{member.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
       </div>
     </PublicRoute>
   );
