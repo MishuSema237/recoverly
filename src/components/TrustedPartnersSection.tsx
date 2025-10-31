@@ -72,6 +72,7 @@ const TrustedPartnersSection = () => {
         </div>
 
         <div style={{ height: '200px', position: 'relative', overflow: 'hidden' }}>
+          {/* @ts-expect-error - LogoLoop is JSX file without types */}
           <LogoLoop
             logos={partnerLogos}
             speed={120}
