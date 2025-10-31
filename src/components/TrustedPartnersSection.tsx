@@ -75,6 +75,7 @@ const TrustedPartnersSection = () => {
           {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
           {/* @ts-ignore - LogoLoop is JSX file without types */}
           <LogoLoop
+            // @ts-ignore - JSX component without TypeScript types
             logos={partnerLogos}
             speed={120}
             direction="left"
