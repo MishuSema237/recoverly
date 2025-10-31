@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error - LogoLoop is JSX file without types
 import LogoLoop from './LogoLoop.jsx';
 
 const TrustedPartnersSection = () => {
@@ -73,20 +75,20 @@ const TrustedPartnersSection = () => {
 
         <div style={{ height: '200px', position: 'relative', overflow: 'hidden' }}>
           {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-          {/* @ts-ignore - LogoLoop is JSX file without types */}
-          <LogoLoop
-            // @ts-ignore - JSX component without TypeScript types
-            logos={partnerLogos}
-            speed={120}
-            direction="left"
-            logoHeight={48}
-            gap={40}
-            pauseOnHover
-            scaleOnHover
-            fadeOut
-            fadeOutColor="#ffffff"
-            ariaLabel="Trusted investment partners - top stocks and companies"
-          />
+          {/* @ts-expect-error - LogoLoop is JSX file without types */}
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          {React.createElement(LogoLoop as any, {
+            logos: partnerLogos,
+            speed: 120,
+            direction: 'left',
+            logoHeight: 48,
+            gap: 40,
+            pauseOnHover: true,
+            scaleOnHover: true,
+            fadeOut: true,
+            fadeOutColor: '#ffffff',
+            ariaLabel: 'Trusted investment partners - top stocks and companies'
+          })}
         </div>
 
         <div className="mt-8 text-center">
