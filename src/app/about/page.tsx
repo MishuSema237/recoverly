@@ -165,8 +165,6 @@ const AboutPage = () => {
           </div>
         </div>
       </section>
-
-      {/* Team Section */}
       </div>
     </PublicRoute>
   );
