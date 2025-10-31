@@ -128,7 +128,7 @@ const AboutPage = () => {
             >
               <div className="relative rounded-2xl overflow-hidden h-96 w-full">
                 <Image
-                  src="/DrawKit - Economy & Finance/PNG/undraw_maker-launch_fwzi.svg"
+                  src="/DrawKit - Economy & Finance/PNG/undraw_maker-launch_fwzi.png"
                   alt="Mission Illustration - Tesla Capital Investment Platform"
                   width={800}
                   height={600}
