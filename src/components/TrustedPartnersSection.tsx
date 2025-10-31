@@ -50,10 +50,70 @@ const TrustedPartnersSection = () => {
       href: 'https://www.meta.com'
     },
     {
-      src: 'https://logo.clearbit.com/berkshirehathaway.com',
-      alt: 'Berkshire Hathaway',
-      title: 'Berkshire Hathaway',
-      href: 'https://www.berkshirehathaway.com'
+      src: 'https://logo.clearbit.com/coca-cola.com',
+      alt: 'Coca-Cola',
+      title: 'The Coca-Cola Company',
+      href: 'https://www.coca-cola.com'
+    },
+    {
+      src: 'https://logo.clearbit.com/nike.com',
+      alt: 'Nike',
+      title: 'Nike Inc.',
+      href: 'https://www.nike.com'
+    },
+    {
+      src: 'https://logo.clearbit.com/walmart.com',
+      alt: 'Walmart',
+      title: 'Walmart Inc.',
+      href: 'https://www.walmart.com'
+    },
+    {
+      src: 'https://logo.clearbit.com/jnj.com',
+      alt: 'Johnson & Johnson',
+      title: 'Johnson & Johnson',
+      href: 'https://www.jnj.com'
+    },
+    {
+      src: 'https://logo.clearbit.com/jpmorgan.com',
+      alt: 'JPMorgan Chase',
+      title: 'JPMorgan Chase & Co.',
+      href: 'https://www.jpmorganchase.com'
+    },
+    {
+      src: 'https://logo.clearbit.com/visa.com',
+      alt: 'Visa',
+      title: 'Visa Inc.',
+      href: 'https://www.visa.com'
+    },
+    {
+      src: 'https://logo.clearbit.com/mastercard.com',
+      alt: 'Mastercard',
+      title: 'Mastercard Inc.',
+      href: 'https://www.mastercard.com'
+    },
+    {
+      src: 'https://logo.clearbit.com/disney.com',
+      alt: 'Disney',
+      title: 'The Walt Disney Company',
+      href: 'https://www.disney.com'
+    },
+    {
+      src: 'https://logo.clearbit.com/netflix.com',
+      alt: 'Netflix',
+      title: 'Netflix Inc.',
+      href: 'https://www.netflix.com'
+    },
+    {
+      src: 'https://logo.clearbit.com/intel.com',
+      alt: 'Intel',
+      title: 'Intel Corporation',
+      href: 'https://www.intel.com'
+    },
+    {
+      src: 'https://logo.clearbit.com/amd.com',
+      alt: 'AMD',
+      title: 'Advanced Micro Devices',
+      href: 'https://www.amd.com'
     }
   ];
 
