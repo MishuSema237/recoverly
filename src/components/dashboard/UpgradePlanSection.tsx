@@ -28,8 +28,12 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
   // Get actual account balance from user profile
   const accountBalance = userProfile?.balances?.main || 0;
 
-  // Filter out the current plan
-  const availablePlans = plans.filter(plan => plan.name !== userProfile?.investmentPlan);
+  // Filter out the current plan (case-insensitive comparison to handle variations)
+  const currentPlanName = userProfile?.investmentPlan?.toLowerCase().trim();
+  const availablePlans = plans.filter(plan => {
+    const planName = plan.name?.toLowerCase().trim();
+    return planName !== currentPlanName && planName !== '' && plan.name;
+  });
 
   // Recalculate when plan changes
   const handlePlanChange = (plan: InvestmentPlan | null) => {
@@ -264,8 +268,10 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Upgrade Your Investment Plan</h2>
-              <p className="text-gray-600">Choose a new plan to upgrade your current investment for better returns.</p>
+              <h2 className="text-2xl font-bold text-gray-900">Change Your Investment Plan</h2>
+              <p className="text-gray-600">
+                Switch to a different investment plan. Your current plan ({userProfile?.investmentPlan || 'N/A'}) will be completed and a new investment will start with your selected plan.
+              </p>
             </div>
           </div>
           <button
@@ -439,7 +445,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
                 disabled={!selectedPlan || !investmentAmount || !!amountError || isProcessing}
                 className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isProcessing ? 'Processing...' : 'Upgrade Investment'}
+                {isProcessing ? 'Processing...' : `Switch to ${selectedPlan.name} Plan`}
               </button>
 
               {/* Message */}

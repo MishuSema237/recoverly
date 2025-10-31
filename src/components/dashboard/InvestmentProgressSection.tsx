@@ -71,8 +71,16 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
 
   const calculateProgress = useCallback(async () => {
     // Prefer reading the actual active investment from the user's profile
+    // Find the most recent active investment (in case there are multiple)
     const activeInvestment: UserInvestment | undefined = Array.isArray(userProfile?.investments)
-      ? (userProfile.investments as UserInvestment[]).find((inv) => inv?.status === 'active') || (userProfile.investments as UserInvestment[])[0]
+      ? (userProfile.investments as UserInvestment[])
+          .filter((inv) => inv?.status === 'active')
+          .sort((a, b) => {
+            // Sort by createdAt, most recent first
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateB - dateA;
+          })[0] || (userProfile.investments as UserInvestment[])[0]
       : undefined;
 
     // If no recorded investment, stop
@@ -242,12 +250,24 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
 
   const handleUpgrade = async (plan: InvestmentPlan, amount: number) => {
     try {
-      await fetch('/api/investments/upgrade', {
+      const response = await fetch('/api/investments/upgrade', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ planId: plan._id, planName: plan.name, amount })
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to upgrade investment');
+      }
+      
+      // Force refresh user profile to get updated investment data
       await forceRefresh();
+      
+      // Recalculate progress with new data
+      await calculateProgress();
+      
+      // Close upgrade interface to show updated progress
       setShowUpgradeInterface(false);
     } catch (error) {
       console.error('Error upgrading investment:', error);
