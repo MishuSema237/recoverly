@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { Target, Users, Shield, TrendingUp, Award, Globe } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 import PublicRoute from '@/components/PublicRoute';
 
 const AboutPage = () => {
@@ -111,9 +113,12 @@ const AboutPage = () => {
                 the days on your plan and watch your money increase. We handle all the complex analysis, 
                 market research, and investment management.
               </p>
-              <div className="bg-red-600 text-white px-6 py-3 rounded-lg inline-block font-semibold">
+              <Link
+                href="/signup"
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg inline-block font-semibold transition-colors duration-200 cursor-pointer"
+              >
                 Join Our Mission
-              </div>
+              </Link>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, x: 50 }}
@@ -121,15 +126,15 @@ const AboutPage = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative"
             >
-              {/* Image Placeholder */}
-              <div className="bg-gradient-to-br from-gray-200 to-gray-300 rounded-2xl p-8 h-96 flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <div className="w-16 h-16 bg-gray-400 rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <TrendingUp className="w-8 h-8 text-white" />
-                  </div>
-                  <p className="text-lg font-medium">Mission Illustration</p>
-                  <p className="text-sm">Image placeholder for visual content</p>
-                </div>
+              <div className="relative rounded-2xl overflow-hidden h-96 w-full">
+                <Image
+                  src="/DrawKit - Economy & Finance/PNG/undraw_maker-launch_fwzi.svg"
+                  alt="Mission Illustration - Tesla Capital Investment Platform"
+                  width={800}
+                  height={600}
+                  className="object-contain w-full h-full"
+                  priority
+                />
               </div>
             </motion.div>
           </div>
