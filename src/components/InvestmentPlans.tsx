@@ -462,6 +462,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
               speed={1}
               chaos={0.5}
               thickness={2}
+              className=""
               style={{ borderRadius: 16 }}
             >
             <motion.div
