@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { Target, Users, Shield, TrendingUp, Award, Globe } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import PublicRoute from '@/components/PublicRoute';
 
@@ -87,11 +86,12 @@ const AboutPage = () => {
       {/* Mission Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="max-w-4xl mx-auto">
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
+              className="text-center"
             >
               <h2 className="text-4xl font-bold text-gray-900 mb-6">How We Work</h2>
               <p className="text-lg text-gray-600 mb-6">
@@ -99,7 +99,7 @@ const AboutPage = () => {
                 stock market works and we have the expertise to identify and invest in top-performing 
                 stocks that multiply money. Here&apos;s how it works:
               </p>
-              <p className="text-lg text-gray-600 mb-6">
+              <p className="text-lg text-gray-600 mb-6 text-left max-w-3xl mx-auto">
                 <strong>1. You Invest:</strong> Choose an investment plan and deposit your funds.<br/>
                 <strong>2. We Invest:</strong> We take your money and strategically invest it into top stocks 
                 and use it for crypto mining operations.<br/>
@@ -108,7 +108,7 @@ const AboutPage = () => {
                 <strong>4. You Profit:</strong> We return your money with profits based on your chosen plan, 
                 and we keep our share. It&apos;s a win-win for everybody!
               </p>
-              <p className="text-lg text-gray-600 mb-6">
+              <p className="text-lg text-gray-600 mb-6 max-w-3xl mx-auto">
                 <strong>You don&apos;t do any hard work - Tesla Capital does it all.</strong> You simply wait for 
                 the days on your plan and watch your money increase. We handle all the complex analysis, 
                 market research, and investment management.
@@ -119,21 +119,6 @@ const AboutPage = () => {
               >
                 Join Our Mission
               </Link>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
-            >
-              <div className="relative rounded-2xl overflow-hidden h-96 w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-                <img
-                  src="/DrawKit%20-%20Economy%20%26%20Finance/PNG/undraw_maker-launch_fwzi.png"
-                  alt="Mission Illustration - Tesla Capital Investment Platform"
-                  className="object-contain w-full h-full"
-                  style={{ maxHeight: '100%' }}
-                />
-              </div>
             </motion.div>
           </div>
         </div>
