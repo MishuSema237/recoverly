@@ -72,6 +72,7 @@ const TrustedPartnersSection = () => {
         </div>
 
         <div style={{ height: '200px', position: 'relative', overflow: 'hidden' }}>
+          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
           {/* @ts-ignore - LogoLoop is JSX file without types */}
           <LogoLoop
             logos={partnerLogos}
