@@ -73,8 +73,12 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
 
     // Close previous active investment if any
     let prevActiveIndex = -1;
+    let prevInvestmentAmount = 0;
     if (Array.isArray(user.investments)) {
       prevActiveIndex = user.investments.findIndex((inv) => inv?.status === 'active');
+      if (prevActiveIndex >= 0) {
+        prevInvestmentAmount = user.investments[prevActiveIndex]?.amount || 0;
+      }
     }
     const now = new Date();
 
@@ -118,10 +122,21 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
 
     // Apply balance updates
     // Compute new balances and totals
+    // When upgrading, we complete the previous investment and create a new one
+    // The previous investment's principal and gains go back to main balance
+    // Then we deduct the new investment amount from main balance
     const newMain = mainBalance - Number(amount);
-    const newInvestmentBal = (user.balances?.investment || 0) + Number(amount);
+    const newInvestmentBal = (user.balances?.investment || 0) - prevInvestmentAmount + Number(amount);
     const referralBal = user.balances?.referral || 0;
     const newTotal = newMain + newInvestmentBal + referralBal;
+
+    // Calculate totalInvested correctly:
+    // - If there was a previous investment, subtract its principal and add the new amount
+    // - This ensures totalInvested reflects the actual cumulative investment amount
+    const currentTotalInvested = user.totalInvested || 0;
+    const newTotalInvested = prevActiveIndex >= 0
+      ? currentTotalInvested - prevInvestmentAmount + Number(amount)
+      : currentTotalInvested + Number(amount);
 
     // Update core fields and investments array
     await users.updateOne(
@@ -133,7 +148,7 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
           'balances.main': newMain,
           'balances.investment': newInvestmentBal,
           'balances.total': newTotal,
-          totalInvested: user.totalInvested ? Number(user.totalInvested) + Number(amount) : Number(amount),
+          totalInvested: newTotalInvested,
           updatedAt: now,
           investments:
             prevActiveIndex >= 0
