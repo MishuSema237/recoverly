@@ -1,8 +1,6 @@
 'use client';
 
 import React from 'react';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error - LogoLoop is JSX file without types
 import LogoLoop from './LogoLoop.jsx';
 
 const TrustedPartnersSection = () => {
@@ -74,8 +72,6 @@ const TrustedPartnersSection = () => {
         </div>
 
         <div style={{ height: '200px', position: 'relative', overflow: 'hidden' }}>
-          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-          {/* @ts-expect-error - LogoLoop is JSX file without types */}
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {React.createElement(LogoLoop as any, {
             logos: partnerLogos,
