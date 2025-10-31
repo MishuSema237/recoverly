@@ -97,16 +97,23 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
       const planName: string = activeInvestment?.plan?.name ?? userProfile?.investmentPlan ?? 'Investment Plan';
       let durationDays: number | null = null;
       let dailyRatePct: number | null = null; // percent per day
+      let totalROI: number | null = null; // total ROI percentage
+      let planIcon: string = 'Medal'; // default icon
+      let planColor: string = 'red'; // default color
 
       // If the investment already stores plan details, use them (most reliable)
       if (activeInvestment?.plan) {
         const p = activeInvestment.plan;
-        // dailyRate is stored as a fraction (e.g., total ROI/duration). Convert to percent.
+        // dailyRate is stored as a percent per day (e.g., 0.25% for 5% ROI over 20 days)
         if (typeof p.dailyRate === 'number' && isFinite(p.dailyRate)) {
           dailyRatePct = p.dailyRate;
         }
         if (typeof p.duration === 'number' && isFinite(p.duration)) {
           durationDays = p.duration;
+        }
+        // Calculate total ROI from daily rate and duration
+        if (dailyRatePct !== null && durationDays !== null && durationDays > 0) {
+          totalROI = dailyRatePct * durationDays;
         }
       }
 
@@ -125,8 +132,21 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
           // Parse ROI -> daily rate
           const planROI = typeof plan.roi === 'number' ? plan.roi : parseFloat(plan.roi || '0');
           if (isFinite(planROI) && durationDays && durationDays > 0) {
+            totalROI = planROI; // Store total ROI
             dailyRatePct = planROI / durationDays; // percent per day
           }
+          // Get icon and color from plan
+          if (plan.icon) planIcon = plan.icon;
+          if (plan.color) planColor = plan.color;
+        }
+      } else {
+        // Even if we have snapshot data, fetch plan metadata for icon and color
+        const planResponse = await fetch(`/api/plans?name=${encodeURIComponent(planName)}`);
+        const planResult = await planResponse.json();
+        if (planResult?.success && planResult?.data) {
+          const plan = planResult.data;
+          if (plan.icon) planIcon = plan.icon;
+          if (plan.color) planColor = plan.color;
         }
       }
 
@@ -170,6 +190,11 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
       nextPayout.setDate(nextPayout.getDate() + 1);
       nextPayout.setHours(0, 0, 0, 0);
 
+      // Ensure totalROI is set (use calculated value if not fetched from plan)
+      const finalTotalROI = totalROI !== null && isFinite(totalROI) 
+        ? totalROI 
+        : (safeDuration > 0 && safeDailyRatePct > 0 ? safeDailyRatePct * safeDuration : 0);
+
       setProgress({
         planName,
         amount,
@@ -179,10 +204,10 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
         daysRemaining,
         nextPayout: nextPayout.toISOString(),
         status: daysRemaining > 0 ? 'active' : 'completed',
-        planIcon: 'Medal',
+        planIcon,
         planDuration: safeDuration,
-        planROI: safeDuration > 0 ? safeDailyRatePct * safeDuration : 0,
-        planColor: 'red',
+        planROI: finalTotalROI, // Use total ROI from plan, not calculated
+        planColor,
         investmentDate
       });
 
@@ -437,8 +462,16 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
             </h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
+                <span className="text-gray-600">Total ROI:</span>
+                <span className="font-semibold text-gray-900">{progress.planROI.toFixed(2)}%</span>
+              </div>
+              <div className="flex items-center justify-between">
                 <span className="text-gray-600">Daily Rate:</span>
-                <span className="font-semibold text-gray-900">{(progress.planROI / progress.planDuration).toFixed(2)}%</span>
+                <span className="font-semibold text-gray-900">
+                  {progress.planDuration > 0 
+                    ? (progress.planROI / progress.planDuration).toFixed(2) 
+                    : '0.00'}%
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Daily Earnings:</span>
