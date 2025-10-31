@@ -86,6 +86,7 @@ const DashboardContent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [referralCount, setReferralCount] = useState(0);
 
   // Mobile swipe navigation
   useSwipe({
@@ -156,6 +157,25 @@ const DashboardContent = () => {
     const interval = setInterval(fetchUnreadCount, 300000);
     return () => clearInterval(interval);
   }, [userProfile?.userCode]);
+
+  // Fetch referral count
+  useEffect(() => {
+    const fetchReferralCount = async () => {
+      if (user) {
+        try {
+          const response = await fetch('/api/referrals/stats');
+          const result = await response.json();
+          if (result.success) {
+            setReferralCount(result.data.totalReferrals || 0);
+          }
+        } catch (error) {
+          console.error('Error fetching referral count:', error);
+        }
+      }
+    };
+
+    fetchReferralCount();
+  }, [user]);
 
   const handleSectionChange = (sectionId: string) => {
     setActiveSection(sectionId);
@@ -367,7 +387,7 @@ const DashboardContent = () => {
                 <div className="px-4 lg:px-6 -mt-8 relative z-10">
                   <div className="bg-white rounded-2xl shadow-xl p-6 lg:p-8">
                     <h3 className="text-xl font-semibold text-gray-900 mb-6">Account Overview</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
                       <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 lg:p-6 border border-red-200">
                         <div className="flex items-center justify-between">
                           <div>
@@ -405,6 +425,36 @@ const DashboardContent = () => {
                           </div>
                           <div className="bg-blue-600 p-2 lg:p-3 rounded-xl">
                             <ArrowUpDown className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 lg:p-6 border border-purple-200">
+                        <div className="flex flex-col justify-between h-full">
+                          <div>
+                            <p className="text-xs lg:text-sm text-purple-700 font-medium mb-2">View your investment statistics and current plan information</p>
+                            <div className="space-y-2">
+                              <div>
+                                <p className="text-xs text-purple-600">Total Invested</p>
+                                <p className="text-xl lg:text-2xl font-bold text-purple-900">
+                                  ${(userProfile?.totalInvested || 0).toFixed(2)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-purple-600">Current Plan</p>
+                                <p className="text-lg font-semibold text-purple-900">
+                                  {userProfile?.investmentPlan || 'No Plan'}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-purple-600">Referrals</p>
+                                <p className="text-lg font-semibold text-purple-900">
+                                  {referralCount}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="mt-4 bg-purple-600 p-2 lg:p-3 rounded-xl self-start">
+                            <TrendingUp className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
                           </div>
                         </div>
                       </div>
