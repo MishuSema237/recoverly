@@ -133,7 +133,18 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
       const safeDailyRatePct = isFinite(Number(dailyRatePct)) ? Number(dailyRatePct) : 0;
 
       const now = new Date();
-      const daysActive = Math.max(0, Math.floor((now.getTime() - investmentDate.getTime()) / (1000 * 60 * 60 * 24)));
+      // Calculate days active: day 1 = day of activation
+      // Convert both dates to midnight for accurate day counting (ignore time component)
+      const investmentMidnight = new Date(investmentDate.getFullYear(), investmentDate.getMonth(), investmentDate.getDate());
+      const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      // Calculate difference in milliseconds and convert to days
+      const msDiff = nowMidnight.getTime() - investmentMidnight.getTime();
+      const daysDiff = Math.round(msDiff / (1000 * 60 * 60 * 24));
+      // Day 1 is the day of activation (same day = day 1)
+      // If investment was created today, daysDiff = 0, so daysActive = 1
+      // If investment was created yesterday, daysDiff = 1, so daysActive = 2
+      const daysActive = Math.max(1, daysDiff + 1);
+      // Days remaining: if 20 days total and we're on day 2, remaining = 20 - 2 = 18 days
       const daysRemaining = safeDuration > 0 ? Math.max(0, safeDuration - daysActive) : 0;
 
       // Compute earnings from transactions if available; otherwise estimate 0 for now
@@ -210,6 +221,13 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
       };
       processDailyGains();
       calculateProgress();
+      
+      // Update progress every minute to keep days counter accurate
+      const interval = setInterval(() => {
+        calculateProgress();
+      }, 60000); // Update every 60 seconds
+      
+      return () => clearInterval(interval);
     } else {
       setLoading(false);
     }
