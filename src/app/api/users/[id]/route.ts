@@ -10,14 +10,13 @@ export const PUT = requireAdmin(async (request: AuthenticatedRequest) => {
     const updates = await request.json();
 
     // Remove sensitive fields that shouldn't be updated via this endpoint
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {
-      password: _,
-      email: __,
-      isAdmin: ___,
-      isActive: ____,
-      userCode: _____,
-      _id: ______,
+      password: _p1,
+      email: _e1,
+      isAdmin: _a1,
+      isActive: _s1,
+      userCode: _c1,
+      _id: _i1,
       ...allowedUpdates
     } = updates;
 
@@ -40,7 +39,6 @@ export const PUT = requireAdmin(async (request: AuthenticatedRequest) => {
     }
 
     // Remove sensitive data from response
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _p, emailVerificationToken: _ev, passwordResetToken: _pr, ...userWithoutSensitiveData } = updatedUser;
 
     return NextResponse.json({

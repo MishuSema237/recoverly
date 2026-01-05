@@ -478,11 +478,11 @@ export class NotificationService {
 
         if (userUpdated) {
           // Apply updates to balances and transactions
-          // @ts-ignore - dynamic update filter
           await db.collection('users').updateOne(
             { _id: user._id },
             {
               $inc: updates.$inc,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               $push: updates.$push as any,
               $set: { ...updates.$set, updatedAt: now }
             }

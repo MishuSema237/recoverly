@@ -48,7 +48,6 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
     }
 
     // Return user info (without sensitive data)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, emailVerificationToken: __, passwordResetToken: ___, ...userInfo } = user;
 
     return NextResponse.json({
