@@ -15,7 +15,7 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
 
     // Find user by email
     const user = await UserService.getUserByEmail(email.toLowerCase());
-    
+
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'No user found with this email address' },
@@ -48,7 +48,7 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
     }
 
     // Return user info (without sensitive data)
-    const { password: _password, emailVerificationToken: _emailToken, passwordResetToken: _resetToken, ...userInfo } = user;
+    const { password: _, emailVerificationToken: __, passwordResetToken: ___, ...userInfo } = user;
 
     return NextResponse.json({
       success: true,

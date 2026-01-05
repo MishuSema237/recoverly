@@ -10,19 +10,19 @@ export const PUT = requireAdmin(async (request: AuthenticatedRequest) => {
     const updates = await request.json();
 
     // Remove sensitive fields that shouldn't be updated via this endpoint
-    const { 
-      password: _password, 
-      email: _email, 
-      isAdmin: _isAdmin, 
-      isActive: _isActive, 
-      userCode: _userCode, 
-      _id: __id, 
-      ...allowedUpdates 
+    const {
+      password: _,
+      email: __,
+      isAdmin: ___,
+      isActive: ____,
+      userCode: _____,
+      _id: ______,
+      ...allowedUpdates
     } = updates;
 
     // Update user profile
     const success = await UserService.updateUserProfile(userId, allowedUpdates);
-    
+
     if (!success) {
       return NextResponse.json(
         { success: false, error: 'Failed to update user' },
@@ -39,7 +39,7 @@ export const PUT = requireAdmin(async (request: AuthenticatedRequest) => {
     }
 
     // Remove sensitive data from response
-    const { password: _p, emailVerificationToken: _e, passwordResetToken: _r, ...userWithoutSensitiveData } = updatedUser;
+    const { password: _, emailVerificationToken: __, passwordResetToken: ___, ...userWithoutSensitiveData } = updatedUser;
 
     return NextResponse.json({
       success: true,
@@ -65,7 +65,7 @@ export const DELETE = requireAdmin(async (request: AuthenticatedRequest) => {
 
     // Delete user
     const success = await UserService.deleteUser(userId);
-    
+
     if (!success) {
       return NextResponse.json(
         { success: false, error: 'Failed to delete user' },

@@ -60,7 +60,7 @@ const WithdrawSection = () => {
   const [scheduleLoading, setScheduleLoading] = useState(true);
 
   // Validation states
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+  // const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const availableBalance = userProfile?.balances?.main || 0;
   const withdrawalAmount = parseFloat(amount) || 0;
 
@@ -70,7 +70,7 @@ const WithdrawSection = () => {
       try {
         const response = await fetch('/api/withdrawal-schedule');
         const result = await response.json();
-        
+
         if (result.success) {
           setWithdrawalSchedule(result.data);
         }
@@ -92,10 +92,10 @@ const WithdrawSection = () => {
 
     const now = new Date();
     const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-    const currentTime = now.toLocaleTimeString('en-US', { 
-      hour12: false, 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    const currentTime = now.toLocaleTimeString('en-US', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit'
     });
 
     // Check if current day is allowed
@@ -106,7 +106,7 @@ const WithdrawSection = () => {
     // Check if current time is within allowed range
     const startTime = withdrawalSchedule.allowedTimes.start;
     const endTime = withdrawalSchedule.allowedTimes.end;
-    
+
     return currentTime >= startTime && currentTime <= endTime;
   };
 
@@ -117,24 +117,24 @@ const WithdrawSection = () => {
 
     const now = new Date();
     const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-    const currentTime = now.toLocaleTimeString('en-US', { 
-      hour12: false, 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    const currentTime = now.toLocaleTimeString('en-US', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit'
     });
 
     // Find next allowed day
     const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const currentDayIndex = daysOfWeek.indexOf(currentDay);
-    
+
     for (let i = 0; i < 7; i++) {
       const dayIndex = (currentDayIndex + i) % 7;
       const day = daysOfWeek[dayIndex];
-      
+
       if (withdrawalSchedule.allowedDays.includes(day)) {
         const nextDate = new Date(now);
         nextDate.setDate(now.getDate() + i);
-        
+
         if (i === 0 && currentTime < withdrawalSchedule.allowedTimes.start) {
           // Same day, but before start time
           return {
@@ -152,7 +152,7 @@ const WithdrawSection = () => {
         }
       }
     }
-    
+
     return null;
   };
   const isAmountValid = withdrawalAmount <= availableBalance && withdrawalAmount > 0;
@@ -166,7 +166,7 @@ const WithdrawSection = () => {
     try {
       const response = await fetch('/api/payment-methods');
       const result = await response.json();
-      
+
       if (result.success) {
         setPaymentMethods(result.data.filter((method: PaymentMethod) => method.isActive));
       }
@@ -178,7 +178,7 @@ const WithdrawSection = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedMethod || !amount || !accountName || !accountNumber) {
       showError('Please fill in all required fields');
       return;
@@ -282,7 +282,7 @@ const WithdrawSection = () => {
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4 text-orange-600" />
                       <span className="text-sm text-orange-700">
-                        <strong>Allowed Days:</strong> {withdrawalSchedule.allowedDays.map(day => 
+                        <strong>Allowed Days:</strong> {withdrawalSchedule.allowedDays.map(day =>
                           day.charAt(0).toUpperCase() + day.slice(1)
                         ).join(', ')}
                       </span>
@@ -316,9 +316,9 @@ const WithdrawSection = () => {
             <span className="text-sm font-medium text-gray-700">Available Balance:</span>
             <span className="text-lg font-bold text-gray-900">${userProfile?.balances?.main || 0}</span>
           </div>
-          </div>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6" style={{ 
+        <form onSubmit={handleSubmit} className="space-y-6" style={{
           opacity: !isWithdrawalAllowed() ? 0.5 : 1,
           pointerEvents: !isWithdrawalAllowed() ? 'none' : 'auto'
         }}>
@@ -331,19 +331,18 @@ const WithdrawSection = () => {
                   key={method._id}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                    selectedMethod?._id === method._id
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedMethod?._id === method._id
                       ? 'border-red-500 bg-red-50'
                       : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                    }`}
                   onClick={() => setSelectedMethod(method)}
                 >
-                    <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3">
                     {method.logo && (
                       <Image src={method.logo} alt={method.name} width={32} height={32} className="w-8 h-8 rounded" />
                     )}
-                      <div>
-                              <h3 className="font-semibold text-gray-900">{method.name}</h3>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{method.name}</h3>
                     </div>
                   </div>
                 </motion.div>
@@ -358,11 +357,10 @@ const WithdrawSection = () => {
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${
-                amount && !isAmountValid 
-                  ? 'border-red-500 focus:ring-red-500 bg-red-50' 
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${amount && !isAmountValid
+                  ? 'border-red-500 focus:ring-red-500 bg-red-50'
                   : 'border-gray-300 focus:ring-red-500'
-              }`}
+                }`}
               placeholder="Enter amount to withdraw"
               min="1"
               step="0.01"
@@ -389,7 +387,7 @@ const WithdrawSection = () => {
           {/* Account Details */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Your Account Details</h3>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Account Holder Name *</label>
               <input
@@ -412,7 +410,7 @@ const WithdrawSection = () => {
                 placeholder="Enter account number or wallet address"
                 required
               />
-                </div>
+            </div>
 
             {selectedMethod?.accountDetails.bankName && (
               <div>
@@ -424,8 +422,8 @@ const WithdrawSection = () => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="Enter bank name"
                 />
-            </div>
-          )}
+              </div>
+            )}
 
             {selectedMethod?.accountDetails.network && (
               <div>
@@ -445,11 +443,10 @@ const WithdrawSection = () => {
           <button
             type="submit"
             disabled={!isFormValid || isSubmitting}
-            className={`w-full text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 ${
-              !isFormValid && !isSubmitting
+            className={`w-full text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 ${!isFormValid && !isSubmitting
                 ? 'bg-red-500 hover:bg-red-600'
                 : 'bg-red-600 hover:bg-red-700 disabled:bg-gray-400'
-            }`}
+              }`}
           >
             {isSubmitting ? (
               <>

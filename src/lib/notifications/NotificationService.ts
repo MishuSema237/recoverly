@@ -358,7 +358,7 @@ export class NotificationService {
 
         const userId = user._id?.toString() || '';
         const userEmail = user.email || '';
-        // const userName = user.firstName || userEmail;
+        // Removed unused userName
 
         for (let i = 0; i < user.investments.length; i++) {
           const investment = user.investments[i];
@@ -478,13 +478,14 @@ export class NotificationService {
 
         if (userUpdated) {
           // Apply updates to balances and transactions
+          // @ts-ignore - dynamic update filter
           await db.collection('users').updateOne(
             { _id: user._id },
             {
               $inc: updates.$inc,
-              $push: updates.$push,
-              $set: { updatedAt: now }
-            } as any // eslint-disable-line @typescript-eslint/no-explicit-any
+              $push: updates.$push as any,
+              $set: { ...updates.$set, updatedAt: now }
+            }
           );
         }
       }

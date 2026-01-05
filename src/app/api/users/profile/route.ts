@@ -8,11 +8,11 @@ export const PUT = requireAuth(async (request) => {
     const userId = request.user!.id;
 
     // Remove sensitive fields that shouldn't be updated via this endpoint
-    const { password: _password, email: _email, isAdmin: _isAdmin, isActive: _isActive, userCode: _userCode, _id: __id, ...allowedUpdates } = updates;
+    const { password: _, email: __, isAdmin: ___, isActive: ____, userCode: _____, _id: ______, ...allowedUpdates } = updates;
 
     // Update user profile
     const success = await UserService.updateUserProfile(userId, allowedUpdates);
-    
+
     if (!success) {
       return NextResponse.json(
         { success: false, error: 'Failed to update profile' },
@@ -28,9 +28,9 @@ export const PUT = requireAuth(async (request) => {
   } catch (error) {
     console.error('Profile update error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Profile update failed' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Profile update failed'
       },
       { status: 500 }
     );

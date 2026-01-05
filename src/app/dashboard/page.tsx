@@ -159,24 +159,6 @@ const DashboardContent = () => {
     return () => clearInterval(interval);
   }, [userProfile?.userCode]);
 
-  // Fetch referral count
-  useEffect(() => {
-    const fetchReferralCount = async () => {
-      if (user) {
-        try {
-          const response = await fetch('/api/referrals/stats');
-          const result = await response.json();
-          if (result.success) {
-            setReferralCount(result.data.totalReferrals || 0);
-          }
-        } catch (error) {
-          console.error('Error fetching referral count:', error);
-        }
-      }
-    };
-
-    fetchReferralCount();
-  }, [user]);
 
   const handleSectionChange = (sectionId: string) => {
     setActiveSection(sectionId);
