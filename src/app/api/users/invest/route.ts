@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/middleware/auth';
-import { UserService } from '@/lib/auth/user';
+// import { UserService } from '@/lib/auth/user';
 import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
@@ -70,7 +70,7 @@ export const POST = requireAuth(async (request) => {
     // Create investment object
     const now = new Date();
     const endDate = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
-    
+
     const investment = {
       _id: new ObjectId().toString(),
       planName,
@@ -156,7 +156,7 @@ export const POST = requireAuth(async (request) => {
     // Create notification for admins
     const admins = await usersCollection.find({ isAdmin: true }).toArray();
     const adminIds = admins.map(admin => admin._id?.toString()).filter(Boolean);
-    
+
     if (adminIds.length > 0) {
       await db.collection('notifications').insertOne({
         title: 'New Investment',
@@ -186,9 +186,9 @@ export const POST = requireAuth(async (request) => {
   } catch (error) {
     console.error('Investment error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Investment failed' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Investment failed'
       },
       { status: 500 }
     );
