@@ -8,6 +8,7 @@ export const PUT = requireAuth(async (request) => {
     const userId = request.user!.id;
 
     // Remove sensitive fields that shouldn't be updated via this endpoint
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, email: __, isAdmin: ___, isActive: ____, userCode: _____, _id: ______, ...allowedUpdates } = updates;
 
     // Update user profile
