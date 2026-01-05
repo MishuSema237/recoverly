@@ -87,7 +87,7 @@ const DashboardContent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
-  const [referralCount, setReferralCount] = useState(0);
+  // const [referralCount, setReferralCount] = useState(0);
 
   // Mobile swipe navigation
   useSwipe({

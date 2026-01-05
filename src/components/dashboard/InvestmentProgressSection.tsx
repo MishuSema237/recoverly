@@ -501,7 +501,10 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
         {/* Upgrade Plan Button */}
         <div className="mt-8 text-center">
           <button
-            onClick={() => setShowUpgradeInterface(true)}
+            onClick={() => {
+              if (onUpgradePlan) onUpgradePlan();
+              else setShowUpgradeInterface(true);
+            }}
             className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
           >
             Upgrade Plan

@@ -358,7 +358,7 @@ export class NotificationService {
 
         const userId = user._id?.toString() || '';
         const userEmail = user.email || '';
-        const userName = user.firstName || userEmail;
+        // const userName = user.firstName || userEmail;
 
         for (let i = 0; i < user.investments.length; i++) {
           const investment = user.investments[i];
@@ -484,7 +484,7 @@ export class NotificationService {
               $inc: updates.$inc,
               $push: updates.$push,
               $set: { updatedAt: now }
-            } as any
+            } as any // eslint-disable-line @typescript-eslint/no-explicit-any
           );
         }
       }
