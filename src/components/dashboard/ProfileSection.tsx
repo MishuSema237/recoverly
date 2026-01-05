@@ -5,26 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const ProfileSection = () => {
   const { user, userProfile } = useAuth();
-  const [referralCount, setReferralCount] = useState(0);
 
-  // Fetch referral count
-  useEffect(() => {
-    const fetchReferralCount = async () => {
-      try {
-        const response = await fetch('/api/referrals/stats');
-        const result = await response.json();
-        if (result.success) {
-          setReferralCount(result.data.totalReferrals);
-        }
-      } catch (error) {
-        console.error('Error fetching referral count:', error);
-      }
-    };
 
-    if (user) {
-      fetchReferralCount();
-    }
-  }, [user]);
+
 
   return (
     <div className="space-y-6">
@@ -34,7 +17,7 @@ const ProfileSection = () => {
         <p className="text-gray-600 mb-6">
           View and manage your personal account information and profile details.
         </p>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Personal Information */}
           <div>
@@ -43,11 +26,11 @@ const ProfileSection = () => {
               <div className="flex justify-between py-2 border-b border-gray-100">
                 <span className="text-gray-600">Full Name:</span>
                 <span className="font-medium text-gray-900">
-                  {userProfile?.firstName && userProfile?.lastName 
+                  {userProfile?.firstName && userProfile?.lastName
                     ? `${userProfile.firstName} ${userProfile.lastName}`
-                    : userProfile?.displayName || 
-                      userProfile?.email?.split('@')[0] || 
-                      'Not provided'
+                    : userProfile?.displayName ||
+                    userProfile?.email?.split('@')[0] ||
+                    'Not provided'
                   }
                 </span>
               </div>
@@ -108,16 +91,12 @@ const ProfileSection = () => {
         <p className="text-gray-600 mb-6">
           View your investment statistics and current plan information.
         </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">{userProfile?.investmentPlan || 'None'}</div>
-            <div className="text-sm text-green-800">Current Plan</div>
+
+        <div className="text-center p-6 bg-blue-50 rounded-lg">
+          <div className="text-3xl font-bold text-blue-600">
+            ${userProfile?.totalInvested?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
           </div>
-          <div className="text-center p-4 bg-purple-50 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600">{referralCount}</div>
-            <div className="text-sm text-purple-800">Referrals</div>
-          </div>
+          <div className="text-sm text-blue-800 mt-2">Total Invested</div>
         </div>
       </div>
 

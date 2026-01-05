@@ -1,3 +1,5 @@
+import nodemailer from 'nodemailer';
+
 interface EmailOptions {
   to: string;
   subject: string;
@@ -5,197 +7,455 @@ interface EmailOptions {
   text: string;
 }
 
-// Check if EmailJS is configured
-const isEmailConfigured = () => {
-  return !!(
-    process.env.EMAILJS_SERVICE_ID &&
-    process.env.EMAILJS_TEMPLATE_ID &&
-    process.env.EMAILJS_PUBLIC_KEY
-  );
+// Create reusable transporter object using the default SMTP transport
+const createTransporter = () => {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT || '465');
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASSWORD;
+
+  if (!user || !pass) {
+    console.warn('SMTP credentials not found. Emails will not be sent.');
+    return null;
+  }
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465, // true for 465, false for other ports
+    auth: {
+      user,
+      pass,
+    },
+  });
 };
 
 export const sendEmail = async (options: EmailOptions): Promise<void> => {
   try {
-    if (!isEmailConfigured()) {
-      throw new Error('EmailJS configuration is missing. Please set up EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, and EMAILJS_PUBLIC_KEY in your environment variables.');
+    const transporter = createTransporter();
+
+    if (!transporter) {
+      console.warn('Email transporter not initialized. Skipping email:', options.subject);
+      return;
     }
 
-    // Send email using EmailJS REST API
-    const emailjsServiceId = process.env.EMAILJS_SERVICE_ID;
-    const emailjsTemplateId = process.env.EMAILJS_TEMPLATE_ID;
-    const emailjsPublicKey = process.env.EMAILJS_PUBLIC_KEY;
+    const from = process.env.EMAIL_FROM || `"Tesla Capital" <${process.env.SMTP_USER}>`;
 
-    const response = await fetch(`https://api.emailjs.com/api/v1.0/email/send`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        service_id: emailjsServiceId,
-        template_id: emailjsTemplateId,
-        user_id: emailjsPublicKey,
-        template_params: {
-          to_email: options.to,
+    const info = await transporter.sendMail({
+      from,
+      to: options.to,
       subject: options.subject,
-          message: options.html,
-          from_name: 'Tesla Capital',
-          reply_to: process.env.EMAIL_FROM || 'noreply@teslacapital.com',
-        },
-      }),
+      text: options.text,
+      html: options.html,
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`EmailJS API error: ${response.status} ${errorText}`);
-    }
-
-    console.log('Email sent successfully via EmailJS to:', options.to);
+    console.log('Email sent successfully:', info.messageId);
   } catch (error) {
     console.error('Email sending failed:', error);
-    throw new Error('Failed to send email');
+    // We don't throw here to prevent breaking the flow if email fails
+    // But in critical paths, the caller might want to know
   }
+};
+
+// Base HTML template wrapper
+export const getBaseTemplate = (title: string, content: string, userName?: string) => {
+  const year = new Date().getFullYear();
+  const appName = 'Tesla Capital';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tesla-capital.vercel.app';
+  const logoUrl = `${appUrl}/tesla-capital-logo.png`;
+
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${title}</title>
+      <style>
+        body {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          line-height: 1.6;
+          color: #1f2937;
+          margin: 0;
+          padding: 0;
+          background-color: #f3f4f6;
+        }
+        .container {
+          max-width: 600px;
+          margin: 20px auto;
+          background: #ffffff;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .header {
+          background-color: #ffffff;
+          padding: 30px;
+          text-align: center;
+          border-bottom: 1px solid #f3f4f6;
+        }
+        .logo {
+          height: 60px;
+          margin-bottom: 20px;
+        }
+        .content {
+          padding: 40px 30px;
+        }
+        .title {
+          font-size: 24px;
+          font-weight: 700;
+          color: #111827;
+          margin-bottom: 20px;
+          text-align: center;
+        }
+        .greeting {
+          font-size: 18px;
+          margin-bottom: 20px;
+        }
+        .message {
+          margin-bottom: 30px;
+          color: #4b5563;
+        }
+        .button-container {
+          text-align: center;
+          margin: 30px 0;
+        }
+        .button {
+          background-color: #dc2626;
+          color: #ffffff !important;
+          padding: 14px 32px;
+          text-decoration: none;
+          border-radius: 8px;
+          font-weight: 600;
+          display: inline-block;
+          transition: background-color 0.2s;
+        }
+        .footer {
+          background-color: #111827;
+          color: #9ca3af;
+          padding: 30px;
+          text-align: center;
+          font-size: 14px;
+        }
+        .footer-logo {
+          color: #ffffff;
+          font-weight: 700;
+          font-size: 18px;
+          margin-bottom: 15px;
+        }
+        .footer-links {
+          margin: 15px 0;
+        }
+        .footer-links a {
+          color: #9ca3af;
+          text-decoration: none;
+          margin: 0 10px;
+        }
+        .social-links {
+          margin-top: 20px;
+        }
+        .data-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 20px 0;
+          background-color: #f9fafb;
+          border-radius: 8px;
+          overflow: hidden;
+        }
+        .data-table td {
+          padding: 12px 15px;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        .data-table td:first-child {
+          font-weight: 600;
+          color: #4b5563;
+          width: 40%;
+        }
+        .data-table td:last-child {
+          text-align: right;
+          color: #111827;
+        }
+        .highlight {
+          color: #dc2626;
+          font-weight: 700;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img src="${logoUrl}" alt="${appName}" class="logo">
+        </div>
+        
+        <div class="content">
+          <h1 class="title">${title}</h1>
+          <div class="greeting">Hello${userName ? ` ${userName}` : ''},</div>
+          <div class="message">
+            ${content}
+          </div>
+        </div>
+        
+        <div class="footer">
+          <div class="footer-logo">${appName}</div>
+          <p>The smartest way to grow your wealth with advanced technology.</p>
+          <div class="footer-links">
+            <a href="${appUrl}/dashboard">Dashboard</a> | 
+            <a href="${appUrl}/support">Support</a> | 
+            <a href="${appUrl}/terms">Terms of Service</a>
+          </div>
+          <p>&copy; ${year} ${appName}. All rights reserved.</p>
+          <p style="font-size: 12px; margin-top: 20px;">
+            If you did not expect this email, please ignore it or contact our support.
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
 };
 
 // Email templates
 export const emailTemplates = {
-  passwordReset: {
+  // 1. Email Verification
+  emailVerification: (userName: string, verifyUrl: string) => ({
+    subject: 'Verify Your Email - Tesla Capital',
+    html: getBaseTemplate(
+      'Verify Your Email',
+      `
+      <p>Welcome to Tesla Capital! We're excited to have you on board.</p>
+      <p>To get started and access all our investment features, please verify your email address by clicking the button below:</p>
+      <div class="button-container">
+        <a href="${verifyUrl}" class="button">Verify Email Address</a>
+      </div>
+      <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+      <p style="font-size: 12px; color: #6b7280; word-break: break-all;">${verifyUrl}</p>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, Welcome to Tesla Capital! Please verify your email by following this link: ${verifyUrl}`
+  }),
+
+  // 2. Password Reset
+  passwordReset: (userName: string, resetUrl: string) => ({
     subject: 'Reset Your Password - Tesla Capital',
-    getHtml: (resetUrl: string, userName?: string) => `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Reset Your Password - Tesla Capital</title>
-        <style>
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f8f9fa;
-          }
-          .container {
-            background: white;
-            border-radius: 12px;
-            padding: 40px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          }
-          .header {
-            text-align: center;
-            margin-bottom: 30px;
-          }
-          .logo {
-            font-size: 28px;
-            font-weight: bold;
-            color: #dc2626;
-            margin-bottom: 10px;
-          }
-          .title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 20px;
-          }
-          .content {
-            margin-bottom: 30px;
-          }
-          .button {
-            display: inline-block;
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
-            color: white;
-            padding: 14px 28px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            text-align: center;
-            margin: 20px 0;
-            transition: all 0.3s ease;
-          }
-          .button:hover {
-            background: linear-gradient(135deg, #b91c1c, #991b1b);
-            transform: translateY(-1px);
-          }
-          .security-note {
-            background: #fef3c7;
-            border: 1px solid #f59e0b;
-            border-radius: 8px;
-            padding: 16px;
-            margin: 20px 0;
-            font-size: 14px;
-          }
-          .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
-            color: #6b7280;
-            font-size: 14px;
-          }
-          .link {
-            color: #dc2626;
-            text-decoration: none;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <div class="logo">Tesla Capital</div>
-            <h1 class="title">Reset Your Password</h1>
-          </div>
-          
-          <div class="content">
-            <p>Hello${userName ? ` ${userName}` : ''},</p>
-            
-            <p>We received a request to reset your password for your Tesla Capital account. If you made this request, click the button below to set a new password:</p>
-            
-            <div style="text-align: center;">
-              <a href="${resetUrl}" class="button">Reset My Password</a>
-            </div>
-            
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #6b7280; font-size: 14px;">${resetUrl}</p>
-            
-            <div class="security-note">
-              <strong>Security Notice:</strong> This link will expire in 1 hour for your security. If you didn't request this password reset, you can safely ignore this email.
-            </div>
-            
-            <p>If you're having trouble with the button above, copy and paste the URL below into your web browser:</p>
-            <p style="word-break: break-all; color: #6b7280; font-size: 14px;">${resetUrl}</p>
-          </div>
-          
-          <div class="footer">
-            <p>This email was sent from Tesla Capital</p>
-            <p>If you have any questions, please contact our support team at <a href="mailto:support@teslacapital.com" class="link">support@teslacapital.com</a></p>
-            <p style="margin-top: 20px; font-size: 12px; color: #9ca3af;">
-              © ${new Date().getFullYear()} Tesla Capital. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    getText: (resetUrl: string, userName?: string) => `
-Tesla Capital - Password Reset Request
+    html: getBaseTemplate(
+      'Reset Your Password',
+      `
+      <p>We received a request to reset your password for your Tesla Capital account.</p>
+      <p>If you made this request, click the button below to set a new password:</p>
+      <div class="button-container">
+        <a href="${resetUrl}" class="button">Reset Password</a>
+      </div>
+      <p>This link will expire in 1 hour for your security.</p>
+      <p>If you didn't request this, you can safely ignore this email.</p>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, someone requested a password reset for your Tesla Capital account. Use this link: ${resetUrl}`
+  }),
 
-Hello${userName ? ` ${userName}` : ''},
+  // 3. Welcome (Sign up)
+  welcome: (userName: string) => ({
+    subject: 'Welcome to Tesla Capital! 🚀',
+    html: getBaseTemplate(
+      'Welcome Aboard!',
+      `
+      <p>Your account has been successfully created. We're thrilled to have you join our community of smart investors!</p>
+      <p>With Tesla Capital, you can:</p>
+      <ul>
+        <li>Invest in high-yield plans</li>
+        <li>Track your earnings in real-time</li>
+        <li>Manage your portfolio with advanced tools</li>
+        <li>Refer friends and earn bonuses</li>
+      </ul>
+      <p>Ready to start your investment journey?</p>
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">Go to Dashboard</a>
+      </div>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, Welcome to Tesla Capital! Your account has been created successfully.`
+  }),
 
-We received a request to reset your password for your Tesla Capital account. If you made this request, click the link below to set a new password:
+  // 4. Deposit Confirmation
+  depositConfirmation: (userName: string, amount: number, transactionId: string, status: string = 'approved') => ({
+    subject: `Deposit ${status === 'approved' ? 'Successful' : 'Pending'} - Tesla Capital`,
+    html: getBaseTemplate(
+      `Deposit ${status === 'approved' ? 'Confirmed' : 'Received'}`,
+      `
+      <p>Your deposit has been ${status === 'approved' ? 'successfully processed and added to your balance' : 'received and is currently pending review'}.</p>
+      <table class="data-table">
+        <tr><td>Amount:</td><td class="highlight">$${amount.toLocaleString()}</td></tr>
+        <tr><td>Transaction ID:</td><td>${transactionId}</td></tr>
+        <tr><td>Status:</td><td>${status.toUpperCase()}</td></tr>
+        <tr><td>Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
+      </table>
+      ${status === 'approved' ? '<p>You can now use these funds to subscribe to any of our investment plans.</p>' : '<p>We will notify you once your deposit has been approved.</p>'}
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard?section=logs" class="button">View Transactions</a>
+      </div>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, your deposit of $${amount} is ${status}. Transaction ID: ${transactionId}`
+  }),
 
-${resetUrl}
+  // 5. Withdrawal Confirmation
+  withdrawalConfirmation: (userName: string, amount: number, transactionId: string, status: string = 'pending') => ({
+    subject: `Withdrawal ${status === 'approved' ? 'Processed' : 'Request Received'} - Tesla Capital`,
+    html: getBaseTemplate(
+      `Withdrawal ${status === 'approved' ? 'Successful' : 'Request'}`,
+      `
+      <p>Your withdrawal ${status === 'approved' ? 'has been processed successfully' : 'request has been received and is being reviewed by our team'}.</p>
+      <table class="data-table">
+        <tr><td>Amount:</td><td class="highlight">$${amount.toLocaleString()}</td></tr>
+        <tr><td>Transaction ID:</td><td>${transactionId}</td></tr>
+        <tr><td>Status:</td><td>${status.toUpperCase()}</td></tr>
+        <tr><td>Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
+      </table>
+      <p>Expect your funds to reach your provided destination shortly после approval.</p>
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard?section=logs" class="button">View Logs</a>
+      </div>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, your withdrawal of $${amount} is ${status}. Transaction ID: ${transactionId}`
+  }),
 
-This link will expire in 1 hour for your security. If you didn't request this password reset, you can safely ignore this email.
+  // 6. Money Transfer
+  moneyTransfer: (userName: string, amount: number, recipientEmail: string, type: 'sent' | 'received') => ({
+    subject: `Money Transfer ${type === 'sent' ? 'to' : 'from'} ${recipientEmail} - Tesla Capital`,
+    html: getBaseTemplate(
+      `Money ${type === 'sent' ? 'Sent' : 'Received'}`,
+      `
+      <p>You have successfully ${type === 'sent' ? 'sent' : 'received'} a money transfer.</p>
+      <table class="data-table">
+        <tr><td>Amount:</td><td class="highlight">$${amount.toLocaleString()}</td></tr>
+        <tr><td>${type === 'sent' ? 'Recipient' : 'Sender'}:</td><td>${recipientEmail}</td></tr>
+        <tr><td>Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
+      </table>
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">Check Balance</a>
+      </div>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, you have ${type} $${amount} ${type === 'sent' ? 'to' : 'from'} ${recipientEmail}.`
+  }),
 
-If you're having trouble with the link above, copy and paste the URL into your web browser.
+  // 7. Daily Earnings
+  dailyEarnings: (userName: string, amount: number, planName: string) => ({
+    subject: `Daily Earnings Credited: $${amount.toFixed(2)} - Tesla Capital`,
+    html: getBaseTemplate(
+      'Daily Profit Credited',
+      `
+      <p>Exciting news! Your daily profit from the <strong>${planName}</strong> plan has been credited to your account.</p>
+      <table class="data-table">
+        <tr><td>Plan:</td><td>${planName}</td></tr>
+        <tr><td>Profit Amount:</td><td class="highlight">$${amount.toFixed(2)}</td></tr>
+        <tr><td>Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
+      </table>
+      <p>Your balance has been updated. Keep growing with Tesla Capital!</p>
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">View Earnings</a>
+      </div>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, your daily earnings of $${amount.toFixed(2)} from ${planName} has been credited.`
+  }),
 
-If you have any questions, please contact our support team at support@teslacapital.com
+  // 8. Subscription to a Plan
+  planSubscription: (userName: string, amount: number, planName: string) => ({
+    subject: `New Investment Plan: ${planName} - Tesla Capital`,
+    html: getBaseTemplate(
+      'Investment Started!',
+      `
+      <p>You have successfully subscribed to the <strong>${planName}</strong> investment plan.</p>
+      <table class="data-table">
+        <tr><td>Plan:</td><td>${planName}</td></tr>
+        <tr><td>Principal:</td><td class="highlight">$${amount.toLocaleString()}</td></tr>
+        <tr><td>Start Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
+      </table>
+      <p>Your investment is now active and will start generating returns based on the plan's schedule.</p>
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard?section=investment" class="button">Track Progress</a>
+      </div>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, you have successfully subscribed to the ${planName} plan with $${amount}.`
+  }),
 
-© ${new Date().getFullYear()} Tesla Capital. All rights reserved.
-    `,
-  },
+  // 9. Upgrade/Downgrade Plan
+  planChange: (userName: string, oldPlan: string, newPlan: string, amount: number) => ({
+    subject: `Investment Plan Updated - Tesla Capital`,
+    html: getBaseTemplate(
+      'Plan Successfully Updated',
+      `
+      <p>Your investment plan has been successfully updated.</p>
+      <table class="data-table">
+        <tr><td>Previous Plan:</td><td>${oldPlan}</td></tr>
+        <tr><td>New Plan:</td><td class="highlight">${newPlan}</td></tr>
+        <tr><td>Investment Amount:</td><td>$${amount.toLocaleString()}</td></tr>
+        <tr><td>Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
+      </table>
+      <p>Your future returns will now be calculated based on the <strong>${newPlan}</strong> plan.</p>
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard?section=investment" class="button">Track Progress</a>
+      </div>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, your investment plan has been updated from ${oldPlan} to ${newPlan}.`
+  }),
+
+  // 10. Withdrawal/Deposit Request (Admin only)
+  adminAlert: (type: 'Deposit' | 'Withdrawal', userEmail: string, amount: number, transactionId: string) => ({
+    subject: `Admin Alert: New ${type} Request - $${amount}`,
+    html: getBaseTemplate(
+      `New ${type} Request`,
+      `
+      <p>A user has submitted a new ${type.toLowerCase()} request for review.</p>
+      <table class="data-table">
+        <tr><td>User:</td><td>${userEmail}</td></tr>
+        <tr><td>Amount:</td><td class="highlight">$${amount.toLocaleString()}</td></tr>
+        <tr><td>Transaction ID:</td><td>${transactionId}</td></tr>
+        <tr><td>Date:</td><td>${new Date().toLocaleString()}</td></tr>
+      </table>
+      <p>Please log in to the admin dashboard to process this request.</p>
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard?section=admin" class="button">Admin Dashboard</a>
+      </div>
+      `,
+      'Admin'
+    ),
+    text: `Admin Alert: New ${type} request of $${amount} from ${userEmail}.`
+  }),
+  // 11. Plan Completed
+  planCompleted: (userName: string, planName: string, amount: number, capitalReturned: boolean) => ({
+    subject: `Investment Plan Completed: ${planName} - Tesla Capital`,
+    html: getBaseTemplate(
+      'Investment Plan Completed',
+      `
+      <p>Congratulations! Your investment in the <strong>${planName}</strong> plan has successfully reached its maturity.</p>
+      <table class="data-table">
+        <tr><td>Plan:</td><td>${planName}</td></tr>
+        <tr><td>Principal:</td><td>$${amount.toLocaleString()}</td></tr>
+        <tr><td>Capital Returned:</td><td>${capitalReturned ? 'YES' : 'NO'}</td></tr>
+        <tr><td>Completion Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
+      </table>
+      <p>${capitalReturned ? 'Your principal amount has been returned to your main balance.' : 'Your investment period has ended.'}</p>
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">Go to Dashboard</a>
+      </div>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, your ${planName} investment has completed. ${capitalReturned ? 'Capital returned.' : ''}`
+  }),
 };
 
 

@@ -12,16 +12,34 @@ const NewsletterSection = () => {
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsSubscribed(true);
-    setIsLoading(false);
-    setEmail('');
-    
-    // Reset success message after 3 seconds
-    setTimeout(() => setIsSubscribed(false), 3000);
+
+    try {
+      const response = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to subscribe');
+      }
+
+      setIsSubscribed(true);
+      setEmail('');
+
+      // Reset success message after 3 seconds
+      setTimeout(() => setIsSubscribed(false), 3000);
+    } catch (error) {
+      console.error('Subscription failed:', error);
+      // You might want to show an error message to the user here
+      alert('Failed to subscribe. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -38,7 +56,7 @@ const NewsletterSection = () => {
               <Mail className="w-8 h-8" />
             </div>
           </div>
-          
+
           <h2 className="text-4xl font-bold mb-4">
             Our Newsletter
           </h2>

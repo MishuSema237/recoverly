@@ -6,7 +6,7 @@ import { CheckCircle, Star, Zap, Crown, Gem, AlertCircle, TrendingUp, Diamond, R
 import { useAuth } from '@/contexts/AuthContext';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
 import dynamic from 'next/dynamic';
-import ElectricBorder from './ElectricBorder.jsx';
+
 
 const InvestmentProgressSection = dynamic(() => import('@/components/dashboard/InvestmentProgressSection'), {
   loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
@@ -40,7 +40,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
   // Recalculate when plan changes
   const handlePlanChange = (plan: InvestmentPlan | null) => {
     setSelectedPlan(plan);
-    
+
     if (plan && investmentAmount > 0) {
       // Revalidate current amount against new plan
       const error = validateAmount(investmentAmount, plan);
@@ -58,9 +58,9 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
       setTimeout(() => {
         const calculatorElement = document.getElementById('investment-calculator');
         if (calculatorElement) {
-          calculatorElement.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
+          calculatorElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
           });
         }
       }, 100);
@@ -98,10 +98,10 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
         } else {
           setLoading(true);
         }
-        
+
         const planService = new PlanService();
         const mongoPlans = await planService.getAllPlans();
-        
+
         if (mongoPlans.length > 0) {
           setPlans(mongoPlans);
           // Cache plans for offline use
@@ -111,7 +111,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
           localStorage.removeItem('investmentPlans');
           setPlans([]);
         }
-        
+
         if (showRefreshing) {
           setRefreshing(false);
         } else {
@@ -119,11 +119,11 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
         }
       } catch (error) {
         console.error('Error loading plans from MongoDB:', error);
-        
+
         // Clear cached plans on error to ensure fresh data
         localStorage.removeItem('investmentPlans');
         setPlans([]);
-        
+
         if (showRefreshing) {
           setRefreshing(false);
         } else {
@@ -159,7 +159,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
         setRefreshing(true);
         const planService = new PlanService();
         const mongoPlans = await planService.getAllPlans();
-        
+
         if (mongoPlans.length > 0) {
           setPlans(mongoPlans);
           // Cache plans for offline use
@@ -190,7 +190,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
         setRefreshing(false);
       }
     };
-    
+
     await loadPlans();
   };
 
@@ -199,7 +199,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
 
   // Pagination functions
   const totalPages = Math.ceil(currentPlans.length / plansPerPage);
-  
+
   const nextPage = () => {
     setCurrentPage((prev) => (prev + 1) % totalPages);
   };
@@ -306,9 +306,9 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
 
     // Check if user has sufficient balance
     if (investmentAmount > accountBalance) {
-      setMessage({ 
-        type: 'error', 
-        text: `Insufficient balance. You need $${investmentAmount.toLocaleString()} but only have $${accountBalance.toLocaleString()} in your account. Please deposit funds first.` 
+      setMessage({
+        type: 'error',
+        text: `Insufficient balance. You need $${investmentAmount.toLocaleString()} but only have $${accountBalance.toLocaleString()} in your account. Please deposit funds first.`
       });
       setIsProcessing(false);
       return;
@@ -335,9 +335,9 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
         throw new Error(result.error || 'Investment failed');
       }
 
-      setMessage({ 
-        type: 'success', 
-        text: `Investment of $${investmentAmount.toLocaleString()} in ${selectedPlan.name} plan confirmed! Your investment is now active.` 
+      setMessage({
+        type: 'success',
+        text: `Investment of $${investmentAmount.toLocaleString()} in ${selectedPlan.name} plan confirmed! Your investment is now active.`
       });
 
       // Reset form
@@ -351,9 +351,9 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
 
     } catch (error) {
       console.error('Error processing investment:', error);
-      setMessage({ 
-        type: 'error', 
-        text: 'Failed to process investment. Please try again or contact support.' 
+      setMessage({
+        type: 'error',
+        text: 'Failed to process investment. Please try again or contact support.'
       });
     } finally {
       setIsProcessing(false);
@@ -399,7 +399,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
     } else {
       // Show progress interface with upgrade option
       return (
-        <InvestmentProgressSection 
+        <InvestmentProgressSection
           onUpgradePlan={() => setShowUpgradeInterface(true)}
         />
       );
@@ -433,7 +433,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
             )}
           </div>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Choose from our carefully crafted investment plans designed to maximize your returns 
+            Choose from our carefully crafted investment plans designed to maximize your returns
             while maintaining security and transparency.
           </p>
         </div>
@@ -446,7 +446,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
         ) : currentPlans.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-gray-600 text-lg">
-              {isOffline 
+              {isOffline
                 ? "No cached investment plans available. Please connect to the internet to load plans."
                 : "No investment plans available at the moment."
               }
@@ -456,92 +456,83 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
           <div className="relative">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
               {paginatedPlans.map((plan, index) => (
-            <ElectricBorder
-              key={plan._id || `${index}`}
-              color="#7df9ff"
-              speed={1}
-              chaos={0.5}
-              thickness={2}
-              className=""
-              style={{ borderRadius: 16 }}
-            >
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${
-                selectedPlan?._id === plan._id ? 'ring-2 ring-red-500 border-red-500' : ''
-              }`}
-            >
-              
-              <div className={`bg-gradient-to-r ${getColorGradient(plan.color)} p-6 rounded-t-2xl`}>
-                <div className="flex items-center justify-between text-white">
-                  <div className="flex items-center space-x-3">
-                    {getIcon(plan.icon)}
-                    <h3 className="text-xl font-bold">{plan.name}</h3>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold">{plan.roi}%</div>
-                    <div className="text-sm opacity-90">ROI</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-6">
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Duration:</span>
-                    <span className="font-semibold">{plan.duration}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Min Amount:</span>
-                    <span className="font-semibold">${plan.minAmount.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Max Amount:</span>
-                    <span className="font-semibold">
-                      {plan.maxAmount === Infinity ? 'Unlimited' : `$${plan.maxAmount.toLocaleString()}`}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Capital Back:</span>
-                    <span className="font-semibold text-green-600">
-                      {plan.capitalBack ? 'Yes' : 'No'}
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    if (isDashboard && user && user.emailVerified) {
-                      handlePlanChange(plan);
-                      setShowCalculation(true);
-                    } else if (!user) {
-                      window.location.href = '/login';
-                    } else if (!user.emailVerified) {
-                      window.location.href = '/activate-email';
-                    } else {
-                      handlePlanChange(plan);
-                    }
-                  }}
-                  disabled={isProcessing}
-                  className={`w-full mt-6 py-3 px-4 rounded-lg font-semibold transition-colors duration-200 bg-gradient-to-r ${getColorGradient(plan.color)} text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center`}
+                <motion.div
+                  key={plan._id || index}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${selectedPlan?._id === plan._id ? 'ring-2 ring-red-500 border-red-500' : ''
+                    }`}
                 >
-                  {isProcessing ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      {!user ? 'Invest' : !user.emailVerified ? 'Verify Email First' : isDashboard ? (selectedPlan?._id === plan._id ? 'Selected' : 'Select Plan') : 'Invest Now'}
-                    </>
-                  )}
-                </button>
-              </div>
-            </motion.div>
-            </ElectricBorder>
-          ))}
+
+                  <div className={`bg-gradient-to-r ${getColorGradient(plan.color)} p-6 rounded-t-2xl`}>
+                    <div className="flex items-center justify-between text-white">
+                      <div className="flex items-center space-x-3">
+                        {getIcon(plan.icon)}
+                        <h3 className="text-xl font-bold">{plan.name}</h3>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold">{plan.roi}%</div>
+                        <div className="text-sm opacity-90">ROI</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Duration:</span>
+                        <span className="font-semibold">{plan.duration}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Min Amount:</span>
+                        <span className="font-semibold">${plan.minAmount.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Max Amount:</span>
+                        <span className="font-semibold">
+                          {plan.maxAmount === Infinity ? 'Unlimited' : `$${plan.maxAmount.toLocaleString()}`}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Capital Back:</span>
+                        <span className="font-semibold text-green-600">
+                          {plan.capitalBack ? 'Yes' : 'No'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        if (isDashboard && user && user.emailVerified) {
+                          handlePlanChange(plan);
+                          setShowCalculation(true);
+                        } else if (!user) {
+                          window.location.href = '/login';
+                        } else if (!user.emailVerified) {
+                          window.location.href = '/activate-email';
+                        } else {
+                          handlePlanChange(plan);
+                        }
+                      }}
+                      disabled={isProcessing}
+                      className={`w-full mt-6 py-3 px-4 rounded-lg font-semibold transition-colors duration-200 bg-gradient-to-r ${getColorGradient(plan.color)} text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center`}
+                    >
+                      {isProcessing ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          {!user ? 'Invest' : !user.emailVerified ? 'Verify Email First' : isDashboard ? (selectedPlan?._id === plan._id ? 'Selected' : 'Select Plan') : 'Invest Now'}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
+
+              ))}
             </div>
 
             {/* Pagination Controls */}
@@ -562,11 +553,10 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                     <button
                       key={index}
                       onClick={() => goToPage(index)}
-                      className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                        currentPage === index
-                          ? 'bg-red-600 scale-125'
-                          : 'bg-gray-300 hover:bg-gray-400'
-                      }`}
+                      className={`w-3 h-3 rounded-full transition-all duration-200 ${currentPage === index
+                        ? 'bg-red-600 scale-125'
+                        : 'bg-gray-300 hover:bg-gray-400'
+                        }`}
                     />
                   ))}
                 </div>
@@ -590,7 +580,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
             <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
               Investment Calculation
             </h3>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div>
@@ -610,9 +600,8 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                         setAmountError('');
                       }
                     }}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
-                      amountError ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${amountError ? 'border-red-500' : 'border-gray-300'
+                      }`}
                     placeholder="Enter amount"
                     min={selectedPlan.minAmount}
                     max={selectedPlan.maxAmount === Infinity ? undefined : selectedPlan.maxAmount}
@@ -621,7 +610,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                     <p className="text-sm text-red-500 mt-1">{amountError}</p>
                   ) : (
                     <p className="text-sm text-gray-500 mt-1">
-                      Min: ${selectedPlan.minAmount.toLocaleString()} | 
+                      Min: ${selectedPlan.minAmount.toLocaleString()} |
                       Max: {selectedPlan.maxAmount === Infinity ? 'Unlimited' : `$${selectedPlan.maxAmount.toLocaleString()}`}
                     </p>
                   )}
@@ -689,37 +678,37 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
             {investmentAmount > 0 && !amountError && (
               <div className="mt-8">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">Investment Details</h4>
-                
+
                 {/* How Your Money Multiplies */}
                 <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 mb-6">
                   <h5 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
                     How Your Money Multiplies
                   </h5>
-                  
+
                   <div className="space-y-4">
                     <div className="flex justify-between items-center py-2 border-b border-gray-200">
                       <span className="text-gray-700">Initial Investment:</span>
                       <span className="font-semibold text-gray-900">${investmentAmount.toLocaleString()}</span>
                     </div>
-                    
+
                     <div className="flex justify-between items-center py-2 border-b border-gray-200">
                       <span className="text-gray-700">ROI Rate:</span>
                       <span className="font-semibold text-green-600">{selectedPlan.roi}%</span>
                     </div>
                     <div className="bg-blue-50 rounded-lg p-3 mt-2 mb-2">
                       <p className="text-xs text-blue-800">
-                        <strong>Note:</strong> ROI (Return on Investment) is calculated by Tesla Capital based on our actual 
+                        <strong>Note:</strong> ROI (Return on Investment) is calculated by Tesla Capital based on our actual
                         investment performance in top stocks and crypto mining operations. Daily Rate = ROI ÷ Duration days.
                         Your first daily earning comes the next day after investment.
                       </p>
                     </div>
-                    
+
                     <div className="flex justify-between items-center py-2 border-b border-gray-200">
                       <span className="text-gray-700">Investment Duration:</span>
                       <span className="font-semibold text-gray-900">{selectedPlan.duration}</span>
                     </div>
-                    
+
                     {selectedPlan.duration === 'Daily' ? (
                       <>
                         <div className="flex justify-between items-center py-2 border-b border-gray-200">
@@ -743,26 +732,26 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                         </span>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-between items-center py-2 border-b border-gray-200">
                       <span className="text-gray-700">Capital Return:</span>
                       <span className={`font-semibold ${selectedPlan.capitalBack ? 'text-green-600' : 'text-red-600'}`}>
                         {selectedPlan.capitalBack ? 'Yes' : 'No'}
                       </span>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4 mt-4">
                       <div className="flex justify-between items-center">
                         <span className="text-lg font-semibold text-gray-900">Total Return:</span>
                         <span className="text-xl font-bold text-green-600">
-                          ${selectedPlan.capitalBack 
+                          ${selectedPlan.capitalBack
                             ? (parseFloat(calculateEarnings(investmentAmount, selectedPlan.roi, selectedPlan.duration)) + investmentAmount).toFixed(2)
                             : calculateEarnings(investmentAmount, selectedPlan.roi, selectedPlan.duration)
                           }
                         </span>
                       </div>
                       <p className="text-sm text-gray-600 mt-2">
-                        {selectedPlan.capitalBack 
+                        {selectedPlan.capitalBack
                           ? 'Includes your initial investment + earnings'
                           : 'Earnings only (capital not returned)'
                         }
@@ -800,11 +789,10 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                 {/* Proceed Button */}
                 <div className="text-center">
                   <button
-                    className={`py-3 px-8 rounded-lg font-semibold transition-colors duration-200 ${
-                      isProcessing || investmentAmount === 0 || amountError || investmentAmount > accountBalance
-                        ? 'bg-gray-400 cursor-not-allowed text-white'
-                        : 'bg-red-600 hover:bg-red-700 text-white'
-                    }`}
+                    className={`py-3 px-8 rounded-lg font-semibold transition-colors duration-200 ${isProcessing || investmentAmount === 0 || amountError || investmentAmount > accountBalance
+                      ? 'bg-gray-400 cursor-not-allowed text-white'
+                      : 'bg-red-600 hover:bg-red-700 text-white'
+                      }`}
                     onClick={handleInvestment}
                     disabled={isProcessing || investmentAmount === 0 || !!amountError || investmentAmount > accountBalance}
                   >
@@ -822,127 +810,126 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
             <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
               Investment Calculator
             </h3>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Investment Amount ($)
-                </label>
-                <input
-                  type="number"
-                  value={investmentAmount}
-                  onChange={(e) => {
-                    const amount = Number(e.target.value);
-                    setInvestmentAmount(amount);
-                    if (selectedPlan && amount > 0) {
-                      const error = validateAmount(amount, selectedPlan);
-                      setAmountError(error);
-                    } else {
-                      setAmountError('');
-                    }
-                  }}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
-                    amountError ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Enter amount"
-                  min={selectedPlan?.minAmount || 0}
-                  max={selectedPlan?.maxAmount === Infinity ? undefined : selectedPlan?.maxAmount}
-                />
-                {amountError && (
-                  <p className="text-sm text-red-500 mt-1">{amountError}</p>
-                )}
-                {selectedPlan && !amountError && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    Min: ${selectedPlan.minAmount.toLocaleString()} | 
-                    Max: {selectedPlan.maxAmount === Infinity ? 'Unlimited' : `$${selectedPlan.maxAmount.toLocaleString()}`}
-                  </p>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Investment Amount ($)
+                  </label>
+                  <input
+                    type="number"
+                    value={investmentAmount}
+                    onChange={(e) => {
+                      const amount = Number(e.target.value);
+                      setInvestmentAmount(amount);
+                      if (selectedPlan && amount > 0) {
+                        const error = validateAmount(amount, selectedPlan);
+                        setAmountError(error);
+                      } else {
+                        setAmountError('');
+                      }
+                    }}
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${amountError ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                    placeholder="Enter amount"
+                    min={selectedPlan?.minAmount || 0}
+                    max={selectedPlan?.maxAmount === Infinity ? undefined : selectedPlan?.maxAmount}
+                  />
+                  {amountError && (
+                    <p className="text-sm text-red-500 mt-1">{amountError}</p>
+                  )}
+                  {selectedPlan && !amountError && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      Min: ${selectedPlan.minAmount.toLocaleString()} |
+                      Max: {selectedPlan.maxAmount === Infinity ? 'Unlimited' : `$${selectedPlan.maxAmount.toLocaleString()}`}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Investment Plan
+                  </label>
+                  <select
+                    onChange={(e) => {
+                      const plan = plans.find(p => p._id === e.target.value);
+                      handlePlanChange(plan || null);
+                    }}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  >
+                    <option value="">Select a plan</option>
+                    {currentPlans.map(plan => (
+                      <option key={plan._id} value={plan._id}>
+                        {plan.name} ({plan.roi}% ROI)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {!user ? (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-blue-800 text-sm">
+                      Please log in to start investing with Tesla Capital.
+                    </p>
+                  </div>
+                ) : !user.emailVerified ? (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-center">
+                      <AlertCircle className="w-5 h-5 text-yellow-600 mr-2" />
+                      <p className="text-yellow-800 text-sm">
+                        Please verify your email address to start investing.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center">
+                      <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                      <p className="text-green-800 text-sm">
+                        Your email is verified. You can start investing!
+                      </p>
+                    </div>
+                  </div>
                 )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Investment Plan
-                </label>
-                <select
-                  onChange={(e) => {
-                    const plan = plans.find(p => p._id === e.target.value);
-                    handlePlanChange(plan || null);
-                  }}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                >
-                  <option value="">Select a plan</option>
-                  {currentPlans.map(plan => (
-                    <option key={plan._id} value={plan._id}>
-                      {plan.name} ({plan.roi}% ROI)
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {!user ? (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-blue-800 text-sm">
-                    Please log in to start investing with Tesla Capital.
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Calculate Earnings</h4>
+                {selectedPlan && investmentAmount > 0 ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Investment Amount:</span>
+                      <span className="font-semibold">${investmentAmount.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Plan:</span>
+                      <span className="font-semibold">{selectedPlan.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">ROI:</span>
+                      <span className="font-semibold">{selectedPlan.roi}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Duration:</span>
+                      <span className="font-semibold">{selectedPlan.duration}</span>
+                    </div>
+                    <hr className="my-3" />
+                    <div className="flex justify-between text-lg">
+                      <span className="text-gray-900 font-semibold">Expected Earnings:</span>
+                      <span className="font-bold text-green-600">
+                        ${calculateEarnings(investmentAmount, selectedPlan.roi, selectedPlan.duration)}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-8">
+                    Select a plan and enter an amount to calculate your potential earnings.
                   </p>
-                </div>
-              ) : !user.emailVerified ? (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <div className="flex items-center">
-                    <AlertCircle className="w-5 h-5 text-yellow-600 mr-2" />
-                    <p className="text-yellow-800 text-sm">
-                      Please verify your email address to start investing.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div className="flex items-center">
-                    <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                    <p className="text-green-800 text-sm">
-                      Your email is verified. You can start investing!
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4">Calculate Earnings</h4>
-              {selectedPlan && investmentAmount > 0 ? (
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Investment Amount:</span>
-                    <span className="font-semibold">${investmentAmount.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Plan:</span>
-                    <span className="font-semibold">{selectedPlan.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">ROI:</span>
-                    <span className="font-semibold">{selectedPlan.roi}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Duration:</span>
-                    <span className="font-semibold">{selectedPlan.duration}</span>
-                  </div>
-                  <hr className="my-3" />
-                  <div className="flex justify-between text-lg">
-                    <span className="text-gray-900 font-semibold">Expected Earnings:</span>
-                    <span className="font-bold text-green-600">
-                      ${calculateEarnings(investmentAmount, selectedPlan.roi, selectedPlan.duration)}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-gray-500 text-center py-8">
-                  Select a plan and enter an amount to calculate your potential earnings.
-                </p>
-              )}
+                )}
+              </div>
             </div>
           </div>
-        </div>
         )}
 
         {/* Investment Details */}
@@ -951,14 +938,13 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
             <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
               Investment Details
             </h3>
-            
+
             {/* Message Display */}
             {message.text && (
-              <div className={`p-4 rounded-lg mb-6 ${
-                message.type === 'success' 
-                  ? 'bg-green-50 border border-green-200 text-green-800' 
-                  : 'bg-red-50 border border-red-200 text-red-800'
-              }`}>
+              <div className={`p-4 rounded-lg mb-6 ${message.type === 'success'
+                ? 'bg-green-50 border border-green-200 text-green-800'
+                : 'bg-red-50 border border-red-200 text-red-800'
+                }`}>
                 {message.text}
               </div>
             )}
@@ -975,30 +961,30 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                 </div>
               </div>
             )}
-            
+
             {/* How Your Money Multiplies */}
             <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 mb-6">
               <h5 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
                 How Your Money Multiplies
               </h5>
-              
+
               <div className="space-y-4">
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                   <span className="text-gray-700">Initial Investment:</span>
                   <span className="font-semibold text-gray-900">${investmentAmount.toLocaleString()}</span>
                 </div>
-                
+
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                   <span className="text-gray-700">ROI Rate:</span>
                   <span className="font-semibold text-green-600">{selectedPlan.roi}%</span>
                 </div>
-                
+
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                   <span className="text-gray-700">Investment Duration:</span>
                   <span className="font-semibold text-gray-900">{selectedPlan.duration}</span>
                 </div>
-                
+
                 {selectedPlan.duration === 'Daily' ? (
                   <>
                     <div className="flex justify-between items-center py-2 border-b border-gray-200">
@@ -1022,26 +1008,26 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                     </span>
                   </div>
                 )}
-                
+
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                   <span className="text-gray-700">Capital Return:</span>
                   <span className={`font-semibold ${selectedPlan.capitalBack ? 'text-green-600' : 'text-red-600'}`}>
                     {selectedPlan.capitalBack ? 'Yes' : 'No'}
                   </span>
                 </div>
-                
+
                 <div className="bg-white rounded-lg p-4 mt-4">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold text-gray-900">Total Return:</span>
                     <span className="text-xl font-bold text-green-600">
-                      ${selectedPlan.capitalBack 
+                      ${selectedPlan.capitalBack
                         ? (parseFloat(calculateEarnings(investmentAmount, selectedPlan.roi, selectedPlan.duration)) + investmentAmount).toFixed(2)
                         : calculateEarnings(investmentAmount, selectedPlan.roi, selectedPlan.duration)
                       }
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 mt-2">
-                    {selectedPlan.capitalBack 
+                    {selectedPlan.capitalBack
                       ? 'Includes your initial investment + earnings'
                       : 'Earnings only (capital not returned)'
                     }
@@ -1079,11 +1065,10 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
             {/* Proceed Button */}
             <div className="text-center">
               <button
-                className={`py-2 px-4 lg:py-3 lg:px-8 rounded-lg text-sm lg:text-base font-semibold transition-colors duration-200 ${
-                  isProcessing || investmentAmount === 0 || amountError || investmentAmount > accountBalance
-                    ? 'bg-gray-400 cursor-not-allowed text-white'
-                    : 'bg-red-600 hover:bg-red-700 text-white'
-                }`}
+                className={`py-2 px-4 lg:py-3 lg:px-8 rounded-lg text-sm lg:text-base font-semibold transition-colors duration-200 ${isProcessing || investmentAmount === 0 || amountError || investmentAmount > accountBalance
+                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  : 'bg-red-600 hover:bg-red-700 text-white'
+                  }`}
                 onClick={handleInvestment}
                 disabled={isProcessing || investmentAmount === 0 || !!amountError || investmentAmount > accountBalance}
               >

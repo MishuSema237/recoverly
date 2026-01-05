@@ -1,4 +1,5 @@
 'use client';
+// Force rebuild
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -9,7 +10,7 @@ import DecryptedText from './DecryptedText';
 
 const HeroSection = () => {
   const [currentWord, setCurrentWord] = useState(0);
-  
+
   const dynamicWords = [
     'CRYPTO',
     'TRADING',
@@ -32,7 +33,7 @@ const HeroSection = () => {
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-black opacity-20"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 to-transparent"></div>
-      
+
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
         <div className="grid grid-cols-1 mobile:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
@@ -63,13 +64,13 @@ const HeroSection = () => {
                         sequential={true}
                         revealDirection="start"
                         animateOn="view"
-                          className="text-red-400 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent"
+                        className="text-red-400 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent"
                         encryptedClassName="text-gray-400 opacity-50"
-                          style={{ 
-                            fontFamily: 'Montserrat, sans-serif', 
-                            fontSize: '1.2em', 
+                        style={{
+                          fontFamily: 'Montserrat, sans-serif',
+                          fontSize: '1.2em',
                           fontWeight: '700'
-                          }}
+                        }}
                       />
                     </motion.div>
                   </AnimatePresence>
@@ -77,9 +78,9 @@ const HeroSection = () => {
                 <span className="block text-white" style={{ fontVariationSettings: '"wght" 800' }}>Game</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-lg">
-                <strong>Tesla Capital</strong> transforms your financial future with 
-                <span className="text-red-400 font-semibold"> explosive returns</span> and 
-                <span className="text-red-400 font-semibold"> bulletproof security</span>. 
+                <strong>Tesla Capital</strong> transforms your financial future with
+                <span className="text-red-400 font-semibold"> explosive returns</span> and
+                <span className="text-red-400 font-semibold"> bulletproof security</span>.
                 Join the elite investors already crushing their goals.
               </p>
             </div>
@@ -99,7 +100,7 @@ const HeroSection = () => {
                   e.preventDefault();
                   const element = document.getElementById('investment-plans');
                   if (element) {
-                    element.scrollIntoView({ 
+                    element.scrollIntoView({
                       behavior: 'smooth',
                       block: 'start'
                     });
@@ -143,7 +144,7 @@ const HeroSection = () => {
                 className="object-cover"
               />
             </div>
-            
+
             <div className="relative">
               {/* Main illustration - Hidden on mobile, shown on desktop */}
               <div className="hidden mobile:block relative z-10">

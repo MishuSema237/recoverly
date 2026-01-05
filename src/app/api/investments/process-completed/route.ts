@@ -1,33 +1,33 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+// import { ObjectId } from 'mongodb';
 
 export async function POST() {
   try {
     const db = await getDb();
     const now = new Date();
-    
+
     // Get all users with investments
     const users = await db.collection('users').find({}).toArray();
-    
+
     let processedCount = 0;
-    
+
     for (const user of users) {
       if (!user.investments || user.investments.length === 0) continue;
-      
+
       for (const investment of user.investments) {
         if (investment.status !== 'active') continue;
-        
+
         // Check if investment end date has passed
         const endDate = new Date(investment.endDate);
         if (endDate <= now) {
           // Get the plan details to check if capital back is enabled
           const plan = await db.collection('investmentPlans').findOne({ name: investment.planName });
-          
+
           if (plan) {
             const capitalBack = plan.capitalBack === true || plan.capitalBack === 'yes';
             const investmentAmount = investment.amount;
-            
+
             if (capitalBack) {
               // Return capital to main balance
               await db.collection('users').updateOne(
@@ -45,7 +45,7 @@ export async function POST() {
                   }
                 }
               );
-              
+
               // Add transaction for capital return
               await db.collection('users').updateOne(
                 { _id: user._id },
@@ -64,7 +64,7 @@ export async function POST() {
                   } as any
                 }
               );
-              
+
               // Add activity log
               await db.collection('users').updateOne(
                 { _id: user._id },
@@ -94,7 +94,7 @@ export async function POST() {
                 }
               );
             }
-            
+
             // Mark investment as completed
             await db.collection('users').updateOne(
               { _id: user._id, 'investments._id': investment._id },
@@ -105,19 +105,19 @@ export async function POST() {
                 }
               } as Record<string, unknown>
             );
-            
+
             processedCount++;
           }
         }
       }
     }
-    
+
     return NextResponse.json({
       success: true,
       message: `Processed ${processedCount} completed investments`,
       processedCount
     });
-    
+
   } catch (error) {
     console.error('Error processing completed investments:', error);
     return NextResponse.json(

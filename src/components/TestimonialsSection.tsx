@@ -9,74 +9,112 @@ const createReviewCardImage = (reviewText: string, rating: number, author: strin
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   if (!ctx) return '';
-  
+
   canvas.width = 800;
   canvas.height = 600;
-  
-  // Gradient background
+
+  // Background - Dark elegant gradient
   const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, '#1f2937');
-  gradient.addColorStop(1, '#111827');
+  gradient.addColorStop(0, '#111827'); // Gray 900
+  gradient.addColorStop(1, '#000000'); // Black
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
+
+  // Add a subtle red accent/glow
+  const glow = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, 500);
+  glow.addColorStop(0, 'rgba(220, 38, 38, 0.1)'); // Red with low opacity
+  glow.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Border
+  ctx.strokeStyle = '#374151'; // Gray 700
+  ctx.lineWidth = 2;
+  ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+
   // Text properties
   ctx.fillStyle = '#ffffff';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  
-  // Review text
-  ctx.font = 'bold 32px Arial';
-  const maxWidth = canvas.width - 100;
-  const lines = [];
+
+  // Dynamic font size based on text length
+  let fontSize = 32;
+  if (reviewText.length > 150) fontSize = 28;
+  if (reviewText.length > 200) fontSize = 24;
+
+  ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+  const maxWidth = canvas.width - 120; // More padding
+  const lineHeight = fontSize * 1.5;
+
+  // Word wrap logic
   const words = reviewText.split(' ');
+  const lines = [];
   let currentLine = words[0];
-  
+
   for (let i = 1; i < words.length; i++) {
     const word = words[i];
-    const testLine = currentLine + ' ' + word;
-    const metrics = ctx.measureText(testLine);
-    if (metrics.width > maxWidth && i > 0) {
+    const width = ctx.measureText(currentLine + " " + word).width;
+    if (width < maxWidth) {
+      currentLine += " " + word;
+    } else {
       lines.push(currentLine);
       currentLine = word;
-    } else {
-      currentLine = testLine;
     }
   }
   lines.push(currentLine);
-  
+
+  // Calculate total text height to center vertically
+  const totalTextHeight = lines.length * lineHeight;
+  const startY = (canvas.height - totalTextHeight) / 2 - 40; // Shift up slightly for stars/author
+
   // Draw review text lines
-  const startY = canvas.height / 2 - (lines.length - 1) * 40 / 2;
   lines.forEach((line, index) => {
-    ctx.fillText(line, canvas.width / 2, startY + index * 40);
+    ctx.fillText(line, canvas.width / 2, startY + index * lineHeight);
   });
-  
+
   // Draw stars
   const starSize = 30;
   const starSpacing = 40;
-  const starsX = (canvas.width - (starSpacing * 5 - starSpacing)) / 2;
-  const starsY = startY + lines.length * 40 + 30;
-  
+  const starsX = (canvas.width - (starSpacing * 5 - (starSpacing - starSize))) / 2; // Correct centering
+  const starsY = startY + totalTextHeight + 40;
+
   for (let i = 0; i < 5; i++) {
-    ctx.fillStyle = i < rating ? '#fbbf24' : '#6b7280';
+    ctx.fillStyle = i < rating ? '#ef4444' : '#4b5563'; // Red stars
     ctx.beginPath();
-    ctx.moveTo(starsX + i * starSpacing, starsY);
-    for (let j = 0; j < 5; j++) {
-      const angle = (Math.PI / 5) * j - Math.PI / 2;
-      const x = starsX + i * starSpacing + Math.cos(angle) * starSize / 2;
-      const y = starsY + Math.sin(angle) * starSize / 2;
-      if (j === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
+    // Draw star shape
+    const cx = starsX + i * starSpacing + starSize / 2;
+    const cy = starsY;
+    const spikes = 5;
+    const outerRadius = starSize / 2;
+    const innerRadius = starSize / 4;
+
+    let rot = Math.PI / 2 * 3;
+    let x = cx;
+    let y = cy;
+    const step = Math.PI / spikes;
+
+    ctx.moveTo(cx, cy - outerRadius);
+    for (let j = 0; j < spikes; j++) {
+      x = cx + Math.cos(rot) * outerRadius;
+      y = cy + Math.sin(rot) * outerRadius;
+      ctx.lineTo(x, y);
+      rot += step;
+
+      x = cx + Math.cos(rot) * innerRadius;
+      y = cy + Math.sin(rot) * innerRadius;
+      ctx.lineTo(x, y);
+      rot += step;
     }
+    ctx.lineTo(cx, cy - outerRadius);
     ctx.closePath();
     ctx.fill();
   }
-  
+
   // Author name
-  ctx.fillStyle = '#9ca3af';
-  ctx.font = '24px Arial';
+  ctx.fillStyle = '#9ca3af'; // Gray 400
+  ctx.font = 'italic 24px Inter, sans-serif';
   ctx.fillText(`- ${author}`, canvas.width / 2, starsY + 50);
-  
+
   return canvas.toDataURL('image/png');
 };
 
@@ -166,7 +204,7 @@ const TestimonialsSection = () => {
               What our customers say
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Don&apos;t just take our word for it. Here&apos;s what our satisfied investors 
+              Don&apos;t just take our word for it. Here&apos;s what our satisfied investors
               have to say about their experience with Tesla Capital.
             </p>
           </div>

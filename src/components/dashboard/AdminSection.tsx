@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
-import { 
-  Users, 
-  DollarSign, 
-  TrendingUp, 
-  CreditCard, 
+import {
+  Users,
+  DollarSign,
+  TrendingUp,
+  CreditCard,
   Plus,
   Edit,
   Trash2,
@@ -30,7 +30,9 @@ import { showSuccess, showError } from '@/utils/toast';
 import { canAccessAdmin } from '@/utils/adminUtils';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
 import WithdrawalScheduleManager from '@/components/admin/WithdrawalScheduleManager';
+
 import SupportMessagesManager from '@/components/admin/SupportMessagesManager';
+import NewsletterManager from '@/components/admin/NewsletterManager';
 // Note: UserService is server-side only, we'll use API calls instead
 
 interface PaymentMethod {
@@ -127,7 +129,7 @@ interface WithdrawalRequest {
 
 const AdminSection = () => {
   const { user, userProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'users' | 'plans' | 'payments' | 'transactions' | 'notifications' | 'support' | 'withdrawal-schedule'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'plans' | 'payments' | 'transactions' | 'notifications' | 'support' | 'withdrawal-schedule' | 'newsletter'>('users');
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [plans, setPlans] = useState<InvestmentPlan[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -143,7 +145,7 @@ const AdminSection = () => {
   const [planFilter, setPlanFilter] = useState<string>('all');
   const [investmentFilter, setInvestmentFilter] = useState<'all' | 'hasActive' | 'none'>('all');
   const [transactionSearchTerm, setTransactionSearchTerm] = useState('');
-  
+
   // Notification states
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [notificationType, setNotificationType] = useState<'broadcast' | 'individual'>('broadcast');
@@ -153,7 +155,7 @@ const AdminSection = () => {
   const [notificationFiles, setNotificationFiles] = useState<File[]>([]);
   const [selectedUsersForNotification, setSelectedUsersForNotification] = useState<string[]>([]);
   const [sendingNotification, setSendingNotification] = useState(false);
-  
+
   // User detail states
   const [showUserDetailModal, setShowUserDetailModal] = useState(false);
   const [userDetailData, setUserDetailData] = useState<AdminUser | null>(null);
@@ -172,7 +174,7 @@ const AdminSection = () => {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   // Transaction modal states
   const [selectedTransaction, setSelectedTransaction] = useState<DepositRequest | WithdrawalRequest | null>(null);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
@@ -280,7 +282,7 @@ const AdminSection = () => {
     try {
       const response = await fetch('/api/payment-methods');
       const result = await response.json();
-      
+
       if (result.success) {
         setPaymentMethods(result.data);
       } else {
@@ -301,15 +303,15 @@ const AdminSection = () => {
       // Load deposit requests
       const depositsResponse = await fetch('/api/transactions?type=deposits');
       const depositsResult = await depositsResponse.json();
-      
+
       if (depositsResult.success) {
         setDepositRequests(depositsResult.data);
       }
-      
+
       // Load withdrawal requests
       const withdrawalsResponse = await fetch('/api/transactions?type=withdrawals');
       const withdrawalsResult = await withdrawalsResponse.json();
-      
+
       if (withdrawalsResult.success) {
         setWithdrawalRequests(withdrawalsResult.data);
       }
@@ -340,12 +342,12 @@ const AdminSection = () => {
 
   const getFilteredDeposits = () => {
     let filtered = depositRequests;
-    
+
     // Filter by status
     if (depositFilter !== 'all') {
       filtered = filtered.filter(deposit => deposit.status === depositFilter);
     }
-    
+
     // Filter by search term
     if (transactionSearchTerm) {
       filtered = filtered.filter(deposit => {
@@ -360,18 +362,18 @@ const AdminSection = () => {
         );
       });
     }
-    
+
     return filtered;
   };
 
   const getFilteredWithdrawals = () => {
     let filtered = withdrawalRequests;
-    
+
     // Filter by status
     if (withdrawalFilter !== 'all') {
       filtered = filtered.filter(withdrawal => withdrawal.status === withdrawalFilter);
     }
-    
+
     // Filter by search term
     if (transactionSearchTerm) {
       filtered = filtered.filter(withdrawal => {
@@ -386,7 +388,7 @@ const AdminSection = () => {
         );
       });
     }
-    
+
     return filtered;
   };
 
@@ -408,9 +410,9 @@ const AdminSection = () => {
           amount: selectedTransaction?.amount
         })
       });
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         showSuccess(`Transaction ${status} successfully!`);
         loadTransactions();
@@ -432,9 +434,9 @@ const AdminSection = () => {
         },
         body: JSON.stringify(updates)
       });
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         showSuccess('User updated successfully');
         loadUsers();
@@ -481,7 +483,7 @@ const AdminSection = () => {
             setMessage({ type: 'error', text: 'Failed to delete plan' });
           }
           break;
-        
+
         case 'deleteUser':
           try {
             const response = await fetch(`/api/users/${confirmAction.id}`, {
@@ -490,9 +492,9 @@ const AdminSection = () => {
                 'Content-Type': 'application/json'
               }
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
               showSuccess('User deleted successfully');
               loadUsers();
@@ -504,13 +506,13 @@ const AdminSection = () => {
             showError('Failed to delete user');
           }
           break;
-        
+
         case 'deletePayment':
           const response = await fetch(`/api/payment-methods?id=${confirmAction.id}`, {
             method: 'DELETE'
           });
           const result = await response.json();
-          
+
           if (result.success) {
             setMessage({ type: 'success', text: 'Payment method deleted successfully' });
             loadPaymentMethods();
@@ -554,7 +556,7 @@ const AdminSection = () => {
           isActive: newPlan.isActive !== false,
           updatedBy: userProfile?.email || 'admin'
         });
-        
+
         if (success) {
           setMessage({ type: 'success', text: 'Plan updated successfully' });
         } else {
@@ -575,7 +577,7 @@ const AdminSection = () => {
           isActive: newPlan.isActive !== false,
           createdBy: userProfile?.email || 'admin'
         });
-        
+
         if (newMongoPlan) {
           setMessage({ type: 'success', text: 'Plan created successfully' });
         } else {
@@ -600,20 +602,20 @@ const AdminSection = () => {
     try {
       // Upload logo if file is selected
       let logoUrl = newPayment.logo || '';
-      
+
       if (paymentLogoFile) {
         setIsUploadingLogo(true);
         const formData = new FormData();
         formData.append('file', paymentLogoFile);
         formData.append('folder', 'payment-methods');
-        
+
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         });
-        
+
         const uploadResult = await uploadResponse.json();
-        
+
         if (uploadResult.success) {
           logoUrl = uploadResult.url;
         } else {
@@ -624,7 +626,7 @@ const AdminSection = () => {
         }
         setIsUploadingLogo(false);
       }
-      
+
       // Validate required fields
       if (!newPayment.name || !logoUrl || !newPayment.accountDetails?.accountName || !newPayment.accountDetails?.accountNumber || !newPayment.instructions) {
         setMessage({ type: 'error', text: 'Please fill in all required fields' });
@@ -652,9 +654,9 @@ const AdminSection = () => {
             ...paymentData
           })
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
           setMessage({ type: 'success', text: 'Payment method updated successfully' });
           loadPaymentMethods();
@@ -675,9 +677,9 @@ const AdminSection = () => {
           },
           body: JSON.stringify(paymentData)
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
           setMessage({ type: 'success', text: 'Payment method created successfully' });
           loadPaymentMethods();
@@ -701,7 +703,7 @@ const AdminSection = () => {
   // Notification functions
   const sendNotification = async () => {
     if (!notificationMessage.trim() || !notificationTitle.trim()) return;
-    
+
     setSendingNotification(true);
     try {
       // Upload files first if any
@@ -709,12 +711,12 @@ const AdminSection = () => {
       for (const file of notificationFiles) {
         const formData = new FormData();
         formData.append('file', file);
-        
+
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         });
-        
+
         const uploadResult = await uploadResponse.json();
         if (uploadResult.success) {
           attachments.push(uploadResult.data);
@@ -739,9 +741,9 @@ const AdminSection = () => {
         },
         body: JSON.stringify(notificationData)
       });
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         // Reset form
         setNotificationMessage('');
@@ -750,7 +752,7 @@ const AdminSection = () => {
         setNotificationFiles([]);
         setSelectedUsersForNotification([]);
         setShowNotificationModal(false);
-        
+
         showSuccess('Notification sent successfully!');
       } else {
         showError('Failed to send notification: ' + result.error);
@@ -786,9 +788,9 @@ const AdminSection = () => {
 
   const sendUserNotification = async (userReferralCode: string, message: string) => {
     if (!message.trim()) return;
-    
+
     setIsSendingMessage(true);
-    
+
     try {
       const notificationData = {
         message,
@@ -804,9 +806,9 @@ const AdminSection = () => {
         },
         body: JSON.stringify(notificationData)
       });
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         setUserIndividualMessage('');
         showSuccess('Message sent successfully!');
@@ -830,9 +832,9 @@ const AdminSection = () => {
         },
         body: JSON.stringify({ userId })
       });
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         showSuccess('Balances fixed successfully!');
         // Reload user details to show updated balances
@@ -849,7 +851,7 @@ const AdminSection = () => {
   };
 
   const filteredUsers = users
-    .filter(user => 
+    .filter(user =>
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -906,11 +908,10 @@ const AdminSection = () => {
 
       {/* Message Display */}
       {message.text && (
-        <div className={`p-4 rounded-lg ${
-          message.type === 'success' 
-            ? 'bg-green-50 border border-green-200 text-green-800' 
-            : 'bg-red-50 border border-red-200 text-red-800'
-        }`}>
+        <div className={`p-4 rounded-lg ${message.type === 'success'
+          ? 'bg-green-50 border border-green-200 text-green-800'
+          : 'bg-red-50 border border-red-200 text-red-800'
+          }`}>
           {message.text}
         </div>
       )}
@@ -930,11 +931,10 @@ const AdminSection = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as 'users' | 'plans' | 'payments' | 'transactions' | 'notifications' | 'support' | 'withdrawal-schedule')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
-                activeTab === tab.id
-                  ? 'bg-red-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${activeTab === tab.id
+                ? 'bg-red-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
               {tab.icon}
               <span>{tab.label}</span>
@@ -1047,7 +1047,7 @@ const AdminSection = () => {
                         {user.isAdmin && <Shield className="w-4 h-4 text-yellow-600" />}
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-500">Email:</span>
@@ -1063,25 +1063,23 @@ const AdminSection = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-500">Status:</span>
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                          user.isActive !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`text-xs px-2 py-1 rounded-full ${user.isActive !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
                           {user.isActive !== false ? 'Active' : 'Inactive'}
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="mt-3 flex space-x-2">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleUserStatus(user._id!, user.isActive === false);
                         }}
-                        className={`flex-1 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1 ${
-                          user.isActive !== false 
-                            ? 'bg-red-600 hover:bg-red-700 text-white' 
-                            : 'bg-green-600 hover:bg-green-700 text-white'
-                        }`}
+                        className={`flex-1 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1 ${user.isActive !== false
+                          ? 'bg-red-600 hover:bg-red-700 text-white'
+                          : 'bg-green-600 hover:bg-green-700 text-white'
+                          }`}
                       >
                         {user.isActive !== false ? <Ban className="w-3 h-3" /> : <UserCheck className="w-3 h-3" />}
                         <span>{user.isActive !== false ? 'Disable' : 'Enable'}</span>
@@ -1091,11 +1089,10 @@ const AdminSection = () => {
                           e.stopPropagation();
                           makeAdmin(user._id!, !user.isAdmin);
                         }}
-                        className={`flex-1 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1 ${
-                          user.isAdmin 
-                            ? 'bg-yellow-600 hover:bg-yellow-700 text-white' 
-                            : 'bg-gray-600 hover:bg-gray-700 text-white'
-                        }`}
+                        className={`flex-1 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1 ${user.isAdmin
+                          ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                          : 'bg-gray-600 hover:bg-gray-700 text-white'
+                          }`}
                       >
                         <Shield className="w-3 h-3" />
                         <span>{user.isAdmin ? 'Admin' : 'User'}</span>
@@ -1194,47 +1191,46 @@ const AdminSection = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {plans.map(plan => (
-                <div key={plan._id || `plan-${Math.random()}`} className="bg-white border border-gray-200 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-semibold text-gray-900">{plan.name}</h4>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => {
-                          console.log('Edit button clicked for plan:', plan);
-                          setEditingPlan(plan);
-                          setNewPlan(plan);
-                          setShowPlanModal(true);
-                        }}
-                        className="p-1 text-blue-600 hover:text-blue-800"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeletePlan(plan._id || '', plan.name)}
-                        className="p-1 text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                {plans.map(plan => (
+                  <div key={plan._id || `plan-${Math.random()}`} className="bg-white border border-gray-200 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold text-gray-900">{plan.name}</h4>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => {
+                            console.log('Edit button clicked for plan:', plan);
+                            setEditingPlan(plan);
+                            setNewPlan(plan);
+                            setShowPlanModal(true);
+                          }}
+                          className="p-1 text-blue-600 hover:text-blue-800"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeletePlan(plan._id || '', plan.name)}
+                          className="p-1 text-red-600 hover:text-red-800"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <p><span className="font-medium">Min:</span> ${plan.minAmount.toLocaleString()}</p>
+                      <p><span className="font-medium">Max:</span> ${plan.maxAmount.toLocaleString()}</p>
+                      <p><span className="font-medium">ROI:</span> {plan.roi}%</p>
+                      <p><span className="font-medium">Duration:</span> {plan.duration}</p>
+                      <p><span className="font-medium">Capital Back:</span> {plan.capitalBack ? 'Yes' : 'No'}</p>
+                    </div>
+                    <div className="mt-4">
+                      <span className={`px-2 py-1 rounded-full text-xs ${plan.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                        {plan.isActive ? 'Active' : 'Inactive'}
+                      </span>
                     </div>
                   </div>
-                  <div className="space-y-2 text-sm">
-                    <p><span className="font-medium">Min:</span> ${plan.minAmount.toLocaleString()}</p>
-                    <p><span className="font-medium">Max:</span> ${plan.maxAmount.toLocaleString()}</p>
-                    <p><span className="font-medium">ROI:</span> {plan.roi}%</p>
-                    <p><span className="font-medium">Duration:</span> {plan.duration}</p>
-                    <p><span className="font-medium">Capital Back:</span> {plan.capitalBack ? 'Yes' : 'No'}</p>
-                  </div>
-                  <div className="mt-4">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      plan.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {plan.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
             )}
           </div>
         )}
@@ -1273,50 +1269,49 @@ const AdminSection = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {paymentMethods.map(method => (
-                <div key={method._id} className="bg-white border border-gray-200 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-semibold text-gray-900">{method.name}</h4>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => {
-                          setEditingPayment(method);
-                          setNewPayment(method);
-                          setPaymentLogoFile(null);
-                          setPaymentLogoPreview('');
-                          setShowPaymentModal(true);
-                        }}
-                        className="p-1 text-blue-600 hover:text-blue-800"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => method._id && handleDeletePayment(method._id, method.name)}
-                        className="p-1 text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                {paymentMethods.map(method => (
+                  <div key={method._id} className="bg-white border border-gray-200 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold text-gray-900">{method.name}</h4>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => {
+                            setEditingPayment(method);
+                            setNewPayment(method);
+                            setPaymentLogoFile(null);
+                            setPaymentLogoPreview('');
+                            setShowPaymentModal(true);
+                          }}
+                          className="p-1 text-blue-600 hover:text-blue-800"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => method._id && handleDeletePayment(method._id, method.name)}
+                          className="p-1 text-red-600 hover:text-red-800"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <p><span className="font-medium">Account Number:</span> {method.accountDetails?.accountNumber || 'N/A'}</p>
+                      {method.accountDetails?.bankName && (
+                        <p><span className="font-medium">Bank:</span> {method.accountDetails.bankName}</p>
+                      )}
+                      {method.accountDetails?.network && (
+                        <p><span className="font-medium">Network:</span> {method.accountDetails.network}</p>
+                      )}
+                    </div>
+                    <div className="mt-4">
+                      <span className={`px-2 py-1 rounded-full text-xs ${method.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                        {method.isActive ? 'Active' : 'Inactive'}
+                      </span>
                     </div>
                   </div>
-                  <div className="space-y-2 text-sm">
-                    <p><span className="font-medium">Account Number:</span> {method.accountDetails?.accountNumber || 'N/A'}</p>
-                    {method.accountDetails?.bankName && (
-                      <p><span className="font-medium">Bank:</span> {method.accountDetails.bankName}</p>
-                    )}
-                    {method.accountDetails?.network && (
-                      <p><span className="font-medium">Network:</span> {method.accountDetails.network}</p>
-                    )}
-                  </div>
-                  <div className="mt-4">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      method.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {method.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
             )}
           </div>
         )}
@@ -1328,7 +1323,7 @@ const AdminSection = () => {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Transaction Management</h3>
                 <div className="flex items-center space-x-4">
-                  <button 
+                  <button
                     onClick={loadTransactions}
                     disabled={isLoadingTransactions}
                     className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg"
@@ -1342,7 +1337,7 @@ const AdminSection = () => {
                   </button>
                 </div>
               </div>
-              
+
               {/* Search Input */}
               <div className="relative max-w-md">
                 <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -1360,21 +1355,19 @@ const AdminSection = () => {
             <div className="flex space-x-4 mb-6">
               <button
                 onClick={() => setSelectedTransactionType('deposits')}
-                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
-                  selectedTransactionType === 'deposits'
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${selectedTransactionType === 'deposits'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
               >
                 Deposits ({getFilteredDeposits().length})
               </button>
               <button
                 onClick={() => setSelectedTransactionType('withdrawals')}
-                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
-                  selectedTransactionType === 'withdrawals'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${selectedTransactionType === 'withdrawals'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
               >
                 Withdrawals ({getFilteredWithdrawals().length})
               </button>
@@ -1388,11 +1381,10 @@ const AdminSection = () => {
                     <button
                       key={filter}
                       onClick={() => setDepositFilter(filter)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        depositFilter === filter
-                          ? 'bg-green-600 text-white'
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      }`}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${depositFilter === filter
+                        ? 'bg-green-600 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
                     >
                       {filter.charAt(0).toUpperCase() + filter.slice(1)}
                     </button>
@@ -1404,11 +1396,10 @@ const AdminSection = () => {
                     <button
                       key={filter}
                       onClick={() => setWithdrawalFilter(filter)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        withdrawalFilter === filter
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      }`}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${withdrawalFilter === filter
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
                     >
                       {filter.charAt(0).toUpperCase() + filter.slice(1)}
                     </button>
@@ -1434,15 +1425,14 @@ const AdminSection = () => {
                         <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                         <span className="text-sm font-medium text-gray-600">Deposit</span>
                       </div>
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        deposit.status === 'approved' ? 'bg-green-100 text-green-800' :
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${deposit.status === 'approved' ? 'bg-green-100 text-green-800' :
                         deposit.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
                         {deposit.status}
                       </span>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-500">Amount:</span>
@@ -1461,7 +1451,7 @@ const AdminSection = () => {
                         <span className="text-sm text-gray-900">{new Date(deposit.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    
+
                     <div className="mt-3 text-center">
                       <span className="text-xs text-gray-500">Click for details</span>
                     </div>
@@ -1482,16 +1472,15 @@ const AdminSection = () => {
                         <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                         <span className="text-sm font-medium text-gray-600">Withdrawal</span>
                       </div>
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        withdrawal.status === 'completed' ? 'bg-green-100 text-green-800' :
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${withdrawal.status === 'completed' ? 'bg-green-100 text-green-800' :
                         withdrawal.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                        withdrawal.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
+                          withdrawal.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                            'bg-yellow-100 text-yellow-800'
+                        }`}>
                         {withdrawal.status}
                       </span>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-500">Amount:</span>
@@ -1510,7 +1499,7 @@ const AdminSection = () => {
                         <span className="text-sm text-gray-900">{new Date(withdrawal.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    
+
                     <div className="mt-3 text-center">
                       <span className="text-xs text-gray-500">Click for details</span>
                     </div>
@@ -1520,16 +1509,16 @@ const AdminSection = () => {
             </div>
 
             {/* No transactions message */}
-            {((selectedTransactionType === 'deposits' && getFilteredDeposits().length === 0) || 
+            {((selectedTransactionType === 'deposits' && getFilteredDeposits().length === 0) ||
               (selectedTransactionType === 'withdrawals' && getFilteredWithdrawals().length === 0)) && (
-              <div className="text-center py-12">
-                <div className="text-gray-400 mb-4">
-                  <CreditCard className="w-16 h-16 mx-auto" />
+                <div className="text-center py-12">
+                  <div className="text-gray-400 mb-4">
+                    <CreditCard className="w-16 h-16 mx-auto" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No {selectedTransactionType} found</h3>
+                  <p className="text-gray-500">There are no {selectedTransactionType} requests with the current filter.</p>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No {selectedTransactionType} found</h3>
-                <p className="text-gray-500">There are no {selectedTransactionType} requests with the current filter.</p>
-              </div>
-            )}
+              )}
           </div>
         )}
       </div>
@@ -1640,7 +1629,7 @@ const AdminSection = () => {
                       <option value="violet">Violet</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Icon</label>
                     <select
@@ -1812,15 +1801,15 @@ const AdminSection = () => {
                   <input
                     type="text"
                     value={newPayment.accountDetails?.accountName || ''}
-                    onChange={(e) => setNewPayment({ 
-                      ...newPayment, 
-                      accountDetails: { 
+                    onChange={(e) => setNewPayment({
+                      ...newPayment,
+                      accountDetails: {
                         accountName: e.target.value,
                         accountNumber: newPayment.accountDetails?.accountNumber || '',
                         bankName: newPayment.accountDetails?.bankName || '',
                         walletAddress: newPayment.accountDetails?.walletAddress || '',
                         network: newPayment.accountDetails?.network || ''
-                      } 
+                      }
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     placeholder="Account holder name"
@@ -1832,15 +1821,15 @@ const AdminSection = () => {
                   <input
                     type="text"
                     value={newPayment.accountDetails?.accountNumber || ''}
-                    onChange={(e) => setNewPayment({ 
-                      ...newPayment, 
-                      accountDetails: { 
+                    onChange={(e) => setNewPayment({
+                      ...newPayment,
+                      accountDetails: {
                         accountName: newPayment.accountDetails?.accountName || '',
                         accountNumber: e.target.value,
                         bankName: newPayment.accountDetails?.bankName || '',
                         walletAddress: newPayment.accountDetails?.walletAddress || '',
                         network: newPayment.accountDetails?.network || ''
-                      } 
+                      }
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     placeholder="Account number or wallet address"
@@ -1852,15 +1841,15 @@ const AdminSection = () => {
                   <input
                     type="text"
                     value={newPayment.accountDetails?.bankName || ''}
-                    onChange={(e) => setNewPayment({ 
-                      ...newPayment, 
-                      accountDetails: { 
+                    onChange={(e) => setNewPayment({
+                      ...newPayment,
+                      accountDetails: {
                         accountName: newPayment.accountDetails?.accountName || '',
                         accountNumber: newPayment.accountDetails?.accountNumber || '',
                         bankName: e.target.value,
                         walletAddress: newPayment.accountDetails?.walletAddress || '',
                         network: newPayment.accountDetails?.network || ''
-                      } 
+                      }
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     placeholder="Bank name (for bank transfers)"
@@ -1872,15 +1861,15 @@ const AdminSection = () => {
                   <input
                     type="text"
                     value={newPayment.accountDetails?.network || ''}
-                    onChange={(e) => setNewPayment({ 
-                      ...newPayment, 
-                      accountDetails: { 
+                    onChange={(e) => setNewPayment({
+                      ...newPayment,
+                      accountDetails: {
                         accountName: newPayment.accountDetails?.accountName || '',
                         accountNumber: newPayment.accountDetails?.accountNumber || '',
                         bankName: newPayment.accountDetails?.bankName || '',
                         walletAddress: newPayment.accountDetails?.walletAddress || '',
                         network: e.target.value
-                      } 
+                      }
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     placeholder="Network (e.g., Ethereum, BSC, Polygon)"
@@ -1956,7 +1945,7 @@ const AdminSection = () => {
                 <p className="text-sm text-gray-500">This action cannot be undone</p>
               </div>
             </div>
-            
+
             <div className="mb-6">
               <p className="text-gray-700">
                 Are you sure you want to delete{' '}
@@ -1968,7 +1957,7 @@ const AdminSection = () => {
                 {confirmAction?.type === 'deletePayment' && 'This will permanently remove the payment method.'}
               </p>
             </div>
-            
+
             <div className="flex space-x-3">
               <button
                 onClick={() => {
@@ -2002,7 +1991,7 @@ const AdminSection = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               {notificationType === 'broadcast' ? 'Send Broadcast Message' : 'Send Individual Message'}
             </h3>
-            
+
             {notificationType === 'individual' && (
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Select Users</label>
@@ -2027,7 +2016,7 @@ const AdminSection = () => {
                 </div>
               </div>
             )}
-            
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
               <input
@@ -2038,7 +2027,7 @@ const AdminSection = () => {
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
             </div>
-            
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">Message *</label>
               <textarea
@@ -2088,7 +2077,7 @@ const AdminSection = () => {
                 </div>
               )}
             </div>
-            
+
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => {
@@ -2148,9 +2137,8 @@ const AdminSection = () => {
                         <Mail className="w-4 h-4 text-gray-500" />
                         <span className="text-sm text-gray-600">Email:</span>
                         <span className="font-medium">{userDetailData?.email}</span>
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          userDetailData?.emailVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`px-2 py-1 rounded-full text-xs ${userDetailData?.emailVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
                           {userDetailData?.emailVerified ? 'Verified' : 'Unverified'}
                         </span>
                       </div>
@@ -2225,16 +2213,16 @@ const AdminSection = () => {
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                         rows={3}
                       />
-                        <button
-                          onClick={() => sendUserNotification(userDetailData.userCode, userIndividualMessage)}
-                          disabled={!userIndividualMessage.trim() || isSendingMessage}
-                          className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-                        >
-                          {isSendingMessage && (
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          )}
-                          <span>{isSendingMessage ? 'Sending...' : 'Send Message'}</span>
-                        </button>
+                      <button
+                        onClick={() => sendUserNotification(userDetailData.userCode, userIndividualMessage)}
+                        disabled={!userIndividualMessage.trim() || isSendingMessage}
+                        className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                      >
+                        {isSendingMessage && (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        )}
+                        <span>{isSendingMessage ? 'Sending...' : 'Send Message'}</span>
+                      </button>
                     </div>
                   </div>
 
@@ -2287,12 +2275,11 @@ const AdminSection = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                      selectedTransaction.status === 'approved' || selectedTransaction.status === 'completed' ? 'bg-green-100 text-green-800' :
+                    <span className={`px-3 py-1 text-sm font-semibold rounded-full ${selectedTransaction.status === 'approved' || selectedTransaction.status === 'completed' ? 'bg-green-100 text-green-800' :
                       selectedTransaction.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                      selectedTransaction.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
+                        selectedTransaction.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                          'bg-yellow-100 text-yellow-800'
+                      }`}>
                       {selectedTransaction.status}
                     </span>
                   </div>
@@ -2321,9 +2308,9 @@ const AdminSection = () => {
                 {selectedTransactionType === 'deposits' && selectedTransaction && 'screenshot' in selectedTransaction && selectedTransaction.screenshot && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Payment Screenshot</label>
-                    <Image 
-                      src={selectedTransaction.screenshot} 
-                      alt="Payment Screenshot" 
+                    <Image
+                      src={selectedTransaction.screenshot}
+                      alt="Payment Screenshot"
                       width={400}
                       height={300}
                       className="w-full max-w-md h-auto rounded border"
@@ -2428,7 +2415,7 @@ const AdminSection = () => {
                         )}
                       </>
                     )}
-                    
+
                     {selectedTransactionType === 'withdrawals' && selectedTransaction.status === 'processing' && (
                       <button
                         onClick={() => {
@@ -2444,7 +2431,7 @@ const AdminSection = () => {
                         Complete
                       </button>
                     )}
-                    
+
                     <button
                       onClick={() => {
                         setShowTransactionModal(false);
@@ -2463,19 +2450,19 @@ const AdminSection = () => {
         </div>
       )}
 
-        {/* Support Messages Tab */}
-        {activeTab === 'support' && (
-          <div>
-            <SupportMessagesManager />
-          </div>
-        )}
+      {/* Support Messages Tab */}
+      {activeTab === 'support' && (
+        <div>
+          <SupportMessagesManager />
+        </div>
+      )}
 
-        {/* Withdrawal Schedule Tab */}
-        {activeTab === 'withdrawal-schedule' && (
-          <div>
-            <WithdrawalScheduleManager />
-          </div>
-        )}
+      {/* Withdrawal Schedule Tab */}
+      {activeTab === 'withdrawal-schedule' && (
+        <div>
+          <WithdrawalScheduleManager />
+        </div>
+      )}
     </div>
   );
 };

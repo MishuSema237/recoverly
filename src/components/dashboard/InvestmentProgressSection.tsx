@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  DollarSign, 
-  Calendar, 
-  Target, 
+import {
+  DollarSign,
+  Calendar,
+  Target,
   ArrowUpRight,
   RefreshCw,
   BarChart3,
@@ -74,13 +74,13 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
     // Find the most recent active investment (in case there are multiple)
     const activeInvestment: UserInvestment | undefined = Array.isArray(userProfile?.investments)
       ? (userProfile.investments as UserInvestment[])
-          .filter((inv) => inv?.status === 'active')
-          .sort((a, b) => {
-            // Sort by createdAt, most recent first
-            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-            return dateB - dateA;
-          })[0] || (userProfile.investments as UserInvestment[])[0]
+        .filter((inv) => inv?.status === 'active')
+        .sort((a, b) => {
+          // Sort by createdAt, most recent first
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        })[0] || (userProfile.investments as UserInvestment[])[0]
       : undefined;
 
     // If no recorded investment, stop
@@ -191,8 +191,8 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
       nextPayout.setHours(0, 0, 0, 0);
 
       // Ensure totalROI is set (use calculated value if not fetched from plan)
-      const finalTotalROI = totalROI !== null && isFinite(totalROI) 
-        ? totalROI 
+      const finalTotalROI = totalROI !== null && isFinite(totalROI)
+        ? totalROI
         : (safeDuration > 0 && safeDailyRatePct > 0 ? safeDailyRatePct * safeDuration : 0);
 
       setProgress({
@@ -242,24 +242,13 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
 
   useEffect(() => {
     if (userProfile?.currentInvestment && userProfile?.investmentPlan) {
-      // Process daily gains for this user's investment
-      const processDailyGains = async () => {
-        try {
-          await fetch('/api/investments/process-daily-gains', {
-            method: 'POST'
-          });
-        } catch (error) {
-          console.error('Error processing daily gains:', error);
-        }
-      };
-      processDailyGains();
       calculateProgress();
-      
+
       // Update progress every minute to keep days counter accurate
       const interval = setInterval(() => {
         calculateProgress();
       }, 60000); // Update every 60 seconds
-      
+
       return () => clearInterval(interval);
     } else {
       setLoading(false);
@@ -280,18 +269,18 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ planId: plan._id, planName: plan.name, amount })
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to upgrade investment');
       }
-      
+
       // Force refresh user profile to get updated investment data
       await forceRefresh();
-      
+
       // Recalculate progress with new data
       await calculateProgress();
-      
+
       // Close upgrade interface to show updated progress
       setShowUpgradeInterface(false);
     } catch (error) {
@@ -468,8 +457,8 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Daily Rate:</span>
                 <span className="font-semibold text-gray-900">
-                  {progress.planDuration > 0 
-                    ? (progress.planROI / progress.planDuration).toFixed(2) 
+                  {progress.planDuration > 0
+                    ? (progress.planROI / progress.planDuration).toFixed(2)
                     : '0.00'}%
                 </span>
               </div>

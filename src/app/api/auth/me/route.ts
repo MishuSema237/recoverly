@@ -5,8 +5,8 @@ import { UserService } from '@/lib/auth/user';
 export async function GET(request: NextRequest) {
   try {
     // Get token from cookie or Authorization header
-    const token = request.cookies.get('auth-token')?.value || 
-                  request.headers.get('authorization')?.replace('Bearer ', '');
+    const token = request.cookies.get('auth-token')?.value ||
+      request.headers.get('authorization')?.replace('Bearer ', '');
 
     if (!token) {
       return NextResponse.json(
@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Remove sensitive data from response
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _password, emailVerificationToken: _emailToken, passwordResetToken: _resetToken, ...userWithoutSensitiveData } = user;
 
     return NextResponse.json({
@@ -54,9 +55,9 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Get user error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to get user' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to get user'
       },
       { status: 500 }
     );

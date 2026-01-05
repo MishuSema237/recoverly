@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     // Send verification email
     try {
       const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/verify-email?token=${result.emailVerificationToken}`;
-      
+
       await sendEmail({
         to: result.user.email,
         subject: 'Verify Your Email - Tesla Capital',
@@ -120,6 +120,7 @@ If you didn't create an account with Tesla Capital, please ignore this email.
     }
 
     // Remove sensitive data from response
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _password, emailVerificationToken: _emailToken, ...userWithoutSensitiveData } = result.user;
 
     return NextResponse.json({
@@ -134,9 +135,9 @@ If you didn't create an account with Tesla Capital, please ignore this email.
   } catch (error) {
     console.error('Registration error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Registration failed' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Registration failed'
       },
       { status: 500 }
     );

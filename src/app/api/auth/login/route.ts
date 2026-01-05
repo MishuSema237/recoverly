@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserService } from '@/lib/auth/user';
-import { NotificationService } from '@/lib/notifications/NotificationService';
+// import { NotificationService } from '@/lib/notifications/NotificationService';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     // Authenticate user
     const result = await UserService.authenticateUser(email.toLowerCase(), password);
-    
+
     if (!result) {
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },
@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Remove sensitive data from response
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _password, emailVerificationToken: _emailToken, passwordResetToken: _resetToken, ...userWithoutSensitiveData } = result.user;
 
     // Set httpOnly cookie
@@ -59,9 +60,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Login failed' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Login failed'
       },
       { status: 500 }
     );
