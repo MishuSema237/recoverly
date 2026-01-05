@@ -35,24 +35,28 @@ const nextConfig: NextConfig = {
         },
       };
     }
-    
+
     return config;
   },
-  
+
   // Experimental features to improve performance
   experimental: {
     optimizePackageImports: ['@solana/wallet-adapter-react', '@solana/wallet-adapter-react-ui'],
   },
-  
+
   // Compiler optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  
+
   // Reduce bundle size
   images: {
     unoptimized: false,
   },
+
+  // Disable Turbopack for builds with custom webpack config
+  // @ts-ignore - turbopack option is available in Next 15+ but types might lag
+  turbopack: {},
 };
 
 export default nextConfig;
