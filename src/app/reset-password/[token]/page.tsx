@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Lock, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Lock, CheckCircle, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -251,8 +251,8 @@ const ResetPasswordTokenPage = ({ params }: ResetPasswordTokenPageProps) => {
 
               {message.text && (
                 <div className={`p-4 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2 ${message.type === 'error'
-                    ? 'bg-[#fdfcf0] border border-[#c9933a]/30 text-[#b08132]'
-                    : 'bg-green-50 border border-green-200 text-green-700'
+                  ? 'bg-[#fdfcf0] border border-[#c9933a]/30 text-[#b08132]'
+                  : 'bg-green-50 border border-green-200 text-green-700'
                   }`}>
                   {message.type === 'error' ? <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" /> : <CheckCircle className="w-5 h-5 mt-0.5 shrink-0" />}
                   <span className="text-sm font-medium">{message.text}</span>
