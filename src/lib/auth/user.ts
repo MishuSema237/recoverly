@@ -6,10 +6,14 @@ import { generateToken, generateEmailVerificationToken, generatePasswordResetTok
 export interface User {
   _id?: string | ObjectId;
   email: string;
+  username: string;
   password: string;
+  transactionPin: string;
   firstName: string;
+  middleName?: string;
   lastName: string;
   displayName: string;
+  accountType: string;
   emailVerified: boolean;
   emailVerificationToken?: string;
   emailVerificationExpires?: Date;
@@ -184,8 +188,8 @@ export class UserService {
     // Update last login
     await usersCollection.updateOne(
       { _id: user._id },
-      { 
-        $set: { 
+      {
+        $set: {
           lastLoginAt: new Date(),
           updatedAt: new Date()
         },
@@ -255,8 +259,8 @@ export class UserService {
 
     const result = await usersCollection.updateOne(
       { _id: new ObjectId(userId) },
-      { 
-        $set: { 
+      {
+        $set: {
           emailVerified: true,
           updatedAt: new Date()
         },
@@ -290,8 +294,8 @@ export class UserService {
 
     await usersCollection.updateOne(
       { _id: user._id },
-      { 
-        $set: { 
+      {
+        $set: {
           passwordResetToken,
           passwordResetExpires,
           updatedAt: new Date()
@@ -322,8 +326,8 @@ export class UserService {
     // Update password and clear reset token
     const result = await usersCollection.updateOne(
       { _id: user._id },
-      { 
-        $set: { 
+      {
+        $set: {
           password: hashedPassword,
           updatedAt: new Date()
         },
@@ -349,8 +353,8 @@ export class UserService {
 
     const result = await usersCollection.updateOne(
       { _id: new ObjectId(userId) },
-      { 
-        $set: { 
+      {
+        $set: {
           ...updates,
           updatedAt: new Date()
         }
@@ -383,8 +387,8 @@ export class UserService {
       // Update user's investment
       const result = await usersCollection.updateOne(
         { _id: new ObjectId(userId) },
-        { 
-          $set: { 
+        {
+          $set: {
             totalInvested: (user.totalInvested || 0) + investmentData.amount,
             currentInvestment: investmentData.amount,
             investmentPlan: investmentData.planName,
@@ -547,13 +551,13 @@ export class UserService {
     }
 
     // Find all users referred by this user
-    const referrals = await usersCollection.find({ 
+    const referrals = await usersCollection.find({
       referredBy: user._id!.toString()
     }).sort({ createdAt: -1 }).toArray();
 
     // Calculate total earnings from both referralEarnings and transactions
     let totalEarnings = user.referralEarnings || 0;
-    
+
     // Add earnings from referral bonus transactions
     if (user.transactions) {
       const referralTransactions = user.transactions.filter(t => t.type === 'referral_bonus');

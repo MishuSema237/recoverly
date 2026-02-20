@@ -1,161 +1,133 @@
-'use client';
-
-import { motion } from 'framer-motion';
-import { Target, Users, Shield, TrendingUp, Award, Globe } from 'lucide-react';
-import Link from 'next/link';
+import type { Metadata } from 'next';
+import { Scale, Users, Target, ShieldCheck } from 'lucide-react';
 import PublicRoute from '@/components/PublicRoute';
+import Image from 'next/image';
 
-const AboutPage = () => {
-  const stats = [
-    { icon: <Users className="w-8 h-8" />, value: '33,759+', label: 'Active Investors' },
-    { icon: <TrendingUp className="w-8 h-8" />, value: '$2.81B+', label: 'Total Deposits' },
-    { icon: <Award className="w-8 h-8" />, value: '99.9%', label: 'Uptime' },
-    { icon: <Globe className="w-8 h-8" />, value: '50+', label: 'Countries' },
-  ];
+export const metadata: Metadata = {
+  title: 'About Us | Recoverly Trust Bank',
+  description: 'Founded by ex-prosecutors and forensic accountants to bridge the gap between law enforcement and banking.',
+};
 
-  const values = [
-    {
-      icon: <Shield className="w-12 h-12" />,
-      title: 'Security First',
-      description: 'We prioritize the security of your investments with advanced encryption and multi-layer security protocols.',
-    },
-    {
-      icon: <Target className="w-12 h-12" />,
-      title: 'Transparency',
-      description: 'Complete transparency in all our operations, from investment strategies to fee structures.',
-    },
-    {
-      icon: <Users className="w-12 h-12" />,
-      title: 'Expert Team',
-      description: 'Our team of financial experts and blockchain specialists ensures optimal investment strategies.',
-    },
-    {
-      icon: <TrendingUp className="w-12 h-12" />,
-      title: 'Innovation',
-      description: 'Cutting-edge technology and innovative investment approaches to maximize your returns.',
-    },
-  ];
+const team = [
+  {
+    name: 'Jonathan Sterling',
+    role: 'Chief Executive Officer',
+    bio: 'Former Federal Prosecutor with 15 years investigating international wire fraud and financial syndicates.',
+    image: 'https://placehold.co/400x400/1e293b/c9933a?text=Jonathan+Sterling'
+  },
+  {
+    name: 'Elena Rostova',
+    role: 'Head of Forensic Accounting',
+    bio: 'Certified fraud examiner specializing in blockchain tracing and offshore liability mapping.',
+    image: 'https://placehold.co/400x400/1e293b/c9933a?text=Elena+Rostova'
+  },
+  {
+    name: 'Marcus Chen',
+    role: 'Chief Legal Officer',
+    bio: 'International banking law expert. Drafts our cross-border levies and legal demands.',
+    image: 'https://placehold.co/400x400/1e293b/c9933a?text=Marcus+Chen'
+  }
+];
 
+export default function AboutPage() {
   return (
     <PublicRoute>
-      <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-gray-900 via-red-900 to-gray-900 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h1 className="text-5xl lg:text-6xl font-bold mb-6">
-              About <span className="text-red-400">Tesla Capital</span>
-            </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-12">
-              Tesla Capital is a trusted investment middleman that takes your money and invests it into 
-              top-performing stocks on the stock exchange market, plus engages in crypto mining operations. 
-              We handle all the complex work while you simply wait and watch your money grow.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <div className="min-h-screen bg-gray-50">
 
-      {/* Stats Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="text-center"
-              >
-                <div className="bg-red-600 p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 text-white">
-                  {stat.icon}
-                </div>
-                <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
-                <div className="text-gray-600">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Mission Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-center"
-            >
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">How We Work</h2>
-              <p className="text-lg text-gray-600 mb-6">
-                Tesla Capital acts as a middleman between you and the stock market. We understand how the 
-                stock market works and we have the expertise to identify and invest in top-performing 
-                stocks that multiply money. Here&apos;s how it works:
-              </p>
-              <p className="text-lg text-gray-600 mb-6 text-left max-w-3xl mx-auto">
-                <strong>1. You Invest:</strong> Choose an investment plan and deposit your funds.<br/>
-                <strong>2. We Invest:</strong> We take your money and strategically invest it into top stocks 
-                and use it for crypto mining operations.<br/>
-                <strong>3. Money Multiplies:</strong> Your investments grow through our expert stock market 
-                strategies and crypto mining operations.<br/>
-                <strong>4. You Profit:</strong> We return your money with profits based on your chosen plan, 
-                and we keep our share. It&apos;s a win-win for everybody!
-              </p>
-              <p className="text-lg text-gray-600 mb-6 max-w-3xl mx-auto">
-                <strong>You don&apos;t do any hard work - Tesla Capital does it all.</strong> You simply wait for 
-                the days on your plan and watch your money increase. We handle all the complex analysis, 
-                market research, and investment management.
-              </p>
-              <Link
-                href="/signup"
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg inline-block font-semibold transition-colors duration-200 cursor-pointer"
-              >
-                Join Our Mission
-              </Link>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Values Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Core Values</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              The principles that guide everything we do at Tesla Capital
+        {/* Hero */}
+        <section className="bg-navy-900 text-white py-24 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">Our Mission.</h1>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              We bridge the gap between complex law enforcement and rigid banking systems to recover what rightfully belongs to you.
             </p>
           </div>
+        </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {values.map((value, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="text-center p-6 bg-gray-50 rounded-2xl hover:shadow-lg transition-all duration-300"
-              >
-                <div className="bg-red-600 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 text-white">
-                  {value.icon}
+        {/* Story Section */}
+        <section className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <h2 className="text-sm font-bold tracking-widest text-gold-500 uppercase mb-3">The Origin</h2>
+                <h3 className="text-4xl font-bold text-navy-900 mb-6">Built by Investigators.</h3>
+                <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                  Recoverly was founded when a group of ex-prosecutors and intelligence-grade forensic accountants realized a fundamental flaw in the financial system. When complex fraud occurs, traditional banks often reject liability, and local police lack the international jurisdiction to pursue the funds.
+                </p>
+                <p className="text-gray-600 text-lg leading-relaxed">
+                  We built our own financial institution coupled with a powerhouse legal network. By holding banking licenses and utilizing our legal authority, we can trace, demand, and repatriate funds faster than any traditional law firm.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-100 h-64 rounded-xl overflow-hidden relative">
+                  <img src="https://placehold.co/600x800/e2e8f0/1e293b?text=Legal+Office+600x800" alt="Legal office" className="object-cover w-full h-full" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">{value.title}</h3>
-                <p className="text-gray-600">{value.description}</p>
-              </motion.div>
-            ))}
+                <div className="bg-gray-100 h-64 rounded-xl overflow-hidden relative mt-8">
+                  <img src="https://placehold.co/600x800/e2e8f0/1e293b?text=Financial+Graphs+600x800" alt="Financial graphs" className="object-cover w-full h-full" />
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Core Values */}
+        <section className="py-24 bg-gray-50 border-t border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-navy-900/5 rounded-full flex items-center justify-center mb-6">
+                  <Target className="w-8 h-8 text-gold-500" />
+                </div>
+                <h4 className="text-xl font-bold text-navy-900 mb-4">Precision</h4>
+                <p className="text-gray-600">Every dispute is anchored in incontrovertible forensic evidence.</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-navy-900/5 rounded-full flex items-center justify-center mb-6">
+                  <ShieldCheck className="w-8 h-8 text-gold-500" />
+                </div>
+                <h4 className="text-xl font-bold text-navy-900 mb-4">Authority</h4>
+                <p className="text-gray-600">We don't ask politely. We leverage international banking regulations.</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-navy-900/5 rounded-full flex items-center justify-center mb-6">
+                  <Scale className="w-8 h-8 text-gold-500" />
+                </div>
+                <h4 className="text-xl font-bold text-navy-900 mb-4">Justice</h4>
+                <p className="text-gray-600">Our success is tied to yours. We operate on a No Win, No Fee basis.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Leadership */}
+        <section className="py-24 bg-navy-900 text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-sm font-bold tracking-widest text-gold-500 uppercase mb-3">Our Board</h2>
+              <h3 className="text-4xl font-bold">Leadership Team</h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+              {team.map((member, idx) => (
+                <div key={idx} className="bg-navy-800 rounded-xl overflow-hidden border border-navy-700/50">
+                  <div className="h-64 relative bg-navy-950">
+                    <img src={member.image} alt={member.name} className="object-cover w-full h-full opacity-90" />
+                  </div>
+                  <div className="p-8">
+                    <h4 className="text-2xl font-bold text-white mb-1">{member.name}</h4>
+                    <p className="text-gold-500 font-medium mb-4">{member.role}</p>
+                    <p className="text-gray-400 leading-relaxed text-sm">
+                      {member.bio}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
       </div>
     </PublicRoute>
   );
-};
-
-export default AboutPage;
+}

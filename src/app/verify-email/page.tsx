@@ -12,14 +12,19 @@ function VerifyEmailForm() {
   const router = useRouter();
   const { verifyEmail } = useAuth();
 
+  const verificationStarted = useEffect.useRef(false);
+
   useEffect(() => {
     const token = searchParams.get('token');
-    
+
     if (!token) {
       setStatus('error');
       setMessage('No verification token provided');
       return;
     }
+
+    if (verificationStarted.current) return;
+    verificationStarted.current = true;
 
     const handleVerification = async () => {
       try {
@@ -59,7 +64,7 @@ function VerifyEmailForm() {
           <div className="text-center">
             {status === 'loading' && (
               <div className="space-y-4">
-                <Loader2 className="mx-auto h-12 w-12 text-blue-600 animate-spin" />
+                <Loader2 className="mx-auto h-12 w-12 text-navy-600 animate-spin" />
                 <p className="text-gray-600">Verifying your email address...</p>
               </div>
             )}
@@ -74,7 +79,7 @@ function VerifyEmailForm() {
                 </p>
                 <button
                   onClick={() => router.push('/dashboard')}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-navy-600 hover:bg-navy-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy-500"
                 >
                   Go to Dashboard
                 </button>
@@ -89,7 +94,7 @@ function VerifyEmailForm() {
                 <div className="space-y-2">
                   <button
                     onClick={() => router.push('/login')}
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-navy-600 hover:bg-navy-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy-500"
                   >
                     Go to Login
                   </button>

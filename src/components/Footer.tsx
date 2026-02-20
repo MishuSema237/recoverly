@@ -2,78 +2,70 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import Image from 'next/image';
+import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Shield, Scale } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Footer = () => {
   const { user } = useAuth();
   const currentYear = new Date().getFullYear();
 
-  const publicLinks = [
+  const links = [
     { name: 'Home', href: '/' },
-    { name: 'Investment Plans', href: '#investment-plans' },
+    { name: 'Asset Recovery', href: '/asset-recovery' },
+    { name: 'Banking Services', href: '/banking' },
+    { name: 'Track My Case', href: '/dashboard' },
     { name: 'About Us', href: '/about' },
     { name: 'Contact', href: '/contact' },
-    { name: 'Blog', href: '/blog' },
   ];
-
-  const authenticatedLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'Investment Plans', href: '#investment-plans' },
-    { name: 'About Us', href: '/about' },
-    { name: 'Contact', href: '/contact' },
-    { name: 'Blog', href: '/blog' },
-  ];
-
-  const links = user ? authenticatedLinks : publicLinks;
 
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-navy-900 text-white relative overflow-hidden">
+      {/* Decorative top border */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
-            <div className="text-2xl font-bold text-red-500 mb-4">
-              Tesla Capital
-            </div>
-            <p className="text-gray-300 mb-6 max-w-md">
-              Tesla Capital is a cutting-edge investment platform offering secure cryptocurrency 
-              and traditional investment opportunities with industry-leading returns and expert guidance.
+            <Link href="/" className="inline-flex items-center gap-2 mb-6 group">
+              <Image
+                src="/RecoverlyLogo.png"
+                alt="Recoverly Trust Bank"
+                width={240}
+                height={60}
+                className="h-12 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+              />
+            </Link>
+            <p className="text-gray-400 mb-6 max-w-md leading-relaxed">
+              We are the bridge between financial loss and legal recovery. Recoverly combines the power of a specialized law firm with the security of a chartered bank to fight for what belongs to you.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-red-500 transition-colors">
-                <Facebook size={20} />
+              <a href="#" className="w-10 h-10 rounded-full bg-navy-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gold-600 transition-all duration-300">
+                <Facebook size={18} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-red-500 transition-colors">
-                <Twitter size={20} />
+              <a href="#" className="w-10 h-10 rounded-full bg-navy-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gold-600 transition-all duration-300">
+                <Twitter size={18} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-red-500 transition-colors">
-                <Linkedin size={20} />
+              <a href="#" className="w-10 h-10 rounded-full bg-navy-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gold-600 transition-all duration-300">
+                <Linkedin size={18} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-red-500 transition-colors">
-                <Instagram size={20} />
+              <a href="#" className="w-10 h-10 rounded-full bg-navy-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gold-600 transition-all duration-300">
+                <Instagram size={18} />
               </a>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-semibold mb-6 text-gold-500 font-playfair">Services & Support</h3>
+            <ul className="space-y-3">
               {links.map((link) => (
                 <li key={link.name}>
-                  {link.href === '#investment-plans' ? (
-                    <Link
-                      href="/#investment-plans"
-                      className="text-gray-300 hover:text-red-500 transition-colors"
-                    >
-                      {link.name}
-                    </Link>
-                  ) : (
-                    <Link href={link.href} className="text-gray-300 hover:text-red-500 transition-colors">
-                      {link.name}
-                    </Link>
-                  )}
+                  <Link href={link.href} className="text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-all duration-200 flex items-center gap-2">
+                    <span className="w-1 h-1 bg-gold-500 rounded-full opacity-0 hover:opacity-100 transition-opacity"></span>
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -81,38 +73,47 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Mail size={16} className="text-red-500" />
-                <span className="text-gray-300">support@teslacapital.com</span>
+            <h3 className="text-lg font-semibold mb-6 text-gold-500 font-playfair">Legal Contact</h3>
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3 group">
+                <Mail size={18} className="text-gold-500 mt-1 flex-shrink-0 group-hover:text-white transition-colors" />
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Legal Inquiries</p>
+                  <span className="text-gray-300 group-hover:text-white transition-colors">legal@recoverly-trust.com</span>
+                </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <Phone size={16} className="text-red-500" />
-                <span className="text-gray-300">+1 (555) 123-4567</span>
+              <div className="flex items-start space-x-3 group">
+                <Phone size={18} className="text-gold-500 mt-1 flex-shrink-0 group-hover:text-white transition-colors" />
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Client Hotline</p>
+                  <span className="text-gray-300 group-hover:text-white transition-colors">+1 (888) RECOVER-ME</span>
+                </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <MapPin size={16} className="text-red-500" />
-                <span className="text-gray-300">Austin, Texas, USA</span>
+              <div className="flex items-start space-x-3 group">
+                <MapPin size={18} className="text-gold-500 mt-1 flex-shrink-0 group-hover:text-white transition-colors" />
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Headquarters</p>
+                  <span className="text-gray-300 group-hover:text-white transition-colors">100 Financial District Blvd, Suite 400<br />New York, NY 10005</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">
-              © {currentYear} Tesla Capital. All rights reserved.
+        <div className="border-t border-navy-800 mt-12 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4">
+            <p className="text-gray-500 text-sm">
+              © {currentYear} Recoverly Trust Bank. Authorized Financial Institution & Legal Representative.
             </p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link href="/privacy" className="text-gray-400 hover:text-red-500 text-sm transition-colors">
+            <div className="flex flex-wrap justify-center gap-6">
+              <Link href="/privacy" className="text-gray-500 hover:text-gold-500 text-sm transition-colors">
                 Privacy Policy
               </Link>
-              <Link href="/terms" className="text-gray-400 hover:text-red-500 text-sm transition-colors">
+              <Link href="/terms" className="text-gray-500 hover:text-gold-500 text-sm transition-colors">
                 Terms of Service
               </Link>
-              <Link href="/disclaimer" className="text-gray-400 hover:text-red-500 text-sm transition-colors">
-                Disclaimer
+              <Link href="/disclaimer" className="text-gray-500 hover:text-gold-500 text-sm transition-colors">
+                Legal Disclaimer
               </Link>
             </div>
           </div>

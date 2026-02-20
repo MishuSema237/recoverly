@@ -39,7 +39,7 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
       return;
     }
 
-    const from = process.env.EMAIL_FROM || `"Tesla Capital" <${process.env.SMTP_USER}>`;
+    const from = process.env.EMAIL_FROM || `"Recoverly - Trust Bank" <${process.env.SMTP_USER}>`;
 
     const info = await transporter.sendMail({
       from,
@@ -60,9 +60,9 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
 // Base HTML template wrapper
 export const getBaseTemplate = (title: string, content: string, userName?: string) => {
   const year = new Date().getFullYear();
-  const appName = 'Tesla Capital';
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tesla-capital.vercel.app';
-  const logoUrl = `${appUrl}/tesla-capital-logo.png`;
+  const appName = 'Recoverly';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://recoverly.vercel.app';
+  const logoUrl = `${appUrl}/RecoverlyLogo.png`;
 
   return `
     <!DOCTYPE html>
@@ -121,8 +121,8 @@ export const getBaseTemplate = (title: string, content: string, userName?: strin
           margin: 30px 0;
         }
         .button {
-          background-color: #dc2626;
-          color: #ffffff !important;
+          background-color: #c9933a;
+          color: #0b1626 !important;
           padding: 14px 32px;
           text-decoration: none;
           border-radius: 8px;
@@ -176,7 +176,7 @@ export const getBaseTemplate = (title: string, content: string, userName?: strin
           color: #111827;
         }
         .highlight {
-          color: #dc2626;
+          color: #c9933a;
           font-weight: 700;
         }
       </style>
@@ -218,12 +218,12 @@ export const getBaseTemplate = (title: string, content: string, userName?: strin
 export const emailTemplates = {
   // 1. Email Verification
   emailVerification: (userName: string, verifyUrl: string) => ({
-    subject: 'Verify Your Email - Tesla Capital',
+    subject: 'Verify Your Email - Recoverly',
     html: getBaseTemplate(
       'Verify Your Email',
       `
-      <p>Welcome to Tesla Capital! We're excited to have you on board.</p>
-      <p>To get started and access all our investment features, please verify your email address by clicking the button below:</p>
+      <p>Welcome to Recoverly! We're excited to have you on board.</p>
+      <p>To get started and access all our private banking features, please verify your email address by clicking the button below:</p>
       <div class="button-container">
         <a href="${verifyUrl}" class="button">Verify Email Address</a>
       </div>
@@ -232,16 +232,16 @@ export const emailTemplates = {
       `,
       userName
     ),
-    text: `Hello ${userName}, Welcome to Tesla Capital! Please verify your email by following this link: ${verifyUrl}`
+    text: `Hello ${userName}, Welcome to Recoverly! Please verify your email by following this link: ${verifyUrl}`
   }),
 
   // 2. Password Reset
   passwordReset: (userName: string, resetUrl: string) => ({
-    subject: 'Reset Your Password - Tesla Capital',
+    subject: 'Reset Your Password - Recoverly',
     html: getBaseTemplate(
       'Reset Your Password',
       `
-      <p>We received a request to reset your password for your Tesla Capital account.</p>
+      <p>We received a request to reset your password for your Recoverly account.</p>
       <p>If you made this request, click the button below to set a new password:</p>
       <div class="button-container">
         <a href="${resetUrl}" class="button">Reset Password</a>
@@ -251,36 +251,36 @@ export const emailTemplates = {
       `,
       userName
     ),
-    text: `Hello ${userName}, someone requested a password reset for your Tesla Capital account. Use this link: ${resetUrl}`
+    text: `Hello ${userName}, someone requested a password reset for your Recoverly account. Use this link: ${resetUrl}`
   }),
 
   // 3. Welcome (Sign up)
   welcome: (userName: string) => ({
-    subject: 'Welcome to Tesla Capital! 🚀',
+    subject: 'Welcome to Recoverly! 🚀',
     html: getBaseTemplate(
       'Welcome Aboard!',
       `
-      <p>Your account has been successfully created. We're thrilled to have you join our community of smart investors!</p>
-      <p>With Tesla Capital, you can:</p>
+      <p>Your account has been successfully created. We're thrilled to have you join our community!</p>
+      <p>With Recoverly, you can:</p>
       <ul>
-        <li>Invest in high-yield plans</li>
-        <li>Track your earnings in real-time</li>
-        <li>Manage your portfolio with advanced tools</li>
-        <li>Refer friends and earn bonuses</li>
+        <li>Securely hold and manage assets</li>
+        <li>Track recovery progress in real-time</li>
+        <li>Access private wealth management tools</li>
+        <li>Connect with 24/7 dedicated advisors</li>
       </ul>
-      <p>Ready to start your investment journey?</p>
+      <p>Ready to start your journey?</p>
       <div class="button-container">
         <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">Go to Dashboard</a>
       </div>
       `,
       userName
     ),
-    text: `Hello ${userName}, Welcome to Tesla Capital! Your account has been created successfully.`
+    text: `Hello ${userName}, Welcome to Recoverly! Your account has been created successfully.`
   }),
 
   // 4. Deposit Confirmation
   depositConfirmation: (userName: string, amount: number, transactionId: string, status: string = 'approved') => ({
-    subject: `Deposit ${status === 'approved' ? 'Successful' : 'Pending'} - Tesla Capital`,
+    subject: `Deposit ${status === 'approved' ? 'Successful' : 'Pending'} - Recoverly`,
     html: getBaseTemplate(
       `Deposit ${status === 'approved' ? 'Confirmed' : 'Received'}`,
       `
@@ -291,9 +291,9 @@ export const emailTemplates = {
         <tr><td>Status:</td><td>${status.toUpperCase()}</td></tr>
         <tr><td>Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
       </table>
-      ${status === 'approved' ? '<p>You can now use these funds to subscribe to any of our investment plans.</p>' : '<p>We will notify you once your deposit has been approved.</p>'}
+      ${status === 'approved' ? '<p>You can now use these funds within your private account features.</p>' : '<p>We will notify you once your deposit has been approved.</p>'}
       <div class="button-container">
-        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard?section=logs" class="button">View Transactions</a>
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">View Dashboard</a>
       </div>
       `,
       userName
@@ -303,7 +303,7 @@ export const emailTemplates = {
 
   // 5. Withdrawal Confirmation
   withdrawalConfirmation: (userName: string, amount: number, transactionId: string, status: string = 'pending') => ({
-    subject: `Withdrawal ${status === 'approved' ? 'Processed' : 'Request Received'} - Tesla Capital`,
+    subject: `Withdrawal ${status === 'approved' ? 'Processed' : 'Request Received'} - Recoverly`,
     html: getBaseTemplate(
       `Withdrawal ${status === 'approved' ? 'Successful' : 'Request'}`,
       `
@@ -314,9 +314,9 @@ export const emailTemplates = {
         <tr><td>Status:</td><td>${status.toUpperCase()}</td></tr>
         <tr><td>Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
       </table>
-      <p>Expect your funds to reach your provided destination shortly после approval.</p>
+      <p>Expect your funds to reach your provided destination shortly after approval.</p>
       <div class="button-container">
-        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard?section=logs" class="button">View Logs</a>
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">View Dashboard</a>
       </div>
       `,
       userName
@@ -326,7 +326,7 @@ export const emailTemplates = {
 
   // 6. Money Transfer
   moneyTransfer: (userName: string, amount: number, recipientEmail: string, type: 'sent' | 'received') => ({
-    subject: `Money Transfer ${type === 'sent' ? 'to' : 'from'} ${recipientEmail} - Tesla Capital`,
+    subject: `Money Transfer ${type === 'sent' ? 'to' : 'from'} ${recipientEmail} - Recoverly`,
     html: getBaseTemplate(
       `Money ${type === 'sent' ? 'Sent' : 'Received'}`,
       `
@@ -347,69 +347,69 @@ export const emailTemplates = {
 
   // 7. Daily Earnings
   dailyEarnings: (userName: string, amount: number, planName: string) => ({
-    subject: `Daily Earnings Credited: $${amount.toFixed(2)} - Tesla Capital`,
+    subject: `Daily Update Credited: $${amount.toFixed(2)} - Recoverly`,
     html: getBaseTemplate(
-      'Daily Profit Credited',
+      'Daily Progress Credited',
       `
-      <p>Exciting news! Your daily profit from the <strong>${planName}</strong> plan has been credited to your account.</p>
+      <p>Your daily update from the <strong>${planName}</strong> plan has been credited to your account.</p>
       <table class="data-table">
         <tr><td>Plan:</td><td>${planName}</td></tr>
-        <tr><td>Profit Amount:</td><td class="highlight">$${amount.toFixed(2)}</td></tr>
+        <tr><td>Amount:</td><td class="highlight">$${amount.toFixed(2)}</td></tr>
         <tr><td>Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
       </table>
-      <p>Your balance has been updated. Keep growing with Tesla Capital!</p>
+      <p>Your balance has been updated. Keep growing with Recoverly!</p>
       <div class="button-container">
-        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">View Earnings</a>
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">View Details</a>
       </div>
       `,
       userName
     ),
-    text: `Hello ${userName}, your daily earnings of $${amount.toFixed(2)} from ${planName} has been credited.`
+    text: `Hello ${userName}, your daily credited amount of $${amount.toFixed(2)} from ${planName} has been processed.`
   }),
 
   // 8. Subscription to a Plan
   planSubscription: (userName: string, amount: number, planName: string) => ({
-    subject: `New Investment Plan: ${planName} - Tesla Capital`,
+    subject: `Account Activated: ${planName} - Recoverly`,
     html: getBaseTemplate(
-      'Investment Started!',
+      'Account Strategy Started!',
       `
-      <p>You have successfully subscribed to the <strong>${planName}</strong> investment plan.</p>
+      <p>You have successfully activated the <strong>${planName}</strong> account plan.</p>
       <table class="data-table">
         <tr><td>Plan:</td><td>${planName}</td></tr>
         <tr><td>Principal:</td><td class="highlight">$${amount.toLocaleString()}</td></tr>
         <tr><td>Start Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
       </table>
-      <p>Your investment is now active and will start generating returns based on the plan's schedule.</p>
+      <p>Your account is now active and will be monitored by our global wealth management team.</p>
       <div class="button-container">
-        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard?section=investment" class="button">Track Progress</a>
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">Track Progress</a>
       </div>
       `,
       userName
     ),
-    text: `Hello ${userName}, you have successfully subscribed to the ${planName} plan with $${amount}.`
+    text: `Hello ${userName}, you have successfully activated the ${planName} plan with $${amount}.`
   }),
 
   // 9. Upgrade/Downgrade Plan
   planChange: (userName: string, oldPlan: string, newPlan: string, amount: number) => ({
-    subject: `Investment Plan Updated - Tesla Capital`,
+    subject: `Account Plan Updated - Recoverly`,
     html: getBaseTemplate(
       'Plan Successfully Updated',
       `
-      <p>Your investment plan has been successfully updated.</p>
+      <p>Your account plan has been successfully updated.</p>
       <table class="data-table">
         <tr><td>Previous Plan:</td><td>${oldPlan}</td></tr>
         <tr><td>New Plan:</td><td class="highlight">${newPlan}</td></tr>
-        <tr><td>Investment Amount:</td><td>$${amount.toLocaleString()}</td></tr>
+        <tr><td>Amount:</td><td>$${amount.toLocaleString()}</td></tr>
         <tr><td>Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
       </table>
       <p>Your future returns will now be calculated based on the <strong>${newPlan}</strong> plan.</p>
       <div class="button-container">
-        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard?section=investment" class="button">Track Progress</a>
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">Track Progress</a>
       </div>
       `,
       userName
     ),
-    text: `Hello ${userName}, your investment plan has been updated from ${oldPlan} to ${newPlan}.`
+    text: `Hello ${userName}, your account plan has been updated from ${oldPlan} to ${newPlan}.`
   }),
 
   // 10. Withdrawal/Deposit Request (Admin only)
@@ -436,25 +436,25 @@ export const emailTemplates = {
   }),
   // 11. Plan Completed
   planCompleted: (userName: string, planName: string, amount: number, capitalReturned: boolean) => ({
-    subject: `Investment Plan Completed: ${planName} - Tesla Capital`,
+    subject: `Account Strategy Completed: ${planName} - Recoverly`,
     html: getBaseTemplate(
-      'Investment Plan Completed',
+      'Account Strategy Completed',
       `
-      <p>Congratulations! Your investment in the <strong>${planName}</strong> plan has successfully reached its maturity.</p>
+      <p>Congratulations! Your strategy in the <strong>${planName}</strong> plan has successfully reached its maturity.</p>
       <table class="data-table">
         <tr><td>Plan:</td><td>${planName}</td></tr>
         <tr><td>Principal:</td><td>$${amount.toLocaleString()}</td></tr>
         <tr><td>Capital Returned:</td><td>${capitalReturned ? 'YES' : 'NO'}</td></tr>
         <tr><td>Completion Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
       </table>
-      <p>${capitalReturned ? 'Your principal amount has been returned to your main balance.' : 'Your investment period has ended.'}</p>
+      <p>${capitalReturned ? 'Your principal amount has been returned to your main balance.' : 'Your strategy period has ended.'}</p>
       <div class="button-container">
         <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">Go to Dashboard</a>
       </div>
       `,
       userName
     ),
-    text: `Hello ${userName}, your ${planName} investment has completed. ${capitalReturned ? 'Capital returned.' : ''}`
+    text: `Hello ${userName}, your ${planName} strategy has completed. ${capitalReturned ? 'Capital returned.' : ''}`
   }),
 };
 

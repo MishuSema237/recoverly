@@ -1,5 +1,4 @@
-import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/config/firebase';
+import { getDb } from '@/lib/mongodb';
 import crypto from 'crypto';
 
 // Generate a secure reset token
@@ -7,23 +6,30 @@ export const generateResetToken = (): string => {
   return crypto.randomBytes(32).toString('hex');
 };
 
-// Store reset token in Firestore with expiration
+// Store reset token in MongoDB with expiration
 export const storeResetToken = async (
-  email: string, 
-  token: string, 
+  email: string,
+  token: string,
   expirationTime: number
 ): Promise<void> => {
   try {
-    const resetTokenRef = doc(db, 'resetTokens', token);
+    const db = await getDb();
     const expiresAt = new Date(Date.now() + expirationTime);
-    
-    await setDoc(resetTokenRef, {
+
+    await db.collection('resetTokens').insertOne({
       email,
       token,
       expiresAt,
       createdAt: new Date(),
       used: false
     });
+
+    // Create an index on token for fast lookup if it doesn't exist
+    // This is idempotent and cheap to run
+    await db.collection('resetTokens').createIndex({ token: 1 });
+    // create TTL index to automatically delete expired tokens
+    await db.collection('resetTokens').createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
   } catch (error) {
     console.error('Error storing reset token:', error);
     throw new Error('Failed to store reset token');
@@ -37,20 +43,19 @@ export const getResetToken = async (token: string): Promise<{
   expired: boolean;
 } | null> => {
   try {
-    const resetTokenRef = doc(db, 'resetTokens', token);
-    const tokenDoc = await getDoc(resetTokenRef);
-    
-    if (!tokenDoc.exists()) {
+    const db = await getDb();
+    const tokenDoc = await db.collection('resetTokens').findOne({ token });
+
+    if (!tokenDoc) {
       return null;
     }
-    
-    const tokenData = tokenDoc.data();
+
     const now = new Date();
-    const expiresAt = tokenData.expiresAt.toDate();
-    
+    const expiresAt = new Date(tokenDoc.expiresAt);
+
     return {
-      email: tokenData.email,
-      valid: !tokenData.used,
+      email: tokenDoc.email,
+      valid: !tokenDoc.used,
       expired: now > expiresAt
     };
   } catch (error) {
@@ -62,8 +67,11 @@ export const getResetToken = async (token: string): Promise<{
 // Mark reset token as used
 export const markResetTokenAsUsed = async (token: string): Promise<void> => {
   try {
-    const resetTokenRef = doc(db, 'resetTokens', token);
-    await setDoc(resetTokenRef, { used: true }, { merge: true });
+    const db = await getDb();
+    await db.collection('resetTokens').updateOne(
+      { token },
+      { $set: { used: true } }
+    );
   } catch (error) {
     console.error('Error marking reset token as used:', error);
     throw new Error('Failed to mark reset token as used');
@@ -71,11 +79,14 @@ export const markResetTokenAsUsed = async (token: string): Promise<void> => {
 };
 
 // Clean up expired tokens (can be called periodically)
+// MongoDB TTL index handles this automatically, but this can be kept for manual cleanup if needed
 export const cleanupExpiredTokens = async (): Promise<void> => {
   try {
-    // This would require a more complex query in a real implementation
-    // For now, we'll rely on the client-side expiration check
-    console.log('Cleanup expired tokens - implement with Firestore query if needed');
+    const db = await getDb();
+    await db.collection('resetTokens').deleteMany({
+      expiresAt: { $lt: new Date() }
+    });
+    console.log('Cleaned up expired tokens');
   } catch (error) {
     console.error('Error cleaning up expired tokens:', error);
   }

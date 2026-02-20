@@ -13,22 +13,22 @@ const createReviewCardImage = (reviewText: string, rating: number, author: strin
   canvas.width = 800;
   canvas.height = 600;
 
-  // Background - Dark elegant gradient
+  // Background - Navy gradient
   const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, '#111827'); // Gray 900
-  gradient.addColorStop(1, '#000000'); // Black
+  gradient.addColorStop(0, '#0B1626'); // Navy 900
+  gradient.addColorStop(1, '#173653'); // Navy 700
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Add a subtle red accent/glow
+  // Add a subtle gold accent/glow
   const glow = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, 500);
-  glow.addColorStop(0, 'rgba(220, 38, 38, 0.1)'); // Red with low opacity
+  glow.addColorStop(0, 'rgba(201, 147, 58, 0.1)'); // Gold with low opacity
   glow.addColorStop(1, 'transparent');
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Border
-  ctx.strokeStyle = '#374151'; // Gray 700
+  ctx.strokeStyle = '#2E5A8D'; // Navy 500
   ctx.lineWidth = 2;
   ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
 
@@ -79,7 +79,7 @@ const createReviewCardImage = (reviewText: string, rating: number, author: strin
   const starsY = startY + totalTextHeight + 40;
 
   for (let i = 0; i < 5; i++) {
-    ctx.fillStyle = i < rating ? '#ef4444' : '#4b5563'; // Red stars
+    ctx.fillStyle = i < rating ? '#C9933A' : '#4b5563'; // Gold stars
     ctx.beginPath();
     // Draw star shape
     const cx = starsX + i * starSpacing + starSize / 2;
@@ -111,7 +111,7 @@ const createReviewCardImage = (reviewText: string, rating: number, author: strin
   }
 
   // Author name
-  ctx.fillStyle = '#9ca3af'; // Gray 400
+  ctx.fillStyle = '#9FB3CB'; // Navy 200
   ctx.font = 'italic 24px Inter, sans-serif';
   ctx.fillText(`- ${author}`, canvas.width / 2, starsY + 50);
 
@@ -121,50 +121,39 @@ const createReviewCardImage = (reviewText: string, rating: number, author: strin
 const TestimonialsSection = () => {
   const reviews = [
     {
-      text: 'Tesla Capital has transformed my investment portfolio. The returns are consistent and the platform is easy to use. Highly recommended!',
+      text: 'I lost $45,000 to a crypto romance scam. The police did nothing. Recoverly filed legal action and got 80% of my funds back in 3 weeks!',
       rating: 5,
-      author: 'Benita Rodriguez'
+      author: 'Sarah Jenkins'
     },
     {
-      text: 'Outstanding service and impressive returns. The team is professional and always responsive to questions.',
+      text: 'My bank refused to refund an unauthorized $12k transaction. Recoverly used a court order to force them to pay up. Amazing service.',
       rating: 5,
-      author: 'Frederick Johnson'
+      author: 'Michael Torres'
     },
     {
-      text: 'Great experience overall. The investment plans are clear and the profits are delivered as promised.',
-      rating: 4,
-      author: 'Sandra Olson'
-    },
-    {
-      text: 'Very satisfied with my investment. The daily earnings are consistent and the withdrawal process is smooth.',
+      text: 'I was skeptical at first, but their legal team is legit. They recovered my stolen Bitcoin from a fake exchange.',
       rating: 5,
-      author: 'Eric Barnes'
+      author: 'David Chen'
     },
     {
-      text: 'Excellent platform for growing wealth. The referral program is a great bonus feature.',
-      rating: 4,
-      author: 'Michael Chen'
-    },
-    {
-      text: 'Professional service with transparent processes. My investments have been performing well.',
+      text: 'Finally, a service that actually fights for victims. The process was transparent and I could track my case every step of the way.',
       rating: 5,
-      author: 'Sarah Williams'
+      author: 'Amanda Lewis'
     },
     {
-      text: 'Good returns and reliable service. The customer support team is helpful and knowledgeable.',
-      rating: 4,
-      author: 'David Thompson'
-    },
-    {
-      text: 'I\'ve been investing for 6 months now and the results exceed my expectations. Thank you Tesla Capital!',
+      text: 'Professional, aggressive against scammers, and kind to clients. Recoverly saved my retirement savings.',
       rating: 5,
-      author: 'Emily Davis'
+      author: 'Robert Wilson'
+    },
+    {
+      text: 'They know exactly how to deal with banks. My claim was approved 48 hours after Recoverly stepped in.',
+      rating: 5,
+      author: 'Jessica White'
     }
   ];
 
   const testimonials = useMemo(() => {
     if (typeof window === 'undefined') {
-      // Return placeholder during SSR
       return reviews.map(review => ({
         image: '',
         text: `${review.author} - ${review.rating}★`
@@ -176,73 +165,77 @@ const TestimonialsSection = () => {
     }));
   }, []);
 
-  const topInvestors = [
+  const recentWins = [
     {
-      name: 'Lina Gerald',
-      amount: '$4,500,000.00',
-      avatar: 'LG',
+      type: 'Crypto Scam Recovery',
+      amount: '$145,000.00',
+      date: '2 Days Ago',
     },
     {
-      name: 'Marshal Garry',
-      amount: '$3,934,754.92',
-      avatar: 'MG',
+      type: 'Bank Wire Reversal',
+      amount: '$28,400.00',
+      date: '4 Hours Ago',
     },
     {
-      name: 'Stefan Günter',
-      amount: '$2,850,000.00',
-      avatar: 'SG',
+      type: 'Credit Card Fraud',
+      amount: '$9,250.00',
+      date: 'Just Now',
     },
   ];
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Customer Testimonials */}
         <div className="mb-20">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              What our customers say
+            <span className="text-gold-600 font-bold tracking-wider uppercase text-sm">Success Stories</span>
+            <h2 className="text-3xl md:text-5xl font-bold text-navy-900 mt-2 font-playfair">
+              Victory for Victims
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Don&apos;t just take our word for it. Here&apos;s what our satisfied investors
-              have to say about their experience with Tesla Capital.
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto mt-4">
+              We have helped thousands of people reclaim what is rightfully theirs.
             </p>
           </div>
 
           {/* Circular Gallery for Testimonials */}
           <div style={{ height: '600px', position: 'relative' }}>
-            <CircularGallery bend={3} textColor="#ffffff" borderRadius={0.05} scrollEase={0.02} items={testimonials} />
+            <CircularGallery bend={3} textColor="#1F466F" borderRadius={0.05} scrollEase={0.02} items={testimonials} />
           </div>
         </div>
 
-        {/* Top Investors */}
-        <div className="bg-white rounded-3xl p-12 shadow-lg">
+        {/* Recent Wins */}
+        <div className="bg-white rounded-3xl p-12 shadow-xl border border-gray-100">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Our Top Investors
+            <h2 className="text-3xl font-bold text-navy-900 mb-4 font-playfair">
+              Recent Case Victories
             </h2>
             <p className="text-gray-600">
-              Meet some of our most successful investors who have achieved remarkable returns.
+              Live updates of funds recovered for our clients.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {topInvestors.map((investor, index) => (
+            {recentWins.map((win, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="text-center p-6 bg-gray-50 rounded-2xl hover:shadow-lg transition-all duration-300"
+                className="text-center p-8 bg-navy-50 rounded-2xl border border-navy-100 hover:shadow-lg transition-all duration-300"
               >
-                <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
-                  {investor.avatar}
+                <div className="w-16 h-16 bg-navy-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                  ⚖️
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {investor.name}
+                <h3 className="text-xl font-bold text-navy-900 mb-2">
+                  {win.type}
                 </h3>
-                <p className="text-red-600 font-bold text-lg">
-                  Invest Amount {investor.amount}
+                <p className="text-gold-600 font-bold text-2xl font-mono mb-2">
+                  {win.amount}
+                </p>
+                <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold flex items-center justify-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                  {win.date}
                 </p>
               </motion.div>
             ))}

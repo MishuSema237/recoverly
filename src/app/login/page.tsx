@@ -31,9 +31,9 @@ const LoginPage = () => {
 
   const scrollToError = () => {
     setTimeout(() => {
-      errorRef.current?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
+      errorRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
       });
     }, 100);
   };
@@ -105,7 +105,7 @@ const LoginPage = () => {
           >
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-              <p className="text-gray-600">Sign in to your Tesla Capital account</p>
+              <p className="text-gray-600">Sign in to your Recoverly account</p>
             </div>
 
             {!showForgotPassword ? (
@@ -143,7 +143,7 @@ const LoginPage = () => {
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent"
                       placeholder="your@email.com"
                     />
                   </div>
@@ -163,7 +163,7 @@ const LoginPage = () => {
                       required
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent"
                       placeholder="Enter your password"
                     />
                     <button
@@ -184,7 +184,7 @@ const LoginPage = () => {
                       type="checkbox"
                       checked={formData.rememberMe}
                       onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
-                      className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-gold-600 focus:ring-gold-500 border-gray-300 rounded"
                     />
                     <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                       Remember me
@@ -194,7 +194,7 @@ const LoginPage = () => {
                   <button
                     type="button"
                     onClick={() => setShowForgotPassword(true)}
-                    className="text-sm text-red-600 hover:text-red-500"
+                    className="text-sm text-gold-600 hover:text-gold-500 font-medium"
                   >
                     Forgot password?
                   </button>
@@ -205,7 +205,7 @@ const LoginPage = () => {
                   disabled={isLoading}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-navy-600 hover:bg-navy-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -231,7 +231,7 @@ const LoginPage = () => {
                         setShowForgotPassword(false);
                         setForgotPasswordSuccess(false);
                       }}
-                      className="w-full py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      className="w-full py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-navy-600 hover:bg-navy-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500"
                     >
                       Back to Login
                     </button>
@@ -259,7 +259,7 @@ const LoginPage = () => {
                           required
                           value={forgotPasswordEmail}
                           onChange={(e) => setForgotPasswordEmail(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent"
                           placeholder="Enter your email"
                         />
                       </div>
@@ -269,14 +269,14 @@ const LoginPage = () => {
                       <button
                         type="button"
                         onClick={() => setShowForgotPassword(false)}
-                        className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500"
                       >
                         Back
                       </button>
                       <button
                         type="submit"
                         disabled={isForgotPasswordLoading}
-                        className="flex-1 py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                        className="flex-1 py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-navy-600 hover:bg-navy-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50"
                       >
                         {isForgotPasswordLoading ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mx-auto"></div>
@@ -295,9 +295,9 @@ const LoginPage = () => {
                 Do not have an account?{' '}
                 <button
                   onClick={() => router.push('/signup')}
-                  className="text-red-600 hover:text-red-500 font-medium"
+                  className="text-gold-600 hover:text-gold-500 font-bold"
                 >
-                  Sign up here
+                  Open an Account
                 </button>
               </p>
             </div>
@@ -312,25 +312,25 @@ const LoginPage = () => {
               transition={{ duration: 0.5, delay: 0.1 }}
             >
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                Access Your <span className="text-red-600">Investment Portfolio</span>
+                Access Your <span className="text-navy-600">Recovery Dashboard</span>
               </h3>
               <p className="text-gray-600 mb-4">
-                Sign in to manage your investments, track performance, and access exclusive features.
+                Sign in to manage your case files, track legal performance, and access exclusive updates.
               </p>
-              
+
               <div className="space-y-3">
                 <div className="flex items-start space-x-3">
-                  <Shield className="h-6 w-6 text-red-600 mt-1" />
+                  <Shield className="h-6 w-6 text-gold-500 mt-1" />
                   <div>
-                    <h4 className="font-semibold text-gray-900">Secure Login</h4>
+                    <h4 className="font-semibold text-gray-900">Bank-Level Security</h4>
                     <p className="text-sm text-gray-600">Bank-level security for your account</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start space-x-3">
-                  <Zap className="h-6 w-6 text-red-600 mt-1" />
+                  <Zap className="h-6 w-6 text-gold-500 mt-1" />
                   <div>
-                    <h4 className="font-semibold text-gray-900">Quick Access</h4>
+                    <h4 className="font-semibold text-gray-900">Rapid Action</h4>
                     <p className="text-sm text-gray-600">Access your portfolio instantly</p>
                   </div>
                 </div>
@@ -341,18 +341,23 @@ const LoginPage = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-red-600 rounded-lg p-4 text-white"
+              className="bg-navy-900 rounded-lg p-6 text-white relative overflow-hidden"
             >
-              <h3 className="text-xl font-bold mb-3">New to Tesla Capital?</h3>
-              <p className="text-red-100 mb-4">
-                Join thousands of investors who trust Tesla Capital for their investment needs.
-              </p>
-              <button
-                onClick={() => router.push('/signup')}
-                className="w-full bg-white text-red-600 py-2 px-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-              >
-                Create Account
-              </button>
+              <div className="absolute inset-0 opacity-20">
+                <img src="https://placehold.co/800x400/0b1626/c9933a?text=Private+Banking+Network" alt="Private Banking Pattern" className="w-full h-full object-cover" />
+              </div>
+              <div className="relative z-10">
+                <h3 className="text-xl font-bold mb-3 text-gold-500">New to Recoverly?</h3>
+                <p className="text-gray-300 mb-6 leading-relaxed">
+                  Join thousands of clients who trust Recoverly for their financial and legal security. Experience private banking designed for asset protection.
+                </p>
+                <button
+                  onClick={() => router.push('/signup')}
+                  className="w-full bg-gold-500 text-navy-900 py-3 px-4 rounded-lg font-bold hover:bg-gold-400 transition-colors shadow-lg"
+                >
+                  Create Account
+                </button>
+              </div>
             </motion.div>
 
             <motion.div
@@ -365,15 +370,19 @@ const LoginPage = () => {
               <p className="text-gray-600 mb-4">
                 Our support team is available 24/7 to assist you.
               </p>
-              
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Mail className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm text-gray-700">support@teslacapital.com</span>
+
+              <div className="space-y-2 mt-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-full bg-navy-50 flex items-center justify-center">
+                    <Mail className="h-4 w-4 text-navy-600" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">support@recoverly.com</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Phone className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm text-gray-700">+1 (555) 123-4567</span>
+                <div className="flex items-center space-x-3 mt-3">
+                  <div className="w-8 h-8 rounded-full bg-navy-50 flex items-center justify-center">
+                    <Phone className="h-4 w-4 text-navy-600" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">+1 (800) 123-4567</span>
                 </div>
               </div>
             </motion.div>

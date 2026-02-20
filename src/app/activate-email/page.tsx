@@ -17,7 +17,7 @@ const ActivateEmailPage = () => {
     // Get email from URL params, localStorage, or Firebase user
     const urlParams = new URLSearchParams(window.location.search);
     const emailParam = urlParams.get('email');
-    
+
     if (emailParam) {
       setEmail(emailParam);
     } else if (user?.email) {
@@ -41,7 +41,7 @@ const ActivateEmailPage = () => {
 
   const handleResendEmail = async () => {
     if (countdown > 0) return;
-    
+
     setIsResending(true);
     try {
       // Use custom email verification instead of Firebase
@@ -81,18 +81,18 @@ const ActivateEmailPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-red-900 to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-[#0b1626] via-[#1a2b45] to-[#0b1626]">
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-2xl font-bold text-red-600">
-              Tesla Capital
+            <Link href="/" className="text-2xl font-bold text-navy-900">
+              Recoverly
             </Link>
             {!user && (
               <Link
                 href="/login"
-                className="text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
+                className="text-gray-700 hover:text-navy-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
               >
                 Back to Login
               </Link>
@@ -113,11 +113,11 @@ const ActivateEmailPage = () => {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6"
+              className="mx-auto w-20 h-20 bg-navy-100 rounded-full flex items-center justify-center mb-6"
             >
-              <Mail className="w-10 h-10 text-red-600" />
+              <Mail className="w-10 h-10 text-navy-600" />
             </motion.div>
-            
+
             <h1 className="text-3xl font-bold text-white mb-2">
               Activate Your Account
             </h1>
@@ -137,7 +137,7 @@ const ActivateEmailPage = () => {
                 <Clock className="w-6 h-6 text-blue-600 mr-2" />
                 <span className="text-gray-700 font-medium">Check Your Email</span>
               </div>
-              
+
               {email && (
                 <p className="text-gray-600 mb-4">
                   We sent an activation link to:
@@ -164,7 +164,7 @@ const ActivateEmailPage = () => {
             <div className="space-y-4">
               <button
                 onClick={handleCheckActivation}
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
+                className="w-full bg-navy-600 hover:bg-navy-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
               >
                 <CheckCircle className="w-5 h-5 mr-2" />
                 I&apos;ve Activated My Email
@@ -177,11 +177,10 @@ const ActivateEmailPage = () => {
                 <button
                   onClick={handleResendEmail}
                   disabled={isResending || countdown > 0}
-                  className={`w-full py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center ${
-                    countdown > 0 || isResending
+                  className={`w-full py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center ${countdown > 0 || isResending
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                  }`}
+                    }`}
                 >
                   {isResending ? (
                     <>
@@ -214,7 +213,7 @@ const ActivateEmailPage = () => {
             <div className="mt-6 pt-6 border-t border-gray-200 text-center">
               <p className="text-gray-600 text-sm">
                 Need help?{' '}
-                <Link href="/contact" className="text-red-600 hover:text-red-700 font-medium">
+                <Link href="/contact" className="text-navy-600 hover:text-navy-700 font-medium">
                   Contact Support
                 </Link>
               </p>

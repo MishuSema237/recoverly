@@ -1,10 +1,13 @@
 export interface User {
   _id?: string;
-  firebaseId: string; // Link to Firebase Auth UID
   email: string;
+  username: string;
   firstName: string;
+  middleName?: string;
   lastName: string;
   displayName: string;
+  accountType: string;
+  transactionPin?: string;
   emailVerified: boolean;
   createdAt: Date;
   lastLoginAt: Date;
@@ -26,20 +29,26 @@ export interface User {
 }
 
 export interface UserCreateData {
-  firebaseId: string;
   email: string;
+  username: string;
   firstName: string;
+  middleName?: string;
   lastName: string;
   displayName: string;
+  accountType: string;
   emailVerified: boolean;
   userCode: string;
   createdBy: string;
 }
 
 export interface UserUpdateData {
+  username?: string;
   firstName?: string;
+  middleName?: string;
   lastName?: string;
   displayName?: string;
+  accountType?: string;
+  transactionPin?: string;
   walletAddress?: string;
   investmentPlan?: string;
   totalInvested?: number;

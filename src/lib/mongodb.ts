@@ -1,6 +1,9 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
-const uri = process.env.MONGODB_URI || "mongodb+srv://mishusema237_db_user:MishaelSema@cluster0.wfmdwl3.mongodb.net/";
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  throw new Error('Please define the MONGODB_URI environment variable inside .env');
+}
 const dbName = process.env.MONGODB_DB || 'tesla-capital';
 
 let client: MongoClient | null = null;
@@ -9,7 +12,7 @@ let clientPromise: Promise<MongoClient>;
 if (process.env.NODE_ENV === 'development') {
   // Global variable to store the cached connection in development
   let cachedClient = (global as unknown as { _mongoClient?: MongoClient })._mongoClient;
-  
+
   if (!cachedClient) {
     cachedClient = new MongoClient(uri, {
       serverApi: {
@@ -37,11 +40,11 @@ export async function connectToDatabase() {
   try {
     const client = await clientPromise;
     const db = client.db(dbName);
-    
+
     // Test the connection
     await client.db('admin').command({ ping: 1 });
     console.log('Connected to MongoDB successfully');
-    
+
     return { client, db };
   } catch (error) {
     console.error('MongoDB connection error:', error);

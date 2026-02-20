@@ -20,7 +20,14 @@ import {
   User,
   HelpCircle,
   Shield,
-  Zap
+  Zap,
+  MoreVertical,
+  Plus,
+  Send,
+  PieChart,
+  Globe,
+  HeadphonesIcon,
+  Calendar
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { canAccessAdmin } from '@/utils/adminUtils';
@@ -28,614 +35,334 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense, useMemo } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import DashboardLoader from '@/components/DashboardLoader';
-import { useSwipe } from '@/hooks/useSwipe';
 
-// Import dashboard components with dynamic loading
+// Navigation components (keep existing if possible, but redesigning core)
 import dynamic from 'next/dynamic';
 
-const DepositSection = dynamic(() => import('@/components/dashboard/DepositSection'), {
-  loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-});
-
-const WithdrawSection = dynamic(() => import('@/components/dashboard/WithdrawSection'), {
-  loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-});
-
-const TransferMoneySection = dynamic(() => import('@/components/dashboard/TransferMoneySection'), {
-  loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-});
-
-const ReferralLogSection = dynamic(() => import('@/components/dashboard/ReferralLogSection'), {
-  loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-});
-
-const UnifiedLogsSection = dynamic(() => import('@/components/dashboard/UnifiedLogsSection'), {
-  loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-});
-
-const AdminSection = dynamic(() => import('@/components/dashboard/AdminSection'), {
-  loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-});
-
-const ProfileSection = dynamic(() => import('@/components/dashboard/ProfileSection'), {
-  loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-});
-
-const InvestmentPlans = dynamic(() => import('@/components/InvestmentPlans'), {
-  loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-});
-
-const NotificationsSection = dynamic(() => import('@/components/dashboard/NotificationsSection'), {
-  loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-});
-
-const SettingsSection = dynamic(() => import('@/components/dashboard/SettingsSection'), {
-  loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-});
-
-const SupportSection = dynamic(() => import('@/components/dashboard/SupportSection'), {
-  loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-});
+const DepositSection = dynamic(() => import('@/components/dashboard/DepositSection'));
+const WithdrawSection = dynamic(() => import('@/components/dashboard/WithdrawSection'));
+const TransferMoneySection = dynamic(() => import('@/components/dashboard/TransferMoneySection'));
+const UnifiedLogsSection = dynamic(() => import('@/components/dashboard/UnifiedLogsSection'));
+const ProfileSection = dynamic(() => import('@/components/dashboard/ProfileSection'));
+const NotificationsSection = dynamic(() => import('@/components/dashboard/NotificationsSection'));
+const SupportSection = dynamic(() => import('@/components/dashboard/SupportSection'));
 
 const DashboardContent = () => {
-  const { user, userProfile, logout, loading } = useAuth();
+  const { user, userProfile, logout, loading, refreshUser } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [copySuccess, setCopySuccess] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
-  // const [referralCount, setReferralCount] = useState(0);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Mobile swipe navigation
-  useSwipe({
-    onSwipeRight: () => {
-      // Only open sidebar on mobile devices
-      if (window.innerWidth < 1024) {
-        setIsSidebarOpen(true);
-      }
-    },
-    onSwipeLeft: () => {
-      // Close sidebar when swiping left
-      if (window.innerWidth < 1024 && isSidebarOpen) {
-        setIsSidebarOpen(false);
-      }
-    },
-    threshold: 50
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedDate = currentTime.toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
+  const formattedTime = currentTime.toLocaleTimeString('en-US', {
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
   });
 
   const dashboardLinks = useMemo(() => [
-    { id: 'dashboard', name: 'Dashboard', icon: <BarChart3 className="w-5 h-5" /> },
-    { id: 'investment', name: 'Investment', icon: <TrendingUp className="w-5 h-5" /> },
+    { id: 'dashboard', name: 'Overview', icon: <BarChart3 className="w-5 h-5" /> },
+    { id: 'transfer', name: 'Send Money', icon: <Send className="w-5 h-5" /> },
     { id: 'deposit', name: 'Deposit', icon: <ArrowDownUp className="w-5 h-5" /> },
-    { id: 'withdraw', name: 'Withdraw', icon: <ArrowUpDown className="w-5 h-5" /> },
-    { id: 'transfer', name: 'Transfer Money', icon: <CreditCard className="w-5 h-5" /> },
-    { id: 'logs', name: 'Transaction Logs', icon: <History className="w-5 h-5" /> },
-    { id: 'referral-log', name: 'Referral Log', icon: <Users className="w-5 h-5" /> },
-    { id: 'profile', name: 'Profile', icon: <User className="w-5 h-5" /> },
-    { id: 'notifications', name: 'Notifications', icon: <Bell className="w-5 h-5" /> },
-    { id: 'settings', name: 'Settings', icon: <Settings className="w-5 h-5" /> },
-    { id: 'support', name: 'Support', icon: <HelpCircle className="w-5 h-5" /> },
-    ...(canAccessAdmin(userProfile) ? [{ id: 'admin', name: 'Admin Panel', icon: <Shield className="w-5 h-5" /> }] : [])
-  ], [userProfile]);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
-
-  // Handle URL parameters for active section
-  useEffect(() => {
-    const section = searchParams.get('section');
-    if (section && dashboardLinks.some(link => link.id === section)) {
-      setActiveSection(section);
-    }
-  }, [searchParams, dashboardLinks]);
-
-  // Fetch unread notifications count
-  useEffect(() => {
-    const fetchUnreadCount = async () => {
-      if (userProfile?.userCode) {
-        try {
-          const response = await fetch(`/api/user-notifications?userCode=${userProfile.userCode}`);
-          const result = await response.json();
-
-          if (result.success) {
-            const unreadCount = result.data.filter((n: { read: boolean }) => !n.read).length;
-            setUnreadNotifications(unreadCount);
-          }
-        } catch (error) {
-          console.error('Error fetching unread notifications:', error);
-        }
-      }
-    };
-
-    fetchUnreadCount();
-    // Refresh every 5 minutes (300000ms) instead of 30 seconds
-    const interval = setInterval(fetchUnreadCount, 300000);
-    return () => clearInterval(interval);
-  }, [userProfile?.userCode]);
-
-
-  const handleSectionChange = (sectionId: string) => {
-    setActiveSection(sectionId);
-    // Update URL without page reload
-    const url = new URL(window.location.href);
-    url.searchParams.set('section', sectionId);
-    window.history.replaceState({}, '', url.toString());
-  };
+    { id: 'logs', name: 'History', icon: <History className="w-5 h-5" /> },
+    { id: 'profile', name: 'Account Info', icon: <User className="w-5 h-5" /> },
+    { id: 'support', name: 'Contact Support', icon: <HeadphonesIcon className="w-5 h-5" /> },
+  ], []);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
       await logout();
-      // Clear any cached data
-      localStorage.clear();
-      sessionStorage.clear();
-      // Force page refresh to clear everything
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setIsLoggingOut(false);
-    }
+      router.push('/');
+    } catch (e) { console.error(e); }
   };
-
-
 
   return (
     <ProtectedRoute>
       <DashboardLoader>
-
-        <div className="h-screen bg-gray-50 flex overflow-hidden">
-          {/* Mobile Sidebar Overlay */}
-          {isSidebarOpen && (
-            <div
-              className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity duration-300"
-              onClick={() => setIsSidebarOpen(false)}
-              onTouchEnd={(e) => {
-                // Prevent event bubbling for better touch handling
-                e.stopPropagation();
-                setIsSidebarOpen(false);
-              }}
-            />
-          )}
-
+        <div className="flex h-screen bg-[#f8fafc] overflow-hidden">
           {/* Sidebar */}
-          <div className={`w-64 bg-white shadow-lg flex flex-col fixed lg:relative z-50 h-full transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-            }`} style={{
-              paddingTop: 'env(safe-area-inset-top)',
-              paddingBottom: 'env(safe-area-inset-bottom)',
-              height: '100dvh' // Use dynamic viewport height for better mobile support
-            }}>
-            <div className="p-5 border-b border-gray-200 flex-shrink-0 flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-red-600">Tesla Capital</h1>
-              <button
-                onClick={() => setIsSidebarOpen(false)}
-                className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+          <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#0b1626] text-white transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <div className="flex flex-col h-full">
+              <div className="p-6 border-b border-navy-800 flex items-center justify-between">
+                <span className="text-2xl font-bold tracking-tighter text-gold-500">RECOVERLY</span>
+                <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden"><X className="w-6 h-6" /></button>
+              </div>
 
-            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent" style={{ direction: 'rtl' }}>
-              <nav className="mt-6" style={{ direction: 'ltr' }}>
+              <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto">
                 {dashboardLinks.map((link) => (
                   <button
                     key={link.id}
-                    onClick={() => {
-                      handleSectionChange(link.id);
-                      setIsSidebarOpen(false); // Close sidebar on mobile after selection
-                    }}
-                    className={`w-full flex items-center space-x-3 px-6 py-3 text-left transition-colors duration-200 ${activeSection === link.id
-                      ? 'bg-red-50 text-red-600 border-r-4 border-red-600'
-                      : 'text-gray-700 hover:bg-gray-50'
-                      }`}
+                    onClick={() => { setActiveSection(link.id); setIsSidebarOpen(false); }}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeSection === link.id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
                   >
-                    <div className="relative">
-                      {link.icon}
-                      {link.id === 'notifications' && unreadNotifications > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
-                          {unreadNotifications > 9 ? '9+' : unreadNotifications}
-                        </span>
-                      )}
-                    </div>
-                    <span className="font-medium">{link.name}</span>
+                    {link.icon}
+                    <span className="font-semibold">{link.name}</span>
                   </button>
                 ))}
               </nav>
-            </div>
 
-            <div className="p-6 border-t border-gray-200 flex-shrink-0">
-              <button
-                onClick={() => setShowLogoutModal(true)}
-                className="w-full flex items-center space-x-3 px-6 py-3 text-left text-red-600 hover:bg-red-50 transition-colors duration-200"
-              >
-                <LogOut className="w-5 h-5" />
-                <span className="font-medium">Logout</span>
-              </button>
+              <div className="p-6 border-t border-navy-800">
+                <button onClick={handleLogout} className="flex items-center space-x-3 text-red-400 hover:text-red-300 transition-colors w-full">
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-semibold">Logout</span>
+                </button>
+              </div>
             </div>
-          </div>
+          </aside>
 
           {/* Main Content */}
-          <div className="flex-1 flex flex-col overflow-hidden" style={{
-            height: '100dvh' // Use dynamic viewport height for better mobile support
-          }}>
-            {/* Header */}
-            <header className="bg-white shadow-sm border-b">
-              <div className="px-6 py-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-4">
-                    {/* Mobile Menu Toggle */}
-                    <button
-                      onClick={() => setIsSidebarOpen(true)}
-                      className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
-                    >
-                      <Menu className="w-6 h-6" />
-                    </button>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900 capitalize">
-                        {dashboardLinks.find(link => link.id === activeSection)?.name || 'Dashboard'}
-                      </h2>
-                    </div>
-                  </div>
+          <main className="flex-1 flex flex-col h-full overflow-hidden">
+            {/* Navbar */}
+            <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-6 shrink-0">
+              <div className="flex items-center space-x-4">
+                <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2"><Menu className="w-6 h-6 text-navy-900" /></button>
+                <div className="hidden md:block">
+                  <p className="text-sm font-medium text-gray-400">{formattedDate}</p>
+                </div>
+              </div>
 
-                  <div className="flex items-center space-x-4">
-                    <button
-                      onClick={() => setActiveSection('notifications')}
-                      className="relative p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                    >
-                      <Bell className="w-6 h-6" />
-                      {unreadNotifications > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
-                          {unreadNotifications > 9 ? '9+' : unreadNotifications}
-                        </span>
-                      )}
-                    </button>
-                  </div>
+              <div className="flex items-center space-x-4">
+                <div className="text-right mr-4 hidden sm:block">
+                  <p className="text-xl font-bold text-navy-900">$0</p>
+                </div>
+                <button className="p-2 text-gray-400 hover:text-navy-900 relative">
+                  <Bell className="w-6 h-6" />
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                <div className="flex items-center space-x-3 p-1 pl-3 bg-gray-50 rounded-full border border-gray-100">
+                  <span className="hidden sm:inline font-semibold text-navy-900">User</span>
+                  <div className="w-10 h-10 bg-navy-900 text-gold-500 rounded-full flex items-center justify-center font-bold">UU</div>
                 </div>
               </div>
             </header>
 
-            {/* Email Verification Warning */}
-            {!user?.emailVerified && (
-              <motion.div
-                initial={{ opacity: 0, y: -50 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-yellow-50 border-l-4 border-yellow-400 p-4"
-              >
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <AlertCircle className="h-5 w-5 text-yellow-400" />
+            {/* Scrollable Area */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-20">
+              {activeSection === 'dashboard' ? (
+                <>
+                  {/* Top Stats Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[
+                      { label: 'Current Balance', value: `$${(userProfile?.balances?.main || 0).toLocaleString()}`, icon: <DollarSign className="text-blue-600" />, bg: 'bg-blue-50' },
+                      { label: 'Monthly Income', value: '$0', icon: <ArrowDownUp className="text-green-600" />, bg: 'bg-green-50' },
+                      { label: 'Monthly Outgoing', value: '$0', icon: <ArrowUpDown className="text-red-600" />, bg: 'bg-red-50' },
+                      { label: 'Transaction Limit', value: '$500,000.00', icon: <Shield className="text-gold-600" />, bg: 'bg-gold-50' },
+                    ].map((stat, i) => (
+                      <div key={i} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                        <div className={`w-10 h-10 ${stat.bg} rounded-xl flex items-center justify-center mb-4`}>
+                          {stat.icon}
+                        </div>
+                        <p className="text-sm font-medium text-gray-400 uppercase tracking-wider">{stat.label}</p>
+                        <p className="text-2xl font-bold text-navy-900 mt-1">{stat.value}</p>
+                      </div>
+                    ))}
                   </div>
-                  <div className="ml-3 flex-1">
-                    <p className="text-sm text-yellow-700">
-                      <strong>Email verification required:</strong> Please verify your email address to access all features and make investments.
-                    </p>
+
+                  {/* Main Overview Grid */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Left Column (2/3) */}
+                    <div className="lg:col-span-2 space-y-8">
+                      {/* Welcome & Balance */}
+                      <div className="bg-[#0b1626] rounded-3xl p-8 text-white relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center">
+                          <div>
+                            <p className="text-gold-400 font-medium mb-1">Good Morning</p>
+                            <h2 className="text-3xl font-bold mb-6">{userProfile?.firstName || 'User'}</h2>
+                            <div className="space-y-1">
+                              <p className="text-6xl font-black text-white tracking-tighter">${(userProfile?.balances?.main || 0).toFixed(2)} <span className="text-2xl font-medium text-gray-400">USD</span></p>
+                              <p className="text-gold-500/80 font-medium flex items-center"><Zap className="w-4 h-4 mr-1" /> Available Balance</p>
+                            </div>
+                          </div>
+                          <div className="mt-8 md:mt-0 text-left md:text-right">
+                            <p className="text-gray-400 text-sm mb-1 uppercase tracking-widest">Account Number</p>
+                            <p className="text-2xl font-mono font-bold tracking-widest text-white mb-2 decoration-gold-500/50 underline underline-offset-8">9742584063</p>
+                            <span className="inline-flex items-center px-3 py-1 bg-red-500/20 text-red-500 rounded-full text-xs font-bold uppercase tracking-wider border border-red-500/20">Inactive</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Quick Actions */}
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-bold text-navy-900">What would you like to do today?</h3>
+                        <p className="text-gray-400">Choose from our popular actions below</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                          {[
+                            { label: 'Account Info', icon: <User />, action: () => setActiveSection('profile') },
+                            { label: 'Send Money', icon: <Send />, action: () => setActiveSection('transfer') },
+                            { label: 'Deposit', icon: <Plus />, action: () => setActiveSection('deposit') },
+                            { label: 'History', icon: <History />, action: () => setActiveSection('logs') },
+                          ].map((act, i) => (
+                            <button key={i} onClick={act.action} className="flex flex-col items-center justify-center p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-gold-500 hover:text-navy-900 group transition-all">
+                              <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-gold-50 group-hover:text-gold-600 transition-colors">
+                                {act.icon}
+                              </div>
+                              <span className="font-semibold text-gray-500 group-hover:text-navy-900">{act.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Recent Transactions */}
+                      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
+                        <div className="p-6 border-b border-gray-50 flex justify-between items-center">
+                          <h3 className="font-bold text-navy-900 text-lg">Recent Transactions</h3>
+                          <button onClick={() => setActiveSection('logs')} className="text-gold-600 font-bold text-sm hover:underline">View all</button>
+                        </div>
+                        <div className="p-12 text-center">
+                          <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <History className="text-gray-300 w-8 h-8" />
+                          </div>
+                          <p className="font-bold text-navy-900">No transactions yet</p>
+                          <p className="text-gray-400 text-sm mt-1 mb-6">Your transaction history will appear here</p>
+                          <button onClick={() => setActiveSection('deposit')} className="px-6 py-2 bg-navy-900 text-white rounded-xl font-bold hover:bg-navy-800 transition-colors">Make your first deposit</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Column (1/3) */}
+                    <div className="space-y-8">
+                      {/* Time & Card Section */}
+                      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center space-x-3 text-navy-900">
+                            <Calendar className="w-5 h-5 text-gold-600" />
+                            <span className="font-bold uppercase tracking-wider text-xs">{formattedDate.split(',')[0]}</span>
+                          </div>
+                          <span className="text-2xl font-black text-navy-900">{formattedTime}</span>
+                        </div>
+
+                        <div className="pt-6 border-t border-gray-100">
+                          <div className="flex justify-between items-center mb-4">
+                            <h3 className="font-bold text-navy-900">Your Cards</h3>
+                            <button className="text-gold-600 font-bold text-sm">View all</button>
+                          </div>
+                          <div className="bg-gray-50 rounded-2xl p-8 border border-dashed border-gray-200 text-center">
+                            <CreditCard className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                            <p className="font-bold text-navy-900 text-sm">No cards yet</p>
+                            <p className="text-gray-400 text-xs mt-1 mb-4 leading-relaxed">You haven&apos;t applied for any virtual cards yet. Apply for a new card to get started with secure online payments.</p>
+                            <button className="w-full py-2 bg-navy-900 text-gold-500 rounded-xl font-bold text-sm hover:bg-navy-800 transition-colors">Apply for Card</button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Account Statistics */}
+                      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                        <h3 className="font-bold text-navy-900 mb-6">Account Statistics</h3>
+                        <div className="space-y-4">
+                          {[
+                            { label: 'Transaction Limit', value: '$500,000.00' },
+                            { label: 'Pending Transactions', value: '$0.00' },
+                            { label: 'Transaction Volume', value: '$0.00' },
+                            { label: 'Account Age', value: '1 second' },
+                          ].map((stat, i) => (
+                            <div key={i} className="flex justify-between items-center py-3 border-b border-gray-50 last:border-0">
+                              <span className="text-gray-400 text-sm">{stat.label}</span>
+                              <span className="text-navy-900 font-bold">{stat.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Quick Transfer Side */}
+                      <div className="bg-[#0b1626] rounded-2xl p-6 text-white overflow-hidden relative">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full -mr-16 -mt-16 blur-xl"></div>
+                        <h3 className="font-bold mb-4 relative z-10">Quick Transfer</h3>
+                        <div className="space-y-3 relative z-10">
+                          <button onClick={() => setActiveSection('transfer')} className="w-full flex items-center justify-between p-4 bg-navy-800 rounded-xl border border-navy-700 hover:border-gold-500 transition-colors group">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 bg-navy-700 rounded-lg flex items-center justify-center group-hover:bg-gold-500/20 group-hover:text-gold-500 transition-colors">
+                                <Globe className="w-5 h-5" />
+                              </div>
+                              <div className="text-left leading-none">
+                                <p className="font-bold text-sm">Local Transfer</p>
+                                <p className="text-gold-500 text-[10px] uppercase font-bold mt-1">0% Handling charges</p>
+                              </div>
+                            </div>
+                            <Plus className="w-4 h-4 text-gray-500" />
+                          </button>
+                          <button onClick={() => setActiveSection('transfer')} className="w-full flex items-center justify-between p-4 bg-navy-800 rounded-xl border border-navy-700 hover:border-gold-500 transition-colors group">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 bg-navy-700 rounded-lg flex items-center justify-center group-hover:bg-gold-500/20 group-hover:text-gold-500 transition-colors">
+                                <Zap className="w-5 h-5" />
+                              </div>
+                              <div className="text-left leading-none">
+                                <p className="font-bold text-sm">International Transfer</p>
+                                <p className="text-gold-500 text-[10px] uppercase font-bold mt-1">Global reach, 0% fee</p>
+                              </div>
+                            </div>
+                            <Plus className="w-4 h-4 text-gray-500" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Help & Support */}
+                      <div className="bg-gold-50 border border-gold-100 rounded-2xl p-6 text-center">
+                        <HeadphonesIcon className="w-10 h-10 text-gold-600 mx-auto mb-3" />
+                        <h4 className="font-bold text-navy-900">Need Help?</h4>
+                        <p className="text-navy-900/60 text-xs mt-1 mb-4 leading-relaxed">Our support team is here to assist you 24/7</p>
+                        <button onClick={() => setActiveSection('support')} className="w-full py-2 bg-navy-900 text-gold-500 rounded-xl font-bold text-sm">Contact Support</button>
+                      </div>
+                    </div>
                   </div>
-                  <div className="ml-3 flex-shrink-0">
-                    <button
-                      onClick={() => router.push('/activate-email')}
-                      className="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200"
-                    >
-                      Verify Now
+                </>
+              ) : (
+                <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm min-h-[500px]">
+                  <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-50">
+                    <h2 className="text-2xl font-bold text-navy-900 flex items-center">
+                      <span className="w-10 h-10 bg-gold-50 text-gold-600 rounded-xl flex items-center justify-center mr-3">
+                        {dashboardLinks.find(l => l.id === activeSection)?.icon}
+                      </span>
+                      {dashboardLinks.find(l => l.id === activeSection)?.name}
+                    </h2>
+                    <button onClick={() => setActiveSection('dashboard')} className="text-gray-400 hover:text-navy-900 flex items-center text-sm font-bold">
+                      <X className="w-4 h-4 mr-1" /> Close
                     </button>
                   </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Dashboard Content */}
-            <main className="flex-1 overflow-y-auto" style={{
-              WebkitOverflowScrolling: 'touch'
-            }}>
-              {activeSection === 'dashboard' && (
-                <div>
-                  {/* Hero Section with Gradient Background - Only on Dashboard */}
-                  <section className="relative bg-gradient-to-br from-gray-900 via-red-900 to-gray-900 text-white overflow-hidden">
-                    <div className="absolute inset-0 bg-black opacity-20"></div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 to-transparent"></div>
-
-                    <div className="relative px-4 lg:px-6 py-12 lg:py-16">
-                      <div className="max-w-7xl mx-auto">
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.8 }}
-                          className="text-center space-y-6"
-                        >
-                          <h1 className="text-3xl lg:text-5xl font-bold leading-tight">
-                            Welcome, <span className="text-red-400">
-                              {userProfile?.firstName && userProfile?.lastName
-                                ? `${userProfile.firstName} ${userProfile.lastName}`
-                                : user?.displayName ||
-                                user?.email?.split('@')[0] ||
-                                'Investor'}
-                            </span>
-                          </h1>
-                          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-                            Manage your investments and grow your wealth with Tesla Capital&apos;s advanced platform
-                          </p>
-                        </motion.div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Account Balance Card */}
-                  <div className="px-4 lg:px-6 -mt-8 relative z-10">
-                    <div className="bg-white rounded-2xl shadow-xl p-6 lg:p-8">
-                      <h3 className="text-xl font-semibold text-gray-900 mb-6">Account Overview</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
-                        {/* Available Balance */}
-                        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-4 lg:p-6 border border-red-200 shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-xs lg:text-sm text-red-700 font-semibold mb-1 uppercase tracking-wider">Available Balance</p>
-                              <p className="text-xl lg:text-2xl font-bold text-red-900">
-                                ${((userProfile?.balances?.main || 0) + (userProfile?.balances?.referral || 0)).toFixed(2)}
-                              </p>
-                            </div>
-                            <div className="bg-red-600 p-3 rounded-2xl shadow-lg shadow-red-200">
-                              <DollarSign className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Total Deposit */}
-                        <div className="bg-white rounded-2xl p-4 lg:p-6 border border-gray-100 shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-xs lg:text-sm text-gray-500 font-semibold mb-1 uppercase tracking-wider">Total Deposit</p>
-                              <p className="text-xl lg:text-2xl font-bold text-gray-900">
-                                ${userProfile?.totalDeposit?.toFixed(2) || '0.00'}
-                              </p>
-                            </div>
-                            <div className="bg-gray-900 p-3 rounded-2xl shadow-lg shadow-gray-200">
-                              <ArrowDownUp className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Total Earned */}
-                        <div className="bg-white rounded-2xl p-4 lg:p-6 border border-gray-100 shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-xs lg:text-sm text-gray-500 font-semibold mb-1 uppercase tracking-wider">Total Profit</p>
-                              <p className="text-xl lg:text-2xl font-bold text-gray-900">
-                                ${(userProfile?.balances?.total || 0).toFixed(2)}
-                              </p>
-                            </div>
-                            <div className="bg-gray-900 p-3 rounded-2xl shadow-lg shadow-gray-200">
-                              <Zap className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Total Withdraw */}
-                        <div className="bg-white rounded-2xl p-4 lg:p-6 border border-gray-100 shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-xs lg:text-sm text-gray-500 font-semibold mb-1 uppercase tracking-wider">Total Withdraw</p>
-                              <p className="text-xl lg:text-2xl font-bold text-gray-900">
-                                ${userProfile?.totalWithdraw?.toFixed(2) || '0.00'}
-                              </p>
-                            </div>
-                            <div className="bg-gray-900 p-3 rounded-2xl shadow-lg shadow-gray-200">
-                              <ArrowUpDown className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Info Grid: Current Plan & Referral */}
-                  <div className="px-4 lg:px-6 py-6 pb-20">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* Current Plan Card */}
-                      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
-                        <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                          <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Active Investment</h3>
-                          <TrendingUp className="w-4 h-4 text-red-600" />
-                        </div>
-                        <div className="p-6 flex-1 flex flex-col justify-center">
-                          <div className="flex items-center justify-between mb-4">
-                            <div>
-                              <p className="text-2xl font-bold text-gray-900">
-                                {userProfile?.investmentPlan || 'No Active Plan'}
-                              </p>
-                              {userProfile?.currentInvestment ? (
-                                <p className="text-sm text-gray-500 mt-1">
-                                  Invested: <span className="font-semibold text-gray-900">${userProfile.currentInvestment.toLocaleString()}</span>
-                                </p>
-                              ) : (
-                                <p className="text-sm text-gray-500 mt-1">Start your journey today</p>
-                              )}
-                            </div>
-                            <button
-                              onClick={() => handleSectionChange('investment')}
-                              className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all duration-200 shadow-md shadow-red-100"
-                            >
-                              {userProfile?.currentInvestment ? 'Upgrade' : 'Get Started'}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Referral Program Card */}
-                      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                          <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Referral Program</h3>
-                          <Users className="w-4 h-4 text-red-600" />
-                        </div>
-                        <div className="p-6 space-y-4">
-                          <div>
-                            <p className="text-xs text-gray-400 font-semibold uppercase mb-2">Your Referral Link</p>
-                            <div className="flex items-center space-x-2">
-                              <div className="flex-1 bg-gray-50 p-2.5 rounded-xl border border-gray-100 font-mono text-xs text-gray-600 truncate">
-                                https://tesla-capital.vercel.app/ref/{userProfile?.userCode || '...'}
-                              </div>
-                              <button
-                                onClick={async () => {
-                                  try {
-                                    const referralLink = `https://tesla-capital.vercel.app/ref/${userProfile?.userCode || ''}`;
-                                    if (navigator.clipboard) await navigator.clipboard.writeText(referralLink);
-                                    setCopySuccess(true);
-                                    setTimeout(() => setCopySuccess(false), 2000);
-                                  } catch (e) { console.error(e); }
-                                }}
-                                className="flex items-center justify-center p-2.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
-                              >
-                                {copySuccess ? <span className="text-xs font-bold px-1">✓</span> : <Copy className="w-4 h-4" />}
-                              </button>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between pt-2 border-t border-gray-50">
-                            <p className="text-sm text-gray-500">Referral Earnings</p>
-                            <p className="text-lg font-bold text-gray-900">
-                              ${userProfile?.referralEarnings?.toFixed(2) || '0.00'}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  {activeSection === 'deposit' && <DepositSection />}
+                  {activeSection === 'withdraw' && <WithdrawSection />}
+                  {activeSection === 'transfer' && <TransferMoneySection />}
+                  {activeSection === 'logs' && <UnifiedLogsSection />}
+                  {activeSection === 'profile' && <ProfileSection />}
+                  {activeSection === 'support' && <SupportSection />}
+                  {activeSection === 'notifications' && <NotificationsSection />}
                 </div>
               )}
-
-              {/* Other Dashboard Pages - Simple Header */}
-              {/*activeSection !== 'dashboard' && (
-              <div className="px-4 lg:px-6 py-6">
-                <div className="mb-6">
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    {dashboardLinks.find(link => link.id === activeSection)?.name || 'Dashboard'}
-                  </h1>
-                  <p className="text-gray-600 mt-1">
-                    {activeSection === 'investment' && 'Manage your investment portfolio and track performance'}
-                    {activeSection === 'deposit' && 'Add funds to your account using various payment methods'}
-                    {activeSection === 'withdraw' && 'Withdraw your earnings to your preferred payment method'}
-                    {activeSection === 'transfer' && 'Transfer money between accounts'}
-                    {activeSection === 'support' && 'Get help and contact our support team'}
-                    {activeSection === 'profile' && 'Manage your account settings and personal information'}
-                    {activeSection === 'investment-plans' && 'Browse and purchase investment plans'}
-                    {activeSection === 'notifications' && 'View your account notifications and updates'}
-                    {activeSection === 'settings' && 'Configure your account preferences and security'}
-                    {activeSection === 'logs' && 'View all your transaction history in one place'}
-                    {activeSection === 'referral-log' && 'Monitor your referral program activity'}
-                  </p>
-                </div>
-              </div>
-            )}*/}
-
-              {/* Support Section */}
-              {activeSection === 'support' && <SupportSection />}
-
-              {/* Transfer Money Section */}
-              {activeSection === 'transfer' && <TransferMoneySection />}
-
-              {/* Investment Section */}
-              {activeSection === 'investment' && (
-                <div className="px-4 lg:px-6 py-6">
-                  <InvestmentPlans isDashboard={true} />
-                </div>
-              )}
-
-              {/* Deposit Section */}
-              {activeSection === 'deposit' && <DepositSection />}
-
-              {/* Withdraw Section */}
-              {activeSection === 'withdraw' && <WithdrawSection />}
-
-              {/* Transaction Logs */}
-              {activeSection === 'logs' && <UnifiedLogsSection />}
-
-              {/* Referral Log */}
-              {activeSection === 'referral-log' && <ReferralLogSection />}
-
-              {/* Profile Settings Section */}
-              {activeSection === 'profile' && <ProfileSection />}
-
-
-              {/* Notifications Section */}
-              {activeSection === 'notifications' && <NotificationsSection />}
-
-              {/* Settings Section */}
-              {activeSection === 'settings' && <SettingsSection />}
-
-              {/* 2FA Section */}
-
-              {/* Admin Section */}
-              {activeSection === 'admin' && <AdminSection />}
-
-              {/* Other sections */}
-              {!['dashboard', 'support', 'transfer', 'investment', 'deposit', 'withdraw', 'logs', 'referral-log', 'profile', 'investment-plans', 'notifications', 'settings', 'admin'].includes(activeSection) && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    {dashboardLinks.find(link => link.id === activeSection)?.name}
-                  </h3>
-                  <p className="text-gray-600">This feature is coming soon!</p>
-                </div>
-              )}
-            </main>
-          </div>
-        </div>
-        {/* Logout Confirmation Modal */}
-        {showLogoutModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <LogOut className="w-5 h-5 text-red-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Confirm Logout</h3>
-                  <p className="text-sm text-gray-600">Are you sure you want to logout?</p>
-                </div>
-              </div>
-
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setShowLogoutModal(false)}
-                  disabled={isLoggingOut}
-                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleLogout}
-                  disabled={isLoggingOut}
-                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-                >
-                  {isLoggingOut && (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  )}
-                  <span>{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
-                </button>
-              </div>
             </div>
-          </div>
-        )}
+          </main>
+        </div>
       </DashboardLoader>
     </ProtectedRoute>
   );
 };
 
-const DashboardPage = () => {
+export default function DashboardPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[#0b1626]">
         <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <div className="w-12 h-12 border-4 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gold-500 font-bold tracking-widest uppercase text-xs">Recoverly Secure Login...</p>
         </div>
       </div>
     }>
       <DashboardContent />
     </Suspense>
   );
-};
-
-export default DashboardPage;
+}

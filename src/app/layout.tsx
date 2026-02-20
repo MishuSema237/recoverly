@@ -7,37 +7,37 @@ import { Toaster } from 'react-hot-toast';
 import './globals.css';
 
 export const metadata = {
-  title: 'Tesla Capital - Investment Platform',
-  description: 'Tesla Capital is a cutting-edge investment platform offering secure cryptocurrency and traditional investment opportunities with industry-leading returns.',
-  keywords: ['investment', 'crypto', 'bitcoin', 'trading', 'financial', 'tesla capital', 'investment platform'],
-  authors: [{ name: 'Tesla Capital' }],
-  creator: 'Tesla Capital',
-  publisher: 'Tesla Capital',
-  metadataBase: new URL('https://tesla-capital.vercel.app'),
+  title: 'Recoverly - Trust Bank | Asset Recovery & Secure Banking',
+  description: 'Recoverly is your bridge between financial loss and legal recovery. We offer specialized asset recovery services and secure legal banking to protect your wealth.',
+  keywords: ['asset recovery', 'scam recovery', 'secure banking', 'legal banking', 'recoverly', 'trust bank', 'fraud protection'],
+  authors: [{ name: 'Recoverly Trust Bank' }],
+  creator: 'Recoverly Trust Bank',
+  publisher: 'Recoverly Trust Bank',
+  metadataBase: new URL('https://recoverly.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://tesla-capital.vercel.app',
-    siteName: 'Tesla Capital',
-    title: 'Tesla Capital - Premium Investment Platform',
-    description: 'Join thousands of investors earning high returns on their investments. Tesla Capital offers secure, reliable investment opportunities with industry-leading returns.',
+    url: 'https://recoverly.com',
+    siteName: 'Recoverly Trust Bank',
+    title: 'Recoverly - We Fight For Your Money Back',
+    description: 'Scammed? Overcharged? We use the law to get your money back. Join the bank that fights for you.',
     images: [
       {
-          url: 'https://tesla-capital.vercel.app/tesla-capital-logo.png',
+        url: '/recoverly-og.png',
         width: 1200,
         height: 630,
-        alt: 'Tesla Capital - Investment Platform',
+        alt: 'Recoverly - Asset Recovery & Banking',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Tesla Capital - Premium Investment Platform',
-    description: 'Join thousands of investors earning high returns on their investments.',
-    images: ['https://tesla-capital.vercel.app/tesla-capital-logo.png'],
+    title: 'Recoverly - We Fight For Your Money Back',
+    description: 'Scammed? Overcharged? We use the law to get your money back.',
+    images: ['/recoverly-og.png'],
   },
   robots: {
     index: true,
@@ -58,13 +58,14 @@ export const metadata = {
     apple: '/favicon/apple-touch-icon.png',
   },
   manifest: '/favicon/site.webmanifest',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    viewportFit: 'cover'
-  },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover'
 };
 
 
@@ -83,7 +84,7 @@ export default function RootLayout({
                 {children}
               </ConditionalLayout>
               <LoadingOverlay />
-              <Toaster 
+              <Toaster
                 position="top-right"
                 toastOptions={{
                   duration: 4000,

@@ -6,12 +6,20 @@ import { NotificationService } from '@/lib/notifications/NotificationService';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, firstName, lastName, phone, country, state, city, zip, referralCode } = await request.json();
+    const { email, password, username, firstName, middleName, lastName, phone, country, state, city, zip, referralCode, accountType, transactionPin } = await request.json();
 
     // Validate required fields
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !password || !username || !firstName || !lastName || !accountType || !transactionPin) {
       return NextResponse.json(
-        { success: false, error: 'Email, password, first name, and last name are required' },
+        { success: false, error: 'Email, password, username, first name, last name, account type, and transaction PIN are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate transaction PIN format
+    if (!/^\d{4}$/.test(transactionPin)) {
+      return NextResponse.json(
+        { success: false, error: 'Transaction PIN must be exactly 4 digits' },
         { status: 400 }
       );
     }
@@ -48,9 +56,13 @@ export async function POST(request: NextRequest) {
     // Create user
     const result = await UserService.createUser({
       email: email.toLowerCase(),
+      username,
       firstName,
+      middleName,
       lastName,
-      displayName: `${firstName} ${lastName}`,
+      displayName: `${firstName} ${middleName ? middleName + ' ' : ''}${lastName}`,
+      accountType,
+      transactionPin,
       phone,
       country,
       state,

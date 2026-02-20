@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { showSuccess, showError } from '@/utils/toast';
 
 interface User {
@@ -68,9 +68,13 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   register: (userData: {
     email: string;
+    username: string;
     password: string;
+    transactionPin: string;
     firstName: string;
+    middleName?: string;
     lastName: string;
+    accountType: string;
     phone?: string;
     country?: string;
     state?: string;
@@ -148,7 +152,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const startPolling = () => {
     // Clear any existing polling
     stopPolling();
-    
+
     // Poll every 10 seconds for user data updates
     const interval = setInterval(async () => {
       try {
@@ -203,9 +207,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (userData: {
     email: string;
+    username: string;
     password: string;
+    transactionPin: string;
     firstName: string;
+    middleName?: string;
     lastName: string;
+    accountType: string;
     phone?: string;
     country?: string;
     state?: string;
@@ -230,7 +238,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Clear any existing auth state
         setUser(null);
         setUserProfile(null);
-        
+
         showSuccess('Registration successful! Please check your email to verify your account, then login.');
         return true;
       } else {
@@ -262,33 +270,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const verifyEmail = async (token: string): Promise<boolean> => {
-    try {
-      const response = await fetch('/api/auth/verify-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        showSuccess('Email verified successfully!');
-        // Refresh user data to get updated emailVerified status
-        await refreshUser();
-        return true;
-      } else {
-        showError(result.error || 'Email verification failed');
-        return false;
-      }
-    } catch (error) {
-      console.error('Email verification error:', error);
-      showError('Email verification failed. Please try again.');
-      return false;
-    }
-  };
 
   const forgotPassword = async (email: string): Promise<boolean> => {
     try {
@@ -388,6 +369,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Refresh user error:', error);
     }
   };
+
+  const verifyEmail = useCallback(async (token: string): Promise<boolean> => {
+    try {
+      const response = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        showSuccess('Email verified successfully!');
+        // Refresh user data to get updated emailVerified status
+        await refreshUser();
+        return true;
+      } else {
+        showError(result.error || 'Email verification failed');
+        return false;
+      }
+    } catch (error) {
+      console.error('Email verification error:', error);
+      showError('Email verification failed. Please try again.');
+      return false;
+    }
+  }, [refreshUser, showSuccess, showError]);
 
   const value: AuthContextType = {
     user,
