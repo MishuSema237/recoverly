@@ -13,20 +13,20 @@ export const metadata = {
   authors: [{ name: 'Recoverly Trust Bank' }],
   creator: 'Recoverly Trust Bank',
   publisher: 'Recoverly Trust Bank',
-  metadataBase: new URL('https://recoverly.com'),
+  metadataBase: new URL('https://recoverly-pi.vercel.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://recoverly.com',
+    url: 'https://recoverly-pi.vercel.app',
     siteName: 'Recoverly Trust Bank',
     title: 'Recoverly - We Fight For Your Money Back',
     description: 'Scammed? Overcharged? We use the law to get your money back. Join the bank that fights for you.',
     images: [
       {
-        url: '/recoverly-og.png',
+        url: '/thumbnail.png',
         width: 1200,
         height: 630,
         alt: 'Recoverly - Asset Recovery & Banking',
@@ -37,7 +37,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Recoverly - We Fight For Your Money Back',
     description: 'Scammed? Overcharged? We use the law to get your money back.',
-    images: ['/recoverly-og.png'],
+    images: ['/thumbnail.png'],
   },
   robots: {
     index: true,
