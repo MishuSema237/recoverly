@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
@@ -12,7 +12,7 @@ function VerifyEmailForm() {
   const router = useRouter();
   const { verifyEmail } = useAuth();
 
-  const verificationStarted = useEffect.useRef(false);
+  const verificationStarted = useRef(false);
 
   useEffect(() => {
     const token = searchParams.get('token');
