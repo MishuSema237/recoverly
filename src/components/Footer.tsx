@@ -24,20 +24,21 @@ const Footer = () => {
       {/* Decorative top border */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600"></div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mobile:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
-            <Link href="/" className="inline-flex items-center gap-2 mb-6 group">
+            <Link href="/" className="inline-flex items-center gap-2 mb-4 mobile:mb-6 group">
               <Image
                 src="/RecoverlyLogo.png"
                 alt="Recoverly Trust Bank"
-                width={240}
-                height={60}
-                className="h-12 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+                width={180}
+                height={45}
+                className="h-9 mobile:h-12 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+                priority
               />
             </Link>
-            <p className="text-gray-400 mb-6 max-w-md leading-relaxed">
+            <p className="text-gray-400 mb-5 mobile:mb-6 max-w-md leading-relaxed text-sm mobile:text-base">
               We are the bridge between financial loss and legal recovery. Recoverly combines the power of a specialized law firm with the security of a chartered bank to fight for what belongs to you.
             </p>
             <div className="flex space-x-4">
@@ -58,7 +59,7 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-6 text-gold-500 font-playfair">Services & Support</h3>
+            <h3 className="text-base mobile:text-lg font-semibold mb-4 mobile:mb-6 text-gold-500 font-playfair">Services & Support</h3>
             <ul className="space-y-3">
               {links.map((link) => (
                 <li key={link.name}>
@@ -73,7 +74,7 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-6 text-gold-500 font-playfair">Legal Contact</h3>
+            <h3 className="text-base mobile:text-lg font-semibold mb-4 mobile:mb-6 text-gold-500 font-playfair">Legal Contact</h3>
             <div className="space-y-4">
               <div className="flex items-start space-x-3 group">
                 <Mail size={18} className="text-gold-500 mt-1 flex-shrink-0 group-hover:text-white transition-colors" />
@@ -100,7 +101,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-navy-800 mt-12 pt-8">
+        <div className="border-t border-navy-800 mt-10 mobile:mt-12 pt-6 mobile:pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4">
             <p className="text-gray-500 text-sm">
               © {currentYear} Recoverly Trust Bank. Authorized Financial Institution & Legal Representative.

@@ -61,19 +61,19 @@ const SupportSection = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <p className="text-gray-600 mb-6">
+    <div className="space-y-4 mobile:space-y-6">
+      <div className="bg-white rounded-lg shadow-sm p-4 mobile:p-6">
+        <p className="text-sm mobile:text-base text-gray-600 mb-4 mobile:mb-6">
           Get help and contact our support team. Send us a message and we&apos;ll get back to you as soon as possible.
         </p>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mobile:gap-8">
           {/* Support Form - Left Side */}
           <div>
-            <h4 className="font-semibold text-gray-900 mb-4">Send us a Message</h4>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <h4 className="text-sm mobile:text-base font-semibold text-gray-900 mb-3 mobile:mb-4">Send us a Message</h4>
+            <form onSubmit={handleSubmit} className="space-y-3 mobile:space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs mobile:text-sm font-medium text-gray-700 mb-1.5 mobile:mb-2">
                   Full Name
                 </label>
                 <input
@@ -81,14 +81,14 @@ const SupportSection = () => {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                  className="w-full px-4 py-2.5 mobile:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent text-sm mobile:text-base"
                   placeholder="Your full name"
                   required
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs mobile:text-sm font-medium text-gray-700 mb-1.5 mobile:mb-2">
                   Email Address
                 </label>
                 <input
@@ -96,14 +96,14 @@ const SupportSection = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                  className="w-full px-4 py-2.5 mobile:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent text-sm mobile:text-base"
                   placeholder="your.email@example.com"
                   required
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs mobile:text-sm font-medium text-gray-700 mb-1.5 mobile:mb-2">
                   Subject
                 </label>
                 <input
@@ -111,14 +111,14 @@ const SupportSection = () => {
                   name="subject"
                   value={formData.subject}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                  className="w-full px-4 py-2.5 mobile:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent text-sm mobile:text-base"
                   placeholder="What can we help you with?"
                   required
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs mobile:text-sm font-medium text-gray-700 mb-1.5 mobile:mb-2">
                   Message
                 </label>
                 <textarea
@@ -126,20 +126,20 @@ const SupportSection = () => {
                   value={formData.message}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                  className="w-full px-4 py-2.5 mobile:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent text-sm mobile:text-base"
                   placeholder="Please describe your issue or question in detail..."
                   required
                 ></textarea>
               </div>
-              
+
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2"
+                className="w-full bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400 text-white py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm mobile:text-base"
               >
                 {isSubmitting ? (
                   <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 mobile:h-5 mobile:w-5 border-b-2 border-white"></div>
                     <span>Sending...</span>
                   </>
                 ) : (
@@ -150,41 +150,41 @@ const SupportSection = () => {
           </div>
 
           {/* Contact Information & Support Details - Right Side */}
-          <div className="space-y-6">
+          <div className="space-y-4 mobile:space-y-6">
             {/* Contact Methods */}
             <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Get in Touch</h4>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                    <Mail className="w-5 h-5 text-[#c9933a]" />
+              <h4 className="text-sm mobile:text-base font-semibold text-gray-900 mb-3 mobile:mb-4">Get in Touch</h4>
+              <div className="space-y-3 mobile:space-y-4">
+                <div className="flex items-center space-x-3 p-2.5 mobile:p-3 bg-gray-50 rounded-lg">
+                  <div className="w-9 h-9 mobile:w-10 mobile:h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
+                    <Mail className="w-4 h-4 mobile:w-5 mobile:h-5 text-[#c9933a]" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Email Support</p>
-                    <p className="text-sm text-gray-600">support@tesla-capital.com</p>
-                    <p className="text-xs text-gray-500">Response within 24 hours</p>
+                    <p className="font-medium text-gray-900 text-sm mobile:text-base">Email Support</p>
+                    <p className="text-xs mobile:text-sm text-gray-600">support@tesla-capital.com</p>
+                    <p className="text-[10px] mobile:text-xs text-gray-500">Response within 24 hours</p>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 text-blue-600" />
+
+                <div className="flex items-center space-x-3 p-2.5 mobile:p-3 bg-gray-50 rounded-lg">
+                  <div className="w-9 h-9 mobile:w-10 mobile:h-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+                    <MessageSquare className="w-4 h-4 mobile:w-5 mobile:h-5 text-blue-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Live Chat</p>
-                    <p className="text-sm text-gray-600">Available 24/7</p>
-                    <p className="text-xs text-gray-500">Instant response</p>
+                    <p className="font-medium text-gray-900 text-sm mobile:text-base">Live Chat</p>
+                    <p className="text-xs mobile:text-sm text-gray-600">Available 24/7</p>
+                    <p className="text-[10px] mobile:text-xs text-gray-500">Instant response</p>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <Phone className="w-5 h-5 text-green-600" />
+
+                <div className="flex items-center space-x-3 p-2.5 mobile:p-3 bg-gray-50 rounded-lg">
+                  <div className="w-9 h-9 mobile:w-10 mobile:h-10 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+                    <Phone className="w-4 h-4 mobile:w-5 mobile:h-5 text-green-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Phone Support</p>
-                    <p className="text-sm text-gray-600">+381 11 30 20 030</p>
-                    <p className="text-xs text-gray-500">Mon-Fri 8:00-16:00 CET</p>
+                    <p className="font-medium text-gray-900 text-sm mobile:text-base">Phone Support</p>
+                    <p className="text-xs mobile:text-sm text-gray-600">+381 11 30 20 030</p>
+                    <p className="text-[10px] mobile:text-xs text-gray-500">Mon-Fri 8:00-16:00 CET</p>
                   </div>
                 </div>
               </div>
@@ -192,23 +192,23 @@ const SupportSection = () => {
 
             {/* Office Information */}
             <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Our Office</h4>
-              <div className="space-y-3">
-                <div className="flex items-start space-x-3">
-                  <MapPin className="w-5 h-5 text-gray-500 mt-0.5" />
+              <h4 className="text-sm mobile:text-base font-semibold text-gray-900 mb-3 mobile:mb-4">Our Office</h4>
+              <div className="space-y-2 mobile:space-y-3">
+                <div className="flex items-start space-x-2.5 mobile:space-x-3">
+                  <MapPin className="w-4 h-4 mobile:w-5 mobile:h-5 text-gray-400 mt-1 shrink-0" />
                   <div>
-                    <p className="font-medium text-gray-900">Recoverly JSC Belgrade</p>
-                    <p className="text-sm text-gray-600">Bulevar Mihajla Pupina 115Đ</p>
-                    <p className="text-sm text-gray-600">Beograd, Serbia</p>
+                    <p className="font-medium text-gray-900 text-sm mobile:text-base">Recoverly JSC Belgrade</p>
+                    <p className="text-xs mobile:text-sm text-gray-600">Bulevar Mihajla Pupina 115Đ</p>
+                    <p className="text-xs mobile:text-sm text-gray-600">Beograd, Serbia</p>
                   </div>
                 </div>
-                
-                <div className="flex items-start space-x-3">
-                  <Clock className="w-5 h-5 text-gray-500 mt-0.5" />
+
+                <div className="flex items-start space-x-2.5 mobile:space-x-3">
+                  <Clock className="w-4 h-4 mobile:w-5 mobile:h-5 text-gray-400 mt-1 shrink-0" />
                   <div>
-                    <p className="font-medium text-gray-900">Business Hours</p>
-                    <p className="text-sm text-gray-600">Monday - Friday: 08:00 – 16:00h</p>
-                    <p className="text-sm text-gray-600">Saturday - Sunday: Closed</p>
+                    <p className="font-medium text-gray-900 text-sm mobile:text-base">Business Hours</p>
+                    <p className="text-xs mobile:text-sm text-gray-600">Monday - Friday: 08:00 – 16:00h</p>
+                    <p className="text-xs mobile:text-sm text-gray-600">Saturday - Sunday: Closed</p>
                   </div>
                 </div>
               </div>
@@ -216,41 +216,41 @@ const SupportSection = () => {
 
             {/* Quick Help */}
             <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Quick Help</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-                  <HelpCircle className="w-5 h-5 text-blue-600" />
+              <h4 className="text-sm mobile:text-base font-semibold text-gray-900 mb-3 mobile:mb-4">Quick Help</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mobile:gap-3">
+                <div className="flex flex-col items-center text-center p-3 bg-blue-50 rounded-xl">
+                  <HelpCircle className="w-5 h-5 mobile:w-6 mobile:h-6 text-blue-600 mb-1.5 mobile:mb-2" />
                   <div>
-                    <p className="font-medium text-gray-900">Help Center</p>
-                    <p className="text-sm text-gray-600">Browse our knowledge base</p>
+                    <p className="font-bold text-gray-900 text-xs mobile:text-sm">Help Center</p>
+                    <p className="text-[10px] mobile:text-xs text-gray-500">Knowledge base</p>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
-                  <Users className="w-5 h-5 text-purple-600" />
+
+                <div className="flex flex-col items-center text-center p-3 bg-purple-50 rounded-xl">
+                  <Users className="w-5 h-5 mobile:w-6 mobile:h-6 text-purple-600 mb-1.5 mobile:mb-2" />
                   <div>
-                    <p className="font-medium text-gray-900">Community Forum</p>
-                    <p className="text-sm text-gray-600">Connect with other investors</p>
+                    <p className="font-bold text-gray-900 text-xs mobile:text-sm">Community</p>
+                    <p className="text-[10px] mobile:text-xs text-gray-500">Connect with others</p>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg">
-                  <Shield className="w-5 h-5 text-orange-600" />
+
+                <div className="flex flex-col items-center text-center p-3 bg-orange-50 rounded-xl">
+                  <Shield className="w-5 h-5 mobile:w-6 mobile:h-6 text-orange-600 mb-1.5 mobile:mb-2" />
                   <div>
-                    <p className="font-medium text-gray-900">Security Center</p>
-                    <p className="text-sm text-gray-600">Report security issues</p>
+                    <p className="font-bold text-gray-900 text-xs mobile:text-sm">Security</p>
+                    <p className="text-[10px] mobile:text-xs text-gray-500">Report issues</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Response Times */}
-            <div className="bg-gradient-to-r from-red-50 to-blue-50 rounded-lg p-4">
-              <h5 className="font-semibold text-gray-900 mb-2 flex items-center">
-                <Zap className="w-4 h-4 mr-2 text-[#c9933a]" />
+            <div className="bg-gradient-to-r from-red-50 to-blue-50 rounded-lg p-3.5 mobile:p-4">
+              <h5 className="font-semibold text-gray-900 mb-1.5 mobile:mb-2 flex items-center text-sm mobile:text-base">
+                <Zap className="w-3.5 h-3.5 mobile:w-4 mobile:h-4 mr-1.5 mobile:mr-2 text-[#c9933a]" />
                 Response Times
               </h5>
-              <div className="space-y-2 text-sm">
+              <div className="space-y-1.5 mobile:space-y-2 text-[10px] mobile:text-xs">
                 <div className="flex justify-between">
                   <span className="text-gray-600">General Inquiries:</span>
                   <span className="font-medium text-gray-900">24 hours</span>

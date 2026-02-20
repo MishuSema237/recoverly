@@ -28,7 +28,7 @@ const NotificationsSection = () => {
     try {
       const response = await fetch(`/api/user-notifications?userCode=${userProfile?.userCode}`);
       const result = await response.json();
-      
+
       if (result.success) {
         setNotifications(result.data);
         setUnreadCount(result.data.filter((n: Notification) => !n.read).length);
@@ -43,12 +43,12 @@ const NotificationsSection = () => {
   useEffect(() => {
     if (userProfile?.userCode) {
       loadNotifications();
-      
+
       // Set up polling every 30 seconds
       const interval = setInterval(() => {
         loadNotifications();
       }, 30000); // 30 seconds
-      
+
       return () => clearInterval(interval);
     }
   }, [userProfile?.userCode, loadNotifications]);
@@ -65,13 +65,13 @@ const NotificationsSection = () => {
           userCode: userProfile?.userCode
         })
       });
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         // Update local state
-        setNotifications(prev => 
-          prev.map(n => 
+        setNotifications(prev =>
+          prev.map(n =>
             n._id === notificationId ? { ...n, read: true } : n
           )
         );
@@ -109,9 +109,9 @@ const NotificationsSection = () => {
   if (loading) {
     return (
       <div className="px-0 lg:px-6">
-        <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-4 lg:p-8">
+        <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-3.5 mobile:p-4 lg:p-6">
           <div className="animate-pulse">
-            <div className="h-6 lg:h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
+            <div className="h-5 mobile:h-6 lg:h-7 bg-gray-200 rounded w-1/3 mb-4 mobile:mb-6"></div>
             <div className="space-y-4">
               {[1, 2, 3].map(i => (
                 <div key={i} className="h-16 lg:h-20 bg-gray-200 rounded"></div>
@@ -125,14 +125,14 @@ const NotificationsSection = () => {
 
   return (
     <div className="px-0 lg:px-6">
-      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-4 lg:p-8">
-        <div className="flex items-center mb-6">
-          <div className="p-2 lg:p-3 bg-blue-100 rounded-full">
-            <Bell className="w-5 h-5 lg:w-6 lg:h-6 text-blue-600" />
+      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-3.5 mobile:p-4 lg:p-6">
+        <div className="flex items-center mb-4 mobile:mb-6">
+          <div className="p-2 lg:p-2.5 bg-blue-100 rounded-full shrink-0">
+            <Bell className="w-4 h-4 mobile:w-5 mobile:h-5 lg:w-6 lg:h-6 text-blue-600" />
           </div>
           <div className="ml-3">
-            <h2 className="text-lg lg:text-2xl font-bold text-gray-900">Notifications</h2>
-            <p className="text-sm lg:text-base text-gray-600">
+            <h2 className="text-base mobile:text-lg lg:text-xl font-bold text-gray-900 leading-tight">Notifications</h2>
+            <p className="text-xs mobile:text-sm text-gray-600">
               {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
             </p>
           </div>
@@ -153,30 +153,28 @@ const NotificationsSection = () => {
                   key={notification._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 cursor-pointer"
                   onClick={() => toggleExpanded(notification._id)}
                 >
-                  <div className="p-4">
+                  <div className="p-3 mobile:p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
-                          <div className={`p-2 rounded-full ${
-                            notification.type === 'broadcast' 
-                              ? 'bg-blue-100 text-blue-600' 
+                          <div className={`p-1.5 mobile:p-2 rounded-full shrink-0 ${notification.type === 'broadcast'
+                              ? 'bg-blue-100 text-blue-600'
                               : 'bg-green-100 text-green-600'
-                          }`}>
+                            }`}>
                             {notification.type === 'broadcast' ? (
-                              <AlertCircle className="w-4 h-4" />
+                              <AlertCircle className="w-3.5 h-3.5 mobile:w-4 mobile:h-4" />
                             ) : (
-                              <Bell className="w-4 h-4" />
+                              <Bell className="w-3.5 h-3.5 mobile:w-4 mobile:h-4" />
                             )}
                           </div>
-                          
-                          <div className="flex-1">
+
+                          <div className="flex-1 min-w-0">
                             <div className="flex items-center space-x-2">
-                              <h3 className={`text-sm font-semibold break-words ${
-                                notification.read ? 'text-gray-700' : 'text-gray-900'
-                              }`}>
+                              <h3 className={`text-xs mobile:text-sm font-semibold truncate ${notification.read ? 'text-gray-700' : 'text-gray-900'
+                                }`}>
                                 {notification.title || (notification.type === 'broadcast' ? 'System Announcement' : 'Support Message')}
                               </h3>
                               {!notification.read && (
@@ -185,27 +183,26 @@ const NotificationsSection = () => {
                                 </span>
                               )}
                             </div>
-                            
-                            <p className={`text-sm text-gray-600 mt-1 break-words ${
-                              notification.read ? '' : 'font-medium'
-                            }`}>
+
+                            <p className={`text-xs mobile:text-sm text-gray-600 mt-0.5 mobile:mt-1 break-words leading-tight ${notification.read ? '' : 'font-medium'
+                              }`}>
                               {notification.message}
                             </p>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center justify-between mt-3">
-                          <p className="text-xs text-gray-500">
+                          <p className="text-[10px] mobile:text-xs text-gray-500">
                             {new Date(notification.sentAt).toLocaleString()}
                           </p>
-                          
+
                           {notification.details && (
-                            <span className="text-xs text-blue-600 font-medium">
+                            <span className="text-[10px] mobile:text-xs text-blue-600 font-medium">
                               {isExpanded ? 'Show less' : 'Show details'}
                             </span>
                           )}
                         </div>
-                        
+
                         {isExpanded && notification.details && (
                           <motion.div
                             initial={{ opacity: 0, height: 0 }}
@@ -219,7 +216,7 @@ const NotificationsSection = () => {
                           </motion.div>
                         )}
                       </div>
-                      
+
                       {!notification.read && (
                         <button
                           onClick={(e) => {

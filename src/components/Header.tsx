@@ -97,16 +97,16 @@ const Header = () => {
   return (
     <header className="bg-white shadow-md sticky top-0 z-50 border-b border-navy-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-16 mobile:h-20">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link href="/" className="flex items-center gap-2">
               <Image
                 src="/RecoverlyLogo.png"
                 alt="Recoverly Trust Bank"
-                width={200}
-                height={50}
-                className="h-10 w-auto object-contain"
+                width={160}
+                height={40}
+                className="h-8 mobile:h-10 w-auto object-contain"
                 priority
               />
             </Link>

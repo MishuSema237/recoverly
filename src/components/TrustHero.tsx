@@ -26,8 +26,8 @@ const TrustHero = () => {
             </div>
 
             {/* Hero Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full pt-20 pb-16 md:pt-0 md:pb-0">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full pt-12 pb-10 mobile:pt-20 mobile:pb-16 md:pt-0 md:pb-0">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mobile:gap-12 items-center">
 
                     {/* Left Column: Text & Hook */}
                     <div className="space-y-8 animate-fade-in-up">
@@ -36,21 +36,21 @@ const TrustHero = () => {
                             <span className="text-gold-200 text-sm font-medium tracking-wide">AUTHORIZED ASSET RECOVERY AGENTS</span>
                         </div>
 
-                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-playfair text-white leading-tight">
+                        <h1 className="text-3xl mobile:text-5xl lg:text-7xl font-bold font-playfair text-white leading-tight">
                             Scammed? <br />
                             <span className="text-gold-500">We Fight Back.</span>
                         </h1>
 
-                        <p className="text-xl text-gray-300 max-w-lg leading-relaxed">
+                        <p className="text-base mobile:text-xl text-gray-300 max-w-lg leading-relaxed">
                             Banks often refuse to help. We don't. Recoverly combines legal force with banking security to recover your lost funds from scams and unauthorized transactions.
                         </p>
 
-                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                            <Link href="/services/asset-recovery" className="bg-gold-500 hover:bg-gold-600 text-navy-900 px-8 py-4 rounded-lg font-bold text-lg transition-all shadow-[0_0_20px_rgba(201,147,58,0.3)] hover:shadow-[0_0_30px_rgba(201,147,58,0.5)] flex items-center justify-center gap-2">
+                        <div className="flex flex-col sm:flex-row gap-3 mobile:gap-4 pt-4">
+                            <Link href="/services/asset-recovery" className="bg-gold-500 hover:bg-gold-600 text-navy-900 px-6 py-3 mobile:px-8 mobile:py-4 rounded-lg font-bold text-base mobile:text-lg transition-all shadow-[0_0_20px_rgba(201,147,58,0.3)] hover:shadow-[0_0_30px_rgba(201,147,58,0.5)] flex items-center justify-center gap-2">
                                 Start Recovery
                                 <ArrowRight className="w-5 h-5" />
                             </Link>
-                            <Link href="/services/banking" className="px-8 py-4 rounded-lg font-bold text-lg text-white border-2 border-navy-600 hover:bg-navy-800 hover:border-gold-500/50 transition-all flex items-center justify-center">
+                            <Link href="/services/banking" className="px-6 py-3 mobile:px-8 mobile:py-4 rounded-lg font-bold text-base mobile:text-lg text-white border-2 border-navy-600 hover:bg-navy-800 hover:border-gold-500/50 transition-all flex items-center justify-center">
                                 Explore Banking
                             </Link>
                         </div>
@@ -70,16 +70,16 @@ const TrustHero = () => {
                     {/* Right Column: Quick Action Hero Form */}
                     <div className="relative lg:ml-auto w-full max-w-md">
                         {/* Form Card */}
-                        <div className="bg-white rounded-2xl shadow-2xl p-8 relative z-20 border-[8px] border-navy-800/30">
-                            <div className="absolute -top-12 -right-12 w-24 h-24 bg-gold-500 rounded-full flex items-center justify-center shadow-lg transform rotate-12 hidden md:flex">
+                        <div className="bg-white rounded-2xl shadow-2xl p-6 mobile:p-8 relative z-20 border-[6px] mobile:border-[8px] border-navy-800/30">
+                            <div className="absolute -top-10 -right-10 mobile:-top-12 mobile:-right-12 w-20 h-20 mobile:w-24 mobile:h-24 bg-gold-500 rounded-full flex items-center justify-center shadow-lg transform rotate-12 hidden md:flex">
                                 <div className="text-navy-900 font-bold text-center text-xs leading-tight">
-                                    <span className="text-xl block mb-1">98%</span>
+                                    <span className="text-lg mobile:text-xl block mb-1">98%</span>
                                     Success<br />Rate
                                 </div>
                             </div>
 
-                            <h3 className="text-2xl font-bold text-navy-900 mb-2 font-playfair">Start Your Claim</h3>
-                            <p className="text-gray-500 mb-6 text-sm">Check if your transaction is eligible for immediate legal recovery.</p>
+                            <h3 className="text-xl mobile:text-2xl font-bold text-navy-900 mb-2 font-playfair">Start Your Claim</h3>
+                            <p className="text-gray-500 mb-5 mobile:mb-6 text-xs mobile:text-sm">Check if your transaction is eligible for immediate legal recovery.</p>
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
@@ -105,7 +105,7 @@ const TrustHero = () => {
                                 </div>
 
                                 <div className="pt-2">
-                                    <button type="submit" className="w-full bg-navy-600 hover:bg-navy-700 text-white font-bold py-4 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 group">
+                                    <button type="submit" className="w-full bg-navy-600 hover:bg-navy-700 text-white font-bold py-3 mobile:py-4 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 group text-sm mobile:text-base">
                                         <span>Verify Eligibility Now</span>
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                     </button>

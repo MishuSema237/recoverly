@@ -34,17 +34,17 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-black opacity-20"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-[#c9933a]/10 to-transparent"></div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-        <div className="grid grid-cols-1 mobile:grid-cols-2 gap-12 items-center">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mobile:py-20 lg:py-32">
+        <div className="grid grid-cols-1 mobile:grid-cols-2 gap-8 mobile:gap-12 items-center">
           {/* Left Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="space-y-8"
+            className="space-y-6 mobile:space-y-8"
           >
             <div className="space-y-4">
-              <h1 className="text-4xl lg:text-6xl font-bold leading-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif', fontVariationSettings: '"wght" 900' }}>
+              <h1 className="text-3xl mobile:text-4xl lg:text-6xl font-bold leading-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif', fontVariationSettings: '"wght" 900' }}>
                 Dominate The
                 <span className="block">
                   <AnimatePresence mode="wait">
@@ -54,7 +54,7 @@ const HeroSection = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.6, ease: "easeInOut" }}
-                      className="flex justify-start"
+                      className="flex justify-start text-2xl mobile:text-3xl lg:text-5xl"
                       style={{ letterSpacing: '-0.02em' }}
                     >
                       <DecryptedText
@@ -68,7 +68,6 @@ const HeroSection = () => {
                         encryptedClassName="text-gray-400 opacity-50"
                         style={{
                           fontFamily: 'Montserrat, sans-serif',
-                          fontSize: '1.2em',
                           fontWeight: '700'
                         }}
                       />
@@ -77,7 +76,7 @@ const HeroSection = () => {
                 </span>
                 <span className="block text-white" style={{ fontVariationSettings: '"wght" 800' }}>Game</span>
               </h1>
-              <p className="text-xl text-gray-300 max-w-lg">
+              <p className="text-base mobile:text-xl text-gray-300 max-w-lg leading-relaxed">
                 <strong>Recoverly</strong> transforms your financial future with
                 <span className="text-red-400 font-semibold"> explosive returns</span> and
                 <span className="text-red-400 font-semibold"> bulletproof security</span>.
@@ -85,17 +84,17 @@ const HeroSection = () => {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 mobile:gap-4">
               <Link
                 href="/signup"
-                className="bg-[#c9933a] hover:bg-[#b08132] text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center justify-center group"
+                className="bg-[#c9933a] hover:bg-[#b08132] text-white px-6 py-3 mobile:px-8 mobile:py-4 rounded-lg text-base mobile:text-lg font-semibold transition-all duration-300 flex items-center justify-center group"
               >
                 Get Started
-                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
               </Link>
               <Link
                 href="#investment-plans"
-                className="border-2 border-white hover:bg-white hover:text-gray-900 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300"
+                className="border-2 border-white hover:bg-white hover:text-gray-900 text-white px-6 py-3 mobile:px-8 mobile:py-4 rounded-lg text-base mobile:text-lg font-semibold transition-all duration-300 text-center"
                 onClick={(e) => {
                   e.preventDefault();
                   const element = document.getElementById('investment-plans');
@@ -112,18 +111,18 @@ const HeroSection = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 pt-8">
+            <div className="grid grid-cols-3 gap-4 mobile:gap-6 pt-6 mobile:pt-8">
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-400">$2.81B</div>
-                <div className="text-sm text-gray-300">Total Deposits 2024</div>
+                <div className="text-lg mobile:text-2xl font-bold text-red-400">$2.8B</div>
+                <div className="text-[10px] mobile:text-sm text-gray-300 uppercase tracking-wider">Deposits</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-400">33,759</div>
-                <div className="text-sm text-gray-300">Active Investors</div>
+                <div className="text-lg mobile:text-2xl font-bold text-red-400">33K+</div>
+                <div className="text-[10px] mobile:text-sm text-gray-300 uppercase tracking-wider">Investors</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-400">$983.7M</div>
-                <div className="text-sm text-gray-300">Total Withdrawals</div>
+                <div className="text-lg mobile:text-2xl font-bold text-red-400">$983M</div>
+                <div className="text-[10px] mobile:text-sm text-gray-300 uppercase tracking-wider">Payouts</div>
               </div>
             </div>
           </motion.div>

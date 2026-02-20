@@ -184,16 +184,16 @@ const TestimonialsSection = () => {
   ];
 
   return (
-    <section className="py-24 bg-gray-50">
+    <section className="py-12 mobile:py-20 lg:py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Customer Testimonials */}
         <div className="mb-20">
-          <div className="text-center mb-16">
-            <span className="text-gold-600 font-bold tracking-wider uppercase text-sm">Success Stories</span>
-            <h2 className="text-3xl md:text-5xl font-bold text-navy-900 mt-2 font-playfair">
+          <div className="text-center mb-10 mobile:mb-16">
+            <span className="text-gold-600 font-bold tracking-wider uppercase text-xs mobile:text-sm">Success Stories</span>
+            <h2 className="text-2xl mobile:text-3xl lg:text-5xl font-bold text-navy-900 mt-2 font-playfair">
               Victory for Victims
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto mt-4">
+            <p className="text-base mobile:text-xl text-gray-600 max-w-2xl mx-auto mt-3 mobile:mt-4">
               We have helped thousands of people reclaim what is rightfully theirs.
             </p>
           </div>
@@ -205,12 +205,12 @@ const TestimonialsSection = () => {
         </div>
 
         {/* Recent Wins */}
-        <div className="bg-white rounded-3xl p-12 shadow-xl border border-gray-100">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-navy-900 mb-4 font-playfair">
+        <div className="bg-white rounded-3xl p-6 mobile:p-12 shadow-xl border border-gray-100">
+          <div className="text-center mb-8 mobile:mb-12">
+            <h2 className="text-xl mobile:text-2xl lg:text-3xl font-bold text-navy-900 mb-3 mobile:mb-4 font-playfair">
               Recent Case Victories
             </h2>
-            <p className="text-gray-600">
+            <p className="text-sm mobile:text-base text-gray-600">
               Live updates of funds recovered for our clients.
             </p>
           </div>
@@ -222,15 +222,15 @@ const TestimonialsSection = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="text-center p-8 bg-navy-50 rounded-2xl border border-navy-100 hover:shadow-lg transition-all duration-300"
+                className="text-center p-6 mobile:p-8 bg-navy-50 rounded-2xl border border-navy-100 hover:shadow-lg transition-all duration-300"
               >
-                <div className="w-16 h-16 bg-navy-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <div className="w-12 h-12 mobile:w-16 mobile:h-16 bg-navy-100 rounded-full flex items-center justify-center mx-auto mb-3 mobile:mb-4 text-xl mobile:text-2xl">
                   ⚖️
                 </div>
-                <h3 className="text-xl font-bold text-navy-900 mb-2">
+                <h3 className="text-lg mobile:text-xl font-bold text-navy-900 mb-1.5 mobile:mb-2 text-sm mobile:text-base">
                   {win.type}
                 </h3>
-                <p className="text-gold-600 font-bold text-2xl font-mono mb-2">
+                <p className="text-gold-600 font-bold text-xl mobile:text-2xl font-mono mb-1.5 mobile:mb-2">
                   {win.amount}
                 </p>
                 <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold flex items-center justify-center gap-1">

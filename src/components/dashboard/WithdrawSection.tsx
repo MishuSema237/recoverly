@@ -244,15 +244,15 @@ const WithdrawSection = () => {
   };
 
   return (
-    <div className="px-0 lg:px-6 py-6">
-      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-4 lg:p-8">
-        <div className="flex items-center space-x-3 mb-8">
-          <div className="p-3 bg-blue-100 rounded-full">
-            <ArrowUpDown className="w-6 h-6 text-blue-600" />
+    <div className="px-0 py-4 mobile:px-6 mobile:py-6">
+      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-4 mobile:p-6 lg:p-8">
+        <div className="flex items-center space-x-3 mb-5 mobile:mb-8">
+          <div className="p-2.5 mobile:p-3 bg-blue-100 rounded-full">
+            <ArrowUpDown className="w-5 h-5 mobile:w-6 mobile:h-6 text-blue-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Request Withdrawal</h2>
-            <p className="text-gray-600">Withdraw funds to your preferred payment method</p>
+            <h2 className="text-xl mobile:text-2xl font-bold text-gray-900">Request Withdrawal</h2>
+            <p className="text-xs mobile:text-sm text-gray-600">Withdraw funds to your preferred payment method</p>
           </div>
         </div>
 
@@ -268,13 +268,13 @@ const WithdrawSection = () => {
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6">
             <div className="flex items-start">
               <div className="flex-shrink-0">
-                <Clock className="h-6 w-6 text-orange-600" />
+                <Clock className="h-5 w-5 mobile:h-6 mobile:w-6 text-orange-600" />
               </div>
               <div className="ml-3">
-                <h3 className="text-lg font-semibold text-orange-800 mb-2">
+                <h3 className="text-base mobile:text-lg font-semibold text-orange-800 mb-1 mobile:mb-2">
                   Withdrawals Currently Not Available
                 </h3>
-                <p className="text-orange-700 mb-4">
+                <p className="text-xs mobile:text-sm text-orange-700 mb-3 mobile:mb-4">
                   Withdrawals are only allowed during specific days and times as set by our administrators.
                 </p>
                 {withdrawalSchedule && (
@@ -318,7 +318,7 @@ const WithdrawSection = () => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6" style={{
+        <form onSubmit={handleSubmit} className="space-y-4 mobile:space-y-6" style={{
           opacity: !isWithdrawalAllowed() ? 0.5 : 1,
           pointerEvents: !isWithdrawalAllowed() ? 'none' : 'auto'
         }}>
@@ -331,18 +331,18 @@ const WithdrawSection = () => {
                   key={method._id}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedMethod?._id === method._id
-                      ? 'border-[#c9933a] bg-[#fdfcf0]'
-                      : 'border-gray-200 hover:border-gray-300'
+                  className={`p-3 mobile:p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedMethod?._id === method._id
+                    ? 'border-[#c9933a] bg-[#fdfcf0]'
+                    : 'border-gray-200 hover:border-gray-300'
                     }`}
                   onClick={() => setSelectedMethod(method)}
                 >
                   <div className="flex items-center space-x-3">
                     {method.logo && (
-                      <Image src={method.logo} alt={method.name} width={32} height={32} className="w-8 h-8 rounded" />
+                      <Image src={method.logo} alt={method.name} width={28} height={28} className="w-7 h-7 mobile:w-8 mobile:h-8 rounded" />
                     )}
                     <div>
-                      <h3 className="font-semibold text-gray-900">{method.name}</h3>
+                      <h3 className="font-semibold text-gray-900 text-sm mobile:text-base">{method.name}</h3>
                     </div>
                   </div>
                 </motion.div>
@@ -357,9 +357,9 @@ const WithdrawSection = () => {
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${amount && !isAmountValid
-                  ? 'border-[#c9933a] focus:ring-[#c9933a] bg-[#fdfcf0]'
-                  : 'border-gray-300 focus:ring-[#c9933a]'
+              className={`w-full px-4 py-2.5 mobile:py-3 border rounded-lg focus:ring-2 focus:border-transparent text-sm mobile:text-base ${amount && !isAmountValid
+                ? 'border-[#c9933a] focus:ring-[#c9933a] bg-[#fdfcf0]'
+                : 'border-gray-300 focus:ring-[#c9933a]'
                 }`}
               placeholder="Enter amount to withdraw"
               min="1"
@@ -385,8 +385,8 @@ const WithdrawSection = () => {
           </div>
 
           {/* Account Details */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Your Account Details</h3>
+          <div className="space-y-3 mobile:space-y-4">
+            <h3 className="text-base mobile:text-lg font-semibold text-gray-900">Your Account Details</h3>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Account Holder Name *</label>
@@ -394,7 +394,7 @@ const WithdrawSection = () => {
                 type="text"
                 value={accountName}
                 onChange={(e) => setAccountName(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                className="w-full px-4 py-2.5 mobile:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent text-sm mobile:text-base"
                 placeholder="Enter account holder name"
                 required
               />
@@ -406,7 +406,7 @@ const WithdrawSection = () => {
                 type="text"
                 value={accountNumber}
                 onChange={(e) => setAccountNumber(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                className="w-full px-4 py-2.5 mobile:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent text-sm mobile:text-base"
                 placeholder="Enter account number or wallet address"
                 required
               />
@@ -419,7 +419,7 @@ const WithdrawSection = () => {
                   type="text"
                   value={bankName}
                   onChange={(e) => setBankName(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                  className="w-full px-4 py-2.5 mobile:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent text-sm mobile:text-base"
                   placeholder="Enter bank name"
                 />
               </div>
@@ -432,7 +432,7 @@ const WithdrawSection = () => {
                   type="text"
                   value={network}
                   onChange={(e) => setNetwork(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                  className="w-full px-4 py-2.5 mobile:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent text-sm mobile:text-base"
                   placeholder="Enter network (e.g., Ethereum, BSC)"
                 />
               </div>
@@ -443,9 +443,9 @@ const WithdrawSection = () => {
           <button
             type="submit"
             disabled={!isFormValid || isSubmitting}
-            className={`w-full text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 ${!isFormValid && !isSubmitting
-                ? 'bg-[#c9933a] hover:bg-[#c9933a]'
-                : 'bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400'
+            className={`w-full text-white py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm mobile:text-base ${!isFormValid && !isSubmitting
+              ? 'bg-[#c9933a] hover:bg-[#c9933a]'
+              : 'bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400'
               }`}
           >
             {isSubmitting ? (

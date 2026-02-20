@@ -80,7 +80,7 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section className="py-24 bg-gray-50">
+    <section className="py-12 mobile:py-20 lg:py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-20">
@@ -104,7 +104,7 @@ const FeaturesSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl md:text-5xl font-bold text-gray-900 mb-6"
+            className="text-2xl mobile:text-3xl lg:text-5xl font-bold text-gray-900 mb-4 mobile:mb-6"
           >
             Why Choose Recoverly?
           </motion.h2>
@@ -113,7 +113,7 @@ const FeaturesSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl text-gray-600 max-w-3xl mx-auto"
+            className="text-base mobile:text-xl text-gray-600 max-w-3xl mx-auto"
           >
             Our comprehensive platform provides all the tools and support you need
             to make informed investment decisions and maximize your returns.
@@ -141,12 +141,12 @@ const FeaturesSection = () => {
                   className="object-contain transform group-hover:scale-110 transition-transform duration-500"
                 />
               </div>
-              <div className="p-8">
-                <div className="flex items-center mb-4">
-                  <div className={`w-10 h-10 rounded-lg ${feature.color} flex items-center justify-center mr-3`}>
+              <div className="p-5 mobile:p-8">
+                <div className="flex items-center mb-3 mobile:mb-4">
+                  <div className={`w-8 h-8 mobile:w-10 mobile:h-10 rounded-lg ${feature.color} flex items-center justify-center mr-3 scale-90 mobile:scale-100`}>
                     {feature.icon}
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">
+                  <h3 className="text-lg mobile:text-xl font-bold text-gray-900">
                     {feature.title}
                   </h3>
                 </div>
@@ -171,11 +171,11 @@ const FeaturesSection = () => {
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600 rounded-full opacity-10 blur-3xl transform -translate-x-24 translate-y-24"></div>
 
           <div className="relative z-10">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold mb-6">
+            <div className="text-center mb-10 mobile:mb-16">
+              <h2 className="text-2xl mobile:text-3xl lg:text-4xl font-bold mb-4 mobile:mb-6">
                 How Recoverly Works
               </h2>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              <p className="text-base mobile:text-xl text-gray-300 max-w-3xl mx-auto">
                 Our streamlined investment process is designed to be simple, secure, and profitable.
                 Here&apos;s how you can start building your wealth with Recoverly.
               </p>
@@ -191,13 +191,13 @@ const FeaturesSection = () => {
                   transition={{ duration: 0.6, delay: 0.2 + index * 0.2 }}
                   className="text-center relative bg-white bg-opacity-5 rounded-2xl p-8 backdrop-blur-sm border border-white/10 hover:bg-opacity-10 transition-all duration-300"
                 >
-                  <div className="bg-gradient-to-br from-[#c9933a] to-[#b08132] w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg transform rotate-3 hover:rotate-6 transition-transform">
+                  <div className="bg-gradient-to-br from-[#c9933a] to-[#b08132] w-12 h-12 mobile:w-16 mobile:h-16 rounded-xl mobile:rounded-2xl flex items-center justify-center text-xl mobile:text-2xl font-bold mx-auto mb-4 mobile:mb-6 shadow-lg transform rotate-3 hover:rotate-6 transition-transform">
                     {step.number}
                   </div>
-                  <h3 className="text-xl font-bold mb-4">
+                  <h3 className="text-lg mobile:text-xl font-bold mb-3 mobile:mb-4">
                     {step.title}
                   </h3>
-                  <p className="text-gray-300 leading-relaxed">
+                  <p className="text-sm mobile:text-base text-gray-300 leading-relaxed">
                     {step.description}
                   </p>
                 </motion.div>

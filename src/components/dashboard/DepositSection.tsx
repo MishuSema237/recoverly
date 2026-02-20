@@ -52,7 +52,7 @@ const DepositSection = () => {
     try {
       const response = await fetch('/api/payment-methods');
       const result = await response.json();
-      
+
       if (result.success) {
         setPaymentMethods(result.data.filter((method: PaymentMethod) => method.isActive));
       }
@@ -76,13 +76,13 @@ const DepositSection = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Check if email is verified
     if (!userProfile?.emailVerified) {
       showError('Please verify your email address before making a deposit. Check your inbox for the verification link.');
       return;
     }
-    
+
     if (!selectedMethod || !amount || !screenshot) {
       showError('Please fill in all fields and upload a screenshot');
       return;
@@ -96,7 +96,7 @@ const DepositSection = () => {
       reader.onload = async () => {
         try {
           const base64Screenshot = reader.result as string;
-          
+
           const depositRequest: DepositRequest = {
             userId: user?._id || '',
             paymentMethodId: selectedMethod._id,
@@ -150,15 +150,15 @@ const DepositSection = () => {
   };
 
   return (
-    <div className="px-0 lg:px-6 py-6">
-      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-4 lg:p-8">
-        <div className="flex items-center space-x-3 mb-8">
-          <div className="p-3 bg-green-100 rounded-full">
-            <DollarSign className="w-6 h-6 text-green-600" />
+    <div className="px-0 py-4 mobile:px-6 mobile:py-6">
+      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-4 mobile:p-6 lg:p-8">
+        <div className="flex items-center space-x-3 mb-5 mobile:mb-8">
+          <div className="p-2.5 mobile:p-3 bg-green-100 rounded-full">
+            <DollarSign className="w-5 h-5 mobile:w-6 mobile:h-6 text-green-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Make a Deposit</h2>
-            <p className="text-gray-600">Choose a payment method and submit your deposit request</p>
+            <h2 className="text-xl mobile:text-2xl font-bold text-gray-900">Make a Deposit</h2>
+            <p className="text-xs mobile:text-sm text-gray-600">Choose a payment method and submit your deposit request</p>
           </div>
         </div>
 
@@ -183,7 +183,7 @@ const DepositSection = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 mobile:space-y-6">
           {/* Payment Method Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">Select Payment Method</label>
@@ -193,20 +193,19 @@ const DepositSection = () => {
                   key={method._id}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                    selectedMethod?._id === method._id
+                  className={`p-3 mobile:p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedMethod?._id === method._id
                       ? 'border-[#c9933a] bg-[#fdfcf0]'
                       : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                    }`}
                   onClick={() => setSelectedMethod(method)}
                 >
                   <div className="flex items-center space-x-3">
                     {method.logo && (
-                      <Image src={method.logo} alt={method.name} width={32} height={32} className="w-8 h-8 rounded" />
+                      <Image src={method.logo} alt={method.name} width={28} height={28} className="w-7 h-7 mobile:w-8 mobile:h-8 rounded" />
                     )}
-                            <div>
-                              <h3 className="font-semibold text-gray-900">{method.name}</h3>
-                            </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-sm mobile:text-base">{method.name}</h3>
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -218,7 +217,7 @@ const DepositSection = () => {
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              className="bg-gray-50 rounded-lg p-6"
+              className="bg-gray-50 rounded-lg p-4 mobile:p-6"
             >
               <h3 className="font-semibold text-gray-900 mb-4">Payment Details</h3>
               <div className="space-y-3">
@@ -257,11 +256,10 @@ const DepositSection = () => {
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${
-                amount && !isAmountValid 
-                  ? 'border-[#c9933a] focus:ring-[#c9933a] bg-[#fdfcf0]' 
+              className={`w-full px-4 py-2.5 mobile:py-3 border rounded-lg focus:ring-2 focus:border-transparent text-sm mobile:text-base ${amount && !isAmountValid
+                  ? 'border-[#c9933a] focus:ring-[#c9933a] bg-[#fdfcf0]'
                   : 'border-gray-300 focus:ring-[#c9933a]'
-              }`}
+                }`}
               placeholder="Enter amount to deposit"
               min="1"
               step="0.01"
@@ -294,12 +292,12 @@ const DepositSection = () => {
               <label htmlFor="screenshot-upload" className="cursor-pointer">
                 {screenshotPreview ? (
                   <div className="space-y-4">
-                    <Image 
-                      src={screenshotPreview} 
-                      alt="Screenshot preview" 
+                    <Image
+                      src={screenshotPreview}
+                      alt="Screenshot preview"
                       width={400}
                       height={400}
-                      className="mx-auto max-w-full max-h-96 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200" 
+                      className="mx-auto max-w-full max-h-96 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200"
                     />
                     <p className="text-sm text-gray-600">Click to change screenshot</p>
                   </div>
@@ -320,11 +318,10 @@ const DepositSection = () => {
           <button
             type="submit"
             disabled={!isFormValid || isSubmitting || !userProfile?.emailVerified}
-            className={`w-full text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 ${
-              !isFormValid && !isSubmitting
+            className={`w-full text-white py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm mobile:text-base ${!isFormValid && !isSubmitting
                 ? 'bg-[#c9933a] hover:bg-[#c9933a]'
                 : 'bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400'
-            }`}
+              }`}
           >
             {isSubmitting ? (
               <>

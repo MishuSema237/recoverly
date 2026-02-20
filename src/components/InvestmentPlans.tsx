@@ -378,11 +378,11 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
         <section className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header */}
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <div className="text-center mb-10 mobile:mb-16">
+              <h2 className="text-2xl mobile:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 mobile:mb-4">
                 Upgrade Your Investment Plan
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-base mobile:text-xl text-gray-600 max-w-3xl mx-auto">
                 Choose a new plan to upgrade your current investment for better returns.
               </p>
               <button
@@ -407,12 +407,12 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
   }
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-10 mobile:py-16 lg:py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16" id="investment-plans">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <h2 className="text-4xl font-bold text-gray-900">
+        <div className="text-center mb-10 mobile:mb-16" id="investment-plans">
+          <div className="flex items-center justify-center gap-3 mobile:gap-4 mb-2 mobile:mb-4">
+            <h2 className="text-2xl mobile:text-3xl lg:text-4xl font-bold text-gray-900">
               Our Investment Plans
             </h2>
             {isOffline && (
@@ -432,7 +432,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
               </button>
             )}
           </div>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-base mobile:text-xl text-gray-600 max-w-3xl mx-auto">
             Choose from our carefully crafted investment plans designed to maximize your returns
             while maintaining security and transparency.
           </p>
@@ -478,9 +478,9 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                     </div>
                   </div>
 
-                  <div className="p-6">
-                    <div className="space-y-4">
-                      <div className="flex justify-between">
+                  <div className="p-4 mobile:p-6">
+                    <div className="space-y-3 mobile:space-y-4">
+                      <div className="flex justify-between text-sm mobile:text-base">
                         <span className="text-gray-600">Duration:</span>
                         <span className="font-semibold">{plan.duration}</span>
                       </div>
@@ -494,7 +494,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                           {plan.maxAmount === Infinity ? 'Unlimited' : `$${plan.maxAmount.toLocaleString()}`}
                         </span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between text-sm mobile:text-base">
                         <span className="text-gray-600">Capital Back:</span>
                         <span className="font-semibold text-green-600">
                           {plan.capitalBack ? 'Yes' : 'No'}
@@ -516,7 +516,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                         }
                       }}
                       disabled={isProcessing}
-                      className={`w-full mt-6 py-3 px-4 rounded-lg font-semibold transition-colors duration-200 bg-gradient-to-r ${getColorGradient(plan.color)} text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center`}
+                      className={`w-full mt-4 mobile:mt-6 py-2.5 mobile:py-3 px-4 rounded-lg font-semibold transition-colors duration-200 bg-gradient-to-r ${getColorGradient(plan.color)} text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm mobile:text-base`}
                     >
                       {isProcessing ? (
                         <>
@@ -525,7 +525,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                         </>
                       ) : (
                         <>
-                          {!user ? 'Invest' : !user.emailVerified ? 'Verify Email First' : isDashboard ? (selectedPlan?._id === plan._id ? 'Selected' : 'Select Plan') : 'Invest Now'}
+                          {!user ? 'Invest' : !user.emailVerified ? 'Verify Email' : isDashboard ? (selectedPlan?._id === plan._id ? 'Selected' : 'Select Plan') : 'Invest Now'}
                         </>
                       )}
                     </button>
