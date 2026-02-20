@@ -207,9 +207,9 @@ const TransferMoneySection = () => {
               </label>
               <input
                 type="email"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent ${
                   receiverValid ? 'border-green-300 bg-green-50' : 
-                  error && receiverEmail ? 'border-red-300 bg-red-50' : 
+                  error && receiverEmail ? 'border-red-300 bg-[#fdfcf0]' : 
                   'border-gray-300'
                 }`}
                 placeholder="receiver@example.com"
@@ -229,9 +229,9 @@ const TransferMoneySection = () => {
               </label>
               <input
                 type="text"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent transition-colors ${
                   receiverValid ? 'border-green-500 bg-green-50' : 
-                  validationError && receiverUserCode.length === 8 ? 'border-red-500 bg-red-50' : 
+                  validationError && receiverUserCode.length === 8 ? 'border-[#c9933a] bg-[#fdfcf0]' : 
                   receiverUserCode.length > 0 && receiverUserCode.length !== 8 ? 'border-orange-300 bg-orange-50' :
                   'border-gray-300'
                 }`}
@@ -252,7 +252,7 @@ const TransferMoneySection = () => {
                 </p>
               )}
               {validationError && (
-                <p className="text-sm text-red-600 mt-1">{validationError}</p>
+                <p className="text-sm text-[#c9933a] mt-1">{validationError}</p>
               )}
               {receiverValid && (
                 <p className="text-sm text-green-600 mt-1">✓ Validated successfully!</p>
@@ -260,8 +260,8 @@ const TransferMoneySection = () => {
             </div>
             
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-800 text-sm">{error}</p>
+              <div className="p-4 bg-[#fdfcf0] border border-red-200 rounded-lg">
+                <p className="text-[#b08132] text-sm">{error}</p>
               </div>
             )}
 
@@ -269,7 +269,7 @@ const TransferMoneySection = () => {
               type="button"
               onClick={handleNext}
               disabled={!receiverValid || isValidating}
-              className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
+              className="w-full bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
             >
               Next: Enter Amount →
             </button>
@@ -308,7 +308,7 @@ const TransferMoneySection = () => {
                 </label>
                 <input
                   type="number"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                   placeholder="0.00"
                   value={transferAmount}
                   onChange={(e) => setTransferAmount(e.target.value)}
@@ -320,8 +320,8 @@ const TransferMoneySection = () => {
               </div>
               
               {error && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-800 text-sm">{error}</p>
+                <div className="p-4 bg-[#fdfcf0] border border-red-200 rounded-lg">
+                  <p className="text-[#b08132] text-sm">{error}</p>
                 </div>
               )}
               
@@ -369,7 +369,7 @@ const TransferMoneySection = () => {
                 <button
                   type="submit"
                   disabled={!transferAmount || parseFloat(transferAmount) < 500 || parseFloat(transferAmount) > 10000 || isTransferring}
-                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
+                  className="flex-1 bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
                 >
                   {isTransferring ? (
                     <>

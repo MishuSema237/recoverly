@@ -48,14 +48,14 @@ const FeaturesSection = () => {
     {
       icon: <ThumbsUp className="w-6 h-6" />,
       title: 'Highly Recommended',
-      description: 'Tesla Capital is highly recommended and well appreciated in the industry. You are safe with us.',
+      description: 'Recoverly is highly recommended and well appreciated in the industry. You are safe with us.',
       image: '/DrawKit - Economy & Finance/PNG/6 - FINANCES.png',
-      color: 'bg-red-100 text-red-600',
+      color: 'bg-gold-100 text-[#c9933a]',
     },
     {
       icon: <Globe className="w-6 h-6" />,
       title: 'Join a Growing Community',
-      description: 'Join a community of Tesla Capital investors to increase and diversify your investment portfolio.',
+      description: 'Join a community of Recoverly investors to increase and diversify your investment portfolio.',
       image: '/DrawKit - Economy & Finance/PNG/5 - RECRUITING.png',
       color: 'bg-indigo-100 text-indigo-600',
     },
@@ -92,8 +92,8 @@ const FeaturesSection = () => {
             className="flex justify-center mb-8"
           >
             <Image
-              src="/tesla-capital-logo.png"
-              alt="Tesla Capital Logo"
+              src="/RecoverlyLogo.png"
+              alt="Recoverly Logo"
               width={100}
               height={100}
               className="rounded-2xl shadow-lg"
@@ -106,7 +106,7 @@ const FeaturesSection = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-4xl md:text-5xl font-bold text-gray-900 mb-6"
           >
-            Why Choose Tesla Capital?
+            Why Choose Recoverly?
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 30 }}
@@ -164,20 +164,20 @@ const FeaturesSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="bg-gradient-to-br from-gray-900 to-red-900 rounded-3xl p-12 text-white relative overflow-hidden shadow-2xl"
+          className="bg-gradient-to-br from-[#0b1626] to-[#1a2b4a] rounded-3xl p-12 text-white relative overflow-hidden shadow-2xl"
         >
           {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-red-600 rounded-full opacity-10 blur-3xl transform translate-x-32 -translate-y-32"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#c9933a] rounded-full opacity-10 blur-3xl transform translate-x-32 -translate-y-32"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600 rounded-full opacity-10 blur-3xl transform -translate-x-24 translate-y-24"></div>
 
           <div className="relative z-10">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold mb-6">
-                How Tesla Capital Works
+                How Recoverly Works
               </h2>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto">
                 Our streamlined investment process is designed to be simple, secure, and profitable.
-                Here&apos;s how you can start building your wealth with Tesla Capital.
+                Here&apos;s how you can start building your wealth with Recoverly.
               </p>
             </div>
 
@@ -191,7 +191,7 @@ const FeaturesSection = () => {
                   transition={{ duration: 0.6, delay: 0.2 + index * 0.2 }}
                   className="text-center relative bg-white bg-opacity-5 rounded-2xl p-8 backdrop-blur-sm border border-white/10 hover:bg-opacity-10 transition-all duration-300"
                 >
-                  <div className="bg-gradient-to-br from-red-500 to-red-700 w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg transform rotate-3 hover:rotate-6 transition-transform">
+                  <div className="bg-gradient-to-br from-[#c9933a] to-[#b08132] w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg transform rotate-3 hover:rotate-6 transition-transform">
                     {step.number}
                   </div>
                   <h3 className="text-xl font-bold mb-4">

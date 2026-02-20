@@ -52,7 +52,7 @@ export default function NewsletterManager() {
             </div>
 
             {status && (
-                <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${status.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${status.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-[#fdfcf0] text-[#b08132]'
                     }`}>
                     {status.type === 'success' ? <CheckCircle className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
                     {status.message}
@@ -68,8 +68,8 @@ export default function NewsletterManager() {
                         type="text"
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="e.g., New Investment Opportunities at Tesla Capital"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                        placeholder="e.g., New Investment Opportunities at Recoverly"
                         required
                     />
                 </div>
@@ -82,7 +82,7 @@ export default function NewsletterManager() {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         rows={12}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent font-mono text-sm"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent font-mono text-sm"
                         placeholder="<h1>Hello Investors!</h1><p>We have great news...</p>"
                         required
                     />
@@ -95,7 +95,7 @@ export default function NewsletterManager() {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
+                        className="bg-[#c9933a] hover:bg-[#b08132] disabled:bg-red-400 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
                     >
                         {isLoading ? (
                             <>

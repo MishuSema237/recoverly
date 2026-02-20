@@ -197,7 +197,7 @@ export class NotificationService {
     // Email user
     await sendEmail({
       to: userEmail,
-      subject: 'Deposit Declined - Tesla Capital',
+      subject: 'Deposit Declined - Recoverly',
       html: `
         <h2>Deposit Declined</h2>
         <p>We regret to inform you that your deposit of $${amount} has been declined.</p>
@@ -248,7 +248,7 @@ export class NotificationService {
     // Email user
     await sendEmail({
       to: userEmail,
-      subject: 'Withdrawal Declined - Tesla Capital',
+      subject: 'Withdrawal Declined - Recoverly',
       html: `
         <h2>Withdrawal Declined</h2>
         <p>We regret to inform you that your withdrawal of $${amount} has been declined.</p>
@@ -303,7 +303,7 @@ export class NotificationService {
     // Email user
     await sendEmail({
       to: userEmail,
-      subject: 'Referral Bonus Earned - Tesla Capital',
+      subject: 'Referral Bonus Earned - Recoverly',
       html: getBaseTemplate(
         'Referral Bonus Earned!',
         `
@@ -555,8 +555,8 @@ export class NotificationService {
     const userName = user?.firstName || userEmail;
 
     await this.createNotification({
-      title: 'Welcome to Tesla Capital!',
-      message: 'Welcome to Tesla Capital! Your account has been created successfully. Start investing and grow your wealth.',
+      title: 'Welcome to Recoverly!',
+      message: 'Welcome to Recoverly! Your account has been created successfully. Start investing and grow your wealth.',
       type: 'welcome',
       recipients: [userId],
       sentBy: 'system',
@@ -672,7 +672,7 @@ export class NotificationService {
     // Email user
     await sendEmail({
       to: userEmail,
-      subject: 'Support Reply Received - Tesla Capital',
+      subject: 'Support Reply Received - Recoverly',
       html: getBaseTemplate(
         'Support Reply Received',
         `

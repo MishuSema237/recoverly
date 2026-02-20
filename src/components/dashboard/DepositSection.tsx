@@ -195,7 +195,7 @@ const DepositSection = () => {
                   whileTap={{ scale: 0.98 }}
                   className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                     selectedMethod?._id === method._id
-                      ? 'border-red-500 bg-red-50'
+                      ? 'border-[#c9933a] bg-[#fdfcf0]'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                   onClick={() => setSelectedMethod(method)}
@@ -259,8 +259,8 @@ const DepositSection = () => {
               onChange={(e) => setAmount(e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${
                 amount && !isAmountValid 
-                  ? 'border-red-500 focus:ring-red-500 bg-red-50' 
-                  : 'border-gray-300 focus:ring-red-500'
+                  ? 'border-[#c9933a] focus:ring-[#c9933a] bg-[#fdfcf0]' 
+                  : 'border-gray-300 focus:ring-[#c9933a]'
               }`}
               placeholder="Enter amount to deposit"
               min="1"
@@ -268,7 +268,7 @@ const DepositSection = () => {
               required
             />
             {amount && !isAmountValid && (
-              <p className="mt-1 text-sm text-red-600">
+              <p className="mt-1 text-sm text-[#c9933a]">
                 Please enter a valid amount greater than $0
               </p>
             )}
@@ -322,8 +322,8 @@ const DepositSection = () => {
             disabled={!isFormValid || isSubmitting || !userProfile?.emailVerified}
             className={`w-full text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 ${
               !isFormValid && !isSubmitting
-                ? 'bg-red-500 hover:bg-red-600'
-                : 'bg-red-600 hover:bg-red-700 disabled:bg-gray-400'
+                ? 'bg-[#c9933a] hover:bg-[#c9933a]'
+                : 'bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400'
             }`}
           >
             {isSubmitting ? (

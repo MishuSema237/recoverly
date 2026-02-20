@@ -5,6 +5,11 @@ export const showSuccess = (message: string) => {
 };
 
 export const showError = (message: string) => {
+  // Filter out cryptic system/SSL errors
+  if (message.includes('error:0A000438') || message.includes('tlsv1 alert internal error') || message.includes('SSL routines')) {
+    toast.error('A secure connection error occurred. Please try again later.');
+    return;
+  }
   toast.error(message);
 };
 

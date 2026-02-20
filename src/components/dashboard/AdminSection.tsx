@@ -885,7 +885,7 @@ const AdminSection = () => {
     return (
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="text-center">
-          <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <Shield className="w-16 h-16 text-[#c9933a] mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h3>
           <p className="text-gray-600">You don&apos;t have permission to access the admin panel.</p>
         </div>
@@ -896,7 +896,7 @@ const AdminSection = () => {
   return (
     <div className="space-y-6">
       {/* Admin Header */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg p-6">
+      <div className="bg-gradient-to-r from-[#c9933a] to-[#b08132] text-white rounded-lg p-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">Admin Panel</h2>
@@ -910,7 +910,7 @@ const AdminSection = () => {
       {message.text && (
         <div className={`p-4 rounded-lg ${message.type === 'success'
           ? 'bg-green-50 border border-green-200 text-green-800'
-          : 'bg-red-50 border border-red-200 text-red-800'
+          : 'bg-[#fdfcf0] border border-red-200 text-[#b08132]'
           }`}>
           {message.text}
         </div>
@@ -932,7 +932,7 @@ const AdminSection = () => {
               key={tab.id}
               onClick={() => setActiveTab(tab.id as 'users' | 'plans' | 'payments' | 'transactions' | 'notifications' | 'support' | 'withdrawal-schedule')}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${activeTab === tab.id
-                ? 'bg-red-600 text-white'
+                ? 'bg-[#c9933a] text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
@@ -960,7 +960,7 @@ const AdminSection = () => {
                     placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                   />
                 </div>
                 {/* Filters */}
@@ -1005,7 +1005,7 @@ const AdminSection = () => {
               <button
                 onClick={loadUsers}
                 disabled={loadingUsers}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#c9933a] disabled:opacity-50"
               >
                 {loadingUsers ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
@@ -1018,7 +1018,7 @@ const AdminSection = () => {
 
             {loadingUsers ? (
               <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#c9933a]"></div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1030,7 +1030,7 @@ const AdminSection = () => {
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                        <div className="w-10 h-10 bg-[#c9933a] rounded-full flex items-center justify-center text-white text-sm font-medium">
                           {user.firstName?.[0] || user.email?.[0]?.toUpperCase()}
                         </div>
                         <div>
@@ -1042,7 +1042,7 @@ const AdminSection = () => {
                         {user.isActive !== false ? (
                           <CheckCircle className="w-4 h-4 text-green-600" />
                         ) : (
-                          <XCircle className="w-4 h-4 text-red-600" />
+                          <XCircle className="w-4 h-4 text-[#c9933a]" />
                         )}
                         {user.isAdmin && <Shield className="w-4 h-4 text-yellow-600" />}
                       </div>
@@ -1063,7 +1063,7 @@ const AdminSection = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-500">Status:</span>
-                        <span className={`text-xs px-2 py-1 rounded-full ${user.isActive !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        <span className={`text-xs px-2 py-1 rounded-full ${user.isActive !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-[#b08132]'
                           }`}>
                           {user.isActive !== false ? 'Active' : 'Inactive'}
                         </span>
@@ -1077,7 +1077,7 @@ const AdminSection = () => {
                           toggleUserStatus(user._id!, user.isActive === false);
                         }}
                         className={`flex-1 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1 ${user.isActive !== false
-                          ? 'bg-red-600 hover:bg-red-700 text-white'
+                          ? 'bg-[#c9933a] hover:bg-[#b08132] text-white'
                           : 'bg-green-600 hover:bg-green-700 text-white'
                           }`}
                       >
@@ -1116,7 +1116,7 @@ const AdminSection = () => {
               {/* Broadcast Notification */}
               <div className="bg-gray-50 rounded-lg p-6">
                 <div className="flex items-center space-x-2 mb-4">
-                  <Bell className="w-5 h-5 text-red-600" />
+                  <Bell className="w-5 h-5 text-[#c9933a]" />
                   <h4 className="text-lg font-semibold text-gray-900">Broadcast Message</h4>
                 </div>
                 <p className="text-gray-600 mb-4">Send a message to all users</p>
@@ -1125,7 +1125,7 @@ const AdminSection = () => {
                     setNotificationType('broadcast');
                     setShowNotificationModal(true);
                   }}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                  className="w-full bg-[#c9933a] hover:bg-[#b08132] text-white px-4 py-2 rounded-lg transition-colors duration-200"
                 >
                   Send to All Users
                 </button>
@@ -1178,7 +1178,7 @@ const AdminSection = () => {
                   setEditingPlan(null);
                   setShowPlanModal(true);
                 }}
-                className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                className="flex items-center space-x-2 bg-[#c9933a] hover:bg-[#b08132] text-white px-4 py-2 rounded-lg"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Plan</span>
@@ -1187,7 +1187,7 @@ const AdminSection = () => {
 
             {loadingPlans ? (
               <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#c9933a]"></div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1209,7 +1209,7 @@ const AdminSection = () => {
                         </button>
                         <button
                           onClick={() => handleDeletePlan(plan._id || '', plan.name)}
-                          className="p-1 text-red-600 hover:text-red-800"
+                          className="p-1 text-[#c9933a] hover:text-[#b08132]"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -1223,7 +1223,7 @@ const AdminSection = () => {
                       <p><span className="font-medium">Capital Back:</span> {plan.capitalBack ? 'Yes' : 'No'}</p>
                     </div>
                     <div className="mt-4">
-                      <span className={`px-2 py-1 rounded-full text-xs ${plan.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      <span className={`px-2 py-1 rounded-full text-xs ${plan.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-[#b08132]'
                         }`}>
                         {plan.isActive ? 'Active' : 'Inactive'}
                       </span>
@@ -1256,7 +1256,7 @@ const AdminSection = () => {
                   setPaymentLogoPreview('');
                   setShowPaymentModal(true);
                 }}
-                className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                className="flex items-center space-x-2 bg-[#c9933a] hover:bg-[#b08132] text-white px-4 py-2 rounded-lg"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Payment Method</span>
@@ -1265,7 +1265,7 @@ const AdminSection = () => {
 
             {loadingPayments ? (
               <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#c9933a]"></div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1288,7 +1288,7 @@ const AdminSection = () => {
                         </button>
                         <button
                           onClick={() => method._id && handleDeletePayment(method._id, method.name)}
-                          className="p-1 text-red-600 hover:text-red-800"
+                          className="p-1 text-[#c9933a] hover:text-[#b08132]"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -1304,7 +1304,7 @@ const AdminSection = () => {
                       )}
                     </div>
                     <div className="mt-4">
-                      <span className={`px-2 py-1 rounded-full text-xs ${method.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      <span className={`px-2 py-1 rounded-full text-xs ${method.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-[#b08132]'
                         }`}>
                         {method.isActive ? 'Active' : 'Inactive'}
                       </span>
@@ -1346,7 +1346,7 @@ const AdminSection = () => {
                   placeholder="Search transactions by name, email, code, or amount..."
                   value={transactionSearchTerm}
                   onChange={(e) => setTransactionSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                 />
               </div>
             </div>
@@ -1426,7 +1426,7 @@ const AdminSection = () => {
                         <span className="text-sm font-medium text-gray-600">Deposit</span>
                       </div>
                       <span className={`px-2 py-1 text-xs font-semibold rounded-full ${deposit.status === 'approved' ? 'bg-green-100 text-green-800' :
-                        deposit.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                        deposit.status === 'rejected' ? 'bg-red-100 text-[#b08132]' :
                           'bg-yellow-100 text-yellow-800'
                         }`}>
                         {deposit.status}
@@ -1473,7 +1473,7 @@ const AdminSection = () => {
                         <span className="text-sm font-medium text-gray-600">Withdrawal</span>
                       </div>
                       <span className={`px-2 py-1 text-xs font-semibold rounded-full ${withdrawal.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        withdrawal.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                        withdrawal.status === 'rejected' ? 'bg-red-100 text-[#b08132]' :
                           withdrawal.status === 'processing' ? 'bg-blue-100 text-blue-800' :
                             'bg-yellow-100 text-yellow-800'
                         }`}>
@@ -1551,7 +1551,7 @@ const AdminSection = () => {
                     type="text"
                     value={newPlan.name || ''}
                     onChange={(e) => setNewPlan({ ...newPlan, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                     placeholder="e.g., Silver, Gold, Platinum"
                   />
                 </div>
@@ -1563,7 +1563,7 @@ const AdminSection = () => {
                       type="number"
                       value={newPlan.minAmount || ''}
                       onChange={(e) => setNewPlan({ ...newPlan, minAmount: Number(e.target.value) })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                       placeholder="1000"
                     />
                   </div>
@@ -1573,7 +1573,7 @@ const AdminSection = () => {
                       type="number"
                       value={newPlan.maxAmount || ''}
                       onChange={(e) => setNewPlan({ ...newPlan, maxAmount: Number(e.target.value) })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                       placeholder="9999"
                     />
                   </div>
@@ -1587,7 +1587,7 @@ const AdminSection = () => {
                       step="0.1"
                       value={newPlan.roi || ''}
                       onChange={(e) => setNewPlan({ ...newPlan, roi: Number(e.target.value) })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                       placeholder="1.5"
                     />
                   </div>
@@ -1597,7 +1597,7 @@ const AdminSection = () => {
                       type="text"
                       value={newPlan.duration || ''}
                       onChange={(e) => setNewPlan({ ...newPlan, duration: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                       placeholder="30 days"
                     />
                   </div>
@@ -1609,7 +1609,7 @@ const AdminSection = () => {
                     <select
                       value={newPlan.color || ''}
                       onChange={(e) => setNewPlan({ ...newPlan, color: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                     >
                       <option value="">Select Color</option>
                       <option value="blue">Blue</option>
@@ -1635,7 +1635,7 @@ const AdminSection = () => {
                     <select
                       value={newPlan.icon || ''}
                       onChange={(e) => setNewPlan({ ...newPlan, icon: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                     >
                       <option value="">Select Icon</option>
                       <option value="star">Star</option>
@@ -1659,7 +1659,7 @@ const AdminSection = () => {
                   <select
                     value={newPlan.gradient || ''}
                     onChange={(e) => setNewPlan({ ...newPlan, gradient: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                   >
                     <option value="">Select Gradient</option>
                     <option value="blue-to-purple">Blue to Purple</option>
@@ -1683,7 +1683,7 @@ const AdminSection = () => {
                     id="capitalBack"
                     checked={newPlan.capitalBack || false}
                     onChange={(e) => setNewPlan({ ...newPlan, capitalBack: e.target.checked })}
-                    className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    className="rounded border-gray-300 text-[#c9933a] focus:ring-[#c9933a]"
                   />
                   <label htmlFor="capitalBack" className="text-sm font-medium text-gray-700">
                     Capital Back
@@ -1696,7 +1696,7 @@ const AdminSection = () => {
                     id="isActive"
                     checked={newPlan.isActive !== false}
                     onChange={(e) => setNewPlan({ ...newPlan, isActive: e.target.checked })}
-                    className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    className="rounded border-gray-300 text-[#c9933a] focus:ring-[#c9933a]"
                   />
                   <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
                     Active
@@ -1717,7 +1717,7 @@ const AdminSection = () => {
                 </button>
                 <button
                   onClick={savePlan}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
+                  className="px-4 py-2 bg-[#c9933a] hover:bg-[#b08132] text-white rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
                   disabled={isProcessingPlan}
                 >
                   {isProcessingPlan && (
@@ -1759,7 +1759,7 @@ const AdminSection = () => {
                     type="text"
                     value={newPayment.name || ''}
                     onChange={(e) => setNewPayment({ ...newPayment, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                     placeholder="e.g., Bank Transfer, Bitcoin, Ethereum"
                   />
                 </div>
@@ -1780,7 +1780,7 @@ const AdminSection = () => {
                         reader.readAsDataURL(file);
                       }
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                   />
                   {paymentLogoPreview && (
                     <div className="mt-3">
@@ -1811,7 +1811,7 @@ const AdminSection = () => {
                         network: newPayment.accountDetails?.network || ''
                       }
                     })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                     placeholder="Account holder name"
                   />
                 </div>
@@ -1831,7 +1831,7 @@ const AdminSection = () => {
                         network: newPayment.accountDetails?.network || ''
                       }
                     })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                     placeholder="Account number or wallet address"
                   />
                 </div>
@@ -1851,7 +1851,7 @@ const AdminSection = () => {
                         network: newPayment.accountDetails?.network || ''
                       }
                     })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                     placeholder="Bank name (for bank transfers)"
                   />
                 </div>
@@ -1871,7 +1871,7 @@ const AdminSection = () => {
                         network: e.target.value
                       }
                     })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                     placeholder="Network (e.g., Ethereum, BSC, Polygon)"
                   />
                 </div>
@@ -1881,7 +1881,7 @@ const AdminSection = () => {
                   <textarea
                     value={newPayment.instructions || ''}
                     onChange={(e) => setNewPayment({ ...newPayment, instructions: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                     rows={4}
                     placeholder="Instructions for users on how to make deposits using this method"
                   />
@@ -1893,7 +1893,7 @@ const AdminSection = () => {
                     id="paymentActive"
                     checked={newPayment.isActive !== false}
                     onChange={(e) => setNewPayment({ ...newPayment, isActive: e.target.checked })}
-                    className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    className="rounded border-gray-300 text-[#c9933a] focus:ring-[#c9933a]"
                   />
                   <label htmlFor="paymentActive" className="text-sm font-medium text-gray-700">
                     Active
@@ -1916,7 +1916,7 @@ const AdminSection = () => {
                 </button>
                 <button
                   onClick={savePaymentMethod}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
+                  className="px-4 py-2 bg-[#c9933a] hover:bg-[#b08132] text-white rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
                   disabled={isProcessingPayment}
                 >
                   {isProcessingPayment && (
@@ -1937,7 +1937,7 @@ const AdminSection = () => {
             <div className="flex items-center space-x-3 mb-4">
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <Trash2 className="w-5 h-5 text-red-600" />
+                  <Trash2 className="w-5 h-5 text-[#c9933a]" />
                 </div>
               </div>
               <div>
@@ -1972,7 +1972,7 @@ const AdminSection = () => {
               <button
                 onClick={executeDeleteAction}
                 disabled={isDeleting}
-                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                className="flex-1 px-4 py-2 bg-[#c9933a] hover:bg-[#b08132] text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
               >
                 {isDeleting && (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -2024,7 +2024,7 @@ const AdminSection = () => {
                 value={notificationTitle}
                 onChange={(e) => setNotificationTitle(e.target.value)}
                 placeholder="Enter notification title..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
               />
             </div>
 
@@ -2034,7 +2034,7 @@ const AdminSection = () => {
                 value={notificationMessage}
                 onChange={(e) => setNotificationMessage(e.target.value)}
                 placeholder="Enter your message here..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                 rows={4}
               />
             </div>
@@ -2045,7 +2045,7 @@ const AdminSection = () => {
                 value={notificationDetails}
                 onChange={(e) => setNotificationDetails(e.target.value)}
                 placeholder="Enter additional details..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                 rows={3}
               />
             </div>
@@ -2060,7 +2060,7 @@ const AdminSection = () => {
                     setNotificationFiles(Array.from(e.target.files));
                   }
                 }}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                 accept="image/*,.pdf,.doc,.docx,.txt,.zip"
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -2095,7 +2095,7 @@ const AdminSection = () => {
               <button
                 onClick={sendNotification}
                 disabled={sendingNotification || !notificationMessage.trim() || !notificationTitle.trim() || (notificationType === 'individual' && selectedUsersForNotification.length === 0)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
+                className="px-4 py-2 bg-[#c9933a] hover:bg-[#b08132] text-white rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
               >
                 {sendingNotification && (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -2137,7 +2137,7 @@ const AdminSection = () => {
                         <Mail className="w-4 h-4 text-gray-500" />
                         <span className="text-sm text-gray-600">Email:</span>
                         <span className="font-medium">{userDetailData?.email}</span>
-                        <span className={`px-2 py-1 rounded-full text-xs ${userDetailData?.emailVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        <span className={`px-2 py-1 rounded-full text-xs ${userDetailData?.emailVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-[#b08132]'
                           }`}>
                           {userDetailData?.emailVerified ? 'Verified' : 'Unverified'}
                         </span>
@@ -2178,7 +2178,7 @@ const AdminSection = () => {
                       </div>
                       <div className="flex justify-between border-t pt-2">
                         <span className="text-sm font-semibold text-gray-900">Total Balance:</span>
-                        <span className="font-bold text-red-600">${userDetailData.balances?.total || 0}</span>
+                        <span className="font-bold text-[#c9933a]">${userDetailData.balances?.total || 0}</span>
                       </div>
                     </div>
                   </div>
@@ -2210,13 +2210,13 @@ const AdminSection = () => {
                         value={userIndividualMessage}
                         onChange={(e) => setUserIndividualMessage(e.target.value)}
                         placeholder="Type your message here..."
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                         rows={3}
                       />
                       <button
                         onClick={() => sendUserNotification(userDetailData.userCode, userIndividualMessage)}
                         disabled={!userIndividualMessage.trim() || isSendingMessage}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                        className="w-full bg-[#c9933a] hover:bg-[#b08132] text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                       >
                         {isSendingMessage && (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -2276,7 +2276,7 @@ const AdminSection = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                     <span className={`px-3 py-1 text-sm font-semibold rounded-full ${selectedTransaction.status === 'approved' || selectedTransaction.status === 'completed' ? 'bg-green-100 text-green-800' :
-                      selectedTransaction.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                      selectedTransaction.status === 'rejected' ? 'bg-red-100 text-[#b08132]' :
                         selectedTransaction.status === 'processing' ? 'bg-blue-100 text-blue-800' :
                           'bg-yellow-100 text-yellow-800'
                       }`}>
@@ -2344,7 +2344,7 @@ const AdminSection = () => {
                       <textarea
                         value={rejectionReason}
                         onChange={(e) => setRejectionReason(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                         rows={3}
                         placeholder="Enter reason for rejection (optional)"
                       />
@@ -2378,7 +2378,7 @@ const AdminSection = () => {
                                 setSelectedTransaction(null);
                                 setRejectionReason('');
                               }}
-                              className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold"
+                              className="flex-1 bg-[#c9933a] hover:bg-[#b08132] text-white px-4 py-2 rounded-lg font-semibold"
                             >
                               Reject
                             </button>
@@ -2407,7 +2407,7 @@ const AdminSection = () => {
                                 setSelectedTransaction(null);
                                 setRejectionReason('');
                               }}
-                              className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold"
+                              className="flex-1 bg-[#c9933a] hover:bg-[#b08132] text-white px-4 py-2 rounded-lg font-semibold"
                             >
                               Reject
                             </button>

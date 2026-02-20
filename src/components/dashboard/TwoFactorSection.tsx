@@ -41,7 +41,7 @@ const TwoFactorSection = () => {
               </p>
               <button
                 onClick={handleEnable2FA}
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
+                className="bg-[#c9933a] hover:bg-[#b08132] text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
               >
                 Enable 2FA
               </button>

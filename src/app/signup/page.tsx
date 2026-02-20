@@ -211,11 +211,11 @@ const SignupForm = () => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {errors.length > 0 && (
-                <div ref={errorRef} className="bg-red-50 border border-red-200 rounded-md p-4">
+                <div ref={errorRef} className="bg-[#fdfcf0] border border-red-200 rounded-md p-4">
                   <div className="flex">
                     <div className="ml-3">
-                      <h3 className="text-sm font-medium text-red-800">Please fix the following errors:</h3>
-                      <div className="mt-2 text-sm text-red-700">
+                      <h3 className="text-sm font-medium text-[#b08132]">Please fix the following errors:</h3>
+                      <div className="mt-2 text-sm text-[#b08132]">
                         <ul className="list-disc pl-5 space-y-1">
                           {errors.map((error, index) => (
                             <li key={index}>{error}</li>

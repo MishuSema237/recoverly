@@ -107,7 +107,7 @@ function ResetPasswordForm() {
             </p>
             <button
               onClick={() => router.push('/login')}
-              className="mt-4 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              className="mt-4 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#c9933a] hover:bg-[#b08132] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#c9933a]"
             >
               Go to Login
             </button>
@@ -121,7 +121,7 @@ function ResetPasswordForm() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          <Lock className="mx-auto h-12 w-12 text-red-600" />
+          <Lock className="mx-auto h-12 w-12 text-[#c9933a]" />
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
             Reset Your Password
           </h2>
@@ -135,13 +135,13 @@ function ResetPasswordForm() {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {errors.length > 0 && (
-              <div ref={errorRef} className="bg-red-50 border border-red-200 rounded-md p-4">
+              <div ref={errorRef} className="bg-[#fdfcf0] border border-red-200 rounded-md p-4">
                 <div className="flex">
                   <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">
+                    <h3 className="text-sm font-medium text-[#b08132]">
                       Please fix the following errors:
                     </h3>
-                    <div className="mt-2 text-sm text-red-700">
+                    <div className="mt-2 text-sm text-[#b08132]">
                       <ul className="list-disc pl-5 space-y-1">
                         {errors.map((error, index) => (
                           <li key={index}>{error}</li>
@@ -166,7 +166,7 @@ function ResetPasswordForm() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm pr-10"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#c9933a] focus:border-[#c9933a] sm:text-sm pr-10"
                   placeholder="Enter your new password"
                 />
                 <button
@@ -196,7 +196,7 @@ function ResetPasswordForm() {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm pr-10"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#c9933a] focus:border-[#c9933a] sm:text-sm pr-10"
                   placeholder="Confirm your new password"
                 />
                 <button
@@ -217,7 +217,7 @@ function ResetPasswordForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#c9933a] hover:bg-[#b08132] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#c9933a] disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
@@ -235,7 +235,7 @@ function ResetPasswordForm() {
             <div className="text-center">
               <button
                 onClick={() => router.push('/login')}
-                className="text-sm text-red-600 hover:text-red-500"
+                className="text-sm text-[#c9933a] hover:text-[#c9933a]"
               >
                 Back to Login
               </button>

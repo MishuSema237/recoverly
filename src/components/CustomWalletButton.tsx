@@ -22,7 +22,7 @@ const CustomWalletButton = () => {
   return (
     <button
       onClick={handleClick}
-      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
+      className="bg-[#c9933a] hover:bg-[#b08132] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
     >
       {connected ? (
         <>

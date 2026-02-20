@@ -18,8 +18,8 @@ const ProtectedRoute = ({ children, requireEmailVerification = false }: Protecte
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        // Redirect unauthenticated users to home page
-        router.push('/');
+        // Redirect unauthenticated users to login page
+        router.push('/login');
         return;
       }
 
@@ -40,7 +40,7 @@ const ProtectedRoute = ({ children, requireEmailVerification = false }: Protecte
           animate={{ opacity: 1, scale: 1 }}
           className="text-center"
         >
-          <Loader2 className="w-12 h-12 text-red-600 animate-spin mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 text-[#c9933a] animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading...</p>
         </motion.div>
       </div>
@@ -64,24 +64,24 @@ const ProtectedRoute = ({ children, requireEmailVerification = false }: Protecte
           <div className="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
             <AlertCircle className="w-8 h-8 text-yellow-600" />
           </div>
-          
+
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Email Verification Required
           </h2>
-          
+
           <p className="text-gray-600 mb-6">
-            Please verify your email address to access this feature. 
+            Please verify your email address to access this feature.
             Check your inbox for a verification link.
           </p>
-          
+
           <div className="space-y-3">
             <button
               onClick={() => router.push('/activate-email')}
-              className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200"
+              className="w-full bg-[#c9933a] hover:bg-[#b08132] text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200"
             >
               Verify Email Address
             </button>
-            
+
             <button
               onClick={() => router.push('/dashboard')}
               className="w-full border border-gray-300 text-gray-700 hover:bg-gray-50 py-3 px-6 rounded-lg font-semibold transition-colors duration-200"

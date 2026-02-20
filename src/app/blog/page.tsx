@@ -21,7 +21,7 @@ export default function BlogPage() {
               transition={{ duration: 0.8 }}
             >
               <h1 className="text-4xl lg:text-6xl font-bold mb-6">
-                Tesla Capital <span className="text-red-400">Blog</span>
+                Recoverly <span className="text-red-400">Blog</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
                 Stay informed with the latest insights, market analysis, and investment strategies 
@@ -52,7 +52,7 @@ export default function BlogPage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="bg-gray-50 rounded-2xl p-8 text-center"
             >
-              <div className="bg-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="bg-[#c9933a] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <TrendingUp className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Market Analysis</h3>
@@ -68,7 +68,7 @@ export default function BlogPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="bg-gray-50 rounded-2xl p-8 text-center"
             >
-              <div className="bg-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="bg-[#c9933a] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <BookOpen className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Educational Content</h3>
@@ -84,7 +84,7 @@ export default function BlogPage() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="bg-gray-50 rounded-2xl p-8 text-center"
             >
-              <div className="bg-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="bg-[#c9933a] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Target className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Investment Strategies</h3>
@@ -108,7 +108,7 @@ export default function BlogPage() {
               className="bg-white rounded-2xl p-12 shadow-lg"
             >
               <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-8">
-                <BookOpen className="w-12 h-12 text-red-600" />
+                <BookOpen className="w-12 h-12 text-[#c9933a]" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
                 Blog Content Coming Soon
@@ -140,30 +140,30 @@ export default function BlogPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">What to Expect:</h3>
                 <ul className="text-left text-gray-600 space-y-2 max-w-md mx-auto">
                   <li className="flex items-center space-x-2">
-                    <ArrowRight className="w-4 h-4 text-red-600" />
+                    <ArrowRight className="w-4 h-4 text-[#c9933a]" />
                     <span>Weekly market analysis and insights</span>
                   </li>
                   <li className="flex items-center space-x-2">
-                    <ArrowRight className="w-4 h-4 text-red-600" />
+                    <ArrowRight className="w-4 h-4 text-[#c9933a]" />
                     <span>Investment strategy guides</span>
                   </li>
                   <li className="flex items-center space-x-2">
-                    <ArrowRight className="w-4 h-4 text-red-600" />
+                    <ArrowRight className="w-4 h-4 text-[#c9933a]" />
                     <span>Risk management tutorials</span>
                   </li>
                   <li className="flex items-center space-x-2">
-                    <ArrowRight className="w-4 h-4 text-red-600" />
+                    <ArrowRight className="w-4 h-4 text-[#c9933a]" />
                     <span>Cryptocurrency market updates</span>
                   </li>
                   <li className="flex items-center space-x-2">
-                    <ArrowRight className="w-4 h-4 text-red-600" />
+                    <ArrowRight className="w-4 h-4 text-[#c9933a]" />
                     <span>Portfolio optimization tips</span>
                   </li>
                 </ul>
               </div>
               <Link
                 href="/"
-                className="inline-flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200"
+                className="inline-flex items-center space-x-2 bg-[#c9933a] hover:bg-[#b08132] text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200"
               >
                 <span>Back to Home</span>
                 <ArrowRight className="w-4 h-4" />
@@ -188,19 +188,19 @@ export default function BlogPage() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left max-w-2xl mx-auto">
               <div className="flex items-center space-x-2">
-                <Calendar className="w-4 h-4 text-red-600" />
+                <Calendar className="w-4 h-4 text-[#c9933a]" />
                 <span className="text-gray-600">New blog post notifications</span>
               </div>
               <div className="flex items-center space-x-2">
-                <TrendingUp className="w-4 h-4 text-red-600" />
+                <TrendingUp className="w-4 h-4 text-[#c9933a]" />
                 <span className="text-gray-600">Market analysis updates</span>
               </div>
               <div className="flex items-center space-x-2">
-                <BookOpen className="w-4 h-4 text-red-600" />
+                <BookOpen className="w-4 h-4 text-[#c9933a]" />
                 <span className="text-gray-600">Educational content alerts</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Target className="w-4 h-4 text-red-600" />
+                <Target className="w-4 h-4 text-[#c9933a]" />
                 <span className="text-gray-600">Investment strategy tips</span>
               </div>
             </div>

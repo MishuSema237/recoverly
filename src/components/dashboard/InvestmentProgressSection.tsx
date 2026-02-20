@@ -351,7 +351,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="p-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+            className="p-2 rounded-lg bg-[#c9933a] text-white hover:bg-[#b08132] disabled:opacity-50 transition-colors"
             title="Refresh data"
           >
             <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />

@@ -101,11 +101,11 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200;
+    @apply bg-[#c9933a] hover:bg-[#b08132] text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200;
   }
 
   .btn-secondary {
-    @apply border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200;
+    @apply border-2 border-[#c9933a] text-[#c9933a] hover:bg-[#c9933a] hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200;
   }
 
   .card {
@@ -119,19 +119,19 @@
 
 /* Wallet Button Customization */
 .wallet-adapter-button {
-  @apply !bg-red-600 !text-white !rounded-lg !px-4 !py-2 !text-sm !font-medium !transition-all !duration-200;
+  @apply !bg-[#c9933a] !text-white !rounded-lg !px-4 !py-2 !text-sm !font-medium !transition-all !duration-200;
 }
 
 .wallet-adapter-button:hover {
-  @apply !bg-red-700;
+  @apply !bg-[#b08132];
 }
 
 .wallet-adapter-button-trigger {
-  @apply !bg-red-600 !text-white !rounded-lg !px-4 !py-2 !text-sm !font-medium;
+  @apply !bg-[#c9933a] !text-white !rounded-lg !px-4 !py-2 !text-sm !font-medium;
 }
 
 .wallet-adapter-button-trigger:hover {
-  @apply !bg-red-700;
+  @apply !bg-[#b08132];
 }
 
 .wallet-adapter-modal-wrapper {

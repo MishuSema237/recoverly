@@ -130,7 +130,7 @@ const SupportMessagesManager = () => {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-[#b08132]';
       case 'normal':
         return 'bg-blue-100 text-blue-800';
       case 'low':

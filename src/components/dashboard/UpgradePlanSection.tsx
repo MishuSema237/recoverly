@@ -221,7 +221,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
   // Get color gradient
   const getColorGradient = (color: string) => {
     const gradients: { [key: string]: string } = {
-      'red': 'from-red-500 to-red-600',
+      'red': 'from-[#c9933a] to-[#c9933a]',
       'blue': 'from-blue-500 to-blue-600',
       'green': 'from-green-500 to-green-600',
       'purple': 'from-purple-500 to-purple-600',
@@ -277,7 +277,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="p-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+            className="p-2 rounded-lg bg-[#c9933a] text-white hover:bg-[#b08132] disabled:opacity-50 transition-colors"
             title="Refresh plans"
           >
             <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
@@ -309,7 +309,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer ${
-                    selectedPlan?._id === plan._id ? 'ring-2 ring-red-500 border-red-500' : ''
+                    selectedPlan?._id === plan._id ? 'ring-2 ring-[#c9933a] border-[#c9933a]' : ''
                   }`}
                   onClick={() => handlePlanChange(plan)}
                 >
@@ -353,7 +353,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
                     <button
                       className={`w-full mt-6 py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${
                         selectedPlan?._id === plan._id
-                          ? 'bg-red-600 text-white hover:bg-red-700'
+                          ? 'bg-[#c9933a] text-white hover:bg-[#b08132]'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -405,10 +405,10 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
                   value={investmentAmount || ''}
                   onChange={(e) => handleAmountChange(parseFloat(e.target.value) || 0)}
                   placeholder={`Min: $${selectedPlan.minAmount.toLocaleString()}`}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                 />
                 {amountError && (
-                  <p className="mt-2 text-sm text-red-600">{amountError}</p>
+                  <p className="mt-2 text-sm text-[#c9933a]">{amountError}</p>
                 )}
               </div>
 
@@ -443,7 +443,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
               <button
                 onClick={handleInvest}
                 disabled={!selectedPlan || !investmentAmount || !!amountError || isProcessing}
-                className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-[#c9933a] to-[#b08132] hover:from-[#b08132] hover:to-[#b08132] text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? 'Processing...' : `Switch to ${selectedPlan.name} Plan`}
               </button>
@@ -451,7 +451,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
               {/* Message */}
               {message.text && (
                 <div className={`p-4 rounded-lg ${
-                  message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+                  message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-[#fdfcf0] text-[#b08132]'
                 }`}>
                   {message.text}
                 </div>

@@ -223,7 +223,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
       'green': 'from-green-500 to-green-600',
       'purple': 'from-purple-500 to-purple-600',
       'gold': 'from-yellow-500 to-yellow-600',
-      'red': 'from-red-500 to-red-600',
+      'red': 'from-[#c9933a] to-[#c9933a]',
       'cyan': 'from-cyan-500 to-cyan-600',
       'orange': 'from-orange-500 to-orange-600',
       'pink': 'from-pink-500 to-pink-600',
@@ -387,7 +387,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
               </p>
               <button
                 onClick={() => setShowUpgradeInterface(false)}
-                className="mt-4 text-red-600 hover:text-red-700 font-medium"
+                className="mt-4 text-[#c9933a] hover:text-[#b08132] font-medium"
               >
                 ← Back to Investment Progress
               </button>
@@ -425,7 +425,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="p-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+                className="p-2 rounded-lg bg-[#c9933a] text-white hover:bg-[#b08132] disabled:opacity-50 transition-colors"
                 title="Refresh plans"
               >
                 <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
@@ -441,7 +441,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
         {/* Investment Plans Grid */}
         {loading ? (
           <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#c9933a]"></div>
           </div>
         ) : currentPlans.length === 0 ? (
           <div className="text-center py-20">
@@ -461,7 +461,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${selectedPlan?._id === plan._id ? 'ring-2 ring-red-500 border-red-500' : ''
+                  className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${selectedPlan?._id === plan._id ? 'ring-2 ring-[#c9933a] border-[#c9933a]' : ''
                     }`}
                 >
 
@@ -541,7 +541,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                 {/* Previous Button */}
                 <button
                   onClick={prevPage}
-                  className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-all duration-200 hover:bg-red-50"
+                  className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-all duration-200 hover:bg-[#fdfcf0]"
                   disabled={currentPage === 0}
                 >
                   <ChevronLeft className="w-5 h-5 text-gray-600" />
@@ -554,7 +554,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                       key={index}
                       onClick={() => goToPage(index)}
                       className={`w-3 h-3 rounded-full transition-all duration-200 ${currentPage === index
-                        ? 'bg-red-600 scale-125'
+                        ? 'bg-[#c9933a] scale-125'
                         : 'bg-gray-300 hover:bg-gray-400'
                         }`}
                     />
@@ -564,7 +564,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                 {/* Next Button */}
                 <button
                   onClick={nextPage}
-                  className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-all duration-200 hover:bg-red-50"
+                  className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-all duration-200 hover:bg-[#fdfcf0]"
                   disabled={currentPage === totalPages - 1}
                 >
                   <ChevronRight className="w-5 h-5 text-gray-600" />
@@ -600,14 +600,14 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                         setAmountError('');
                       }
                     }}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${amountError ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent ${amountError ? 'border-[#c9933a]' : 'border-gray-300'
                       }`}
                     placeholder="Enter amount"
                     min={selectedPlan.minAmount}
                     max={selectedPlan.maxAmount === Infinity ? undefined : selectedPlan.maxAmount}
                   />
                   {amountError ? (
-                    <p className="text-sm text-red-500 mt-1">{amountError}</p>
+                    <p className="text-sm text-[#c9933a] mt-1">{amountError}</p>
                   ) : (
                     <p className="text-sm text-gray-500 mt-1">
                       Min: ${selectedPlan.minAmount.toLocaleString()} |
@@ -654,7 +654,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Capital Back:</span>
-                      <span className={`font-semibold ${selectedPlan.capitalBack ? 'text-green-600' : 'text-red-600'}`}>
+                      <span className={`font-semibold ${selectedPlan.capitalBack ? 'text-green-600' : 'text-[#c9933a]'}`}>
                         {selectedPlan.capitalBack ? 'Yes' : 'No'}
                       </span>
                     </div>
@@ -698,7 +698,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                     </div>
                     <div className="bg-blue-50 rounded-lg p-3 mt-2 mb-2">
                       <p className="text-xs text-blue-800">
-                        <strong>Note:</strong> ROI (Return on Investment) is calculated by Tesla Capital based on our actual
+                        <strong>Note:</strong> ROI (Return on Investment) is calculated by Recoverly based on our actual
                         investment performance in top stocks and crypto mining operations. Daily Rate = ROI ÷ Duration days.
                         Your first daily earning comes the next day after investment.
                       </p>
@@ -735,7 +735,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
 
                     <div className="flex justify-between items-center py-2 border-b border-gray-200">
                       <span className="text-gray-700">Capital Return:</span>
-                      <span className={`font-semibold ${selectedPlan.capitalBack ? 'text-green-600' : 'text-red-600'}`}>
+                      <span className={`font-semibold ${selectedPlan.capitalBack ? 'text-green-600' : 'text-[#c9933a]'}`}>
                         {selectedPlan.capitalBack ? 'Yes' : 'No'}
                       </span>
                     </div>
@@ -791,7 +791,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                   <button
                     className={`py-3 px-8 rounded-lg font-semibold transition-colors duration-200 ${isProcessing || investmentAmount === 0 || amountError || investmentAmount > accountBalance
                       ? 'bg-gray-400 cursor-not-allowed text-white'
-                      : 'bg-red-600 hover:bg-red-700 text-white'
+                      : 'bg-[#c9933a] hover:bg-[#b08132] text-white'
                       }`}
                     onClick={handleInvestment}
                     disabled={isProcessing || investmentAmount === 0 || !!amountError || investmentAmount > accountBalance}
@@ -830,14 +830,14 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                         setAmountError('');
                       }
                     }}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${amountError ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent ${amountError ? 'border-[#c9933a]' : 'border-gray-300'
                       }`}
                     placeholder="Enter amount"
                     min={selectedPlan?.minAmount || 0}
                     max={selectedPlan?.maxAmount === Infinity ? undefined : selectedPlan?.maxAmount}
                   />
                   {amountError && (
-                    <p className="text-sm text-red-500 mt-1">{amountError}</p>
+                    <p className="text-sm text-[#c9933a] mt-1">{amountError}</p>
                   )}
                   {selectedPlan && !amountError && (
                     <p className="text-sm text-gray-500 mt-1">
@@ -856,7 +856,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                       const plan = plans.find(p => p._id === e.target.value);
                       handlePlanChange(plan || null);
                     }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                   >
                     <option value="">Select a plan</option>
                     {currentPlans.map(plan => (
@@ -870,7 +870,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                 {!user ? (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <p className="text-blue-800 text-sm">
-                      Please log in to start investing with Tesla Capital.
+                      Please log in to start investing with Recoverly.
                     </p>
                   </div>
                 ) : !user.emailVerified ? (
@@ -943,7 +943,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
             {message.text && (
               <div className={`p-4 rounded-lg mb-6 ${message.type === 'success'
                 ? 'bg-green-50 border border-green-200 text-green-800'
-                : 'bg-red-50 border border-red-200 text-red-800'
+                : 'bg-[#fdfcf0] border border-red-200 text-[#b08132]'
                 }`}>
                 {message.text}
               </div>
@@ -1011,7 +1011,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
 
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                   <span className="text-gray-700">Capital Return:</span>
-                  <span className={`font-semibold ${selectedPlan.capitalBack ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className={`font-semibold ${selectedPlan.capitalBack ? 'text-green-600' : 'text-[#c9933a]'}`}>
                     {selectedPlan.capitalBack ? 'Yes' : 'No'}
                   </span>
                 </div>
@@ -1067,7 +1067,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
               <button
                 className={`py-2 px-4 lg:py-3 lg:px-8 rounded-lg text-sm lg:text-base font-semibold transition-colors duration-200 ${isProcessing || investmentAmount === 0 || amountError || investmentAmount > accountBalance
                   ? 'bg-gray-400 cursor-not-allowed text-white'
-                  : 'bg-red-600 hover:bg-red-700 text-white'
+                  : 'bg-[#c9933a] hover:bg-[#b08132] text-white'
                   }`}
                 onClick={handleInvestment}
                 disabled={isProcessing || investmentAmount === 0 || !!amountError || investmentAmount > accountBalance}

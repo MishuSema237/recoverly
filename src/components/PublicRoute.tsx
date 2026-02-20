@@ -30,7 +30,7 @@ const PublicRoute = ({ children }: PublicRouteProps) => {
           animate={{ opacity: 1, scale: 1 }}
           className="text-center"
         >
-          <Loader2 className="w-12 h-12 text-red-600 animate-spin mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 text-[#c9933a] animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading...</p>
         </motion.div>
       </div>

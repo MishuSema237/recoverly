@@ -125,7 +125,7 @@ const TrustedPartnersSection = () => {
             Our Trusted Investment Partners
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Tesla Capital invests in top-performing stocks from the world&apos;s leading companies. 
+            Recoverly invests in top-performing stocks from the world&apos;s leading companies. 
             These are the powerful corporations on the stock exchange market where we strategically 
             place your investments to multiply your money.
           </p>
@@ -149,7 +149,7 @@ const TrustedPartnersSection = () => {
 
         <div className="mt-8 text-center">
           <p className="text-gray-600 text-sm max-w-2xl mx-auto">
-            <strong>How it works:</strong> Tesla Capital takes your investment funds and strategically 
+            <strong>How it works:</strong> Recoverly takes your investment funds and strategically 
             allocates them across these top-performing stocks. Our expert team monitors market trends 
             and identifies the best opportunities. We also engage in crypto mining operations using 
             your capital. All you do is wait for the days on your plan and watch your money increase - 

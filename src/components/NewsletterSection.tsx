@@ -52,7 +52,7 @@ const NewsletterSection = () => {
           className="text-white"
         >
           <div className="flex justify-center mb-8">
-            <div className="bg-red-600 p-4 rounded-full">
+            <div className="bg-[#c9933a] p-4 rounded-full">
               <Mail className="w-8 h-8" />
             </div>
           </div>
@@ -72,14 +72,14 @@ const NewsletterSection = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email address"
-                  className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-red-500 focus:outline-none"
+                  className="flex-1 px-4 py-3 rounded-xl border border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#c9933a] transition-all"
                   required
                 />
               </div>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="bg-red-600 hover:bg-red-700 disabled:bg-red-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center gap-2"
+                className="bg-[#c9933a] hover:bg-[#b08132] disabled:bg-[#b08132] text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>
@@ -100,7 +100,7 @@ const NewsletterSection = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="mt-6 bg-green-600 text-white px-6 py-3 rounded-lg inline-flex items-center gap-2"
+              className="mt-6 px-8 py-3 bg-[#c9933a] hover:bg-[#b08132] text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-black/20 inline-flex items-center gap-2"
             >
               <CheckCircle className="w-5 h-5" />
               Successfully subscribed to our newsletter!

@@ -64,7 +64,7 @@ export default function AssetRecoveryPage() {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                             <div>
-                                <div className="inline-flex items-center gap-2 bg-red-600/20 text-red-400 font-bold px-4 py-2 rounded-full mb-6 border border-red-500/30">
+                                <div className="inline-flex items-center gap-2 bg-[#c9933a]/20 text-red-400 font-bold px-4 py-2 rounded-full mb-6 border border-[#c9933a]/30">
                                     <Zap className="w-4 h-4" />
                                     <span>Emergency Service Request</span>
                                 </div>
@@ -200,7 +200,7 @@ export default function AssetRecoveryPage() {
                         </p>
                         <Link
                             href="/signup"
-                            className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4 rounded-lg transition-transform hover:-translate-y-1 shadow-md"
+                            className="inline-flex items-center gap-2 bg-[#c9933a] hover:bg-[#b08132] text-white font-bold px-8 py-4 rounded-lg transition-transform hover:-translate-y-1 shadow-md"
                         >
                             <Zap className="w-5 h-5" />
                             Launch Emergency Trace

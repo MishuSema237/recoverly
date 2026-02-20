@@ -49,7 +49,7 @@ export async function POST(req: Request) {
               ${message}
               <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
               <p style="color: #666; font-size: 12px;">
-                You are receiving this email because you subscribed to the Tesla Capital newsletter.
+                You are receiving this email because you subscribed to the Recoverly newsletter.
                 <a href="${process.env.NEXT_PUBLIC_APP_URL}/unsubscribe?email=${subscriber.email}">Unsubscribe</a>
               </p>
             </div>

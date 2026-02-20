@@ -81,7 +81,7 @@ const SupportSection = () => {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                   placeholder="Your full name"
                   required
                 />
@@ -96,7 +96,7 @@ const SupportSection = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                   placeholder="your.email@example.com"
                   required
                 />
@@ -111,7 +111,7 @@ const SupportSection = () => {
                   name="subject"
                   value={formData.subject}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                   placeholder="What can we help you with?"
                   required
                 />
@@ -126,7 +126,7 @@ const SupportSection = () => {
                   value={formData.message}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                   placeholder="Please describe your issue or question in detail..."
                   required
                 ></textarea>
@@ -135,7 +135,7 @@ const SupportSection = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2"
+                className="w-full bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2"
               >
                 {isSubmitting ? (
                   <>
@@ -157,7 +157,7 @@ const SupportSection = () => {
               <div className="space-y-4">
                 <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                   <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                    <Mail className="w-5 h-5 text-red-600" />
+                    <Mail className="w-5 h-5 text-[#c9933a]" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Email Support</p>
@@ -197,7 +197,7 @@ const SupportSection = () => {
                 <div className="flex items-start space-x-3">
                   <MapPin className="w-5 h-5 text-gray-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-gray-900">Tesla Capital JSC Belgrade</p>
+                    <p className="font-medium text-gray-900">Recoverly JSC Belgrade</p>
                     <p className="text-sm text-gray-600">Bulevar Mihajla Pupina 115Đ</p>
                     <p className="text-sm text-gray-600">Beograd, Serbia</p>
                   </div>
@@ -247,7 +247,7 @@ const SupportSection = () => {
             {/* Response Times */}
             <div className="bg-gradient-to-r from-red-50 to-blue-50 rounded-lg p-4">
               <h5 className="font-semibold text-gray-900 mb-2 flex items-center">
-                <Zap className="w-4 h-4 mr-2 text-red-600" />
+                <Zap className="w-4 h-4 mr-2 text-[#c9933a]" />
                 Response Times
               </h5>
               <div className="space-y-2 text-sm">

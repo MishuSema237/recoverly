@@ -19,7 +19,7 @@ export default function NotFound() {
         <div className="max-w-2xl w-full text-center relative z-10">
           <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-navy-800 border border-navy-700 mb-8 shadow-2xl relative">
             <ShieldAlert className="w-12 h-12 text-gold-500" />
-            <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-red-500 flex items-center justify-center border-4 border-navy-900">
+            <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-[#c9933a] flex items-center justify-center border-4 border-navy-900">
               <Search className="w-3 h-3 text-white" />
             </div>
           </div>

@@ -143,7 +143,7 @@ const DashboardContent = () => {
                 </div>
                 <button className="p-2 text-gray-400 hover:text-navy-900 relative">
                   <Bell className="w-6 h-6" />
-                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-[#c9933a] rounded-full"></span>
                 </button>
                 <div className="flex items-center space-x-3 p-1 pl-3 bg-gray-50 rounded-full border border-gray-100">
                   <span className="hidden sm:inline font-semibold text-navy-900">User</span>
@@ -161,7 +161,7 @@ const DashboardContent = () => {
                     {[
                       { label: 'Current Balance', value: `$${(userProfile?.balances?.main || 0).toLocaleString()}`, icon: <DollarSign className="text-blue-600" />, bg: 'bg-blue-50' },
                       { label: 'Monthly Income', value: '$0', icon: <ArrowDownUp className="text-green-600" />, bg: 'bg-green-50' },
-                      { label: 'Monthly Outgoing', value: '$0', icon: <ArrowUpDown className="text-red-600" />, bg: 'bg-red-50' },
+                      { label: 'Monthly Outgoing', value: '$0', icon: <ArrowUpDown className="text-[#c9933a]" />, bg: 'bg-[#fdfcf0]' },
                       { label: 'Transaction Limit', value: '$500,000.00', icon: <Shield className="text-gold-600" />, bg: 'bg-gold-50' },
                     ].map((stat, i) => (
                       <div key={i} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
@@ -193,7 +193,7 @@ const DashboardContent = () => {
                           <div className="mt-8 md:mt-0 text-left md:text-right">
                             <p className="text-gray-400 text-sm mb-1 uppercase tracking-widest">Account Number</p>
                             <p className="text-2xl font-mono font-bold tracking-widest text-white mb-2 decoration-gold-500/50 underline underline-offset-8">9742584063</p>
-                            <span className="inline-flex items-center px-3 py-1 bg-red-500/20 text-red-500 rounded-full text-xs font-bold uppercase tracking-wider border border-red-500/20">Inactive</span>
+                            <span className="inline-flex items-center px-3 py-1 bg-[#c9933a]/20 text-[#c9933a] rounded-full text-xs font-bold uppercase tracking-wider border border-[#c9933a]/20">Inactive</span>
                           </div>
                         </div>
                       </div>

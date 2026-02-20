@@ -200,7 +200,7 @@ const Header = () => {
                           setShowLogoutModal(true);
                           setShowUserMenu(false);
                         }}
-                        className="flex items-center space-x-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 w-full text-left"
+                        className="flex items-center space-x-2 px-4 py-3 text-sm text-[#c9933a] hover:bg-[#fdfcf0] w-full text-left"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>Secure Logout</span>
@@ -289,7 +289,7 @@ const Header = () => {
                         setShowLogoutModal(true);
                         setIsMenuOpen(false);
                       }}
-                      className="flex items-center space-x-2 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg text-base font-medium w-full text-left"
+                      className="flex items-center space-x-2 px-4 py-3 text-[#c9933a] hover:bg-[#fdfcf0] rounded-lg text-base font-medium w-full text-left"
                     >
                       <LogOut className="w-5 h-5" />
                       <span>Logout</span>
@@ -324,8 +324,8 @@ const Header = () => {
         <div className="fixed inset-0 bg-navy-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 border border-navy-100">
             <div className="flex items-center space-x-4 mb-5">
-              <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center">
-                <Shield className="w-6 h-6 text-red-600" />
+              <div className="w-12 h-12 bg-[#fdfcf0] rounded-full flex items-center justify-center">
+                <Shield className="w-6 h-6 text-[#c9933a]" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-navy-900">Secure Logout</h3>

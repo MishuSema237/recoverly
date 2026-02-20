@@ -35,13 +35,13 @@ const TermsPage = () => {
               className="bg-white rounded-2xl shadow-lg p-8 lg:p-12"
             >
               <div className="prose prose-lg max-w-none">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">1. About Tesla Capital</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">1. About Recoverly</h2>
                 <p className="text-gray-700 mb-6">
-                  Tesla Capital is an investment platform that acts as a middleman between investors and the stock market. 
+                  Recoverly is an investment platform that acts as a middleman between investors and the stock market. 
                   We take your investment funds and strategically invest them into top-performing stocks on the stock 
                   exchange market. We also engage in crypto mining operations using your capital as investment funds. 
                   Our expert team handles all market analysis, stock selection, and crypto mining operations. You simply 
-                  choose an investment plan, deposit your funds, and watch your money grow. Tesla Capital does all the 
+                  choose an investment plan, deposit your funds, and watch your money grow. Recoverly does all the 
                   hard work while you wait for your returns.
                 </p>
 
@@ -49,7 +49,7 @@ const TermsPage = () => {
                 <p className="text-gray-700 mb-6">
                   <strong>Daily Rate and ROI:</strong> ROI (Return on Investment) represents the total percentage return 
                   you&apos;ll earn over the entire duration of your investment plan. Daily Rate is calculated by dividing the 
-                  total ROI by the number of days in your plan. Tesla Capital calculates these rates based on our actual 
+                  total ROI by the number of days in your plan. Recoverly calculates these rates based on our actual 
                   investment performance in top stocks and crypto mining operations. The rates reflect our expertise in 
                   identifying profitable stock market opportunities and managing crypto mining operations.
                 </p>
@@ -65,7 +65,7 @@ const TermsPage = () => {
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">3. How Your Money Grows</h2>
                 <p className="text-gray-700 mb-6">
-                  Tesla Capital invests your funds into top-performing stocks from leading companies on the stock exchange 
+                  Recoverly invests your funds into top-performing stocks from leading companies on the stock exchange 
                   market. We strategically allocate investments based on market analysis and our expertise in identifying 
                   profitable opportunities. Additionally, we use your capital for crypto mining operations. Your investments 
                   multiply through these strategic stock market investments and crypto mining activities. We then return your 
@@ -83,7 +83,7 @@ const TermsPage = () => {
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">5. Investment Risks</h2>
                 <p className="text-gray-700 mb-6">
-                  While Tesla Capital employs expert strategies and invests in top-performing stocks, all investments carry 
+                  While Recoverly employs expert strategies and invests in top-performing stocks, all investments carry 
                   inherent risks. Stock market performance can fluctuate, and crypto mining operations are subject to market 
                   volatility. Past performance does not guarantee future results. You should only invest funds that you can 
                   afford to lose.
@@ -105,14 +105,14 @@ const TermsPage = () => {
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">8. Modifications to Terms</h2>
                 <p className="text-gray-700 mb-6">
-                  Tesla Capital reserves the right to modify these terms at any time. Users will be notified of significant 
+                  Recoverly reserves the right to modify these terms at any time. Users will be notified of significant 
                   changes. Continued use of the platform constitutes acceptance of modified terms.
                 </p>
 
-                <div className="mt-12 p-6 bg-red-50 rounded-lg border border-red-200">
-                  <p className="text-red-800">
+                <div className="mt-12 p-6 bg-[#fdfcf0] rounded-lg border border-red-200">
+                  <p className="text-[#b08132]">
                     <strong>Contact Us:</strong> If you have questions about these terms, please contact our support team 
-                    through the <Link href="/contact" className="text-red-600 underline">contact page</Link>.
+                    through the <Link href="/contact" className="text-[#c9933a] underline">contact page</Link>.
                   </p>
                 </div>
               </div>

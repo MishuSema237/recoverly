@@ -32,7 +32,7 @@ const HeroSection = () => {
     <section className="relative bg-gradient-to-br from-gray-900 via-red-900 to-gray-900 text-white overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-black opacity-20"></div>
-      <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 to-transparent"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-[#c9933a]/10 to-transparent"></div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
         <div className="grid grid-cols-1 mobile:grid-cols-2 gap-12 items-center">
@@ -64,7 +64,7 @@ const HeroSection = () => {
                         sequential={true}
                         revealDirection="start"
                         animateOn="view"
-                        className="text-red-400 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent"
+                        className="text-red-400 bg-gradient-to-r from-red-400 via-[#c9933a] to-[#c9933a] bg-clip-text text-transparent"
                         encryptedClassName="text-gray-400 opacity-50"
                         style={{
                           fontFamily: 'Montserrat, sans-serif',
@@ -78,7 +78,7 @@ const HeroSection = () => {
                 <span className="block text-white" style={{ fontVariationSettings: '"wght" 800' }}>Game</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-lg">
-                <strong>Tesla Capital</strong> transforms your financial future with
+                <strong>Recoverly</strong> transforms your financial future with
                 <span className="text-red-400 font-semibold"> explosive returns</span> and
                 <span className="text-red-400 font-semibold"> bulletproof security</span>.
                 Join the elite investors already crushing their goals.
@@ -88,7 +88,7 @@ const HeroSection = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 href="/signup"
-                className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center justify-center group"
+                className="bg-[#c9933a] hover:bg-[#b08132] text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center justify-center group"
               >
                 Get Started
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />

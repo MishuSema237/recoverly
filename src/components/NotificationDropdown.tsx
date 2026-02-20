@@ -69,8 +69,8 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
     if (!notification.read) {
       await onMarkAsRead(notification._id);
       // Update local state
-      setNotifications(prev => 
-        prev.map(n => 
+      setNotifications(prev =>
+        prev.map(n =>
           n._id === notification._id ? { ...n, read: true } : n
         )
       );
@@ -87,7 +87,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         },
         body: JSON.stringify({ notificationId })
       });
-      
+
       if (response.ok) {
         // Remove from local state
         setNotifications(prev => prev.filter(n => n._id !== notificationId));
@@ -110,7 +110,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         },
         body: JSON.stringify({ userCode: userReferralCode })
       });
-      
+
       if (response.ok) {
         // Update local state
         setNotifications(prev => prev.map(n => ({ ...n, read: true })));
@@ -133,7 +133,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+
     if (diffInHours < 1) {
       return 'Just now';
     } else if (diffInHours < 24) {
@@ -194,25 +194,24 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
               </button>
             </div>
           </div>
-          
+
           {/* Filter buttons */}
           <div className="flex space-x-1">
             {(['all', 'unread', 'read'] as FilterType[]).map((filterType) => (
               <button
                 key={filterType}
                 onClick={() => setFilter(filterType)}
-                className={`px-2 py-1 text-xs rounded ${
-                  filter === filterType
-                    ? 'bg-red-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={`px-2 py-1 text-xs rounded ${filter === filterType
+                  ? 'bg-[#c9933a] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
               >
                 {filterType === 'all' ? 'All' : filterType === 'unread' ? 'Unread' : 'Read'}
               </button>
             ))}
           </div>
         </div>
-        
+
         <div className="max-h-80 overflow-y-auto">
           {loading ? (
             <div className="px-4 py-3 text-center text-gray-500 text-sm">
@@ -220,22 +219,20 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
             </div>
           ) : sortedNotifications.length === 0 ? (
             <div className="px-4 py-3 text-center text-gray-500 text-sm">
-              {filter === 'all' ? 'No notifications' : 
-               filter === 'unread' ? 'No unread notifications' : 
-               'No read notifications'}
+              {filter === 'all' ? 'No notifications' :
+                filter === 'unread' ? 'No unread notifications' :
+                  'No read notifications'}
             </div>
           ) : (
             sortedNotifications.map((notification) => (
               <div
                 key={notification._id}
-                className={`px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 ${
-                  !notification.read ? 'bg-blue-50' : ''
-                }`}
+                className={`px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 ${!notification.read ? 'bg-blue-50' : ''
+                  }`}
               >
                 <div className="flex items-start space-x-3">
-                  <div className={`w-2 h-2 rounded-full mt-2 ${
-                    !notification.read ? 'bg-blue-600' : 'bg-gray-300'
-                  }`} />
+                  <div className={`w-2 h-2 rounded-full mt-2 ${!notification.read ? 'bg-blue-600' : 'bg-gray-300'
+                    }`} />
                   <div className="flex-1 min-w-0" onClick={() => handleNotificationClick(notification)}>
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-medium text-gray-900 break-words">
@@ -250,7 +247,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                             e.stopPropagation();
                             handleDeleteNotification(notification._id);
                           }}
-                          className="text-gray-400 hover:text-red-600 p-1"
+                          className="text-gray-400 hover:text-[#c9933a] p-1"
                           title="Delete notification"
                         >
                           <Trash2 className="w-3 h-3" />
@@ -274,7 +271,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
             ))
           )}
         </div>
-        
+
         {notifications.length > 0 && (
           <div className="px-4 py-2 border-t border-gray-100">
             <Link
@@ -311,7 +308,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => handleDeleteNotification(selectedNotification._id)}
-                  className="text-gray-400 hover:text-red-600"
+                  className="text-gray-400 hover:text-[#c9933a]"
                   title="Delete notification"
                 >
                   <Trash2 className="w-5 h-5" />
@@ -324,14 +321,14 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                 </button>
               </div>
             </div>
-            
+
             <div className="px-6 py-4 max-h-64 overflow-y-auto">
               <div className="mb-4">
                 <p className="text-sm text-gray-600 break-words whitespace-pre-wrap">
                   {selectedNotification.message}
                 </p>
               </div>
-              
+
               {selectedNotification.attachments && selectedNotification.attachments.length > 0 && (
                 <div className="mb-4">
                   <h4 className="text-sm font-medium text-gray-900 mb-2">Attachments</h4>
@@ -355,7 +352,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                   </div>
                 </div>
               )}
-              
+
               <div className="text-xs text-gray-500">
                 {formatDate(selectedNotification.sentAt)}
               </div>

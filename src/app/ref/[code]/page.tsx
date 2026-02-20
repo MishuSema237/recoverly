@@ -30,7 +30,7 @@ export default function ReferralPage() {
   }, [referralCode, user, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-600 to-red-900">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#c9933a] to-red-900">
       <div className="text-center text-white">
         <h1 className="text-3xl font-bold mb-4">Loading...</h1>
         <p className="text-lg">Processing your referral code...</p>

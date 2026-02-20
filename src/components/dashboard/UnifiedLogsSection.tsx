@@ -79,7 +79,7 @@ const UnifiedLogsSection = () => {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'deposit': return <ArrowDownCircle className="w-5 h-5 text-green-600" />;
-      case 'withdrawal': return <ArrowUpCircle className="w-5 h-5 text-red-600" />;
+      case 'withdrawal': return <ArrowUpCircle className="w-5 h-5 text-[#c9933a]" />;
       case 'transfer': return <ArrowLeftRight className="w-5 h-5 text-blue-600" />;
       case 'investment': return <TrendingUp className="w-5 h-5 text-purple-600" />;
       case 'earning': return <DollarSign className="w-5 h-5 text-yellow-600" />;
@@ -91,7 +91,7 @@ const UnifiedLogsSection = () => {
     switch (status) {
       case 'completed': return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'pending': return <Clock className="w-4 h-4 text-yellow-600" />;
-      case 'failed': return <XCircle className="w-4 h-4 text-red-600" />;
+      case 'failed': return <XCircle className="w-4 h-4 text-[#c9933a]" />;
       default: return <Clock className="w-4 h-4 text-gray-600" />;
     }
   };
@@ -134,7 +134,7 @@ const UnifiedLogsSection = () => {
               onClick={() => setActiveTab(tab.id as 'all' | 'deposits' | 'withdrawals' | 'transfers' | 'investments')}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
                 activeTab === tab.id
-                  ? 'bg-red-600 text-white'
+                  ? 'bg-[#c9933a] text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -156,15 +156,15 @@ const UnifiedLogsSection = () => {
         <div className="block md:hidden space-y-3">
           {loading ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#c9933a] mx-auto mb-4"></div>
               <p className="text-gray-600">Loading transactions...</p>
             </div>
           ) : error ? (
-            <div className="text-center py-8 text-red-600">
+            <div className="text-center py-8 text-[#c9933a]">
               <p>{error}</p>
               <button 
                 onClick={fetchTransactions}
-                className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="mt-2 px-4 py-2 bg-[#c9933a] text-white rounded-lg hover:bg-[#b08132]"
               >
                 Retry
               </button>
@@ -184,7 +184,7 @@ const UnifiedLogsSection = () => {
                     <p className={`font-semibold ${
                       log.type === 'deposit' || log.type === 'earning' || (log.type === 'transfer' && !log.isSent)
                         ? 'text-green-600' 
-                        : 'text-red-600'
+                        : 'text-[#c9933a]'
                     }`}>
                       {formatAmount(log.amount, log.type, log.isSent)}
                     </p>
@@ -231,18 +231,18 @@ const UnifiedLogsSection = () => {
                 <tr>
                   <td colSpan={6} className="text-center py-8">
                     <div className="flex items-center justify-center space-x-2">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600"></div>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#c9933a]"></div>
                       <span className="text-gray-600">Loading transactions...</span>
                     </div>
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-8 text-red-600">
+                  <td colSpan={6} className="text-center py-8 text-[#c9933a]">
                     <p>{error}</p>
                     <button 
                       onClick={fetchTransactions}
-                      className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      className="mt-2 px-4 py-2 bg-[#c9933a] text-white rounded-lg hover:bg-[#b08132]"
                     >
                       Retry
                     </button>
@@ -264,7 +264,7 @@ const UnifiedLogsSection = () => {
                       <span className={`font-semibold ${
                         log.type === 'deposit' || log.type === 'earning' || (log.type === 'transfer' && !log.isSent)
                           ? 'text-green-600' 
-                          : 'text-red-600'
+                          : 'text-[#c9933a]'
                       }`}>
                         {formatAmount(log.amount, log.type, log.isSent)}
                       </span>
@@ -358,7 +358,7 @@ const UnifiedLogsSection = () => {
                       selectedLog.type === 'deposit' || selectedLog.type === 'earning' || 
                       (selectedLog.type === 'transfer' && !selectedLog.isSent)
                         ? 'text-green-600' 
-                        : 'text-red-600'
+                        : 'text-[#c9933a]'
                     }`}>
                       {formatAmount(selectedLog.amount, selectedLog.type, selectedLog.isSent)}
                     </p>

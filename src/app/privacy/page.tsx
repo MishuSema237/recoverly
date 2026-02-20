@@ -37,7 +37,7 @@ const PrivacyPage = () => {
               <div className="prose prose-lg max-w-none">
                 <h2 className="text-3xl font-bold text-gray-900 mb-6">1. Information We Collect</h2>
                 <p className="text-gray-700 mb-6">
-                  Tesla Capital collects information necessary to provide our investment services. This includes personal 
+                  Recoverly collects information necessary to provide our investment services. This includes personal 
                   information such as name, email address, contact information, and financial information required for 
                   deposits and withdrawals. We also collect information about your investment activities, account balances, 
                   and transaction history.
@@ -57,13 +57,13 @@ const PrivacyPage = () => {
                   <li>Comply with legal and regulatory requirements</li>
                 </ul>
 
-                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">3. How Tesla Capital Makes Money</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">3. How Recoverly Makes Money</h2>
                 <p className="text-gray-700 mb-6">
-                  Tesla Capital acts as an investment middleman. We take your funds and invest them strategically into 
+                  Recoverly acts as an investment middleman. We take your funds and invest them strategically into 
                   top-performing stocks on the stock exchange market. We also use your capital for crypto mining operations. 
                   Our expert team manages all investment decisions, market analysis, and operations. When your investments 
                   generate returns, we distribute profits to you according to your selected plan (based on ROI and daily 
-                  rates we calculate). Tesla Capital keeps a portion of the profits as our service fee. This win-win 
+                  rates we calculate). Recoverly keeps a portion of the profits as our service fee. This win-win 
                   arrangement allows you to benefit from our expertise without managing the complexities of stock market 
                   investing or crypto mining yourself.
                 </p>
@@ -72,13 +72,13 @@ const PrivacyPage = () => {
                 <p className="text-gray-700 mb-6">
                   We track your investment performance, daily earnings, plan duration, and account balances. This data is 
                   used to calculate your returns based on the investment plans you select. Daily rates and ROI percentages 
-                  are calculated by Tesla Capital based on our actual investment performance in top stocks and crypto mining 
+                  are calculated by Recoverly based on our actual investment performance in top stocks and crypto mining 
                   operations. This performance data helps us determine appropriate returns for each investment plan.
                 </p>
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">5. Data Security</h2>
                 <p className="text-gray-700 mb-6">
-                  Tesla Capital employs industry-standard security measures to protect your personal and financial 
+                  Recoverly employs industry-standard security measures to protect your personal and financial 
                   information. We use encryption, secure servers, and access controls to safeguard your data. However, 
                   no system is 100% secure, and you acknowledge that transmission of data over the internet carries inherent risks.
                 </p>
@@ -114,27 +114,27 @@ const PrivacyPage = () => {
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">9. Children&apos;s Privacy</h2>
                 <p className="text-gray-700 mb-6">
-                  Tesla Capital services are not intended for individuals under 18 years of age. We do not knowingly collect 
+                  Recoverly services are not intended for individuals under 18 years of age. We do not knowingly collect 
                   personal information from children.
                 </p>
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">10. International Users</h2>
                 <p className="text-gray-700 mb-6">
-                  If you are using Tesla Capital from outside the country where our servers are located, your information 
+                  If you are using Recoverly from outside the country where our servers are located, your information 
                   may be transferred across international borders. By using our services, you consent to such transfers.
                 </p>
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">11. Changes to Privacy Policy</h2>
                 <p className="text-gray-700 mb-6">
-                  Tesla Capital may update this privacy policy from time to time. We will notify users of significant 
+                  Recoverly may update this privacy policy from time to time. We will notify users of significant 
                   changes via email or platform notification. Continued use of our services after changes constitutes 
                   acceptance of the updated policy.
                 </p>
 
-                <div className="mt-12 p-6 bg-red-50 rounded-lg border border-red-200">
-                  <p className="text-red-800">
+                <div className="mt-12 p-6 bg-[#fdfcf0] rounded-lg border border-red-200">
+                  <p className="text-[#b08132]">
                     <strong>Contact Us:</strong> For questions about this privacy policy or to exercise your rights, 
-                    please contact us through the <Link href="/contact" className="text-red-600 underline">contact page</Link>.
+                    please contact us through the <Link href="/contact" className="text-[#c9933a] underline">contact page</Link>.
                   </p>
                 </div>
               </div>

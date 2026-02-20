@@ -88,7 +88,7 @@ function VerifyEmailForm() {
 
             {status === 'error' && (
               <div className="space-y-4">
-                <XCircle className="mx-auto h-12 w-12 text-red-600" />
+                <XCircle className="mx-auto h-12 w-12 text-[#c9933a]" />
                 <h3 className="text-lg font-medium text-gray-900">Verification Failed</h3>
                 <p className="text-gray-600">{message}</p>
                 <div className="space-y-2">
@@ -100,7 +100,7 @@ function VerifyEmailForm() {
                   </button>
                   <button
                     onClick={() => router.push('/signup')}
-                    className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#c9933a]"
                   >
                     Create New Account
                   </button>

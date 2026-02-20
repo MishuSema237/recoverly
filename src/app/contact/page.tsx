@@ -89,16 +89,16 @@ export default function ContactPage() {
             {/* Contact Info container */}
             <div className="space-y-10">
               {/* Emergency Line */}
-              <div className="bg-red-50 p-8 rounded-xl border border-red-100 flex items-start gap-6">
+              <div className="bg-[#fdfcf0] p-8 rounded-xl border border-red-100 flex items-start gap-6">
                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <ShieldAlert className="w-6 h-6 text-red-600" />
+                  <ShieldAlert className="w-6 h-6 text-[#c9933a]" />
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-red-900 mb-2">Urgent Bank Freeze Line</h4>
-                  <p className="text-red-700 mb-4 text-sm leading-relaxed">
+                  <p className="text-[#b08132] mb-4 text-sm leading-relaxed">
                     If you transferred funds within the last 48 hours, immediate action is critical. Call our emergency response team.
                   </p>
-                  <a href="tel:+18005550199" className="text-3xl font-bold text-red-600 hover:text-red-700 transition-colors">
+                  <a href="tel:+18005550199" className="text-3xl font-bold text-[#c9933a] hover:text-[#b08132] transition-colors">
                     +1 (800) 555-0199
                   </a>
                 </div>

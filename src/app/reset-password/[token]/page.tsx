@@ -195,7 +195,7 @@ const ResetPasswordTokenPage = ({ params }: ResetPasswordTokenPageProps) => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-10 pr-12 py-3 border border-white/20 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="block w-full pl-10 pr-12 py-3 border border-white/20 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                     placeholder="Enter new password"
                   />
                   <button
@@ -228,7 +228,7 @@ const ResetPasswordTokenPage = ({ params }: ResetPasswordTokenPageProps) => {
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="block w-full pl-10 pr-12 py-3 border border-white/20 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="block w-full pl-10 pr-12 py-3 border border-white/20 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
                     placeholder="Confirm new password"
                   />
                   <button
@@ -248,7 +248,7 @@ const ResetPasswordTokenPage = ({ params }: ResetPasswordTokenPageProps) => {
               {message.text && (
                 <div className={`p-4 rounded-lg ${
                   message.type === 'error' 
-                    ? 'bg-red-500/20 border border-red-500/30 text-red-300' 
+                    ? 'bg-[#c9933a]/20 border border-[#c9933a]/30 text-red-300' 
                     : 'bg-green-500/20 border border-green-500/30 text-green-300'
                 }`}>
                   {message.text}
@@ -258,7 +258,7 @@ const ResetPasswordTokenPage = ({ params }: ResetPasswordTokenPageProps) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#c9933a] hover:bg-[#b08132] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#c9933a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 {isLoading ? (
                   <div className="flex items-center">
@@ -289,7 +289,7 @@ const ResetPasswordTokenPage = ({ params }: ResetPasswordTokenPageProps) => {
 
               <Link
                 href="/login"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#c9933a] hover:bg-[#b08132] transition-colors duration-200"
               >
                 Sign In Now
               </Link>
@@ -298,7 +298,7 @@ const ResetPasswordTokenPage = ({ params }: ResetPasswordTokenPageProps) => {
 
           {step === 'error' && (
             <div className="text-center space-y-6">
-              <div className="bg-red-500/20 border border-red-500/30 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
+              <div className="bg-[#c9933a]/20 border border-[#c9933a]/30 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
                 <AlertCircle className="w-8 h-8 text-red-400" />
               </div>
               

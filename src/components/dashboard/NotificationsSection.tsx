@@ -180,7 +180,7 @@ const NotificationsSection = () => {
                                 {notification.title || (notification.type === 'broadcast' ? 'System Announcement' : 'Support Message')}
                               </h3>
                               {!notification.read && (
-                                <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium">
+                                <span className="px-2 py-1 bg-red-100 text-[#b08132] text-xs rounded-full font-medium">
                                   New
                                 </span>
                               )}
