@@ -25,6 +25,14 @@ interface User {
   totalDeposit: number;
   totalWithdraw: number;
   referralEarnings: number;
+  kycStatus?: 'unverified' | 'pending' | 'verified' | 'rejected';
+  kycDocuments?: {
+    idFront?: string;
+    idBack?: string;
+    selfie?: string;
+  };
+  kycSubmittedAt?: Date;
+  kycVerifiedAt?: Date;
   balances?: {
     main: number;
     investment: number;

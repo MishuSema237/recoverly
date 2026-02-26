@@ -64,10 +64,6 @@ export default function AssetRecoveryPage() {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                             <div>
-                                <div className="inline-flex items-center gap-2 bg-[#c9933a]/20 text-red-400 font-bold px-4 py-2 rounded-full mb-6 border border-[#c9933a]/30">
-                                    <Zap className="w-4 h-4" />
-                                    <span>Emergency Service Request</span>
-                                </div>
                                 <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">We Follow The Money. You Get Your Cashback.</h1>
                                 <p className="text-xl text-gray-300 mb-8 leading-relaxed">
                                     Cyber fraud is complex, but the financial system leaves a trace. We combine intelligence-grade digital forensics with aggressive litigation to secure swift refunds for victims of financial scams.
@@ -202,7 +198,6 @@ export default function AssetRecoveryPage() {
                             href="/signup"
                             className="inline-flex items-center gap-2 bg-[#c9933a] hover:bg-[#b08132] text-white font-bold px-8 py-4 rounded-lg transition-transform hover:-translate-y-1 shadow-md"
                         >
-                            <Zap className="w-5 h-5" />
                             Launch Emergency Trace
                         </Link>
                     </div>

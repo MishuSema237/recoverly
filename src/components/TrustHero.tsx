@@ -31,10 +31,6 @@ const TrustHero = () => {
 
                     {/* Left Column: Text & Hook */}
                     <div className="space-y-8 animate-fade-in-up">
-                        <div className="inline-flex items-center space-x-2 bg-navy-800 rounded-full px-4 py-1.5 border border-gold-500/30">
-                            <Shield className="w-4 h-4 text-gold-500" />
-                            <span className="text-gold-200 text-sm font-medium tracking-wide">AUTHORIZED ASSET RECOVERY AGENTS</span>
-                        </div>
 
                         <h1 className="text-3xl mobile:text-5xl lg:text-7xl font-bold font-playfair text-white leading-tight">
                             Scammed? <br />

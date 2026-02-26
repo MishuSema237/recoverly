@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { ArrowUpDown, CheckCircle, AlertCircle, CreditCard, DollarSign, Clock, Calendar } from 'lucide-react';
+import { ArrowUpDown, CheckCircle, AlertCircle, CreditCard, DollarSign, Clock, Calendar, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
 
@@ -310,6 +310,37 @@ const WithdrawSection = () => {
           </div>
         ) : null}
 
+        {/* KYC Verification Warning */}
+        {userProfile?.kycStatus !== 'verified' && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <ShieldCheck className="h-6 w-6 text-orange-600" />
+              </div>
+              <div className="ml-3 flex-1">
+                <h3 className="text-lg font-bold text-orange-800 mb-2">
+                  KYC Verification Required
+                </h3>
+                <p className="text-sm text-orange-700 mb-4">
+                  To ensure the security of your transactions and comply with financial regulations, you must complete your identity verification before making any withdrawals.
+                </p>
+                <div className="flex items-center space-x-4">
+                  {userProfile?.kycStatus === 'pending' ? (
+                    <div className="px-4 py-2 bg-orange-100 text-orange-800 rounded-xl font-bold flex items-center space-x-2">
+                      <Clock className="w-5 h-5" />
+                      <span>Verification Pending Review</span>
+                    </div>
+                  ) : (
+                    <div className="text-sm font-bold text-navy-900 border-b-2 border-gold-500 pb-1">
+                      Please complete Identity Verification via the sidebar
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Balance Display */}
         <div className="bg-gray-50 rounded-lg p-4 mb-6">
           <div className="flex justify-between items-center">
@@ -319,8 +350,8 @@ const WithdrawSection = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 mobile:space-y-6" style={{
-          opacity: !isWithdrawalAllowed() ? 0.5 : 1,
-          pointerEvents: !isWithdrawalAllowed() ? 'none' : 'auto'
+          opacity: userProfile?.kycStatus !== 'verified' ? 0.5 : 1,
+          pointerEvents: userProfile?.kycStatus !== 'verified' ? 'none' : 'auto'
         }}>
           {/* Payment Method Selection */}
           <div>
@@ -442,10 +473,10 @@ const WithdrawSection = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={!isFormValid || isSubmitting}
+            disabled={!isFormValid || isSubmitting || userProfile?.kycStatus !== 'verified'}
             className={`w-full text-white py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm mobile:text-base ${!isFormValid && !isSubmitting
               ? 'bg-[#c9933a] hover:bg-[#c9933a]'
-              : 'bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400'
+              : 'bg-[#0b1626] hover:bg-[#1a2b45] disabled:bg-gray-400 text-gold-500'
               }`}
           >
             {isSubmitting ? (

@@ -24,6 +24,14 @@ export interface User {
   lastInvestmentDate?: Date;
   referralCount?: number;
   referralEarnings?: number;
+  kycStatus?: 'unverified' | 'pending' | 'verified' | 'rejected';
+  kycDocuments?: {
+    idFront?: string;
+    idBack?: string;
+    selfie?: string;
+  };
+  kycSubmittedAt?: Date;
+  kycVerifiedAt?: Date;
   updatedAt: Date;
   updatedBy: string;
 }

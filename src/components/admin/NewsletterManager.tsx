@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Send, AlertCircle, CheckCircle } from 'lucide-react';
+import { Send, AlertCircle, CheckCircle, Mail, ShieldCheck, Zap } from 'lucide-react';
 
 export default function NewsletterManager() {
     const [subject, setSubject] = useState('');
@@ -11,7 +11,7 @@ export default function NewsletterManager() {
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!confirm('Are you sure you want to send this newsletter to ALL subscribers?')) {
+        if (!confirm('Are you sure you want to broadcast this transmission to ALL subscribers? This action cannot be revoked.')) {
             return;
         }
 
@@ -30,14 +30,14 @@ export default function NewsletterManager() {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Failed to send newsletter');
+                throw new Error(data.error || 'Failed to dispatch transmission');
             }
 
-            setStatus({ type: 'success', message: data.message });
+            setStatus({ type: 'success', message: 'Transmission Dispatched Successfully' });
             setSubject('');
             setMessage('');
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            const errorMessage = error instanceof Error ? error.message : 'An unknown protocol error occurred';
             setStatus({ type: 'error', message: errorMessage });
         } finally {
             setIsLoading(false);
@@ -45,69 +45,79 @@ export default function NewsletterManager() {
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Newsletter Manager</h2>
-                <p className="text-gray-600">Send email updates to all subscribed users.</p>
+        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-10 text-navy-900">
+            <div className="flex items-center gap-6 mb-12">
+                <div className="w-16 h-16 bg-navy-900 rounded-2xl flex items-center justify-center shadow-xl shadow-navy-900/10 shrink-0">
+                    <Mail className="w-8 h-8 text-gold-500" />
+                </div>
+                <div>
+                    <h2 className="text-2xl font-black uppercase tracking-tighter">Broadcast Intelligence</h2>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Global dissemination of secure updates</p>
+                </div>
             </div>
 
             {status && (
-                <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${status.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-[#fdfcf0] text-[#b08132]'
+                <div className={`mb-10 p-6 rounded-3xl font-black uppercase tracking-widest text-[10px] flex items-center gap-4 transition-all animate-in slide-in-from-top duration-300 ${status.type === 'success'
+                    ? 'bg-gold-50 border border-gold-100 text-gold-600 shadow-sm'
+                    : 'bg-red-50 border border-red-100 text-red-500 shadow-sm'
                     }`}>
-                    {status.type === 'success' ? <CheckCircle className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-                    {status.message}
+                    <div className={`p-2 rounded-xl ${status.type === 'success' ? 'bg-gold-500/10' : 'bg-red-500/10'}`}>
+                        {status.type === 'success' ? <ShieldCheck className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                    </div>
+                    <span>{status.message}</span>
                 </div>
             )}
 
-            <form onSubmit={handleSend} className="space-y-6 max-w-4xl">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email Subject
+            <form onSubmit={handleSend} className="space-y-10">
+                <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">
+                        Transmission Header
                     </label>
                     <input
                         type="text"
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                        placeholder="e.g., New Investment Opportunities at Recoverly"
+                        className="w-full px-8 py-5 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-black text-navy-900 placeholder:text-gray-300"
+                        placeholder="ENTER SUBJECT PROTOCOL..."
                         required
                     />
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Message Content (HTML supported)
+                <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">
+                        Intelligence Payload (HTML Supported)
                     </label>
-                    <textarea
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        rows={12}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent font-mono text-sm"
-                        placeholder="<h1>Hello Investors!</h1><p>We have great news...</p>"
-                        required
-                    />
-                    <p className="mt-2 text-xs text-gray-500">
-                        You can use HTML tags for formatting.
-                    </p>
+                    <div className="relative">
+                        <textarea
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            rows={12}
+                            className="w-full px-8 py-8 bg-gray-50 border border-gray-100 rounded-[2rem] focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-mono text-[13px] text-navy-900 shadow-inner placeholder:text-gray-300"
+                            placeholder="<h1>HELLO INVESTORS</h1><p>PROTOCOL UPDATE INITIATED...</p>"
+                            required
+                        />
+                        <div className="absolute right-6 bottom-6 opacity-10 pointer-events-none group-focus-within:opacity-100 text-gold-500 transition-opacity">
+                            <Zap className="w-8 h-8 fill-current" />
+                        </div>
+                    </div>
+                    <div className="mt-4 flex items-center gap-3 px-4 py-3 bg-navy-900/5 rounded-xl border border-navy-900/5">
+                        <AlertCircle className="w-4 h-4 text-gold-500" />
+                        <p className="text-[9px] font-black text-navy-900/40 uppercase tracking-widest">Rich content mode active. Semantic HTML structuring is permitted.</p>
+                    </div>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex justify-end pt-6 border-t border-gray-50">
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="bg-[#c9933a] hover:bg-[#b08132] disabled:bg-red-400 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
+                        className="bg-navy-900 hover:bg-navy-800 disabled:opacity-50 text-gold-500 px-12 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center gap-4 group active:scale-95"
                     >
                         {isLoading ? (
-                            <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                Sending...
-                            </>
+                            <div className="w-5 h-5 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
                         ) : (
-                            <>
-                                <Send className="w-4 h-4" />
-                                Send Newsletter
-                            </>
+                            <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                         )}
+                        <span>{isLoading ? 'DISPATCHING...' : 'AUTHORIZE BROADCAST'}</span>
                     </button>
                 </div>
             </form>

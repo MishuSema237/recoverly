@@ -23,7 +23,13 @@ import {
   MapPin,
   Activity,
   MessageSquare,
-  Clock
+  Clock,
+  ShieldCheck,
+  Download,
+  Upload,
+  ExternalLink,
+  X,
+  AlertCircle
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
@@ -885,7 +891,7 @@ const AdminSection = () => {
     return (
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="text-center">
-          <Shield className="w-16 h-16 text-[#c9933a] mx-auto mb-4" />
+          <Shield className="w-16 h-16 text-gold-500 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h3>
           <p className="text-gray-600">You don&apos;t have permission to access the admin panel.</p>
         </div>
@@ -896,47 +902,51 @@ const AdminSection = () => {
   return (
     <div className="space-y-6">
       {/* Admin Header */}
-      <div className="bg-gradient-to-r from-[#c9933a] to-[#b08132] text-white rounded-lg p-6">
-        <div className="flex items-center justify-between">
+      <div className="bg-[#0b1626] border border-navy-800 text-white rounded-2xl p-8 relative overflow-hidden shadow-2xl shadow-navy-900/50">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+        <div className="relative z-10 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold">Admin Panel</h2>
-            <p className="text-red-100">Manage users, plans, and payment methods</p>
+            <h2 className="text-3xl font-black tracking-tighter uppercase mb-1">Admin Panel</h2>
+            <p className="text-gold-500/80 font-medium">Platform Management & Command Center</p>
           </div>
-          <Shield className="w-12 h-12 text-red-200" />
+          <ShieldCheck className="w-16 h-16 text-gold-500/20" />
         </div>
       </div>
 
       {/* Message Display */}
       {message.text && (
         <div className={`p-4 rounded-lg ${message.type === 'success'
-          ? 'bg-green-50 border border-green-200 text-green-800'
-          : 'bg-[#fdfcf0] border border-red-200 text-[#b08132]'
+          ? 'bg-gold-500/10 border border-gold-500/20 text-gold-500 font-bold'
+          : 'bg-red-500/10 border border-red-200 text-red-500 font-bold'
           }`}>
           {message.text}
         </div>
       )}
 
       {/* Admin Tabs */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex flex-wrap gap-2 mb-6">
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
+        <div className="flex flex-wrap gap-3 mb-10">
           {[
-            { id: 'users', label: 'Users', icon: <Users className="w-4 h-4" /> },
-            { id: 'plans', label: 'Investment Plans', icon: <TrendingUp className="w-4 h-4" /> },
-            { id: 'payments', label: 'Payment Methods', icon: <CreditCard className="w-4 h-4" /> },
-            { id: 'transactions', label: 'Transactions', icon: <DollarSign className="w-4 h-4" /> },
-            { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
-            { id: 'support', label: 'Support Messages', icon: <MessageSquare className="w-4 h-4" /> },
-            { id: 'withdrawal-schedule', label: 'Withdrawal Schedule', icon: <Clock className="w-4 h-4" /> }
+            { id: 'users', label: 'Users', icon: <Users className="w-5 h-5" /> },
+            { id: 'plans', label: 'Investment Plans', icon: <TrendingUp className="w-5 h-5" /> },
+            { id: 'payments', label: 'Payment Methods', icon: <CreditCard className="w-5 h-5" /> },
+            { id: 'transactions', label: 'Transactions', icon: <DollarSign className="w-5 h-5" /> },
+            { id: 'notifications', label: 'Notifications', icon: <Bell className="w-5 h-5" /> },
+            { id: 'newsletter', label: 'Newsletter', icon: <Mail className="w-5 h-5" /> },
+            { id: 'support', label: 'Support Messages', icon: <MessageSquare className="w-5 h-5" /> },
+            { id: 'withdrawal-schedule', label: 'Withdrawal Schedule', icon: <Clock className="w-5 h-5" /> }
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'users' | 'plans' | 'payments' | 'transactions' | 'notifications' | 'support' | 'withdrawal-schedule')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${activeTab === tab.id
-                ? 'bg-[#c9933a] text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center space-x-3 px-6 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all duration-300 group ${activeTab === tab.id
+                ? 'bg-navy-900 text-gold-500 shadow-xl shadow-navy-900/10 scale-105'
+                : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
                 }`}
             >
-              {tab.icon}
+              <div className={`transition-all duration-300 ${activeTab === tab.id ? 'text-gold-500' : 'text-gray-400 group-hover:text-navy-900'}`}>
+                {tab.icon}
+              </div>
               <span>{tab.label}</span>
             </button>
           ))}
@@ -945,74 +955,69 @@ const AdminSection = () => {
         {/* Users Tab */}
         {activeTab === 'users' && (
           <div>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-4">
+            <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-6 mb-8 bg-gray-50/50 p-6 rounded-3xl border border-gray-100/50">
+              <div className="flex flex-wrap items-center gap-4 flex-1">
                 {isOffline && (
-                  <div className="flex items-center space-x-2 text-orange-600 bg-orange-50 px-3 py-2 rounded-lg">
-                    <div className="w-2 h-2 bg-orange-600 rounded-full"></div>
-                    <span className="text-sm font-medium">Offline</span>
+                  <div className="flex items-center space-x-2 bg-red-50 text-red-500 font-bold px-4 py-3 rounded-2xl border border-red-100">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Offline</span>
                   </div>
                 )}
-                <div className="relative">
-                  <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <div className="relative group flex-1 min-w-[240px]">
+                  <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-gold-500 transition-colors" />
                   <input
                     type="text"
                     placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                    className="w-full pl-12 pr-5 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 text-sm shadow-sm"
                   />
                 </div>
                 {/* Filters */}
-                <select
-                  value={userStatusFilter}
-                  onChange={(e) => setUserStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
-                  className="py-2 px-3 border border-gray-300 rounded-lg"
-                  title="Status"
-                >
-                  <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-                <select
-                  value={emailVerifiedFilter}
-                  onChange={(e) => setEmailVerifiedFilter(e.target.value as 'all' | 'verified' | 'unverified')}
-                  className="py-2 px-3 border border-gray-300 rounded-lg"
-                  title="Email Verified"
-                >
-                  <option value="all">All Emails</option>
-                  <option value="verified">Verified</option>
-                  <option value="unverified">Unverified</option>
-                </select>
-                <input
-                  type="text"
-                  placeholder="Filter by plan (e.g., Advanced Scout)"
-                  value={planFilter === 'all' ? '' : planFilter}
-                  onChange={(e) => setPlanFilter(e.target.value.trim() || 'all')}
-                  className="py-2 px-3 border border-gray-300 rounded-lg"
-                />
-                <select
-                  value={investmentFilter}
-                  onChange={(e) => setInvestmentFilter(e.target.value as 'all' | 'hasActive' | 'none')}
-                  className="py-2 px-3 border border-gray-300 rounded-lg"
-                  title="Investment"
-                >
-                  <option value="all">All Investments</option>
-                  <option value="hasActive">Has Active</option>
-                  <option value="none">No Active</option>
-                </select>
+                <div className="flex flex-wrap items-center gap-3">
+                  <select
+                    value={userStatusFilter}
+                    onChange={(e) => setUserStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+                    className="px-5 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 text-xs shadow-sm cursor-pointer min-w-[140px]"
+                    title="Status"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="active">Active Only</option>
+                    <option value="inactive">Inactive Only</option>
+                  </select>
+                  <select
+                    value={emailVerifiedFilter}
+                    onChange={(e) => setEmailVerifiedFilter(e.target.value as 'all' | 'verified' | 'unverified')}
+                    className="px-5 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 text-xs shadow-sm cursor-pointer min-w-[140px]"
+                    title="Email Verified"
+                  >
+                    <option value="all">All Verifications</option>
+                    <option value="verified">Verified Only</option>
+                    <option value="unverified">Unverified Only</option>
+                  </select>
+                  <select
+                    value={investmentFilter}
+                    onChange={(e) => setInvestmentFilter(e.target.value as 'all' | 'hasActive' | 'none')}
+                    className="px-5 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 text-xs shadow-sm cursor-pointer min-w-[140px]"
+                    title="Investment"
+                  >
+                    <option value="all">Any Investment</option>
+                    <option value="hasActive">Active Only</option>
+                    <option value="none">No Investment</option>
+                  </select>
+                </div>
               </div>
               <button
                 onClick={loadUsers}
                 disabled={loadingUsers}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#c9933a] disabled:opacity-50"
+                className="bg-navy-900 hover:bg-navy-800 disabled:bg-navy-900/50 text-gold-500 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-navy-900/10 flex items-center gap-3 active:scale-95 shrink-0"
               >
                 {loadingUsers ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                  <div className="w-4 h-4 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
                 ) : (
-                  <RefreshCw className="h-4 w-4 mr-1" />
+                  <RefreshCw className="w-4 h-4" />
                 )}
-                Refresh
+                <span>{loadingUsers ? 'Syncing...' : 'Sync Data'}</span>
               </button>
             </div>
 
@@ -1021,81 +1026,82 @@ const AdminSection = () => {
                 <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#c9933a]"></div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredUsers.map(user => (
                   <div
                     key={user._id}
-                    className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+                    className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 cursor-pointer group"
                     onClick={() => openUserDetail(user)}
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-[#c9933a] rounded-full flex items-center justify-center text-white text-sm font-medium">
-                          {user.firstName?.[0] || user.email?.[0]?.toUpperCase()}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center border border-gray-200 group-hover:bg-gold-50 group-hover:border-gold-200 transition-colors">
+                          <Users className="w-7 h-7 text-gray-300 group-hover:text-gold-500" />
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">{user.firstName} {user.lastName}</div>
-                          <div className="text-xs text-gray-500 font-mono">{user.userCode}</div>
+                          <div className="font-black text-navy-900 uppercase tracking-tight text-sm">{user.firstName} {user.lastName}</div>
+                          <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100 mt-1">{user.userCode}</div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-1">
+                      <div className="flex flex-col items-end gap-2">
                         {user.isActive !== false ? (
-                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <div className="p-1.5 bg-green-50 text-green-500 rounded-xl" title="Active">
+                            <CheckCircle className="w-4 h-4" />
+                          </div>
                         ) : (
-                          <XCircle className="w-4 h-4 text-[#c9933a]" />
+                          <div className="p-1.5 bg-red-50 text-red-500 rounded-xl" title="Inactive">
+                            <XCircle className="w-4 h-4" />
+                          </div>
                         )}
-                        {user.isAdmin && <Shield className="w-4 h-4 text-yellow-600" />}
+                        {user.isAdmin && (
+                          <div className="p-1.5 bg-navy-900 text-gold-500 rounded-xl" title="Admin">
+                            <ShieldCheck className="w-4 h-4" />
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-500">Email:</span>
-                        <span className="text-sm text-gray-900">{user.email}</span>
+                    <div className="space-y-4 mb-8">
+                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email Address</span>
+                        <span className="text-xs font-bold text-navy-900 truncate max-w-[160px]">{user.email}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-500">Balance:</span>
-                        <span className="text-sm font-semibold text-gray-900">${user.totalInvested?.toLocaleString() || '0'}</span>
+                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Available Balance</span>
+                        <span className="text-sm font-black text-gold-600">${user.totalInvested?.toLocaleString() || '0'}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-500">Plan:</span>
-                        <span className="text-sm text-gray-900">{user.investmentPlan || 'No Active Plan'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-500">Status:</span>
-                        <span className={`text-xs px-2 py-1 rounded-full ${user.isActive !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-[#b08132]'
-                          }`}>
-                          {user.isActive !== false ? 'Active' : 'Inactive'}
-                        </span>
+                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Current Plan</span>
+                        <span className="text-[10px] font-black text-navy-900/40 uppercase tracking-widest">{user.investmentPlan || 'None'}</span>
                       </div>
                     </div>
 
-                    <div className="mt-3 flex space-x-2">
+                    <div className="flex gap-3">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleUserStatus(user._id!, user.isActive === false);
                         }}
-                        className={`flex-1 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1 ${user.isActive !== false
-                          ? 'bg-[#c9933a] hover:bg-[#b08132] text-white'
-                          : 'bg-green-600 hover:bg-green-700 text-white'
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${user.isActive !== false
+                          ? 'bg-red-50 text-red-500 hover:bg-red-100'
+                          : 'bg-green-50 text-green-500 hover:bg-green-100'
                           }`}
                       >
-                        {user.isActive !== false ? <Ban className="w-3 h-3" /> : <UserCheck className="w-3 h-3" />}
-                        <span>{user.isActive !== false ? 'Disable' : 'Enable'}</span>
+                        {user.isActive !== false ? <Ban className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
+                        <span>{user.isActive !== false ? 'Ban' : 'Pardon'}</span>
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           makeAdmin(user._id!, !user.isAdmin);
                         }}
-                        className={`flex-1 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center space-x-1 ${user.isAdmin
-                          ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                          : 'bg-gray-600 hover:bg-gray-700 text-white'
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${user.isAdmin
+                          ? 'bg-navy-900 text-gold-500'
+                          : 'bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-navy-900'
                           }`}
                       >
-                        <Shield className="w-3 h-3" />
-                        <span>{user.isAdmin ? 'Admin' : 'User'}</span>
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <span>{user.isAdmin ? 'Revoke' : 'Grant'}</span>
                       </button>
                     </div>
                   </div>
@@ -1107,45 +1113,49 @@ const AdminSection = () => {
 
         {/* Notifications Tab */}
         {activeTab === 'notifications' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+          <div className="space-y-10">
+            <div className="flex justify-between items-center">
+              <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter">Communications Center</h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Broadcast Notification */}
-              <div className="bg-gray-50 rounded-lg p-6">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Bell className="w-5 h-5 text-[#c9933a]" />
-                  <h4 className="text-lg font-semibold text-gray-900">Broadcast Message</h4>
+              <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm group hover:shadow-xl transition-all duration-300">
+                <div className="flex items-center space-x-4 mb-6">
+                  <div className="p-3 bg-gold-50 text-gold-500 rounded-2xl group-hover:bg-navy-900 group-hover:text-gold-500 transition-colors">
+                    <Bell className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-lg font-black text-navy-900 uppercase tracking-tight">Broadcast Message</h4>
                 </div>
-                <p className="text-gray-600 mb-4">Send a message to all users</p>
+                <p className="text-gray-400 text-sm leading-relaxed mb-8">Send an urgent announcement or platform update to every registered user on the platform.</p>
                 <button
                   onClick={() => {
                     setNotificationType('broadcast');
                     setShowNotificationModal(true);
                   }}
-                  className="w-full bg-[#c9933a] hover:bg-[#b08132] text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                  className="w-full bg-navy-900 hover:bg-navy-800 text-gold-500 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 active:scale-95"
                 >
-                  Send to All Users
+                  Blast to All Users
                 </button>
               </div>
 
               {/* Individual Notification */}
-              <div className="bg-gray-50 rounded-lg p-6">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Mail className="w-5 h-5 text-blue-600" />
-                  <h4 className="text-lg font-semibold text-gray-900">Individual Message</h4>
+              <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm group hover:shadow-xl transition-all duration-300">
+                <div className="flex items-center space-x-4 mb-6">
+                  <div className="p-3 bg-gold-50 text-gold-500 rounded-2xl group-hover:bg-navy-900 group-hover:text-gold-500 transition-colors">
+                    <Mail className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-lg font-black text-navy-900 uppercase tracking-tight">Targeted Message</h4>
                 </div>
-                <p className="text-gray-600 mb-4">Send a message to specific users</p>
+                <p className="text-gray-400 text-sm leading-relaxed mb-8">Send personalized messages or specific account alerts to selected users or groups.</p>
                 <button
                   onClick={() => {
                     setNotificationType('individual');
                     setShowNotificationModal(true);
                   }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                  className="w-full bg-gold-50 hover:bg-[#c9933a] text-[#0b1626] px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-gold-500/10 active:scale-95 border border-gold-400/20"
                 >
-                  Send to Selected Users
+                  Contact Select Users
                 </button>
               </div>
             </div>
@@ -1162,14 +1172,14 @@ const AdminSection = () => {
 
         {/* Investment Plans Tab */}
         {activeTab === 'plans' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
+          <div className="space-y-8">
+            <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="flex items-center space-x-4">
-                <h3 className="text-lg font-semibold text-gray-900">Investment Plans</h3>
+                <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter">Strategic Assets</h3>
                 {isOffline && (
-                  <div className="flex items-center space-x-2 text-orange-600 bg-orange-50 px-3 py-2 rounded-lg">
-                    <div className="w-2 h-2 bg-orange-600 rounded-full"></div>
-                    <span className="text-sm font-medium">Offline</span>
+                  <div className="flex items-center space-x-2 bg-red-50 text-red-500 font-bold px-4 py-2 rounded-2xl border border-red-100">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Offline</span>
                   </div>
                 )}
               </div>
@@ -1178,10 +1188,10 @@ const AdminSection = () => {
                   setEditingPlan(null);
                   setShowPlanModal(true);
                 }}
-                className="flex items-center space-x-2 bg-[#c9933a] hover:bg-[#b08132] text-white px-4 py-2 rounded-lg"
+                className="bg-navy-900 hover:bg-navy-800 text-gold-500 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center gap-3 active:scale-95"
               >
                 <Plus className="w-4 h-4" />
-                <span>Add Plan</span>
+                <span>Deploy New Asset</span>
               </button>
             </div>
 
@@ -1190,43 +1200,70 @@ const AdminSection = () => {
                 <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#c9933a]"></div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {plans.map(plan => (
-                  <div key={plan._id || `plan-${Math.random()}`} className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-semibold text-gray-900">{plan.name}</h4>
-                      <div className="flex items-center space-x-2">
+                  <div key={plan._id || `plan-${Math.random()}`} className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 group">
+                    <div className="flex items-center justify-between mb-8">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-3 bg-gray-50 rounded-2xl group-hover:bg-gold-50 transition-colors">
+                          <TrendingUp className="w-6 h-6 text-gray-300 group-hover:text-gold-500" />
+                        </div>
+                        <h4 className="font-black text-navy-900 uppercase tracking-tight">{plan.name}</h4>
+                      </div>
+                      <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => {
-                            console.log('Edit button clicked for plan:', plan);
                             setEditingPlan(plan);
                             setNewPlan(plan);
                             setShowPlanModal(true);
                           }}
-                          className="p-1 text-blue-600 hover:text-blue-800"
+                          className="p-2.5 bg-gray-50 text-gray-400 hover:bg-gold-50 hover:text-gold-500 rounded-xl transition-all"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeletePlan(plan._id || '', plan.name)}
-                          className="p-1 text-[#c9933a] hover:text-[#b08132]"
+                          className="p-2.5 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 rounded-xl transition-all"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
-                    <div className="space-y-2 text-sm">
-                      <p><span className="font-medium">Min:</span> ${plan.minAmount.toLocaleString()}</p>
-                      <p><span className="font-medium">Max:</span> ${plan.maxAmount.toLocaleString()}</p>
-                      <p><span className="font-medium">ROI:</span> {plan.roi}%</p>
-                      <p><span className="font-medium">Duration:</span> {plan.duration}</p>
-                      <p><span className="font-medium">Capital Back:</span> {plan.capitalBack ? 'Yes' : 'No'}</p>
+
+                    <div className="space-y-4 mb-8">
+                      <div className="flex justify-between items-baseline">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Entry Limit</span>
+                        <div className="flex flex-col items-end">
+                          <span className="text-sm font-black text-navy-900">${plan.minAmount.toLocaleString()}</span>
+                          <span className="text-[9px] font-bold text-gray-300 -mt-0.5">MINIMUM</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-baseline">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Yield ROI</span>
+                        <span className="text-sm font-black text-gold-600">+{plan.roi}%</span>
+                      </div>
+                      <div className="flex justify-between items-baseline">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cycle Duration</span>
+                        <span className="text-xs font-bold text-navy-900/60 uppercase">{plan.duration}</span>
+                      </div>
                     </div>
-                    <div className="mt-4">
-                      <span className={`px-2 py-1 rounded-full text-xs ${plan.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-[#b08132]'
+
+                    <div className="flex items-center justify-between">
+                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${plan.isActive
+                        ? 'bg-green-50 text-green-500 border-green-100'
+                        : 'bg-red-50 text-red-500 border-red-100'
                         }`}>
-                        {plan.isActive ? 'Active' : 'Inactive'}
-                      </span>
+                        <div className={`w-1.5 h-1.5 rounded-full ${plan.isActive ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+                        <span className="text-[10px] font-black uppercase tracking-widest">{plan.isActive ? 'Active' : 'Inactive'}</span>
+                      </div>
+                      {plan.capitalBack && (
+                        <div className="flex items-center gap-1.5">
+                          <div className="p-1 bg-gold-50 text-gold-500 rounded-lg">
+                            <CheckCircle className="w-3 h-3" />
+                          </div>
+                          <span className="text-[9px] font-black text-navy-900/40 uppercase tracking-widest leading-none">Capital<br />Guaranteed</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1237,14 +1274,14 @@ const AdminSection = () => {
 
         {/* Payment Methods Tab */}
         {activeTab === 'payments' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
+          <div className="space-y-8">
+            <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="flex items-center space-x-4">
-                <h3 className="text-lg font-semibold text-gray-900">Payment Methods</h3>
+                <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter">Gateway Management</h3>
                 {isOffline && (
-                  <div className="flex items-center space-x-2 text-orange-600 bg-orange-50 px-3 py-2 rounded-lg">
-                    <div className="w-2 h-2 bg-orange-600 rounded-full"></div>
-                    <span className="text-sm font-medium">Offline</span>
+                  <div className="flex items-center space-x-2 bg-red-50 text-red-500 font-bold px-4 py-2 rounded-2xl border border-red-100">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Offline</span>
                   </div>
                 )}
               </div>
@@ -1256,10 +1293,10 @@ const AdminSection = () => {
                   setPaymentLogoPreview('');
                   setShowPaymentModal(true);
                 }}
-                className="flex items-center space-x-2 bg-[#c9933a] hover:bg-[#b08132] text-white px-4 py-2 rounded-lg"
+                className="bg-navy-900 hover:bg-navy-800 text-gold-500 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center gap-3 active:scale-95"
               >
                 <Plus className="w-4 h-4" />
-                <span>Add Payment Method</span>
+                <span>Configure Gateway</span>
               </button>
             </div>
 
@@ -1268,11 +1305,27 @@ const AdminSection = () => {
                 <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#c9933a]"></div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {paymentMethods.map(method => (
-                  <div key={method._id} className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-semibold text-gray-900">{method.name}</h4>
+                  <div key={method._id} className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 group">
+                    <div className="flex items-center justify-between mb-8">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center p-3 border border-gray-100 group-hover:bg-white transition-colors">
+                          {method.logo ? (
+                            <img src={method.logo} alt={method.name} className="w-full h-full object-contain filter grayscale group-hover:grayscale-0 transition-all" />
+                          ) : (
+                            <CreditCard className="w-8 h-8 text-gray-300" />
+                          )}
+                        </div>
+                        <div>
+                          <h4 className="font-black text-navy-900 uppercase tracking-tight">{method.name}</h4>
+                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest mt-1 border ${method.isActive ? 'bg-green-50 text-green-500 border-green-100' : 'bg-red-50 text-red-500 border-red-100'
+                            }`}>
+                            <div className={`w-1 h-1 rounded-full ${method.isActive ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+                            {method.isActive ? 'Live' : 'Hidden'}
+                          </span>
+                        </div>
+                      </div>
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => {
@@ -1282,32 +1335,36 @@ const AdminSection = () => {
                             setPaymentLogoPreview('');
                             setShowPaymentModal(true);
                           }}
-                          className="p-1 text-blue-600 hover:text-blue-800"
+                          className="p-2.5 bg-gray-50 text-gray-400 hover:bg-gold-50 hover:text-gold-500 rounded-xl transition-all"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => method._id && handleDeletePayment(method._id, method.name)}
-                          className="p-1 text-[#c9933a] hover:text-[#b08132]"
+                          className="p-2.5 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 rounded-xl transition-all"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
-                    <div className="space-y-2 text-sm">
-                      <p><span className="font-medium">Account Number:</span> {method.accountDetails?.accountNumber || 'N/A'}</p>
+
+                    <div className="space-y-4 bg-gray-50/50 p-6 rounded-2xl border border-gray-100/50">
+                      <div className="flex justify-between items-center py-1">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Identify No.</span>
+                        <span className="text-xs font-bold text-navy-900 font-mono">{method.accountDetails?.accountNumber || 'N/A'}</span>
+                      </div>
                       {method.accountDetails?.bankName && (
-                        <p><span className="font-medium">Bank:</span> {method.accountDetails.bankName}</p>
+                        <div className="flex justify-between items-center py-1">
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Institution</span>
+                          <span className="text-xs font-bold text-navy-900">{method.accountDetails.bankName}</span>
+                        </div>
                       )}
                       {method.accountDetails?.network && (
-                        <p><span className="font-medium">Network:</span> {method.accountDetails.network}</p>
+                        <div className="flex justify-between items-center py-1">
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Blockchain</span>
+                          <span className="text-xs font-black text-gold-600 uppercase tracking-widest">{method.accountDetails.network}</span>
+                        </div>
                       )}
-                    </div>
-                    <div className="mt-4">
-                      <span className={`px-2 py-1 rounded-full text-xs ${method.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-[#b08132]'
-                        }`}>
-                        {method.isActive ? 'Active' : 'Inactive'}
-                      </span>
                     </div>
                   </div>
                 ))}
@@ -1318,142 +1375,141 @@ const AdminSection = () => {
 
         {/* Transactions Tab */}
         {activeTab === 'transactions' && (
-          <div>
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Transaction Management</h3>
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={loadTransactions}
-                    disabled={isLoadingTransactions}
-                    className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg"
-                  >
-                    {isLoadingTransactions ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    ) : (
-                      <RefreshCw className="w-4 h-4" />
-                    )}
-                    <span>{isLoadingTransactions ? 'Loading...' : 'Refresh'}</span>
-                  </button>
+          <div className="space-y-8">
+            <div className="flex flex-wrap items-center justify-between gap-6">
+              <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter">Financial Ledger</h3>
+              <div className="flex items-center gap-4">
+                <div className="relative group">
+                  <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-gold-500 transition-colors" />
+                  <input
+                    type="text"
+                    placeholder="Search ledger..."
+                    value={transactionSearchTerm}
+                    onChange={(e) => setTransactionSearchTerm(e.target.value)}
+                    className="pl-12 pr-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 text-xs shadow-sm w-[300px]"
+                  />
                 </div>
-              </div>
-
-              {/* Search Input */}
-              <div className="relative max-w-md">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search transactions by name, email, code, or amount..."
-                  value={transactionSearchTerm}
-                  onChange={(e) => setTransactionSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                />
+                <button
+                  onClick={loadTransactions}
+                  disabled={isLoadingTransactions}
+                  className="bg-navy-900 hover:bg-navy-800 disabled:bg-navy-900/50 text-gold-500 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-navy-900/10 flex items-center gap-3 active:scale-95"
+                >
+                  {isLoadingTransactions ? (
+                    <div className="w-4 h-4 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <RefreshCw className="w-4 h-4" />
+                  )}
+                  <span>Audit</span>
+                </button>
               </div>
             </div>
 
             {/* Transaction Type Toggle */}
-            <div className="flex space-x-4 mb-6">
+            <div className="flex items-center justify-center bg-gray-50/50 p-2 rounded-2xl border border-gray-100 max-w-sm mx-auto">
               <button
                 onClick={() => setSelectedTransactionType('deposits')}
-                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${selectedTransactionType === 'deposits'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                className={`flex-1 flex flex-col items-center justify-center py-4 rounded-xl transition-all duration-300 ${selectedTransactionType === 'deposits'
+                  ? 'bg-navy-900 text-gold-500 shadow-xl'
+                  : 'text-gray-400 hover:text-navy-900'
                   }`}
               >
-                Deposits ({getFilteredDeposits().length})
+                <span className="text-[10px] font-black uppercase tracking-widest mb-1">Incoming</span>
+                <span className="text-lg font-black tracking-tighter">${getFilteredDeposits().reduce((acc, curr) => acc + (curr.amount || 0), 0).toLocaleString()}</span>
+                <span className="text-[8px] font-bold opacity-40 uppercase">{getFilteredDeposits().length} Entries</span>
               </button>
+              <div className="w-px h-10 bg-gray-200"></div>
               <button
                 onClick={() => setSelectedTransactionType('withdrawals')}
-                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${selectedTransactionType === 'withdrawals'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                className={`flex-1 flex flex-col items-center justify-center py-4 rounded-xl transition-all duration-300 ${selectedTransactionType === 'withdrawals'
+                  ? 'bg-navy-900 text-gold-500 shadow-xl'
+                  : 'text-gray-400 hover:text-navy-900'
                   }`}
               >
-                Withdrawals ({getFilteredWithdrawals().length})
+                <span className="text-[10px] font-black uppercase tracking-widest mb-1">Outgoing</span>
+                <span className="text-lg font-black tracking-tighter">${getFilteredWithdrawals().reduce((acc, curr) => acc + (curr.amount || 0), 0).toLocaleString()}</span>
+                <span className="text-[8px] font-bold opacity-40 uppercase">{getFilteredWithdrawals().length} Entries</span>
               </button>
             </div>
 
             {/* Filter Options */}
-            <div className="mb-6">
+            <div className="flex items-center justify-center gap-3">
               {selectedTransactionType === 'deposits' ? (
-                <div className="flex space-x-2">
-                  {(['all', 'pending', 'approved', 'rejected'] as const).map((filter) => (
-                    <button
-                      key={filter}
-                      onClick={() => setDepositFilter(filter)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${depositFilter === filter
-                        ? 'bg-green-600 text-white'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        }`}
-                    >
-                      {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                    </button>
-                  ))}
-                </div>
+                (['all', 'pending', 'approved', 'rejected'] as const).map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setDepositFilter(filter)}
+                    className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${depositFilter === filter
+                      ? 'bg-gold-50 text-gold-600 border border-gold-200 shadow-sm'
+                      : 'bg-white text-gray-400 border border-gray-100 hover:border-gray-200'
+                      }`}
+                  >
+                    {filter}
+                  </button>
+                ))
               ) : (
-                <div className="flex space-x-2">
-                  {(['all', 'pending', 'processing', 'completed', 'rejected'] as const).map((filter) => (
-                    <button
-                      key={filter}
-                      onClick={() => setWithdrawalFilter(filter)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${withdrawalFilter === filter
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        }`}
-                    >
-                      {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                    </button>
-                  ))}
-                </div>
+                (['all', 'pending', 'processing', 'completed', 'rejected'] as const).map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setWithdrawalFilter(filter)}
+                    className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${withdrawalFilter === filter
+                      ? 'bg-gold-50 text-gold-600 border border-gold-200 shadow-sm'
+                      : 'bg-white text-gray-400 border border-gray-100 hover:border-gray-200'
+                      }`}
+                  >
+                    {filter}
+                  </button>
+                ))
               )}
             </div>
 
             {/* Transaction Tiles */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {selectedTransactionType === 'deposits' ? (
                 getFilteredDeposits().map((deposit) => (
                   <div
                     key={deposit._id}
-                    className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+                    className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 cursor-pointer group"
                     onClick={() => {
                       setSelectedTransaction(deposit);
                       setShowTransactionModal(true);
                     }}
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <span className="text-sm font-medium text-gray-600">Deposit</span>
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2.5 bg-gold-50 text-gold-500 rounded-xl group-hover:bg-navy-900 transition-colors">
+                          <Download className="w-4 h-4" />
+                        </div>
+                        <span className="text-[10px] font-black text-navy-900 uppercase tracking-widest">Inbound Deposit</span>
                       </div>
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${deposit.status === 'approved' ? 'bg-green-100 text-green-800' :
-                        deposit.status === 'rejected' ? 'bg-red-100 text-[#b08132]' :
-                          'bg-yellow-100 text-yellow-800'
+                      <span className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-full border transition-all ${deposit.status === 'approved' ? 'bg-green-50 text-green-500 border-green-100' :
+                        deposit.status === 'rejected' ? 'bg-red-50 text-red-500 border-red-100' :
+                          'bg-gold-50 text-gold-600 border-gold-100 animate-pulse'
                         }`}>
                         {deposit.status}
                       </span>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-500">Amount:</span>
-                        <span className="text-sm font-semibold text-gray-900">${deposit.amount}</span>
+                    <div className="space-y-4 mb-6">
+                      <div className="flex justify-between items-baseline">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Entry Amount</span>
+                        <span className="text-lg font-black text-navy-900 tracking-tighter">${deposit.amount?.toLocaleString()}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-500">User:</span>
-                        <div className="text-sm text-gray-900 text-right">
-                          <div className="font-medium">{getUserInfo(deposit.userId).name}</div>
-                          <div className="text-xs text-gray-500">Code: {getUserInfo(deposit.userId).userCode}</div>
-                          <div className="text-xs text-gray-400">ID: {getUserInfo(deposit.userId).userId}</div>
+                      <div className="flex justify-between items-start">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Originator</span>
+                        <div className="text-right">
+                          <div className="text-xs font-black text-navy-900 uppercase tracking-tight">{getUserInfo(deposit.userId).name}</div>
+                          <div className="text-[9px] font-bold text-gray-300 uppercase tracking-widest">{getUserInfo(deposit.userId).userCode}</div>
                         </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-500">Date:</span>
-                        <span className="text-sm text-gray-900">{new Date(deposit.createdAt).toLocaleDateString()}</span>
+                      <div className="flex justify-between items-center py-2 border-t border-gray-50">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Timestamp</span>
+                        <span className="text-[10px] font-bold text-navy-900/40 uppercase">{new Date(deposit.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>
                     </div>
 
-                    <div className="mt-3 text-center">
-                      <span className="text-xs text-gray-500">Click for details</span>
+                    <div className="flex items-center justify-center gap-2 py-3 bg-gray-50 rounded-2xl group-hover:bg-gold-50 transition-colors">
+                      <ShieldCheck className="w-3.5 h-3.5 text-gray-300 group-hover:text-gold-500" />
+                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest group-hover:text-gold-600">Audit Documentation</span>
                     </div>
                   </div>
                 ))
@@ -1461,47 +1517,49 @@ const AdminSection = () => {
                 getFilteredWithdrawals().map((withdrawal) => (
                   <div
                     key={withdrawal._id}
-                    className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+                    className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 cursor-pointer group"
                     onClick={() => {
                       setSelectedTransaction(withdrawal);
                       setShowTransactionModal(true);
                     }}
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                        <span className="text-sm font-medium text-gray-600">Withdrawal</span>
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2.5 bg-navy-50 text-navy-900 rounded-xl group-hover:bg-navy-900 group-hover:text-gold-500 transition-colors">
+                          <Upload className="w-4 h-4" />
+                        </div>
+                        <span className="text-[10px] font-black text-navy-900 uppercase tracking-widest">Outbound Transfer</span>
                       </div>
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${withdrawal.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        withdrawal.status === 'rejected' ? 'bg-red-100 text-[#b08132]' :
-                          withdrawal.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                            'bg-yellow-100 text-yellow-800'
+                      <span className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-full border transition-all ${withdrawal.status === 'completed' ? 'bg-green-50 text-green-500 border-green-100' :
+                        withdrawal.status === 'rejected' ? 'bg-red-50 text-red-500 border-red-100' :
+                          withdrawal.status === 'processing' ? 'bg-navy-50 text-navy-600 border-navy-100 animate-pulse' :
+                            'bg-gold-50 text-gold-600 border-gold-100'
                         }`}>
                         {withdrawal.status}
                       </span>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-500">Amount:</span>
-                        <span className="text-sm font-semibold text-gray-900">${withdrawal.amount}</span>
+                    <div className="space-y-4 mb-6">
+                      <div className="flex justify-between items-baseline">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Requested Sum</span>
+                        <span className="text-lg font-black text-navy-900 tracking-tighter">${withdrawal.amount?.toLocaleString()}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-500">User:</span>
-                        <div className="text-sm text-gray-900 text-right">
-                          <div className="font-medium">{getUserInfo(withdrawal.userId).name}</div>
-                          <div className="text-xs text-gray-500">Code: {getUserInfo(withdrawal.userId).userCode}</div>
-                          <div className="text-xs text-gray-400">ID: {getUserInfo(withdrawal.userId).userId}</div>
+                      <div className="flex justify-between items-start">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Recipient</span>
+                        <div className="text-right">
+                          <div className="text-xs font-black text-navy-900 uppercase tracking-tight">{getUserInfo(withdrawal.userId).name}</div>
+                          <div className="text-[9px] font-bold text-gray-300 uppercase tracking-widest">{getUserInfo(withdrawal.userId).userCode}</div>
                         </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-500">Date:</span>
-                        <span className="text-sm text-gray-900">{new Date(withdrawal.createdAt).toLocaleDateString()}</span>
+                      <div className="flex justify-between items-center py-2 border-t border-gray-50">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Log Date</span>
+                        <span className="text-[10px] font-bold text-navy-900/40 uppercase">{new Date(withdrawal.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>
                     </div>
 
-                    <div className="mt-3 text-center">
-                      <span className="text-xs text-gray-500">Click for details</span>
+                    <div className="flex items-center justify-center gap-2 py-3 bg-gray-50 rounded-2xl group-hover:bg-navy-900 transition-colors">
+                      <ExternalLink className="w-3.5 h-3.5 text-gray-300 group-hover:text-gold-500" />
+                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest group-hover:text-gold-500">View Legal Proof</span>
                     </div>
                   </div>
                 ))
@@ -1525,93 +1583,96 @@ const AdminSection = () => {
 
       {/* Plan Modal */}
       {showPlanModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  {editingPlan ? 'Edit Plan' : 'Add New Plan'}
-                </h3>
+        <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in fade-in duration-300">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20">
+            <div className="p-10">
+              <div className="flex items-center justify-between mb-10">
+                <div>
+                  <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter">
+                    {editingPlan ? 'Optimize Asset' : 'Deploy Asset'}
+                  </h3>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Configure strategic investment parameters</p>
+                </div>
                 <button
                   onClick={() => {
                     setShowPlanModal(false);
                     setEditingPlan(null);
                     setNewPlan({});
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="w-12 h-12 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all"
                 >
-                  <XCircle className="w-6 h-6" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Plan Name</label>
+              <div className="space-y-8">
+                <div className="group">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Strategic Designation</label>
                   <input
                     type="text"
                     value={newPlan.name || ''}
                     onChange={(e) => setNewPlan({ ...newPlan, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                    placeholder="e.g., Silver, Gold, Platinum"
+                    className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900"
+                    placeholder="e.g., ADVANCED SCOUT"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Min Amount ($)</label>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Minimum Stake ($)</label>
                     <input
                       type="number"
                       value={newPlan.minAmount || ''}
                       onChange={(e) => setNewPlan({ ...newPlan, minAmount: Number(e.target.value) })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900"
                       placeholder="1000"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Max Amount ($)</label>
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Ceiling Limit ($)</label>
                     <input
                       type="number"
                       value={newPlan.maxAmount || ''}
                       onChange={(e) => setNewPlan({ ...newPlan, maxAmount: Number(e.target.value) })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900"
                       placeholder="9999"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">ROI (%)</label>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Yield ROI (%)</label>
                     <input
                       type="number"
                       step="0.1"
                       value={newPlan.roi || ''}
                       onChange={(e) => setNewPlan({ ...newPlan, roi: Number(e.target.value) })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900"
                       placeholder="1.5"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Asset Duration</label>
                     <input
                       type="text"
                       value={newPlan.duration || ''}
                       onChange={(e) => setNewPlan({ ...newPlan, duration: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900"
                       placeholder="30 days"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Theme Color</label>
                     <select
                       value={newPlan.color || ''}
                       onChange={(e) => setNewPlan({ ...newPlan, color: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 cursor-pointer appearance-none"
                     >
-                      <option value="">Select Color</option>
+                      <option value="">Select Palette</option>
                       <option value="blue">Blue</option>
                       <option value="green">Green</option>
                       <option value="purple">Purple</option>
@@ -1630,12 +1691,12 @@ const AdminSection = () => {
                     </select>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Icon</label>
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Asset Identifier</label>
                     <select
                       value={newPlan.icon || ''}
                       onChange={(e) => setNewPlan({ ...newPlan, icon: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 cursor-pointer appearance-none"
                     >
                       <option value="">Select Icon</option>
                       <option value="star">Star</option>
@@ -1654,14 +1715,14 @@ const AdminSection = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Gradient (Optional)</label>
+                <div className="group">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Visual Gradient (Advanced)</label>
                   <select
                     value={newPlan.gradient || ''}
                     onChange={(e) => setNewPlan({ ...newPlan, gradient: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
+                    className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 cursor-pointer appearance-none"
                   >
-                    <option value="">Select Gradient</option>
+                    <option value="">Default Gradient</option>
                     <option value="blue-to-purple">Blue to Purple</option>
                     <option value="green-to-blue">Green to Blue</option>
                     <option value="purple-to-pink">Purple to Pink</option>
@@ -1677,53 +1738,59 @@ const AdminSection = () => {
                   </select>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="capitalBack"
-                    checked={newPlan.capitalBack || false}
-                    onChange={(e) => setNewPlan({ ...newPlan, capitalBack: e.target.checked })}
-                    className="rounded border-gray-300 text-[#c9933a] focus:ring-[#c9933a]"
-                  />
-                  <label htmlFor="capitalBack" className="text-sm font-medium text-gray-700">
-                    Capital Back
+                <div className="flex flex-wrap gap-8 items-center bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={newPlan.capitalBack || false}
+                        onChange={(e) => setNewPlan({ ...newPlan, capitalBack: e.target.checked })}
+                        className="sr-only"
+                      />
+                      <div className={`w-12 h-6 rounded-full transition-colors duration-300 ${newPlan.capitalBack ? 'bg-gold-500' : 'bg-gray-200'}`}></div>
+                      <div className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${newPlan.capitalBack ? 'translate-x-6' : ''}`}></div>
+                    </div>
+                    <span className="text-[10px] font-black text-navy-900 uppercase tracking-widest">Guaranteed Capital</span>
                   </label>
-                </div>
 
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="isActive"
-                    checked={newPlan.isActive !== false}
-                    onChange={(e) => setNewPlan({ ...newPlan, isActive: e.target.checked })}
-                    className="rounded border-gray-300 text-[#c9933a] focus:ring-[#c9933a]"
-                  />
-                  <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
-                    Active
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={newPlan.isActive !== false}
+                        onChange={(e) => setNewPlan({ ...newPlan, isActive: e.target.checked })}
+                        className="sr-only"
+                      />
+                      <div className={`w-12 h-6 rounded-full transition-colors duration-300 ${newPlan.isActive !== false ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                      <div className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${newPlan.isActive !== false ? 'translate-x-6' : ''}`}></div>
+                    </div>
+                    <span className="text-[10px] font-black text-navy-900 uppercase tracking-widest">Live Status</span>
                   </label>
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end space-x-3">
+              <div className="mt-12 flex gap-4">
                 <button
                   onClick={() => {
                     setShowPlanModal(false);
                     setEditingPlan(null);
                     setNewPlan({});
                   }}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
+                  className="flex-1 px-8 py-4 bg-gray-50 hover:bg-gray-100 text-gray-400 font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all"
                 >
-                  Cancel
+                  Discard
                 </button>
                 <button
                   onClick={savePlan}
-                  className="px-4 py-2 bg-[#c9933a] hover:bg-[#b08132] text-white rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
                   disabled={isProcessingPlan}
+                  className="flex-[2] px-8 py-4 bg-navy-900 hover:bg-navy-800 text-gold-500 font-black uppercase tracking-widest text-[11px] rounded-2xl shadow-xl shadow-navy-900/20 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                 >
-                  {isProcessingPlan && (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  {isProcessingPlan ? (
+                    <div className="w-4 h-4 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <ShieldCheck className="w-4 h-4" />
                   )}
-                  <span>{isProcessingPlan ? 'Saving...' : (editingPlan ? 'Update Plan' : 'Create Plan')}</span>
+                  <span>{isProcessingPlan ? 'Processing...' : (editingPlan ? 'Overwrite Parameters' : 'Authorize Deployment')}</span>
                 </button>
               </div>
             </div>
@@ -1733,175 +1800,162 @@ const AdminSection = () => {
 
       {/* Payment Method Modal */}
       {showPaymentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  {editingPayment ? 'Edit Payment Method' : 'Add New Payment Method'}
-                </h3>
+        <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in fade-in duration-300">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20 text-navy-900">
+            <div className="p-10">
+              <div className="flex items-center justify-between mb-10">
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter">
+                    {editingPayment ? 'Refine Gateway' : 'Establish Gateway'}
+                  </h3>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Configure financial ingestion endpoints</p>
+                </div>
                 <button
                   onClick={() => {
                     setShowPaymentModal(false);
                     setEditingPayment(null);
                     setNewPayment({});
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="w-12 h-12 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all"
                 >
-                  <XCircle className="w-6 h-6" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Method Name</label>
+              <div className="space-y-8">
+                <div className="group">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Gateway Label</label>
                   <input
                     type="text"
                     value={newPayment.name || ''}
                     onChange={(e) => setNewPayment({ ...newPayment, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                    placeholder="e.g., Bank Transfer, Bitcoin, Ethereum"
+                    className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold"
+                    placeholder="e.g., GLOBAL BANK TRANSFER"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Logo</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setPaymentLogoFile(file);
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setPaymentLogoPreview(reader.result as string);
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                  />
-                  {paymentLogoPreview && (
-                    <div className="mt-3">
-                      <p className="text-sm text-gray-600 mb-2">Preview:</p>
-                      <img src={paymentLogoPreview} alt="Logo preview" className="w-24 h-24 object-contain border border-gray-300 rounded" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Brand Assets</label>
+                    <div className="relative group/upload">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setPaymentLogoFile(file);
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setPaymentLogoPreview(reader.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      />
+                      <div className="px-6 py-10 bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center gap-3 group-hover/upload:bg-gold-50 group-hover/upload:border-gold-200 transition-all">
+                        <Plus className="w-6 h-6 text-gray-300 group-hover/upload:text-gold-500" />
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover/upload:text-gold-600">Upload Icon</span>
+                      </div>
+                    </div>
+                  </div>
+                  {(paymentLogoPreview || (editingPayment && editingPayment.logo)) && (
+                    <div className="group">
+                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Visual Preview</label>
+                      <div className="w-full aspect-square bg-white border border-gray-100 rounded-3xl p-6 flex items-center justify-center shadow-sm">
+                        <img
+                          src={paymentLogoPreview || editingPayment?.logo}
+                          alt="Logo preview"
+                          className="w-full h-full object-contain filter drop-shadow-sm"
+                        />
+                      </div>
                     </div>
                   )}
-                  {editingPayment && editingPayment.logo && !paymentLogoPreview && (
-                    <div className="mt-3">
-                      <p className="text-sm text-gray-600 mb-2">Current Logo:</p>
-                      <img src={editingPayment.logo} alt="Current logo" className="w-24 h-24 object-contain border border-gray-300 rounded" />
-                    </div>
-                  )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Account Name</label>
-                  <input
-                    type="text"
-                    value={newPayment.accountDetails?.accountName || ''}
-                    onChange={(e) => setNewPayment({
-                      ...newPayment,
-                      accountDetails: {
-                        accountName: e.target.value,
-                        accountNumber: newPayment.accountDetails?.accountNumber || '',
-                        bankName: newPayment.accountDetails?.bankName || '',
-                        walletAddress: newPayment.accountDetails?.walletAddress || '',
-                        network: newPayment.accountDetails?.network || ''
-                      }
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                    placeholder="Account holder name"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Entity Name</label>
+                    <input
+                      type="text"
+                      value={newPayment.accountDetails?.accountName || ''}
+                      onChange={(e) => setNewPayment({
+                        ...newPayment,
+                        accountDetails: {
+                          ...newPayment.accountDetails,
+                          accountName: e.target.value,
+                        } as any
+                      })}
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold"
+                      placeholder="Account holder"
+                    />
+                  </div>
+
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Protocol / Network</label>
+                    <input
+                      type="text"
+                      value={newPayment.accountDetails?.network || ''}
+                      onChange={(e) => setNewPayment({
+                        ...newPayment,
+                        accountDetails: {
+                          ...newPayment.accountDetails,
+                          network: e.target.value,
+                        } as any
+                      })}
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold"
+                      placeholder="e.g., ERC-20, SWIFT"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Account Number/Address</label>
+                <div className="group">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Inbound Destination (Address/Number)</label>
                   <input
                     type="text"
                     value={newPayment.accountDetails?.accountNumber || ''}
                     onChange={(e) => setNewPayment({
                       ...newPayment,
                       accountDetails: {
-                        accountName: newPayment.accountDetails?.accountName || '',
+                        ...newPayment.accountDetails,
                         accountNumber: e.target.value,
-                        bankName: newPayment.accountDetails?.bankName || '',
-                        walletAddress: newPayment.accountDetails?.walletAddress || '',
-                        network: newPayment.accountDetails?.network || ''
-                      }
+                      } as any
                     })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                    placeholder="Account number or wallet address"
+                    className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold font-mono text-sm"
+                    placeholder="Destination details"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Bank Name (Optional)</label>
-                  <input
-                    type="text"
-                    value={newPayment.accountDetails?.bankName || ''}
-                    onChange={(e) => setNewPayment({
-                      ...newPayment,
-                      accountDetails: {
-                        accountName: newPayment.accountDetails?.accountName || '',
-                        accountNumber: newPayment.accountDetails?.accountNumber || '',
-                        bankName: e.target.value,
-                        walletAddress: newPayment.accountDetails?.walletAddress || '',
-                        network: newPayment.accountDetails?.network || ''
-                      }
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                    placeholder="Bank name (for bank transfers)"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Network (Optional)</label>
-                  <input
-                    type="text"
-                    value={newPayment.accountDetails?.network || ''}
-                    onChange={(e) => setNewPayment({
-                      ...newPayment,
-                      accountDetails: {
-                        accountName: newPayment.accountDetails?.accountName || '',
-                        accountNumber: newPayment.accountDetails?.accountNumber || '',
-                        bankName: newPayment.accountDetails?.bankName || '',
-                        walletAddress: newPayment.accountDetails?.walletAddress || '',
-                        network: e.target.value
-                      }
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                    placeholder="Network (e.g., Ethereum, BSC, Polygon)"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Instructions</label>
+                <div className="group">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Operating Protocols (Instructions)</label>
                   <textarea
                     value={newPayment.instructions || ''}
                     onChange={(e) => setNewPayment({ ...newPayment, instructions: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                    rows={4}
-                    placeholder="Instructions for users on how to make deposits using this method"
+                    className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[120px]"
+                    placeholder="Step-by-step verification instructions for the user..."
                   />
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="paymentActive"
-                    checked={newPayment.isActive !== false}
-                    onChange={(e) => setNewPayment({ ...newPayment, isActive: e.target.checked })}
-                    className="rounded border-gray-300 text-[#c9933a] focus:ring-[#c9933a]"
-                  />
-                  <label htmlFor="paymentActive" className="text-sm font-medium text-gray-700">
-                    Active
-                  </label>
-                </div>
+                <label className="flex items-center gap-4 cursor-pointer group bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={newPayment.isActive !== false}
+                      onChange={(e) => setNewPayment({ ...newPayment, isActive: e.target.checked })}
+                      className="sr-only"
+                    />
+                    <div className={`w-14 h-7 rounded-full transition-colors duration-300 ${newPayment.isActive !== false ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                    <div className={`absolute left-1 top-1 w-5 h-5 rounded-full bg-white transition-transform duration-300 ${newPayment.isActive !== false ? 'translate-x-7' : ''}`}></div>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black text-navy-900 uppercase tracking-widest">Gateway Visibility</span>
+                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Allow users to select this option</span>
+                  </div>
+                </label>
               </div>
 
-              <div className="mt-6 flex justify-end space-x-3">
+              <div className="mt-12 flex gap-4">
                 <button
                   onClick={() => {
                     setShowPaymentModal(false);
@@ -1910,19 +1964,21 @@ const AdminSection = () => {
                     setPaymentLogoFile(null);
                     setPaymentLogoPreview('');
                   }}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
+                  className="flex-1 px-8 py-4 bg-gray-50 hover:bg-gray-100 text-gray-400 font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all"
                 >
-                  Cancel
+                  Discard
                 </button>
                 <button
                   onClick={savePaymentMethod}
-                  className="px-4 py-2 bg-[#c9933a] hover:bg-[#b08132] text-white rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
                   disabled={isProcessingPayment}
+                  className="flex-[2] px-8 py-4 bg-navy-900 hover:bg-navy-800 text-gold-500 font-black uppercase tracking-widest text-[11px] rounded-2xl shadow-xl shadow-navy-900/20 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                 >
-                  {isProcessingPayment && (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  {isProcessingPayment ? (
+                    <div className="w-4 h-4 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <CreditCard className="w-4 h-4" />
                   )}
-                  <span>{isProcessingPayment ? 'Saving...' : (editingPayment ? 'Update Payment Method' : 'Create Payment Method')}</span>
+                  <span>{isProcessingPayment ? 'Syncing...' : (editingPayment ? 'Overwrite Gateway' : 'Deploy Gateway')}</span>
                 </button>
               </div>
             </div>
@@ -1932,52 +1988,45 @@ const AdminSection = () => {
 
       {/* Confirmation Modal */}
       {showConfirmModal && confirmAction && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <Trash2 className="w-5 h-5 text-[#c9933a]" />
-                </div>
+        <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in zoom-in duration-300">
+          <div className="bg-white rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl border border-white/20">
+            <div className="flex flex-col items-center text-center mb-8">
+              <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center mb-6 shadow-sm border border-red-100">
+                <Trash2 className="w-10 h-10 text-gold-500" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Confirm Deletion</h3>
-                <p className="text-sm text-gray-500">This action cannot be undone</p>
-              </div>
+              <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter">Confirm Deletion</h3>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Irrevocable Administrative Action</p>
             </div>
 
-            <div className="mb-6">
-              <p className="text-gray-700">
-                Are you sure you want to delete{' '}
-                <span className="font-semibold text-gray-900">&ldquo;{confirmAction?.name}&rdquo;</span>?
-              </p>
-              <p className="text-sm text-gray-500 mt-2">
-                {confirmAction?.type === 'deletePlan' && 'This will permanently remove the investment plan.'}
-                {confirmAction?.type === 'deleteUser' && 'This will permanently remove the user account.'}
-                {confirmAction?.type === 'deletePayment' && 'This will permanently remove the payment method.'}
+            <div className="mb-10 text-center">
+              <p className="text-sm font-bold text-gray-400 leading-relaxed px-4">
+                Are you sure you want to permanently remove{' '}
+                <span className="text-navy-900">&ldquo;{confirmAction?.name}&rdquo;</span>? This will wipe all associated data from the production ledger.
               </p>
             </div>
 
-            <div className="flex space-x-3">
+            <div className="flex gap-4">
               <button
                 onClick={() => {
                   setShowConfirmModal(false);
                   setConfirmAction(null);
                 }}
                 disabled={isDeleting}
-                className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-8 py-4 bg-gray-50 hover:bg-gray-100 text-gray-400 font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all"
               >
-                Cancel
+                Abort
               </button>
               <button
                 onClick={executeDeleteAction}
                 disabled={isDeleting}
-                className="flex-1 px-4 py-2 bg-[#c9933a] hover:bg-[#b08132] text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                className="flex-[1.5] px-8 py-4 bg-navy-900 hover:bg-navy-800 text-gold-500 font-black uppercase tracking-widest text-[11px] rounded-2xl shadow-xl shadow-navy-900/20 transition-all flex items-center justify-center gap-3"
               >
-                {isDeleting && (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                {isDeleting ? (
+                  <div className="w-4 h-4 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <AlertCircle className="w-4 h-4" />
                 )}
-                <span>{isDeleting ? 'Deleting...' : 'Delete'}</span>
+                <span>{isDeleting ? 'Erasing...' : 'Confirm Purge'}</span>
               </button>
             </div>
           </div>
@@ -1986,122 +2035,164 @@ const AdminSection = () => {
 
       {/* Notification Modal */}
       {showNotificationModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {notificationType === 'broadcast' ? 'Send Broadcast Message' : 'Send Individual Message'}
-            </h3>
+        <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in fade-in duration-300">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-white/20 text-navy-900">
+            <div className="p-10">
+              <div className="flex items-center justify-between mb-10">
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter">
+                    {notificationType === 'broadcast' ? 'Mass Broadcast' : 'Targeted Intel'}
+                  </h3>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Direct communication with platform participants</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowNotificationModal(false);
+                    setNotificationMessage('');
+                    setNotificationTitle('');
+                    setNotificationDetails('');
+                    setNotificationFiles([]);
+                    setSelectedUsersForNotification([]);
+                  }}
+                  className="w-12 h-12 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-            {notificationType === 'individual' && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Select Users</label>
-                <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2">
-                  {users.map(user => (
-                    <label key={user._id} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
-                      <input
-                        type="checkbox"
-                        checked={selectedUsersForNotification.includes(user.userCode)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedUsersForNotification([...selectedUsersForNotification, user.userCode]);
-                          } else {
-                            setSelectedUsersForNotification(selectedUsersForNotification.filter(code => code !== user.userCode));
-                          }
-                        }}
-                        className="rounded"
-                      />
-                      <span className="text-sm">{user.firstName} {user.lastName} ({user.userCode})</span>
-                    </label>
-                  ))}
+              <div className="space-y-8">
+                {notificationType === 'individual' && (
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Target Recipients</label>
+                    <div className="max-h-52 overflow-y-auto bg-gray-50 border border-gray-100 rounded-3xl p-4 custom-scrollbar">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {users.map(user => (
+                          <label key={user._id} className={`flex items-center gap-3 p-3 rounded-2xl transition-all cursor-pointer ${selectedUsersForNotification.includes(user.userCode) ? 'bg-gold-50 border border-gold-200' : 'bg-white border border-gray-50 hover:border-gray-200'
+                            }`}>
+                            <div className="relative">
+                              <input
+                                type="checkbox"
+                                checked={selectedUsersForNotification.includes(user.userCode)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedUsersForNotification([...selectedUsersForNotification, user.userCode]);
+                                  } else {
+                                    setSelectedUsersForNotification(selectedUsersForNotification.filter(code => code !== user.userCode));
+                                  }
+                                }}
+                                className="sr-only"
+                              />
+                              <div className={`w-5 h-5 rounded-lg border-2 transition-all flex items-center justify-center ${selectedUsersForNotification.includes(user.userCode) ? 'bg-gold-500 border-gold-500' : 'bg-white border-gray-200'
+                                }`}>
+                                {selectedUsersForNotification.includes(user.userCode) && <CheckCircle className="w-3 h-3 text-white" />}
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-[11px] font-black uppercase tracking-tight">{user.firstName} {user.lastName}</span>
+                              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{user.userCode}</span>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="group">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Communication Title</label>
+                  <input
+                    type="text"
+                    value={notificationTitle}
+                    onChange={(e) => setNotificationTitle(e.target.value)}
+                    placeholder="e.g., Strategic Market Update"
+                    className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold"
+                  />
+                </div>
+
+                <div className="group">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Primary Briefing (Message)</label>
+                  <textarea
+                    value={notificationMessage}
+                    onChange={(e) => setNotificationMessage(e.target.value)}
+                    placeholder="Provide the core update details..."
+                    className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[120px]"
+                  />
+                </div>
+
+                <div className="group">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Expanded Intelligence (Details - Optional)</label>
+                  <textarea
+                    value={notificationDetails}
+                    onChange={(e) => setNotificationDetails(e.target.value)}
+                    placeholder="Additional context or legal disclaimers..."
+                    className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[80px]"
+                  />
+                </div>
+
+                <div className="group">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Asset Attachments</label>
+                  <div className="relative group/files">
+                    <input
+                      type="file"
+                      multiple
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          setNotificationFiles(Array.from(e.target.files));
+                        }
+                      }}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      accept="image/*,.pdf,.doc,.docx,.txt,.zip"
+                    />
+                    <div className="px-6 py-6 bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl flex items-center justify-center gap-4 group-hover/files:bg-gold-50 group-hover/files:border-gold-200 transition-all">
+                      <Plus className="w-5 h-5 text-gray-300 group-hover/files:text-gold-500" />
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover/files:text-gold-600">Secure File Linkages</span>
+                    </div>
+                  </div>
+                  {notificationFiles.length > 0 && (
+                    <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {notificationFiles.map((file, index) => (
+                        <div key={index} className="px-4 py-3 bg-white border border-gray-100 rounded-xl flex items-center gap-3 shadow-sm">
+                          <div className="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center shrink-0">
+                            <Activity className="w-4 h-4 text-gray-300" />
+                          </div>
+                          <div className="overflow-hidden">
+                            <p className="text-[10px] font-black text-navy-900 truncate uppercase tracking-tighter">{file.name}</p>
+                            <p className="text-[8px] font-bold text-gray-300 uppercase">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
-              <input
-                type="text"
-                value={notificationTitle}
-                onChange={(e) => setNotificationTitle(e.target.value)}
-                placeholder="Enter notification title..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Message *</label>
-              <textarea
-                value={notificationMessage}
-                onChange={(e) => setNotificationMessage(e.target.value)}
-                placeholder="Enter your message here..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                rows={4}
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Details (Optional)</label>
-              <textarea
-                value={notificationDetails}
-                onChange={(e) => setNotificationDetails(e.target.value)}
-                placeholder="Enter additional details..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                rows={3}
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Attachments (Optional)</label>
-              <input
-                type="file"
-                multiple
-                onChange={(e) => {
-                  if (e.target.files) {
-                    setNotificationFiles(Array.from(e.target.files));
-                  }
-                }}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                accept="image/*,.pdf,.doc,.docx,.txt,.zip"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Supported formats: Images, PDF, DOC, DOCX, TXT, ZIP (Max 10MB each)
-              </p>
-              {notificationFiles.length > 0 && (
-                <div className="mt-2">
-                  <p className="text-sm font-medium text-gray-700">Selected files:</p>
-                  <ul className="text-sm text-gray-600">
-                    {notificationFiles.map((file, index) => (
-                      <li key={index}>• {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => {
-                  setShowNotificationModal(false);
-                  setNotificationMessage('');
-                  setNotificationTitle('');
-                  setNotificationDetails('');
-                  setNotificationFiles([]);
-                  setSelectedUsersForNotification([]);
-                }}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={sendNotification}
-                disabled={sendingNotification || !notificationMessage.trim() || !notificationTitle.trim() || (notificationType === 'individual' && selectedUsersForNotification.length === 0)}
-                className="px-4 py-2 bg-[#c9933a] hover:bg-[#b08132] text-white rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
-              >
-                {sendingNotification && (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                )}
-                <span>{sendingNotification ? 'Sending...' : 'Send'}</span>
-              </button>
+              <div className="mt-12 flex gap-4">
+                <button
+                  onClick={() => {
+                    setShowNotificationModal(false);
+                    setNotificationMessage('');
+                    setNotificationTitle('');
+                    setNotificationDetails('');
+                    setNotificationFiles([]);
+                    setSelectedUsersForNotification([]);
+                  }}
+                  className="flex-1 px-8 py-4 bg-gray-50 hover:bg-gray-100 text-gray-400 font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all"
+                >
+                  Discard
+                </button>
+                <button
+                  onClick={sendNotification}
+                  disabled={sendingNotification || !notificationMessage.trim() || !notificationTitle.trim() || (notificationType === 'individual' && selectedUsersForNotification.length === 0)}
+                  className="flex-[2] px-8 py-4 bg-navy-900 hover:bg-navy-800 text-gold-500 font-black uppercase tracking-widest text-[11px] rounded-2xl shadow-xl shadow-navy-900/20 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                >
+                  {sendingNotification ? (
+                    <div className="w-4 h-4 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Bell className="w-4 h-4" />
+                  )}
+                  <span>{sendingNotification ? 'Transmitting...' : 'Authorize Broadcast'}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -2109,135 +2200,163 @@ const AdminSection = () => {
 
       {/* User Detail Modal */}
       {showUserDetailModal && userDetailData && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">User Details</h3>
+        <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in fade-in duration-300">
+          <div className="bg-white rounded-[3rem] w-full max-w-5xl max-h-[90vh] overflow-y-auto border border-white/20 shadow-2xl text-navy-900">
+            <div className="p-10">
+              <div className="flex justify-between items-start mb-12">
+                <div>
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className="w-16 h-16 bg-navy-900 rounded-2xl flex items-center justify-center shadow-xl shadow-navy-900/10">
+                      <Users className="w-8 h-8 text-gold-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-3xl font-black uppercase tracking-tighter">Participant Intelligence</h3>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Comprehensive profile & ledger audit</p>
+                    </div>
+                  </div>
+                </div>
                 <button
                   onClick={() => setShowUserDetailModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="w-12 h-12 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all"
                 >
-                  <XCircle className="w-6 h-6" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* User Information */}
-                <div className="space-y-4">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-semibold text-gray-900 mb-3">Personal Information</h4>
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Users className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">Name:</span>
-                        <span className="font-medium">{userDetailData?.firstName} {userDetailData?.lastName}</span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                {/* Left Column: Personal & Financial */}
+                <div className="lg:col-span-7 space-y-8">
+                  <div className="bg-gray-50 rounded-[2.5rem] p-8 border border-gray-100">
+                    <div className="flex items-center justify-between mb-8">
+                      <h4 className="text-xs font-black uppercase tracking-widest text-navy-900/40">Core Credentials</h4>
+                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${userDetailData?.emailVerified ? 'bg-green-50 text-green-500 border-green-100' : 'bg-red-50 text-red-500 border-red-100'
+                        }`}>
+                        {userDetailData?.emailVerified ? 'Verified Authority' : 'Unverified Access'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="flex items-start gap-4">
+                        <div className="p-2.5 bg-white rounded-xl shadow-sm"><Users className="w-4 h-4 text-gray-400" /></div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Full Legal Name</p>
+                          <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{userDetailData?.firstName} {userDetailData?.lastName}</p>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Mail className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">Email:</span>
-                        <span className="font-medium">{userDetailData?.email}</span>
-                        <span className={`px-2 py-1 rounded-full text-xs ${userDetailData?.emailVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-[#b08132]'
-                          }`}>
-                          {userDetailData?.emailVerified ? 'Verified' : 'Unverified'}
-                        </span>
+                      <div className="flex items-start gap-4">
+                        <div className="p-2.5 bg-white rounded-xl shadow-sm"><Mail className="w-4 h-4 text-gray-400" /></div>
+                        <div className="overflow-hidden">
+                          <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Communication Endpoint</p>
+                          <p className="text-sm font-black text-navy-900 truncate tracking-tight">{userDetailData?.email}</p>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Phone className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">Phone:</span>
-                        <span className="font-medium">{userDetailData?.phone || 'Not provided'}</span>
+                      <div className="flex items-start gap-4">
+                        <div className="p-2.5 bg-white rounded-xl shadow-sm"><Phone className="w-4 h-4 text-gray-400" /></div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Contact Line</p>
+                          <p className="text-sm font-black text-navy-900 tracking-tight">{userDetailData?.phone || 'Not Logged'}</p>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">Location:</span>
-                        <span className="font-medium">{userDetailData.city && userDetailData.country ? `${userDetailData.city}, ${userDetailData.country}` : 'Not provided'}</span>
+                      <div className="flex items-start gap-4">
+                        <div className="p-2.5 bg-white rounded-xl shadow-sm"><MapPin className="w-4 h-4 text-gray-400" /></div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Geographic Origin</p>
+                          <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{userDetailData.city && userDetailData.country ? `${userDetailData.city}, ${userDetailData.country}` : 'Unknown Domain'}</p>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Shield className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">Referral Code:</span>
-                        <span className="font-medium">{userDetailData.userCode}</span>
+                    </div>
+
+                    <div className="mt-8 pt-8 border-t border-gray-200/50 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2.5 bg-navy-900 rounded-xl"><Shield className="w-4 h-4 text-gold-500" /></div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Referral Signature</p>
+                          <p className="text-sm font-black text-navy-900 tracking-widest">{userDetailData.userCode}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Account Balances */}
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-semibold text-gray-900 mb-3">Account Balances</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Main Balance:</span>
-                        <span className="font-medium">${userDetailData.balances?.main || 0}</span>
+                  <div className="bg-navy-900 rounded-[2.5rem] p-8 border border-navy-800 shadow-xl shadow-navy-900/10">
+                    <h4 className="text-xs font-black uppercase tracking-widest text-white/40 mb-8">Asset Allocation</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="bg-navy-800/50 p-6 rounded-3xl border border-navy-700/50">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Liquidity</p>
+                        <p className="text-xl font-black text-white tracking-tighter">${userDetailData.balances?.main?.toLocaleString() || 0}</p>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Investment Balance:</span>
-                        <span className="font-medium">${userDetailData.balances?.investment || 0}</span>
+                      <div className="bg-navy-800/50 p-6 rounded-3xl border border-navy-700/50">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Committed</p>
+                        <p className="text-xl font-black text-white tracking-tighter">${userDetailData.balances?.investment?.toLocaleString() || 0}</p>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Referral Balance:</span>
-                        <span className="font-medium">${userDetailData.balances?.referral || 0}</span>
-                      </div>
-                      <div className="flex justify-between border-t pt-2">
-                        <span className="text-sm font-semibold text-gray-900">Total Balance:</span>
-                        <span className="font-bold text-[#c9933a]">${userDetailData.balances?.total || 0}</span>
+                      <div className="bg-navy-800/50 p-6 rounded-3xl border border-navy-700/50">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Referral</p>
+                        <p className="text-xl font-black text-white tracking-tighter">${userDetailData.balances?.referral?.toLocaleString() || 0}</p>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Fix Balances Button */}
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold text-yellow-800 mb-1">Balance Correction</h4>
-                        <p className="text-sm text-yellow-700">Recalculate balances from transaction history</p>
-                      </div>
-                      <button
-                        onClick={() => handleFixBalances(userDetailData._id!)}
-                        className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm font-medium"
-                      >
-                        Fix Balances
-                      </button>
+                    <div className="mt-6 p-6 bg-gold-500 rounded-3xl flex items-center justify-between shadow-lg shadow-gold-500/10">
+                      <span className="text-[11px] font-black text-white uppercase tracking-widest">Aggregate Equity</span>
+                      <span className="text-2xl font-black text-navy-900 tracking-tighter">${userDetailData.balances?.total?.toLocaleString() || 0}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Transaction Logs and Activity */}
-                <div className="space-y-4">
-                  {/* Send Message */}
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-semibold text-gray-900 mb-3">Send Message</h4>
-                    <div className="space-y-3">
+                {/* Right Column: Actions & Logs */}
+                <div className="lg:col-span-5 space-y-8">
+                  <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm">
+                    <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 mb-6 flex items-center gap-3">
+                      <MessageSquare className="w-4 h-4 text-gold-500" />
+                      Direct Transmission
+                    </h4>
+                    <div className="space-y-4">
                       <textarea
                         value={userIndividualMessage}
                         onChange={(e) => setUserIndividualMessage(e.target.value)}
-                        placeholder="Type your message here..."
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                        rows={3}
+                        placeholder="Encrypted admin briefing..."
+                        className="w-full p-6 bg-gray-50 border border-gray-100 rounded-3xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[140px]"
                       />
                       <button
                         onClick={() => sendUserNotification(userDetailData.userCode, userIndividualMessage)}
                         disabled={!userIndividualMessage.trim() || isSendingMessage}
-                        className="w-full bg-[#c9933a] hover:bg-[#b08132] text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                        className="w-full bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3 disabled:opacity-50"
                       >
-                        {isSendingMessage && (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        {isSendingMessage ? (
+                          <div className="w-4 h-4 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <Bell className="w-4 h-4" />
                         )}
-                        <span>{isSendingMessage ? 'Sending...' : 'Send Message'}</span>
+                        <span>{isSendingMessage ? 'Transmitting...' : 'Send Secure Message'}</span>
                       </button>
                     </div>
                   </div>
 
-                  {/* Activity Log */}
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-semibold text-gray-900 mb-3">Activity Log</h4>
-                    <div className="space-y-2">
-                      {userDetailData?.activityLog?.map((activity: { action: string; timestamp: string }, index: number) => (
-                        <div key={index} className="flex items-center space-x-2 text-sm">
-                          <Activity className="w-4 h-4 text-gray-500" />
-                          <span className="text-gray-600">{activity.action}</span>
-                          <span className="text-gray-400">•</span>
-                          <span className="text-gray-500">{new Date(activity.timestamp).toLocaleDateString()}</span>
+                  <div className="bg-gray-50 rounded-[2.5rem] p-8 border border-gray-100">
+                    <div className="flex items-center justify-between mb-8">
+                      <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 flex items-center gap-3">
+                        <Activity className="w-4 h-4 text-gold-500" />
+                        Operation Logs
+                      </h4>
+                      <button
+                        onClick={() => handleFixBalances(userDetailData._id!)}
+                        className="px-4 py-2 bg-white border border-gray-200 text-gold-600 font-black uppercase tracking-widest text-[9px] rounded-xl hover:bg-gold-50 hover:border-gold-100 transition-all shadow-sm"
+                      >
+                        Sync Ledger
+                      </button>
+                    </div>
+                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                      {userDetailData?.activityLog?.length > 0 ? (
+                        userDetailData.activityLog.map((activity: any, index: number) => (
+                          <div key={index} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-start gap-4">
+                            <div className="mt-1"><Clock className="w-3.5 h-3.5 text-gray-300" /></div>
+                            <div>
+                              <p className="text-[11px] font-black text-navy-900 uppercase tracking-tight leading-tight">{activity.action}</p>
+                              <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">{new Date(activity.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                            </div>
+                          </div>
+                        ))) : (
+                        <div className="text-center py-10">
+                          <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">No activity sequences recorded</p>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
                 </div>
@@ -2248,110 +2367,138 @@ const AdminSection = () => {
       )}
       {/* Transaction Detail Modal */}
       {showTransactionModal && selectedTransaction && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  {selectedTransactionType === 'deposits' ? 'Deposit' : 'Withdrawal'} Details
-                </h3>
+        <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in fade-in duration-300">
+          <div className="bg-white rounded-[3rem] shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20 text-navy-900">
+            <div className="p-10">
+              <div className="flex items-center justify-between mb-10">
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter">
+                    {selectedTransactionType === 'deposits' ? 'Ingestion Audit' : 'Disbursement Audit'}
+                  </h3>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Strategic ledger verification protocol</p>
+                </div>
                 <button
                   onClick={() => {
                     setShowTransactionModal(false);
                     setSelectedTransaction(null);
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="w-12 h-12 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all"
                 >
-                  <XCircle className="w-6 h-6" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-6">
-                {/* Transaction Info */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
-                    <div className="text-lg font-semibold text-gray-900">${selectedTransaction.amount}</div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <span className={`px-3 py-1 text-sm font-semibold rounded-full ${selectedTransaction.status === 'approved' || selectedTransaction.status === 'completed' ? 'bg-green-100 text-green-800' :
-                      selectedTransaction.status === 'rejected' ? 'bg-red-100 text-[#b08132]' :
-                        selectedTransaction.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                          'bg-yellow-100 text-yellow-800'
+              <div className="space-y-8">
+                {/* Status Bar */}
+                <div className="flex items-center justify-between p-6 bg-gray-50 rounded-3xl border border-gray-100 shadow-sm">
+                  <div className="flex items-center gap-4">
+                    <div className={`p-4 rounded-2xl shadow-sm ${selectedTransaction.status === 'approved' || selectedTransaction.status === 'completed' ? 'bg-green-50 text-green-500' :
+                        selectedTransaction.status === 'rejected' ? 'bg-red-50 text-red-500' : 'bg-gold-50 text-gold-500'
                       }`}>
-                      {selectedTransaction.status}
-                    </span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">User</label>
-                    <div className="text-sm text-gray-900">
-                      <div className="font-medium">{getUserInfo(selectedTransaction.userId).name}</div>
-                      <div className="text-xs text-gray-500 font-mono">Code: {getUserInfo(selectedTransaction.userId).userCode}</div>
-                      <div className="text-xs text-gray-500 font-mono">ID: {getUserInfo(selectedTransaction.userId).userId}</div>
-                      <div className="text-xs text-gray-500 font-mono">Email: {getUserInfo(selectedTransaction.userId).email}</div>
+                      {selectedTransaction.status === 'approved' || selectedTransaction.status === 'completed' ? <CheckCircle className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Asset Status</p>
+                      <p className="text-sm font-black uppercase tracking-widest">{selectedTransaction.status}</p>
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
-                    <div className="text-sm text-gray-900">{new Date(selectedTransaction.createdAt).toLocaleString()}</div>
+                  <div className="text-right">
+                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Transaction Sum</p>
+                    <p className="text-2xl font-black tracking-tighter">${selectedTransaction.amount?.toLocaleString()}</p>
                   </div>
                 </div>
 
-                {/* Payment Method Info */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Payment Method ID</label>
-                  <div className="text-sm text-gray-900 font-mono">{selectedTransaction.paymentMethodId}</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                    <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-4">Origin / Recipient</p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-navy-50 rounded-2xl flex items-center justify-center shrink-0">
+                        <Users className="w-6 h-6 text-navy-900" />
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-[11px] font-black uppercase tracking-tight truncate">{getUserInfo(selectedTransaction.userId).name}</p>
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{getUserInfo(selectedTransaction.userId).userCode}</p>
+                      </div>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-gray-50">
+                      <p className="text-[9px] font-bold text-gray-400 break-all">{getUserInfo(selectedTransaction.userId).email}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                    <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-4">Chronology</p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center shrink-0">
+                        <Clock className="w-6 h-6 text-gray-300" />
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-black uppercase tracking-tight">{new Date(selectedTransaction.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{new Date(selectedTransaction.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Screenshot for deposits */}
-                {selectedTransactionType === 'deposits' && selectedTransaction && 'screenshot' in selectedTransaction && selectedTransaction.screenshot && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Payment Screenshot</label>
-                    <Image
-                      src={selectedTransaction.screenshot}
-                      alt="Payment Screenshot"
-                      width={400}
-                      height={300}
-                      className="w-full max-w-md h-auto rounded border"
-                    />
+                {/* Evidence Artifacts */}
+                {selectedTransactionType === 'deposits' && selectedTransaction && 'screenshot' in selectedTransaction && selectedTransaction.screenshot ? (
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 ml-1">Visual Verification Proof</label>
+                    <div className="relative rounded-[2rem] overflow-hidden border border-gray-100 shadow-lg group-hover:shadow-2xl transition-all duration-500">
+                      <Image
+                        src={selectedTransaction.screenshot}
+                        alt="Payment Screenshot"
+                        width={800}
+                        height={600}
+                        className="w-full h-auto object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-navy-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Documented Ledger Entry Evidence</span>
+                      </div>
+                    </div>
                   </div>
-                )}
-
-                {/* Account Details for withdrawals */}
-                {selectedTransactionType === 'withdrawals' && selectedTransaction && 'accountDetails' in selectedTransaction && selectedTransaction.accountDetails && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Account Details</label>
-                    <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                      <div><span className="font-medium">Account Name:</span> {selectedTransaction.accountDetails.accountName}</div>
-                      <div><span className="font-medium">Account Number:</span> <span className="font-mono break-all">{selectedTransaction.accountDetails.accountNumber}</span></div>
+                ) : selectedTransactionType === 'withdrawals' && selectedTransaction && 'accountDetails' in selectedTransaction && selectedTransaction.accountDetails && (
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 ml-1">Destinaton Intelligence (Account Details)</label>
+                    <div className="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div>
+                        <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-1">Entity Label</p>
+                        <p className="text-sm font-black uppercase tracking-tight">{selectedTransaction.accountDetails.accountName}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-1">Inbound Destination</p>
+                        <p className="text-sm font-black font-mono break-all">{selectedTransaction.accountDetails.accountNumber}</p>
+                      </div>
                       {selectedTransaction.accountDetails.bankName && (
-                        <div><span className="font-medium">Bank:</span> {selectedTransaction.accountDetails.bankName}</div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-1">Financial Institution</p>
+                          <p className="text-sm font-black uppercase tracking-tight">{selectedTransaction.accountDetails.bankName}</p>
+                        </div>
                       )}
                       {selectedTransaction.accountDetails.network && (
-                        <div><span className="font-medium">Network:</span> {selectedTransaction.accountDetails.network}</div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-1">Operating Protocol</p>
+                          <p className="text-sm font-black uppercase tracking-tight">{selectedTransaction.accountDetails.network}</p>
+                        </div>
                       )}
                     </div>
                   </div>
                 )}
 
-                {/* Actions */}
-                <div className="space-y-4 pt-4 border-t">
-                  {/* Rejection Reason Input */}
+                {/* Audit Actions */}
+                <div className="space-y-6 pt-8 border-t border-gray-100">
                   {selectedTransaction.status === 'pending' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Rejection Reason (if rejecting)</label>
+                    <div className="group">
+                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Audit Discrepancy Note (Rejection Reason)</label>
                       <textarea
                         value={rejectionReason}
                         onChange={(e) => setRejectionReason(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent"
-                        rows={3}
-                        placeholder="Enter reason for rejection (optional)"
+                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[100px]"
+                        placeholder="Detail specific failures or inconsistencies..."
                       />
                     </div>
                   )}
 
-                  <div className="flex space-x-4">
+                  <div className="flex gap-4">
                     {selectedTransaction.status === 'pending' && (
                       <>
                         {selectedTransactionType === 'deposits' ? (
@@ -2365,9 +2512,10 @@ const AdminSection = () => {
                                 setSelectedTransaction(null);
                                 setRejectionReason('');
                               }}
-                              className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold"
+                              className="flex-[2] bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3"
                             >
-                              Approve
+                              <CheckCircle className="w-4 h-4" />
+                              Authorize
                             </button>
                             <button
                               onClick={() => {
@@ -2378,8 +2526,9 @@ const AdminSection = () => {
                                 setSelectedTransaction(null);
                                 setRejectionReason('');
                               }}
-                              className="flex-1 bg-[#c9933a] hover:bg-[#b08132] text-white px-4 py-2 rounded-lg font-semibold"
+                              className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3"
                             >
+                              <XCircle className="w-4 h-4" />
                               Reject
                             </button>
                           </>
@@ -2394,9 +2543,10 @@ const AdminSection = () => {
                                 setSelectedTransaction(null);
                                 setRejectionReason('');
                               }}
-                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold"
+                              className="flex-[2] bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3"
                             >
-                              Process
+                              <RefreshCw className="w-4 h-4" />
+                              Execute
                             </button>
                             <button
                               onClick={() => {
@@ -2407,8 +2557,9 @@ const AdminSection = () => {
                                 setSelectedTransaction(null);
                                 setRejectionReason('');
                               }}
-                              className="flex-1 bg-[#c9933a] hover:bg-[#b08132] text-white px-4 py-2 rounded-lg font-semibold"
+                              className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3"
                             >
+                              <XCircle className="w-4 h-4" />
                               Reject
                             </button>
                           </>
@@ -2426,9 +2577,10 @@ const AdminSection = () => {
                           setSelectedTransaction(null);
                           setRejectionReason('');
                         }}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold"
+                        className="flex-[2] bg-green-500 hover:bg-green-600 text-white px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-green-900/10 flex items-center justify-center gap-3"
                       >
-                        Complete
+                        <CheckCircle className="w-4 h-4" />
+                        Complete Sequence
                       </button>
                     )}
 
@@ -2438,9 +2590,9 @@ const AdminSection = () => {
                         setSelectedTransaction(null);
                         setRejectionReason('');
                       }}
-                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold"
+                      className="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-400 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center"
                     >
-                      Close
+                      Exit Audit
                     </button>
                   </div>
                 </div>
@@ -2461,6 +2613,13 @@ const AdminSection = () => {
       {activeTab === 'withdrawal-schedule' && (
         <div>
           <WithdrawalScheduleManager />
+        </div>
+      )}
+
+      {/* Newsletter Tab */}
+      {activeTab === 'newsletter' && (
+        <div>
+          <NewsletterManager />
         </div>
       )}
     </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
+import { ShieldCheck, AlertCircle, Clock } from 'lucide-react';
 
 const TransferMoneySection = () => {
   const { userProfile } = useAuth();
@@ -183,7 +184,38 @@ const TransferMoneySection = () => {
 
   return (
     <div className="space-y-4 mobile:space-y-6">
-      <div className="bg-white rounded-lg shadow-sm p-4 mobile:p-6">
+      {/* KYC Verification Warning */}
+      {userProfile?.kycStatus !== 'verified' && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <ShieldCheck className="h-6 w-6 text-orange-600" />
+            </div>
+            <div className="ml-3 flex-1">
+              <h3 className="text-lg font-bold text-orange-800 mb-2">
+                KYC Verification Required
+              </h3>
+              <p className="text-sm text-orange-700 mb-4">
+                To ensure the security of your transactions and comply with financial regulations, you must complete your identity verification before sending money.
+              </p>
+              <div className="flex items-center space-x-4">
+                {userProfile?.kycStatus === 'pending' ? (
+                  <div className="px-4 py-2 bg-orange-100 text-orange-800 rounded-xl font-bold flex items-center space-x-2">
+                    <Clock className="w-5 h-5" />
+                    <span>Verification Pending Review</span>
+                  </div>
+                ) : (
+                  <div className="text-sm font-bold text-navy-900 border-b-2 border-gold-500 pb-1">
+                    Please complete Identity Verification via the sidebar
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className={`bg-white rounded-lg shadow-sm p-4 mobile:p-6 ${userProfile?.kycStatus !== 'verified' ? 'opacity-50 pointer-events-none' : ''}`}>
         <p className="text-sm mobile:text-base text-gray-600 mb-4 mobile:mb-6">
           Transfer money to other users using their email and unique user code. Enter the recipient details and amount.
         </p>
@@ -208,8 +240,8 @@ const TransferMoneySection = () => {
               <input
                 type="email"
                 className={`w-full px-4 py-2.5 mobile:py-3 border rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent text-sm mobile:text-base ${receiverValid ? 'border-green-300 bg-green-50' :
-                    error && receiverEmail ? 'border-red-300 bg-[#fdfcf0]' :
-                      'border-gray-300'
+                  error && receiverEmail ? 'border-red-300 bg-[#fdfcf0]' :
+                    'border-gray-300'
                   }`}
                 placeholder="receiver@example.com"
                 value={receiverEmail}
@@ -229,9 +261,9 @@ const TransferMoneySection = () => {
               <input
                 type="text"
                 className={`w-full px-4 py-2.5 mobile:py-3 border rounded-lg focus:ring-2 focus:ring-[#c9933a] focus:border-transparent transition-colors text-sm mobile:text-base ${receiverValid ? 'border-green-500 bg-green-50' :
-                    validationError && receiverUserCode.length === 8 ? 'border-[#c9933a] bg-[#fdfcf0]' :
-                      receiverUserCode.length > 0 && receiverUserCode.length !== 8 ? 'border-orange-300 bg-orange-50' :
-                        'border-gray-300'
+                  validationError && receiverUserCode.length === 8 ? 'border-[#c9933a] bg-[#fdfcf0]' :
+                    receiverUserCode.length > 0 && receiverUserCode.length !== 8 ? 'border-orange-300 bg-orange-50' :
+                      'border-gray-300'
                   }`}
                 placeholder="ABC12345"
                 value={receiverUserCode}
@@ -266,8 +298,8 @@ const TransferMoneySection = () => {
             <button
               type="button"
               onClick={handleNext}
-              disabled={!receiverValid || isValidating}
-              className="w-full bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center text-sm mobile:text-base"
+              disabled={!receiverValid || isValidating || userProfile?.kycStatus !== 'verified'}
+              className="w-full bg-[#0b1626] hover:bg-[#1a2b45] disabled:bg-gray-400 disabled:cursor-not-allowed text-gold-500 py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center text-sm mobile:text-base border border-gold-500/20"
             >
               Next: Enter Amount →
             </button>
@@ -366,12 +398,12 @@ const TransferMoneySection = () => {
                 </button>
                 <button
                   type="submit"
-                  disabled={!transferAmount || parseFloat(transferAmount) < 500 || parseFloat(transferAmount) > 10000 || isTransferring}
-                  className="flex-1 bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center text-sm mobile:text-base"
+                  disabled={!transferAmount || parseFloat(transferAmount) < 500 || parseFloat(transferAmount) > 10000 || isTransferring || userProfile?.kycStatus !== 'verified'}
+                  className="flex-1 bg-[#0b1626] hover:bg-[#1a2b45] disabled:bg-gray-400 disabled:cursor-not-allowed text-gold-500 py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center text-sm mobile:text-base border border-gold-500/20"
                 >
                   {isTransferring ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 mobile:h-5 mobile:w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 mobile:h-5 mobile:w-5 text-gold-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>

@@ -70,6 +70,13 @@ export interface User {
     action: string;
     timestamp: string;
   }>;
+  kycStatus?: 'not_started' | 'pending' | 'verified' | 'rejected';
+  kycDocuments?: {
+    idFront?: string; // base64 image
+    idBack?: string;  // base64 image
+    selfie?: string;   // base64 image
+  };
+  kycRejectionReason?: string;
 }
 
 export class UserService {

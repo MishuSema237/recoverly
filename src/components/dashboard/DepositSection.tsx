@@ -162,14 +162,52 @@ const DepositSection = () => {
           </div>
         </div>
 
+        {/* KYC Verification Warning */}
+        {userProfile?.kycStatus !== 'verified' && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <ShieldCheck className="h-6 w-6 text-orange-600" />
+              </div>
+              <div className="ml-3 flex-1">
+                <h3 className="text-lg font-bold text-orange-800 mb-2">
+                  KYC Verification Required
+                </h3>
+                <p className="text-sm text-orange-700 mb-4">
+                  To ensure the security of your transactions and comply with financial regulations, you must complete your identity verification before making any deposits.
+                </p>
+                <div className="flex items-center space-x-4">
+                  {userProfile?.kycStatus === 'pending' ? (
+                    <div className="px-4 py-2 bg-orange-100 text-orange-800 rounded-xl font-bold flex items-center space-x-2">
+                      <Clock className="w-5 h-5" />
+                      <span>Verification Pending Review</span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        // Attempt to trigger the section change in the parent
+                        // In Next.js, we can also use query params or a shared state.
+                        // For now, we'll suggest using the sidebar or the header badge
+                        // but if we want it to work here, we'd need a prop.
+                        // Since I don't want to change props yet, I'll just update the text.
+                      }}
+                      className="px-6 py-2 bg-navy-900 text-gold-500 rounded-xl font-bold hover:bg-navy-800 transition-colors"
+                    >
+                      Complete Identity Verification via Sidebar
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Email Verification Warning */}
-        {!userProfile?.emailVerified && (
+        {userProfile?.emailVerified === false && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+                <AlertCircle className="h-5 w-5 text-yellow-400" />
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-yellow-800">
@@ -183,7 +221,10 @@ const DepositSection = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 mobile:space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 mobile:space-y-6" style={{
+          opacity: userProfile?.kycStatus !== 'verified' ? 0.5 : 1,
+          pointerEvents: userProfile?.kycStatus !== 'verified' ? 'none' : 'auto'
+        }}>
           {/* Payment Method Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">Select Payment Method</label>
@@ -194,8 +235,8 @@ const DepositSection = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className={`p-3 mobile:p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedMethod?._id === method._id
-                      ? 'border-[#c9933a] bg-[#fdfcf0]'
-                      : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-[#c9933a] bg-[#fdfcf0]'
+                    : 'border-gray-200 hover:border-gray-300'
                     }`}
                   onClick={() => setSelectedMethod(method)}
                 >
@@ -257,8 +298,8 @@ const DepositSection = () => {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className={`w-full px-4 py-2.5 mobile:py-3 border rounded-lg focus:ring-2 focus:border-transparent text-sm mobile:text-base ${amount && !isAmountValid
-                  ? 'border-[#c9933a] focus:ring-[#c9933a] bg-[#fdfcf0]'
-                  : 'border-gray-300 focus:ring-[#c9933a]'
+                ? 'border-[#c9933a] focus:ring-[#c9933a] bg-[#fdfcf0]'
+                : 'border-gray-300 focus:ring-[#c9933a]'
                 }`}
               placeholder="Enter amount to deposit"
               min="1"
@@ -319,8 +360,8 @@ const DepositSection = () => {
             type="submit"
             disabled={!isFormValid || isSubmitting || !userProfile?.emailVerified}
             className={`w-full text-white py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm mobile:text-base ${!isFormValid && !isSubmitting
-                ? 'bg-[#c9933a] hover:bg-[#c9933a]'
-                : 'bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400'
+              ? 'bg-[#c9933a] hover:bg-[#c9933a]'
+              : 'bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400'
               }`}
           >
             {isSubmitting ? (

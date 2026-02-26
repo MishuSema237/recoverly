@@ -127,8 +127,8 @@ const NotificationsSection = () => {
     <div className="px-0 lg:px-6">
       <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-3.5 mobile:p-4 lg:p-6">
         <div className="flex items-center mb-4 mobile:mb-6">
-          <div className="p-2 lg:p-2.5 bg-blue-100 rounded-full shrink-0">
-            <Bell className="w-4 h-4 mobile:w-5 mobile:h-5 lg:w-6 lg:h-6 text-blue-600" />
+          <div className="p-2 lg:p-2.5 bg-gold-500/10 rounded-full shrink-0 border border-gold-500/20">
+            <Bell className="w-4 h-4 mobile:w-5 mobile:h-5 lg:w-6 lg:h-6 text-gold-600" />
           </div>
           <div className="ml-3">
             <h2 className="text-base mobile:text-lg lg:text-xl font-bold text-gray-900 leading-tight">Notifications</h2>
@@ -161,8 +161,8 @@ const NotificationsSection = () => {
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
                           <div className={`p-1.5 mobile:p-2 rounded-full shrink-0 ${notification.type === 'broadcast'
-                              ? 'bg-blue-100 text-blue-600'
-                              : 'bg-green-100 text-green-600'
+                            ? 'bg-gold-500/10 text-gold-600'
+                            : 'bg-green-100 text-green-600'
                             }`}>
                             {notification.type === 'broadcast' ? (
                               <AlertCircle className="w-3.5 h-3.5 mobile:w-4 mobile:h-4" />
@@ -178,7 +178,7 @@ const NotificationsSection = () => {
                                 {notification.title || (notification.type === 'broadcast' ? 'System Announcement' : 'Support Message')}
                               </h3>
                               {!notification.read && (
-                                <span className="px-2 py-1 bg-red-100 text-[#b08132] text-xs rounded-full font-medium">
+                                <span className="px-2 py-1 bg-gold-500/20 text-gold-600 text-[10px] rounded-full font-bold uppercase tracking-wider">
                                   New
                                 </span>
                               )}
@@ -197,7 +197,7 @@ const NotificationsSection = () => {
                           </p>
 
                           {notification.details && (
-                            <span className="text-[10px] mobile:text-xs text-blue-600 font-medium">
+                            <span className="text-[10px] mobile:text-xs text-gold-600 font-bold uppercase tracking-wider">
                               {isExpanded ? 'Show less' : 'Show details'}
                             </span>
                           )}

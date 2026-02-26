@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Clock, Calendar, Save, AlertCircle } from 'lucide-react';
+import { Clock, Calendar, Save, AlertCircle, CheckCircle, ShieldCheck } from 'lucide-react';
 
 interface WithdrawalSchedule {
   enabled: boolean;
@@ -42,7 +42,7 @@ const WithdrawalScheduleManager = () => {
     try {
       const response = await fetch('/api/admin/withdrawal-schedule');
       const result = await response.json();
-      
+
       if (result.success) {
         setSchedule(result.data);
       }
@@ -69,7 +69,7 @@ const WithdrawalScheduleManager = () => {
       const result = await response.json();
 
       if (result.success) {
-        setMessage({ type: 'success', text: 'Withdrawal schedule updated successfully!' });
+        setMessage({ type: 'success', text: 'Protocol Synced Successfully' });
       } else {
         setMessage({ type: 'error', text: result.error || 'Failed to update schedule' });
       }
@@ -102,12 +102,19 @@ const WithdrawalScheduleManager = () => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-10 animate-pulse">
+        <div className="flex items-center gap-6 mb-10">
+          <div className="w-16 h-16 bg-gray-50 rounded-2xl"></div>
+          <div className="space-y-3">
+            <div className="h-6 bg-gray-50 rounded-lg w-48"></div>
+            <div className="h-4 bg-gray-50 rounded-lg w-64"></div>
+          </div>
+        </div>
+        <div className="space-y-6">
+          <div className="h-20 bg-gray-50 rounded-3xl"></div>
+          <div className="grid grid-cols-2 gap-8">
+            <div className="h-40 bg-gray-50 rounded-3xl"></div>
+            <div className="h-40 bg-gray-50 rounded-3xl"></div>
           </div>
         </div>
       </div>
@@ -115,125 +122,144 @@ const WithdrawalScheduleManager = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <div className="flex items-center space-x-3 mb-6">
-        <div className="p-2 bg-blue-100 rounded-lg">
-          <Clock className="w-6 h-6 text-blue-600" />
+    <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-10 text-navy-900">
+      <div className="flex items-center gap-6 mb-10">
+        <div className="w-16 h-16 bg-navy-900 rounded-2xl flex items-center justify-center shadow-xl shadow-navy-900/10 shrink-0">
+          <Clock className="w-8 h-8 text-gold-500" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Withdrawal Schedule</h3>
-          <p className="text-sm text-gray-600">Configure when users can make withdrawal requests</p>
+          <h3 className="text-2xl font-black uppercase tracking-tighter">Temporal Restriction</h3>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Configure active disbursement windows</p>
         </div>
       </div>
 
       {message.text && (
-        <div className={`mb-6 p-4 rounded-lg ${
-          message.type === 'success' 
-            ? 'bg-green-50 border border-green-200 text-green-800' 
-            : 'bg-[#fdfcf0] border border-red-200 text-[#b08132]'
-        }`}>
-          {message.text}
+        <div className={`mb-10 p-6 rounded-3xl font-black uppercase tracking-widest text-[10px] flex items-center gap-4 transition-all animate-in slide-in-from-top duration-300 ${message.type === 'success'
+          ? 'bg-gold-50 border border-gold-100 text-gold-600 shadow-sm'
+          : 'bg-red-50 border border-red-100 text-red-500 shadow-sm'
+          }`}>
+          <div className={`p-2 rounded-xl ${message.type === 'success' ? 'bg-gold-500/10' : 'bg-red-500/10'}`}>
+            {message.type === 'success' ? <ShieldCheck className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+          </div>
+          <span>{message.text}</span>
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-10">
         {/* Enable/Disable Toggle */}
-        <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+        <div className="flex items-center justify-between p-8 bg-gray-50 border border-gray-100 rounded-[2rem] hover:border-gray-200 transition-all group">
           <div>
-            <h4 className="font-medium text-gray-900">Enable Withdrawal Schedule</h4>
-            <p className="text-sm text-gray-600">Restrict withdrawals to specific days and times</p>
+            <h4 className="text-sm font-black uppercase tracking-tight group-hover:text-gold-500 transition-colors">Active Protocol Gating</h4>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Enforce temporal access restrictions</p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
-            <input 
-              type="checkbox" 
-              className="sr-only peer" 
+            <input
+              type="checkbox"
+              className="sr-only peer"
               checked={schedule.enabled}
               onChange={(e) => setSchedule(prev => ({ ...prev, enabled: e.target.checked }))}
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <div className="w-16 h-8 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-navy-900"></div>
           </label>
         </div>
 
         {schedule.enabled && (
-          <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-in fade-in duration-500">
             {/* Allowed Days */}
-            <div className="p-4 border border-gray-200 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-4 flex items-center">
-                <Calendar className="w-5 h-5 mr-2" />
-                Allowed Days
+            <div className="p-8 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm space-y-8">
+              <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 flex items-center gap-4">
+                <div className="p-2.5 bg-gold-50 text-gold-500 rounded-xl"><Calendar className="w-4 h-4" /></div>
+                Operation Days
               </h4>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {daysOfWeek.map(day => (
-                  <label key={day.value} className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={schedule.allowedDays.includes(day.value)}
-                      onChange={() => handleDayToggle(day.value)}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                    <span className="text-sm text-gray-700">{day.label}</span>
+                  <label key={day.value} className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all border ${schedule.allowedDays.includes(day.value) ? 'bg-gold-50 border-gold-100' : 'bg-gray-50/50 border-transparent hover:border-gray-200'
+                    }`}>
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={schedule.allowedDays.includes(day.value)}
+                        onChange={() => handleDayToggle(day.value)}
+                        className="sr-only"
+                      />
+                      <div className={`w-5 h-5 rounded-lg border-2 transition-all flex items-center justify-center ${schedule.allowedDays.includes(day.value) ? 'bg-navy-900 border-navy-900' : 'bg-white border-gray-200'
+                        }`}>
+                        {schedule.allowedDays.includes(day.value) && <CheckCircle className="w-3 h-3 text-gold-500" />}
+                      </div>
+                    </div>
+                    <span className={`text-[11px] font-black uppercase tracking-tight transition-colors ${schedule.allowedDays.includes(day.value) ? 'text-navy-900' : 'text-gray-400'
+                      }`}>{day.label}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            {/* Allowed Times */}
-            <div className="p-4 border border-gray-200 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-4 flex items-center">
-                <Clock className="w-5 h-5 mr-2" />
-                Allowed Times
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Start Time
-                  </label>
-                  <input
-                    type="time"
-                    value={schedule.allowedTimes.start}
-                    onChange={(e) => handleTimeChange('start', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    End Time
-                  </label>
-                  <input
-                    type="time"
-                    value={schedule.allowedTimes.end}
-                    onChange={(e) => handleTimeChange('end', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+            <div className="space-y-10">
+              {/* Allowed Times */}
+              <div className="p-8 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm space-y-8">
+                <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 flex items-center gap-4">
+                  <div className="p-2.5 bg-gold-50 text-gold-500 rounded-xl"><Clock className="w-4 h-4" /></div>
+                  Disbursement Window
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">
+                      Entry Time
+                    </label>
+                    <input
+                      type="time"
+                      value={schedule.allowedTimes.start}
+                      onChange={(e) => handleTimeChange('start', e.target.value)}
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-black text-navy-900"
+                    />
+                  </div>
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">
+                      Exit Time
+                    </label>
+                    <input
+                      type="time"
+                      value={schedule.allowedTimes.end}
+                      onChange={(e) => handleTimeChange('end', e.target.value)}
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-black text-navy-900"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Warning Message */}
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div className="flex items-start">
-                <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 mr-3" />
-                <div>
-                  <h4 className="text-sm font-medium text-yellow-800">Important Notice</h4>
-                  <p className="text-sm text-yellow-700 mt-1">
-                    Users will only be able to submit withdrawal requests during the specified days and times. 
-                    All times are in {schedule.timezone} timezone.
-                  </p>
+              {/* Warning Message */}
+              <div className="p-8 bg-gray-50 border border-gray-100 rounded-[2.5rem] relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <Clock className="w-24 h-24 text-navy-900" />
+                </div>
+                <div className="flex items-start gap-6">
+                  <div className="p-3 bg-white rounded-2xl shadow-sm"><AlertCircle className="w-6 h-6 text-gold-600" /></div>
+                  <div>
+                    <h4 className="text-sm font-black uppercase tracking-tight">Technical Advisory</h4>
+                    <p className="text-[11px] font-bold text-gray-400 mt-2 leading-relaxed uppercase tracking-wide">
+                      Participants will only be authorized to submit disbursement requests during the specified sequence.
+                      Base Reference: <span className="text-gold-600 font-black">{schedule.timezone}</span> temporal zone.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {/* Save Button */}
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-6 border-t border-gray-100">
           <button
             onClick={handleSave}
             disabled={saving}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200 flex items-center space-x-2"
+            className="bg-navy-900 hover:bg-navy-800 disabled:opacity-50 text-gold-500 px-12 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center gap-4 group active:scale-95"
           >
-            <Save className="w-4 h-4" />
-            <span>{saving ? 'Saving...' : 'Save Schedule'}</span>
+            {saving ? (
+              <div className="w-5 h-5 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <Save className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+            )}
+            <span>{saving ? 'Synchronizing...' : 'Authorize Protocol Update'}</span>
           </button>
         </div>
       </div>
