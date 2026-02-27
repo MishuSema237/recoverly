@@ -77,7 +77,7 @@ export const PUT = requireAdmin(async (request) => {
     }
 
     const result = await supportMessagesCollection.updateOne(
-      { _id: messageId },
+      { _id: new ObjectId(messageId) },
       { $set: updateData }
     );
 
@@ -91,7 +91,7 @@ export const PUT = requireAdmin(async (request) => {
     // Create notification and send email for the user about the reply
     if (adminReply) {
       const message = await supportMessagesCollection.findOne({ 
-        _id: messageId as string
+        _id: new ObjectId(messageId)
       });
       
       if (message) {

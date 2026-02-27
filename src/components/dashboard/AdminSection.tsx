@@ -103,6 +103,15 @@ interface AdminUser {
     action: string;
     timestamp: string;
   }>;
+  kycDocuments?: {
+    idFront?: string;
+    idBack?: string;
+    selfie?: string;
+    documentType?: string;
+    status?: string;
+    rejectionReason?: string;
+    submittedAt?: string;
+  };
 }
 
 type AdminUserWithInvestments = AdminUser & { investments?: Array<{ status?: string }> };
@@ -1386,7 +1395,6 @@ const AdminSection = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-12 pr-5 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900"
-                    placeholder="Search users..."
                   />
                 </div>
                 {/* Filters */}
@@ -2693,7 +2701,7 @@ const AdminSection = () => {
                       </button>
                     </div>
                     <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                      {userDetailData?.activityLog?.length > 0 ? (
+                      {userDetailData?.activityLog && userDetailData.activityLog.length > 0 ? (
                         userDetailData.activityLog.map((activity: any, index: number) => (
                           <div key={index} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-start gap-4">
                             <div className="mt-1"><Clock className="w-3.5 h-3.5 text-gray-300" /></div>
