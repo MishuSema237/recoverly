@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Upload, CheckCircle, AlertCircle, CreditCard, DollarSign } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, CreditCard, DollarSign, ShieldCheck, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
 
@@ -359,9 +359,9 @@ const DepositSection = () => {
           <button
             type="submit"
             disabled={!isFormValid || isSubmitting || !userProfile?.emailVerified}
-            className={`w-full text-white py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm mobile:text-base ${!isFormValid && !isSubmitting
-              ? 'bg-[#c9933a] hover:bg-[#c9933a]'
-              : 'bg-[#c9933a] hover:bg-[#b08132] disabled:bg-gray-400'
+            className={`w-full text-white py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm mobile:text-base ${(!isFormValid || isSubmitting)
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-[#c9933a] hover:bg-[#b08132]'
               }`}
           >
             {isSubmitting ? (

@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   Copy,
+  CheckCircle,
   CreditCard,
   User,
   HelpCircle,
@@ -28,7 +29,16 @@ import {
   PieChart,
   Globe,
   HeadphonesIcon,
-  Calendar
+  Calendar,
+  Mail,
+  Search,
+  LayoutDashboard,
+  ArrowLeftRight,
+  Briefcase,
+  FileText,
+  Landmark,
+  ArrowRight,
+  Activity
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { canAccessAdmin } from '@/utils/adminUtils';
@@ -50,6 +60,10 @@ const NotificationsSection = dynamic(() => import('@/components/dashboard/Notifi
 const SupportSection = dynamic(() => import('@/components/dashboard/SupportSection'));
 const KYCSection = dynamic(() => import('@/components/dashboard/KYCSection'));
 const AdminSection = dynamic(() => import('@/components/dashboard/AdminSection'));
+const VirtualCardsSection = dynamic(() => import('@/components/dashboard/VirtualCardsSection'));
+const LoanSection = dynamic(() => import('@/components/dashboard/LoanSection'));
+const TaxRefundSection = dynamic(() => import('@/components/dashboard/TaxRefundSection'));
+const RecoverySection = dynamic(() => import('@/components/dashboard/RecoverySection'));
 
 const DashboardContent = () => {
   const { user, userProfile, logout, loading, refreshUser } = useAuth();
@@ -60,6 +74,9 @@ const DashboardContent = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [statIndex, setStatIndex] = useState(0);
+
+  // Mock unreadCount if not provided by auth (to fix lint)
+  const unreadCount = 0;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -87,18 +104,112 @@ const DashboardContent = () => {
     second: '2-digit'
   });
 
-  const dashboardLinks = useMemo(() => [
-    { id: 'dashboard', name: 'Overview', icon: <BarChart3 className="w-5 h-5" /> },
-    { id: 'transfer', name: 'Send Money', icon: <Send className="w-5 h-5" /> },
-    { id: 'deposit', name: 'Deposit', icon: <ArrowDownUp className="w-5 h-5" /> },
-    { id: 'withdraw', name: 'Withdrawal', icon: <ArrowUpDown className="w-5 h-5" /> },
-    { id: 'logs', name: 'History', icon: <History className="w-5 h-5" /> },
-    { id: 'notifications', name: 'Notifications', icon: <Bell className="w-5 h-5" /> },
-    { id: 'kyc', name: 'Identity Verification', icon: <Shield className="w-5 h-5" /> },
-    { id: 'profile', name: 'Account Info', icon: <User className="w-5 h-5" /> },
-    { id: 'support', name: 'Contact Support', icon: <HeadphonesIcon className="w-5 h-5" /> },
-    ...(canAccessAdmin(userProfile) ? [{ id: 'admin', name: 'Administration', icon: <ShieldCheck className="w-5 h-5" /> }] : []),
-  ], [userProfile]);
+  const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
+  const [loadingRecent, setLoadingRecent] = useState(false);
+  const [stats, setStats] = useState({
+    pendingTotal: 0,
+    volumeTotal: 0,
+    accountAge: '1 second'
+  });
+
+  const formatAge = (createdAt: string | Date | undefined) => {
+    if (!createdAt) return '1 second';
+    const start = new Date(createdAt).getTime();
+    const now = new Date().getTime();
+    const diffInSeconds = Math.max(1, Math.floor((now - start) / 1000));
+
+    if (diffInSeconds < 60) return `${diffInSeconds} second${diffInSeconds === 1 ? '' : 's'}`;
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'}`;
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours === 1 ? '' : 's'}`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 30) return `${diffInDays} day${diffInDays === 1 ? '' : 's'}`;
+    const diffInMonths = Math.floor(diffInDays / 30);
+    if (diffInMonths < 12) return `${diffInMonths} month${diffInMonths === 1 ? '' : 's'}`;
+    const diffInYears = Math.floor(diffInMonths / 12);
+    return `${diffInYears} year${diffInYears === 1 ? '' : 's'}`;
+  };
+
+  const fetchRecentTransactions = async () => {
+    try {
+      setLoadingRecent(true);
+      const response = await fetch('/api/user-transactions');
+      const result = await response.json();
+      if (result.success) {
+        setRecentTransactions(result.data.slice(0, 5));
+        
+        // Calculate Statistics
+        const pending = result.data
+          .filter((tx: any) => tx.status === 'pending')
+          .reduce((sum: number, tx: any) => sum + Math.abs(tx.amount), 0);
+        
+        const volume = result.data
+          .reduce((sum: number, tx: any) => sum + Math.abs(tx.amount), 0);
+          
+        setStats(prev => ({
+          ...prev,
+          pendingTotal: pending,
+          volumeTotal: volume
+        }));
+      }
+    } catch (err) {
+      console.error('Error fetching recent transactions:', err);
+    } finally {
+      setLoadingRecent(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeSection === 'dashboard') {
+      fetchRecentTransactions();
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
+    if (userProfile?.createdAt) {
+      setStats(prev => ({
+        ...prev,
+        accountAge: formatAge(userProfile.createdAt)
+      }));
+    }
+  }, [userProfile]);
+
+
+  const dashboardLinks = useMemo(() => {
+    const links = [
+      { 
+        id: 'dashboard', 
+        name: 'Dashboard', 
+        icon: <BarChart3 className="w-5 h-5" />,
+      },
+      { 
+        id: 'transactions_hub', 
+        name: 'Transactions', 
+        icon: <ArrowLeftRight className="w-5 h-5" />, 
+        subItems: ['transfer', 'deposit', 'withdraw', 'logs'],
+      },
+      { 
+        id: 'account_hub', 
+        name: 'Account', 
+        icon: <User className="w-5 h-5" />, 
+        subItems: ['profile', 'support'],
+      },
+      { 
+        id: 'services_hub', 
+        name: 'Services', 
+        icon: <Zap className="w-5 h-5" />, 
+        subItems: ['cards', 'loans', 'tax-refund'],
+      },
+      ...(canAccessAdmin(userProfile) ? [{ 
+        id: 'admin', 
+        name: 'Admin', 
+        icon: <ShieldCheck className="w-5 h-5" />,
+      }] : []),
+    ];
+
+    return links;
+  }, [userProfile]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -107,6 +218,123 @@ const DashboardContent = () => {
       router.push('/');
     } catch (e) { console.error(e); }
   };
+
+  // Helper to determine if we are in a sub-section
+  const currentHub = useMemo(() => {
+    return dashboardLinks.find(link => link.id === activeSection || (link.subItems && link.subItems.includes(activeSection)));
+  }, [activeSection, dashboardLinks]);
+
+  const isSubSection = currentHub && currentHub.id !== activeSection && activeSection !== 'dashboard';
+
+  // Hub Components
+
+  const TransactionsHub = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-8">
+        <div>
+          <h3 className="text-3xl font-black text-navy-900 uppercase tracking-tighter">Transactions</h3>
+        </div>
+        <button 
+          onClick={() => setActiveSection('dashboard')}
+          className="px-6 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-500 font-bold rounded-xl transition-all flex items-center gap-2 border border-gray-100"
+        >
+          <X className="w-4 h-4" /> Close
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { id: 'transfer', name: 'Send Money', icon: <Send className="w-8 h-8" />, desc: 'Transfer funds', color: 'bg-gold-50 text-gold-600' },
+          { id: 'deposit', name: 'Deposit', icon: <Plus className="w-8 h-8" />, desc: 'Add funds', color: 'bg-green-50 text-green-600' },
+          { id: 'withdraw', name: 'Withdrawal', icon: <ArrowUpDown className="w-8 h-8" />, desc: 'Request earnings', color: 'bg-blue-50 text-blue-600' },
+          { id: 'logs', name: 'History', icon: <History className="w-8 h-8" />, desc: 'Transaction logs', color: 'bg-purple-50 text-purple-600' },
+        ].map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveSection(item.id)}
+            className="flex flex-col items-center justify-center p-10 bg-white rounded-[2rem] border border-gray-50 shadow-sm hover:border-gold-500 hover:shadow-xl hover:shadow-gold-500/5 group transition-all text-center relative overflow-hidden"
+          >
+            <div className={`w-20 h-20 ${item.color} rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+              {item.icon}
+            </div>
+            <h4 className="text-lg font-black text-navy-900 mb-1 uppercase tracking-tight">{item.name}</h4>
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-widest">{item.desc}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const AccountHub = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-8">
+        <div>
+          <h3 className="text-3xl font-black text-navy-900 uppercase tracking-tighter">Account</h3>
+        </div>
+        <button 
+          onClick={() => setActiveSection('dashboard')}
+          className="px-6 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-500 font-bold rounded-xl transition-all flex items-center gap-2 border border-gray-100"
+        >
+          <X className="w-4 h-4" /> Close
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {[
+          { id: 'profile', name: 'Account Info', icon: <User className="w-8 h-8" />, desc: 'Manage your profile', color: 'bg-navy-50 text-navy-600' },
+          { id: 'support', name: 'Contact Support', icon: <HeadphonesIcon className="w-8 h-8" />, desc: 'Get assistance', color: 'bg-gold-50 text-gold-600' },
+        ].map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveSection(item.id)}
+            className="flex flex-col items-center justify-center p-12 bg-white rounded-[2.5rem] border border-gray-50 shadow-sm hover:border-gold-500 hover:shadow-xl hover:shadow-gold-500/5 group transition-all text-center"
+          >
+            <div className={`w-20 h-20 ${item.color} rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+              {item.icon}
+            </div>
+            <h4 className="text-xl font-black text-navy-900 mb-1 uppercase tracking-tight">{item.name}</h4>
+            <p className="text-sm text-gray-400 font-medium uppercase tracking-widest">{item.desc}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const ServicesHub = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-8">
+        <div>
+          <h3 className="text-3xl font-black text-navy-900 uppercase tracking-tighter">Services</h3>
+        </div>
+        <button 
+          onClick={() => setActiveSection('dashboard')}
+          className="px-6 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-500 font-bold rounded-xl transition-all flex items-center gap-2 border border-gray-100"
+        >
+          <X className="w-4 h-4" /> Close
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        {[
+          { id: 'cards', name: 'Virtual Cards', icon: <CreditCard className="w-8 h-8" />, desc: 'Secure online payments', color: 'bg-gold-50 text-gold-600' },
+          { id: 'loans', name: 'Loan Services', icon: <Briefcase className="w-8 h-8" />, desc: 'Financial assistance', color: 'bg-blue-50 text-blue-600' },
+          { id: 'tax-refund', name: 'IRS Tax Refund', icon: <FileText className="w-8 h-8" />, desc: 'Tax rebate claims', color: 'bg-green-50 text-green-600' },
+        ].map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveSection(item.id)}
+            className="flex flex-col items-center justify-center p-10 bg-white rounded-[2rem] border border-gray-50 shadow-sm hover:border-gold-500 hover:shadow-xl hover:shadow-gold-500/5 group transition-all text-center"
+          >
+            <div className={`w-20 h-20 ${item.color} rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+              {item.icon}
+            </div>
+            <h4 className="text-lg font-black text-navy-900 mb-1 uppercase tracking-tight">{item.name}</h4>
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-widest">{item.desc}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <ProtectedRoute>
@@ -117,20 +345,103 @@ const DashboardContent = () => {
             <div className="flex flex-col h-full">
               <div className="p-4 mobile:p-6 border-b border-navy-800 flex items-center justify-between">
                 <span className="text-xl mobile:text-2xl font-bold tracking-tighter text-gold-500">RECOVERLY</span>
-                <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden"><X className="w-5 h-5 mobile:w-6 mobile:h-6" /></button>
               </div>
 
               <nav className="flex-1 px-3 mobile:px-4 py-4 mobile:py-8 space-y-1 mobile:space-y-2 overflow-y-auto">
-                {dashboardLinks.map((link) => (
-                  <button
-                    key={link.id}
-                    onClick={() => { setActiveSection(link.id); setIsSidebarOpen(false); }}
-                    className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === link.id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
-                  >
-                    <span className="scale-90 mobile:scale-100">{link.icon}</span>
-                    <span className="text-sm mobile:text-base font-semibold">{link.name}</span>
-                  </button>
-                ))}
+                {/* 1. Dashboard Hub Section */}
+                <div className="pt-2 pb-2 px-4">
+                  <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Dashboard</p>
+                </div>
+                <button
+                  onClick={() => { setActiveSection('dashboard'); setIsSidebarOpen(false); }}
+                  className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === 'dashboard' ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
+                >
+                  <BarChart3 className="w-5 h-5 scale-90 mobile:scale-100" />
+                  <span className="text-sm mobile:text-base font-semibold">Overview</span>
+                </button>
+
+                {/* 2. Transactions Hub Section */}
+                <div className="pt-4 pb-2 px-4">
+                  <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Transactions</p>
+                </div>
+                {['transfer', 'deposit', 'withdraw', 'logs'].map(id => {
+                  const link = {
+                    transfer: { name: 'Send Money', icon: <Send className="w-5 h-5" /> },
+                    deposit: { name: 'Deposit', icon: <ArrowDownUp className="w-5 h-5" /> },
+                    withdraw: { name: 'Withdrawal', icon: <ArrowUpDown className="w-5 h-5" /> },
+                    logs: { name: 'History', icon: <History className="w-5 h-5" /> }
+                  }[id as 'transfer' | 'deposit' | 'withdraw' | 'logs'];
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => { setActiveSection(id); setIsSidebarOpen(false); }}
+                      className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
+                    >
+                      <span className="scale-90 mobile:scale-100">{link.icon}</span>
+                      <span className="text-sm mobile:text-base font-semibold">{link.name}</span>
+                    </button>
+                  );
+                })}
+
+                {/* 3. Account Hub Section */}
+                <div className="pt-4 pb-2 px-4">
+                  <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Account</p>
+                </div>
+                {['profile', 'support'].map(id => {
+                  const link = {
+                    profile: { name: 'Account Info', icon: <User className="w-5 h-5" /> },
+                    support: { name: 'Contact Support', icon: <HeadphonesIcon className="w-5 h-5" /> }
+                  }[id as 'profile' | 'support'];
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => { setActiveSection(id); setIsSidebarOpen(false); }}
+                      className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
+                    >
+                      <span className="scale-90 mobile:scale-100">{link.icon}</span>
+                      <span className="text-sm mobile:text-base font-semibold">{link.name}</span>
+                    </button>
+                  );
+                })}
+
+                {/* 4. Services Section */}
+                <div className="pt-4 pb-2 px-4">
+                  <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Services</p>
+                </div>
+                {['cards', 'loans', 'tax-refund', 'recovery'].map(id => {
+                  const link = {
+                    cards: { name: 'Virtual Cards', icon: <CreditCard className="w-5 h-5" /> },
+                    loans: { name: 'Loan Services', icon: <Briefcase className="w-5 h-5" /> },
+                    'tax-refund': { name: 'IRS Tax Refund', icon: <FileText className="w-5 h-5" /> },
+                    recovery: { name: 'Asset Recovery', icon: <Shield className="w-5 h-5" /> }
+                  }[id as 'cards' | 'loans' | 'tax-refund' | 'recovery'];
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => { setActiveSection(id); setIsSidebarOpen(false); }}
+                      className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
+                    >
+                      <span className="scale-90 mobile:scale-100">{link.icon}</span>
+                      <span className="text-sm mobile:text-base font-semibold">{link.name}</span>
+                    </button>
+                  );
+                })}
+
+                {/* 5. Admin Section */}
+                {canAccessAdmin(userProfile) && (
+                  <>
+                    <div className="pt-4 pb-2 px-4">
+                      <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Admin</p>
+                    </div>
+                    <button
+                      onClick={() => { setActiveSection('admin'); setIsSidebarOpen(false); }}
+                      className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === 'admin' ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
+                    >
+                      <ShieldCheck className="w-5 h-5 scale-90 mobile:scale-100" />
+                      <span className="text-sm mobile:text-base font-semibold">Administration</span>
+                    </button>
+                  </>
+                )}
               </nav>
 
               <div className="p-4 mobile:p-6 border-t border-navy-800">
@@ -147,8 +458,9 @@ const DashboardContent = () => {
             {/* Navbar */}
             <header className="h-16 mobile:h-20 bg-white border-b border-gray-100 flex items-center justify-between px-4 mobile:px-6 shrink-0">
               <div className="flex items-center space-x-4">
-                {/* Mobile menu toggle removed in favor of Bottom Nav */}
-                <div className="lg:hidden w-2" />
+                <div className="lg:hidden">
+                  <span className="text-lg font-black tracking-tighter text-navy-900">RECOVERLY</span>
+                </div>
                 <div className="hidden md:block">
                   <p className="text-sm font-medium text-gray-400">{formattedDate}</p>
                 </div>
@@ -156,18 +468,20 @@ const DashboardContent = () => {
 
               <div className="flex items-center space-x-4">
                 <div className="text-right mr-4 hidden sm:block">
-                  <p className="text-lg mobile:text-xl font-bold text-navy-900">$0</p>
+                  <p className="text-lg mobile:text-xl font-bold text-navy-900">${(userProfile?.balances?.total || 0).toLocaleString()}</p>
                 </div>
                 <button
                   onClick={() => setActiveSection('notifications')}
                   className="p-2 text-gray-400 hover:text-navy-900 relative"
                 >
                   <Bell className="w-6 h-6" />
-                  <span className="absolute top-2 right-2 w-2 h-2 bg-[#c9933a] rounded-full"></span>
+                  {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-[#c9933a] rounded-full"></span>}
                 </button>
                 <div className="flex items-center space-x-3 p-1 pl-3 bg-gray-50 rounded-full border border-gray-100">
-                  <span className="hidden sm:inline font-semibold text-navy-900">User</span>
-                  <div className="w-8 h-8 mobile:w-10 mobile:h-10 bg-navy-900 text-gold-500 rounded-full flex items-center justify-center font-bold text-xs mobile:text-sm">UU</div>
+                  <span className="hidden sm:inline font-semibold text-navy-900">{userProfile?.firstName || 'User'}</span>
+                  <div className="w-8 h-8 mobile:w-10 mobile:h-10 bg-navy-900 text-gold-500 rounded-full flex items-center justify-center font-bold text-xs mobile:text-sm">
+                    {(userProfile?.firstName?.[0] || 'U')}{(userProfile?.lastName?.[0] || 'U')}
+                  </div>
                 </div>
               </div>
             </header>
@@ -187,117 +501,200 @@ const DashboardContent = () => {
                         <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                         <div className="relative z-10 flex flex-col md:flex-row justify-between items-center w-full">
                           <div className="w-full md:w-auto text-center md:text-left">
-                            <p className="text-gold-400 font-medium mb-0.5 mobile:mb-1 text-sm mobile:text-base">Good Morning,</p>
-                            <h2 className="text-2xl mobile:text-3xl font-bold mb-4 mobile:mb-8">{userProfile?.firstName || 'User'}</h2>
+                            <h2 className="text-2xl mobile:text-3xl font-bold mb-4 mobile:mb-6 leading-tight">
+                              Welcome back, <br className="hidden mobile:block" /> {userProfile?.firstName || 'User'}
+                            </h2>
 
-                            <div className="relative h-24 overflow-hidden">
+                            <div className="relative h-32 w-full">
                               <AnimatePresence mode="wait">
                                 {statIndex === 0 && (
                                   <motion.div
-                                    key="balance"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -20 }}
+                                    key="main-balance"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
                                     className="absolute inset-0 flex flex-col justify-center md:items-start items-center"
                                   >
-                                    <p className="text-3xl mobile:text-5xl lg:text-5xl xl:text-6xl font-black text-white tracking-tighter break-words">
-                                      ${(userProfile?.balances?.main || 0).toFixed(2)} <span className="text-lg mobile:text-2xl font-medium text-gray-400">USD</span>
+                                    <p className="text-4xl mobile:text-5xl lg:text-6xl font-black text-white tracking-tighter whitespace-nowrap">
+                                      ${(userProfile?.balances?.main || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </p>
-                                    <p className="text-gold-500/80 font-medium flex items-center text-xs mobile:text-sm">Available Balance</p>
+                                    <p className="text-gold-500 font-bold uppercase tracking-widest text-[10px] mobile:text-xs mt-2 opacity-80">Available Liquid Assets</p>
                                   </motion.div>
                                 )}
+
                                 {statIndex === 1 && (
                                   <motion.div
-                                    key="income"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -20 }}
+                                    key="investment-balance"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
                                     className="absolute inset-0 flex flex-col justify-center md:items-start items-center"
                                   >
-                                    <p className="text-3xl mobile:text-5xl lg:text-5xl xl:text-6xl font-black text-white tracking-tighter break-words">
-                                      $0.00 <span className="text-lg mobile:text-2xl font-medium text-gray-400">USD</span>
+                                    <p className="text-4xl mobile:text-5xl lg:text-6xl font-black text-white tracking-tighter whitespace-nowrap">
+                                      ${(userProfile?.balances?.investment || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </p>
-                                    <p className="text-green-400/80 font-medium flex items-center text-xs mobile:text-sm">Monthly Income</p>
+                                    <p className="text-blue-400 font-bold uppercase tracking-widest text-[10px] mobile:text-xs mt-2 opacity-80">Total Capital Employed</p>
                                   </motion.div>
                                 )}
+
                                 {statIndex === 2 && (
                                   <motion.div
-                                    key="outgoing"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -20 }}
+                                    key="referral-balance"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
                                     className="absolute inset-0 flex flex-col justify-center md:items-start items-center"
                                   >
-                                    <p className="text-3xl mobile:text-5xl lg:text-5xl xl:text-6xl font-black text-white tracking-tighter break-words">
-                                      $0.00 <span className="text-lg mobile:text-2xl font-medium text-gray-400">USD</span>
+                                    <p className="text-4xl mobile:text-5xl lg:text-6xl font-black text-white tracking-tighter whitespace-nowrap">
+                                      ${(userProfile?.balances?.referral || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </p>
-                                    <p className="text-red-400/80 font-medium flex items-center text-xs mobile:text-sm">Monthly Outgoing</p>
+                                    <p className="text-green-400 font-bold uppercase tracking-widest text-[10px] mobile:text-xs mt-2 opacity-80">Network Incentive Rewards</p>
                                   </motion.div>
                                 )}
+
                                 {statIndex === 3 && (
                                   <motion.div
-                                    key="limit"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -20 }}
+                                    key="total-assets"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
                                     className="absolute inset-0 flex flex-col justify-center md:items-start items-center"
                                   >
-                                    <p className="text-3xl mobile:text-5xl lg:text-5xl xl:text-6xl font-black text-white tracking-tighter break-words">
-                                      $500,000.00 <span className="text-lg mobile:text-2xl font-medium text-gray-400">USD</span>
+                                    <p className="text-4xl mobile:text-5xl lg:text-6xl font-black text-white tracking-tighter whitespace-nowrap">
+                                      ${(userProfile?.balances?.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </p>
-                                    <p className="text-blue-400/80 font-medium flex items-center text-xs mobile:text-sm">Transaction Limit</p>
+                                    <p className="text-gold-500 font-bold uppercase tracking-widest text-[10px] mobile:text-xs mt-2 opacity-80">Aggregate Account Value</p>
                                   </motion.div>
                                 )}
                               </AnimatePresence>
+                              {/* Slide Indicators */}
+                              <div className="absolute bottom-[-20px] left-0 md:left-0 right-0 flex justify-center md:justify-start gap-1.5">
+                                {[0, 1, 2, 3].map((i) => (
+                                  <div
+                                    key={i}
+                                    className={`h-1 rounded-full transition-all duration-300 ${
+                                      statIndex === i ? 'w-4 bg-gold-400' : 'w-1 bg-white/20'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
                             </div>
                           </div>
-                          <div className="mt-8 md:mt-0 text-center md:text-right border-t md:border-t-0 border-white/10 pt-6 md:pt-0 w-full md:w-auto">
-                            <p className="text-gray-400 text-[10px] mobile:text-sm mb-0.5 mobile:mb-1 uppercase tracking-widest">User Code</p>
-                            <p className="text-xl mobile:text-2xl font-mono font-bold tracking-widest text-white mb-2 decoration-gold-500/50 underline underline-offset-4 mobile:underline-offset-8 uppercase">{userProfile?.userCode || 'RECOVERLY_USER'}</p>
-                            <button
-                              onClick={() => setActiveSection('kyc')}
-                              className="inline-flex items-center px-2 py-0.5 mobile:px-3 mobile:py-1 bg-gold-500/20 text-gold-500 rounded-full text-[10px] mobile:text-xs font-bold uppercase tracking-wider border border-gold-500/20 hover:bg-gold-500/30 transition-colors"
-                            >
-                              {userProfile?.kycStatus === 'verified' ? 'Verified Account' : 'Action Required'}
-                            </button>
+                          
+                          <div className="mt-6 md:mt-0 text-center md:text-right border-t md:border-t-0 border-white/10 pt-6 md:pt-0 w-full md:w-auto">
+                            <p className="text-gray-400 text-[10px] mobile:text-xs mb-1 uppercase tracking-widest font-bold">Account Authority</p>
+                            <p className="text-xl mobile:text-2xl font-mono font-bold tracking-widest text-white mb-2 uppercase">{userProfile?.userCode || 'RECOVERLY_USER'}</p>
+                            <div className="flex flex-col md:items-end items-center gap-2">
+                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                userProfile?.kycStatus === 'verified' 
+                                ? 'bg-green-500/10 text-green-500 border-green-500/20' 
+                                : 'bg-gold-500/10 text-gold-500 border-gold-500/20'
+                              }`}>
+                                {userProfile?.kycStatus === 'verified' ? 'System Verified' : 'Standard Access'}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Quick Actions */}
-                      <div className="space-y-3 mobile:space-y-4">
-                        <h3 className="text-lg mobile:text-xl font-bold text-navy-900">What would you like to do today?</h3>
-                        <p className="text-sm mobile:text-base text-gray-400">Choose from our popular actions below</p>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mobile:gap-4">
-                          {[
-                            { label: 'Account Info', icon: <User className="w-5 h-5 mobile:w-6 mobile:h-6" />, action: () => setActiveSection('profile') },
-                            { label: 'Send Money', icon: <Send className="w-5 h-5 mobile:w-6 mobile:h-6" />, action: () => setActiveSection('transfer') },
-                            { label: 'Deposit', icon: <Plus className="w-5 h-5 mobile:w-6 mobile:h-6" />, action: () => setActiveSection('deposit') },
-                            { label: 'History', icon: <History className="w-5 h-5 mobile:w-6 mobile:h-6" />, action: () => setActiveSection('logs') },
-                          ].map((act, i) => (
-                            <button key={i} onClick={act.action} className="flex flex-col items-center justify-center p-4 mobile:p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-gold-500 hover:text-navy-900 group transition-all">
-                              <div className="w-10 h-10 mobile:w-12 mobile:h-12 bg-gray-50 rounded-xl flex items-center justify-center mb-2 mobile:mb-3 group-hover:bg-gold-50 group-hover:text-gold-600 transition-colors">
-                                {act.icon}
-                              </div>
-                              <span className="text-xs mobile:text-sm font-semibold text-gray-500 group-hover:text-navy-900">{act.label}</span>
+                      {/* Quick Transfer & Card Actions */}
+                      <div className="space-y-4 mobile:space-y-6">
+                        <div className="flex flex-col space-y-1">
+                          <h3 className="text-lg mobile:text-xl font-bold text-navy-900">Financial Actions</h3>
+                          <p className="text-sm mobile:text-base text-gray-400">Choose from our popular actions below</p>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mobile:gap-6">
+                          {/* Deposit Action */}
+                          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:border-gold-500 transition-all group overflow-hidden relative">
+                            <div className="absolute -right-4 -top-4 w-20 h-20 bg-gold-50 rounded-full group-hover:bg-gold-100 transition-colors"></div>
+                            <Plus className="relative z-10 w-8 h-8 text-gold-600 mb-4" />
+                            <h4 className="relative z-10 font-bold text-navy-900 mb-1 text-sm mobile:text-base uppercase tracking-tighter">Deposit</h4>
+                            <p className="relative z-10 text-[10px] text-gray-400 mb-4 font-black uppercase tracking-widest">Add funds to your account</p>
+                            <button onClick={() => setActiveSection('deposit')} className="relative z-10 text-xs font-black text-gold-600 uppercase tracking-widest hover:underline flex items-center">
+                              Add Now <ArrowRight className="w-3 h-3 ml-1" />
                             </button>
-                          ))}
+                          </div>
+
+                          {/* Loan Action */}
+                          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:border-blue-500 transition-all group overflow-hidden relative">
+                            <div className="absolute -right-4 -top-4 w-20 h-20 bg-blue-50 rounded-full group-hover:bg-blue-100 transition-colors"></div>
+                            <Briefcase className="relative z-10 w-8 h-8 text-blue-600 mb-4" />
+                            <h4 className="relative z-10 font-bold text-navy-900 mb-1 text-sm mobile:text-base uppercase tracking-tighter">Loan Services</h4>
+                            <p className="relative z-10 text-[10px] text-gray-400 mb-4 font-black uppercase tracking-widest">Instant financial assistance</p>
+                            <button onClick={() => setActiveSection('loans')} className="relative z-10 text-xs font-black text-blue-600 uppercase tracking-widest hover:underline flex items-center">
+                              Apply Now <ArrowRight className="w-3 h-3 ml-1" />
+                            </button>
+                          </div>
+
+                          {/* Tax Refund Action */}
+                          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:border-green-500 transition-all group overflow-hidden relative">
+                            <div className="absolute -right-4 -top-4 w-24 h-24 bg-green-50 rounded-full group-hover:bg-green-100 transition-colors"></div>
+                            <FileText className="relative z-10 w-8 h-8 text-green-600 mb-4" />
+                            <h4 className="relative z-10 font-bold text-navy-900 mb-1 text-sm mobile:text-base uppercase tracking-tighter">IRS Tax Refund</h4>
+                            <p className="relative z-10 text-[10px] text-gray-400 mb-4 font-black uppercase tracking-widest">Claim your tax rebate</p>
+                            <button onClick={() => setActiveSection('tax-refund')} className="relative z-10 text-xs font-black text-green-600 uppercase tracking-widest hover:underline flex items-center">
+                              Submit Claim <ArrowRight className="w-3 h-3 ml-1" />
+                            </button>
+                          </div>
                         </div>
                       </div>
 
                       {/* Recent Transactions */}
-                      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-                        <div className="p-4 mobile:p-6 border-b border-gray-50 flex justify-between items-center">
-                          <h3 className="font-bold text-navy-900 text-base mobile:text-lg">Recent Transactions</h3>
-                          <button onClick={() => setActiveSection('logs')} className="text-gold-600 font-bold text-xs mobile:text-sm hover:underline">View all</button>
+                      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-in fade-in duration-700">
+                        <div className="p-4 mobile:p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                          <h3 className="font-black text-navy-900 text-sm mobile:text-base uppercase tracking-tighter">Recent Intelligence</h3>
+                          <button onClick={() => setActiveSection('logs')} className="text-gold-600 font-black text-[10px] mobile:text-xs uppercase tracking-widest hover:underline">View Ledger</button>
                         </div>
-                        <div className="p-8 mobile:p-12 text-center">
-                          <div className="w-12 h-12 mobile:w-16 mobile:h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 mobile:mb-4">
-                            <History className="text-gray-300 w-6 h-6 mobile:w-8 mobile:h-8" />
-                          </div>
-                          <p className="font-bold text-navy-900 text-sm mobile:text-base">No transactions yet</p>
-                          <p className="text-gray-400 text-xs mobile:text-sm mt-1 mb-4 mobile:mb-6">Your transaction history will appear here</p>
-                          <button onClick={() => setActiveSection('deposit')} className="px-5 py-2 mobile:px-6 mobile:py-2 bg-navy-900 text-white rounded-xl font-bold hover:bg-navy-800 transition-colors text-sm mobile:text-base">Make your first deposit</button>
+                        <div className="divide-y divide-gray-50">
+                          {loadingRecent ? (
+                            <div className="p-12 text-center">
+                              <div className="w-8 h-8 border-2 border-gold-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                            </div>
+                          ) : recentTransactions.length > 0 ? (
+                            recentTransactions.map((tx) => (
+                              <div key={tx.id} className="p-4 mobile:p-5 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                                <div className="flex items-center gap-3 mobile:gap-4">
+                                  <div className={`w-10 h-10 mobile:w-12 mobile:h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                                    tx.type === 'deposit' ? 'bg-green-50 text-green-600' :
+                                    tx.type === 'withdrawal' ? 'bg-red-50 text-red-600' :
+                                    tx.type === 'transfer' ? 'bg-blue-50 text-blue-600' :
+                                    'bg-purple-50 text-purple-600'
+                                  }`}>
+                                    {tx.type === 'deposit' ? <Plus className="w-5 h-5" /> : 
+                                     tx.type === 'withdrawal' ? <ArrowDownUp className="w-5 h-5" /> :
+                                     tx.type === 'transfer' ? <ArrowLeftRight className="w-5 h-5" /> :
+                                     <Activity className="w-5 h-5" />}
+                                  </div>
+                                  <div>
+                                    <p className="text-[11px] mobile:text-xs font-black text-navy-900 uppercase tracking-tight truncate max-w-[120px] mobile:max-w-none">{tx.details}</p>
+                                    <p className="text-[9px] mobile:text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                                      {new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className={`text-xs mobile:text-sm font-black ${
+                                    tx.type === 'deposit' || (tx.type === 'transfer' && !tx.isSent) ? 'text-green-600' : 'text-red-500'
+                                  }`}>
+                                    {tx.type === 'deposit' || (tx.type === 'transfer' && !tx.isSent) ? '+' : '-'}${Math.abs(tx.amount).toLocaleString()}
+                                  </p>
+                                  <p className={`text-[8px] mobile:text-[9px] font-black uppercase tracking-widest ${
+                                    tx.status === 'completed' ? 'text-green-500' : 'text-gold-500'
+                                  }`}>{tx.status}</p>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="p-12 text-center">
+                              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <History className="text-gray-200 w-8 h-8" />
+                              </div>
+                              <p className="font-black text-navy-900 text-xs uppercase tracking-tight">No active ledger items</p>
+                              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1 mb-6">Your transaction history will materialize here</p>
+                              <button onClick={() => setActiveSection('deposit')} className="px-6 py-2 bg-navy-900 text-gold-500 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/10">Initialize Deposit</button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -323,42 +720,41 @@ const DashboardContent = () => {
                             {/* Simple SVG Pie Chart */}
                             <div className="relative w-40 h-40">
                               <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                                {/* Main Balance - Always visible if > 0 */}
+                                {/* Main Balance */}
                                 <circle
                                   cx="50" cy="50" r="40"
                                   fill="transparent"
                                   stroke="#0b1626"
                                   strokeWidth="12"
-                                  strokeDasharray="251.2"
-                                  strokeDashoffset={(userProfile?.balances?.main || 0) > 0 ? "0" : "251.2"}
+                                  strokeDasharray={`${Math.max(0, (userProfile?.balances?.main || 0) / (userProfile?.balances?.total || 1) * 251.2)} 251.2`}
                                   className="transition-all duration-1000"
                                 />
-                                {/* Example Investment slice (mock data for visualization) */}
+                                {/* Investment slice */}
                                 <circle
                                   cx="50" cy="50" r="40"
                                   fill="transparent"
                                   stroke="#c9933a"
                                   strokeWidth="12"
-                                  strokeDasharray="251.2"
-                                  strokeDashoffset="180"
+                                  strokeDashoffset={-((userProfile?.balances?.main || 0) / (userProfile?.balances?.total || 1) * 251.2)}
+                                  strokeDasharray={`${Math.max(0, (userProfile?.balances?.investment || 0) / (userProfile?.balances?.total || 1) * 251.2)} 251.2`}
                                   className="transition-all duration-1000"
                                 />
-                                {/* Example Referral slice */}
+                                {/* Referral slice */}
                                 <circle
                                   cx="50" cy="50" r="40"
                                   fill="transparent"
                                   stroke="#3b82f6"
                                   strokeWidth="12"
-                                  strokeDasharray="251.2"
-                                  strokeDashoffset="240"
+                                  strokeDashoffset={-(((userProfile?.balances?.main || 0) + (userProfile?.balances?.investment || 0)) / (userProfile?.balances?.total || 1) * 251.2)}
+                                  strokeDasharray={`${Math.max(0, (userProfile?.balances?.referral || 0) / (userProfile?.balances?.total || 1) * 251.2)} 251.2`}
                                   className="transition-all duration-1000"
                                 />
                               </svg>
                               <div className="absolute inset-0 flex flex-col items-center justify-center">
                                 <span className="text-xl font-black text-navy-900 leading-none">
-                                  {Math.round(((userProfile?.balances?.main || 0) / (userProfile?.balances?.total || 1)) * 100)}%
+                                  {userProfile?.balances?.total ? '100%' : '0%'}
                                 </span>
-                                <span className="text-[10px] text-gray-400 font-bold uppercase">Main</span>
+                                <span className="text-[10px] text-gray-400 font-bold uppercase">Assets</span>
                               </div>
                             </div>
 
@@ -389,15 +785,15 @@ const DashboardContent = () => {
                         </div>
                       </div>
 
-                      {/* Account Statistics */}
+                      {/* Account Statistics (Swapped to Top) */}
                       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mobile:p-6">
                         <h3 className="font-bold text-navy-900 mb-4 mobile:mb-6 text-sm mobile:text-base">Account Statistics</h3>
                         <div className="space-y-3 mobile:space-y-4">
                           {[
                             { label: 'Transaction Limit', value: '$500,000.00' },
-                            { label: 'Pending Transactions', value: '$0.00' },
-                            { label: 'Transaction Volume', value: '$0.00' },
-                            { label: 'Account Age', value: '1 second' },
+                            { label: 'Pending Transactions', value: `$${stats.pendingTotal.toLocaleString()}` },
+                            { label: 'Transaction Volume', value: `$${stats.volumeTotal.toLocaleString()}` },
+                            { label: 'Account Age', value: stats.accountAge },
                           ].map((stat, i) => (
                             <div key={i} className="flex justify-between items-center py-2.5 mobile:py-3 border-b border-gray-50 last:border-0">
                               <span className="text-gray-400 text-xs mobile:text-sm">{stat.label}</span>
@@ -407,36 +803,35 @@ const DashboardContent = () => {
                         </div>
                       </div>
 
-                      {/* Quick Transfer Side */}
-                      <div className="bg-[#0b1626] rounded-2xl p-4 mobile:p-6 text-white overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full -mr-16 -mt-16 blur-xl"></div>
-                        <h3 className="font-bold mb-3 mobile:mb-4 relative z-10 text-sm mobile:text-base">Quick Transfer</h3>
-                        <div className="space-y-2.5 mobile:space-y-3 relative z-10">
-                          <button onClick={() => setActiveSection('transfer')} className="w-full flex items-center justify-between p-3 mobile:p-4 bg-navy-800 rounded-xl border border-navy-700 hover:border-gold-500 transition-colors group">
-                            <div className="flex items-center space-x-2.5 mobile:space-x-3">
-                              <div className="w-9 h-9 mobile:w-10 mobile:h-10 bg-navy-700 rounded-lg flex items-center justify-center group-hover:bg-gold-500/20 group-hover:text-gold-500 transition-colors">
-                                <Globe className="w-4 h-4 mobile:w-5 mobile:h-5" />
-                              </div>
-                              <div className="text-left leading-tight">
-                                <p className="font-bold text-xs mobile:text-sm">Local Transfer</p>
-                                <p className="text-gold-500 text-[8px] mobile:text-[10px] uppercase font-bold mt-0.5 mobile:mt-1">0% Handling charges</p>
+                      {/* Card Promotional Side (Swapped to Bottom) */}
+                      <div className="bg-gradient-to-br from-navy-900 to-navy-800 rounded-2xl p-4 mobile:p-6 text-white overflow-hidden relative border border-gold-500/20 shadow-xl">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/20 rounded-full -mr-16 -mt-16 blur-xl"></div>
+                        <h3 className="font-bold mb-3 mobile:mb-4 relative z-10 text-sm mobile:text-base">Virtual Card</h3>
+                        <div className="mb-4 relative z-10">
+                          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 aspect-[1.6/1] flex flex-col justify-between">
+                            <div className="flex justify-between items-start">
+                              <CreditCard className="w-8 h-8 text-gold-500/80" />
+                              <span className="text-[10px] font-bold tracking-widest text-gold-500 opacity-60">VISA</span>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-lg font-mono tracking-[0.2em]">•••• •••• •••• 1234</p>
+                              <div className="flex justify-between items-end">
+                                <div>
+                                  <p className="text-[6px] uppercase tracking-widest text-gray-400">VALID THRU</p>
+                                  <p className="text-[10px] font-mono">12/25</p>
+                                </div>
+                                <div className="w-8 h-5 bg-gold-500/20 rounded-sm"></div>
                               </div>
                             </div>
-                            <Plus className="w-3.5 h-3.5 mobile:w-4 mobile:h-4 text-gray-500" />
-                          </button>
-                          <button onClick={() => setActiveSection('transfer')} className="w-full flex items-center justify-between p-3 mobile:p-4 bg-navy-800 rounded-xl border border-navy-700 hover:border-gold-500 transition-colors group">
-                            <div className="flex items-center space-x-2.5 mobile:space-x-3">
-                              <div className="w-9 h-9 mobile:w-10 mobile:h-10 bg-navy-700 rounded-lg flex items-center justify-center group-hover:bg-gold-500/20 group-hover:text-gold-500 transition-colors">
-                                <Zap className="w-4 h-4 mobile:w-5 mobile:h-5" />
-                              </div>
-                              <div className="text-left leading-tight">
-                                <p className="font-bold text-xs mobile:text-sm">International Transfer</p>
-                                <p className="text-gold-500 text-[8px] mobile:text-[10px] uppercase font-bold mt-0.5 mobile:mt-1">Global reach, 0% fee</p>
-                              </div>
-                            </div>
-                            <Plus className="w-3.5 h-3.5 mobile:w-4 mobile:h-4 text-gray-500" />
-                          </button>
+                          </div>
                         </div>
+                        <p className="text-[10px] text-gray-400 mb-4 relative z-10">Create virtual cards for secure online payments and subscription management.</p>
+                        <button 
+                          onClick={() => setActiveSection('cards')} 
+                          className="w-full py-2 bg-gold-500 text-navy-900 rounded-xl font-bold text-xs mobile:text-sm hover:bg-gold-400 transition-colors"
+                        >
+                          Apply Now
+                        </button>
                       </div>
 
                       {/* Help & Support */}
@@ -446,51 +841,95 @@ const DashboardContent = () => {
                         <p className="text-navy-900/60 text-[10px] mobile:text-xs mt-1 mb-3 mobile:mb-4 leading-relaxed">Our support team is here to assist you 24/7</p>
                         <button onClick={() => setActiveSection('support')} className="w-full py-2 bg-navy-900 text-gold-500 rounded-xl font-bold text-xs mobile:text-sm">Contact Support</button>
                       </div>
+
                     </div>
                   </div>
                 </>
               ) : (
-                <div className="bg-white rounded-3xl p-5 mobile:p-8 border border-gray-100 shadow-sm min-h-[500px]">
-                  <div className="flex items-center justify-between mb-6 mobile:mb-8 pb-4 mobile:pb-6 border-b border-gray-50">
-                    <h2 className="text-xl mobile:text-2xl font-bold text-navy-900 flex items-center">
-                      <span className="w-8 h-8 mobile:w-10 mobile:h-10 bg-gold-50 text-gold-600 rounded-lg mobile:rounded-xl flex items-center justify-center mr-2.5 mobile:mr-3 scale-90 mobile:scale-100">
-                        {dashboardLinks.find(l => l.id === activeSection)?.icon}
-                      </span>
-                      {dashboardLinks.find(l => l.id === activeSection)?.name}
-                    </h2>
-                    <button onClick={() => setActiveSection('dashboard')} className="text-gray-400 hover:text-navy-900 flex items-center text-xs mobile:text-sm font-bold">
-                      <X className="w-3.5 h-3.5 mobile:w-4 mobile:h-4 mr-1" /> Close
-                    </button>
+                <div className="bg-white rounded-2xl mobile:rounded-3xl p-4 mobile:p-8 border border-gray-100 shadow-sm min-h-[500px]">
+                  <div className="flex flex-col space-y-4 mb-6 mobile:mb-8 pb-4 mobile:pb-6 border-b border-gray-50">
+                    {/* Breadcrumbs/Back button for mobile */}
+                    {isSubSection && (
+                      <button
+                        onClick={() => setActiveSection(currentHub?.id || 'dashboard')}
+                        className="flex items-center text-gold-600 text-xs mobile:text-sm font-bold hover:translate-x-[-4px] transition-transform w-fit"
+                      >
+                        <ArrowUpDown className="w-3 h-3 rotate-90 mr-1.5" />
+                        Back to {currentHub?.name}
+                      </button>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-xl mobile:text-2xl font-bold text-navy-900 flex items-center">
+                        <span className="w-10 h-10 bg-gold-50 text-gold-600 rounded-xl flex items-center justify-center mr-3 scale-90 mobile:scale-100">
+                          {isSubSection
+                            ? (activeSection === 'deposit' ? <ArrowDownUp /> : activeSection === 'withdraw' ? <ArrowUpDown /> : activeSection === 'transfer' ? <Send /> : currentHub?.icon)
+                            : currentHub?.icon
+                          }
+                        </span>
+                        {isSubSection
+                          ? (
+                            {
+                              deposit: 'Deposit',
+                              withdraw: 'Withdrawal',
+                              transfer: 'Send Money',
+                              logs: 'History',
+                              notifications: 'Notifications',
+                              profile: 'Account Info',
+                              kyc: 'Identity Verification',
+                              support: 'Contact Support',
+                              cards: 'Virtual Cards',
+                              loans: 'Loan Services',
+                              'tax-refund': 'IRS Tax Refund',
+                            } as Record<string, string>
+                          )[activeSection]
+                          : currentHub?.name}
+                      </h2>
+                      <button onClick={() => setActiveSection('dashboard')} className="text-gray-400 hover:text-navy-900 flex items-center text-xs mobile:text-sm font-bold">
+                        <X className="w-4 h-4 mr-1" /> Close
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Sections and Hubs */}
+                  {activeSection === 'transactions_hub' && <TransactionsHub />}
+                  {activeSection === 'account_hub' && <AccountHub />}
+                  {activeSection === 'services_hub' && <ServicesHub />}
+
                   {activeSection === 'deposit' && <DepositSection />}
                   {activeSection === 'withdraw' && <WithdrawSection />}
                   {activeSection === 'transfer' && <TransferMoneySection />}
                   {activeSection === 'logs' && <UnifiedLogsSection />}
                   {activeSection === 'profile' && <ProfileSection />}
                   {activeSection === 'support' && <SupportSection />}
-                  {activeSection === 'notifications' && <NotificationsSection />}
+                  {activeSection === 'loans' && <LoanSection />}
+                  {activeSection === 'tax-refund' && <TaxRefundSection />}
+                  {activeSection === 'recovery' && <RecoverySection />}
+                  {activeSection === 'kyc' && (
+                    userProfile?.kycStatus === 'verified' 
+                      ? <div className="flex flex-col items-center justify-center py-20 text-center">
+                          <CheckCircle className="w-20 h-20 text-green-500 mb-6" />
+                          <h2 className="text-3xl font-bold text-navy-900 mb-2">Account Verified</h2>
+                          <p className="text-gray-500">Your identity documents have already been successfully verified.</p>
+                        </div>
+                      : <KYCSection />
+                  )}
                   {activeSection === 'admin' && <AdminSection />}
+                  {activeSection === 'cards' && <VirtualCardsSection />}
                 </div>
               )}
             </div>
 
-            {/* Bottom Nav for Mobile */}
-            <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[92vw] max-w-[400px]">
-              <div className="bg-[#0b1626]/95 backdrop-blur-xl border border-navy-800 rounded-full p-2 flex items-center justify-between shadow-2xl">
-                {[
-                  { id: 'dashboard', icon: <BarChart3 className="w-5 h-5" />, name: 'Home' },
-                  { id: 'transfer', icon: <Send className="w-5 h-5" />, name: 'Send' },
-                  { id: 'deposit', icon: <ArrowDownUp className="w-5 h-5" />, name: 'Deposit' },
-                  { id: 'withdraw', icon: <ArrowUpDown className="w-5 h-5" />, name: 'Withdraw' },
-                  ...(canAccessAdmin(userProfile) ? [{ id: 'admin', icon: <ShieldCheck className="w-5 h-5" />, name: 'Admin' }] : [{ id: 'profile', icon: <User className="w-5 h-5" />, name: 'Account' }]),
-                ].map((link) => {
-                  const isActive = activeSection === link.id;
+            {/* Bottom Nav for Mobile - Grouped for all links */}
+            <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[94vw] max-w-[440px]">
+              <div className="bg-[#0b1626]/95 backdrop-blur-xl border border-navy-800 rounded-full p-1.5 flex items-center justify-between shadow-2xl">
+                {dashboardLinks.map((link) => {
+                  const isActive = activeSection === link.id || (link.subItems && link.subItems.includes(activeSection));
                   return (
                     <button
                       key={link.id}
                       onClick={() => setActiveSection(link.id)}
                       className={`flex items-center transition-all duration-500 ease-out group ${isActive
-                        ? 'bg-gold-500 text-[#0b1626] rounded-full pr-4 pl-1.5 py-1.5'
+                        ? 'bg-gold-500 text-[#0b1626] rounded-full pr-4 pl-1 pb-1 pt-1'
                         : 'text-gray-400 p-3 hover:text-white'
                         }`}
                     >
@@ -502,7 +941,7 @@ const DashboardContent = () => {
                         <motion.span
                           initial={{ opacity: 0, width: 0, x: -10 }}
                           animate={{ opacity: 1, width: 'auto', x: 0 }}
-                          className="ml-2 font-black text-[10px] uppercase tracking-tighter"
+                          className="ml-2 font-black text-[10px] uppercase tracking-tighter whitespace-nowrap"
                         >
                           {link.name}
                         </motion.span>

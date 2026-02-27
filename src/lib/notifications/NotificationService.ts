@@ -5,7 +5,7 @@ import { sendEmail, emailTemplates, getBaseTemplate } from '@/lib/email';
 interface NotificationData {
   title: string;
   message: string;
-  type: 'deposit_request' | 'withdrawal_request' | 'deposit_approval' | 'deposit_decline' | 'withdrawal_approval' | 'withdrawal_decline' | 'daily_gain' | 'referral_gain' | 'broadcast' | 'individual' | 'transfer_sent' | 'transfer_received' | 'welcome' | 'plan_selected' | 'plan_updated' | 'support_sent' | 'support_reply' | 'login' | 'logout' | 'user_activity' | 'plan_completed';
+  type: 'deposit_request' | 'withdrawal_request' | 'deposit_approval' | 'deposit_decline' | 'withdrawal_approval' | 'withdrawal_decline' | 'daily_gain' | 'referral_gain' | 'broadcast' | 'individual' | 'transfer_sent' | 'transfer_received' | 'welcome' | 'plan_selected' | 'plan_updated' | 'support_sent' | 'support_reply' | 'login' | 'logout' | 'user_activity' | 'plan_completed' | 'kyc_approval' | 'kyc_decline';
   recipients: string[] | 'all';
   sentBy: string;
   metadata?: {
@@ -742,5 +742,73 @@ export class NotificationService {
         metadata: { userEmail, activityType, userId }
       });
     }
+  }
+
+  // KYC Approval Notification
+  static async notifyKycApproval(userId: string, userEmail: string) {
+    const db = await getDb();
+    const user = await db.collection('users').findOne({ _id: new ObjectId(userId) });
+    const userName = user?.firstName || userEmail;
+
+    await this.createNotification({
+      title: 'Identity Verified',
+      message: 'Congratulations! Your identity documents have been verified. Your account is now fully active.',
+      type: 'kyc_approval',
+      recipients: [userId],
+      sentBy: 'system'
+    });
+
+    // Email user
+    await sendEmail({
+      to: userEmail,
+      subject: 'Identity Verified - Recoverly',
+      html: getBaseTemplate(
+        'Identity Verified',
+        `
+        <p>Congratulations! Your identity documents have been successfully verified.</p>
+        <p>Your account now has full access to all features on the platform.</p>
+        <div class="button-container">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">Go to Dashboard</a>
+        </div>
+        `,
+        userName
+      ),
+      text: 'Congratulations! Your identity documents have been successfully verified. Your account now has full access to all features on the platform.'
+    });
+  }
+
+  // KYC Decline Notification
+  static async notifyKycDecline(userId: string, userEmail: string, reason?: string) {
+    const db = await getDb();
+    const user = await db.collection('users').findOne({ _id: new ObjectId(userId) });
+    const userName = user?.firstName || userEmail;
+
+    await this.createNotification({
+      title: 'Identity Verification Failed',
+      message: `Your identity verification was declined.${reason ? ` Reason: ${reason}` : ''} Please resubmit your documents.`,
+      type: 'kyc_decline',
+      recipients: [userId],
+      sentBy: 'system',
+      metadata: { reason }
+    });
+
+    // Email user
+    await sendEmail({
+      to: userEmail,
+      subject: 'Identity Verification Update - Recoverly',
+      html: getBaseTemplate(
+        'Identity Verification Failed',
+        `
+        <p>We were unable to verify your identity documents.</p>
+        ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
+        <p>Please log in to your dashboard to resubmit clear copies of your identification documents.</p>
+        <div class="button-container">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard?section=kyc" class="button">Resubmit KYC</a>
+        </div>
+        `,
+        userName
+      ),
+      text: `Your identity verification was declined. ${reason ? `Reason: ${reason}` : ''} Please resubmit your documents.`
+    });
   }
 }

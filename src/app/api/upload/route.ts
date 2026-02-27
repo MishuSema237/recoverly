@@ -3,13 +3,6 @@ import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-  },
-};
 
 export async function POST(request: NextRequest) {
   try {

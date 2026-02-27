@@ -10,6 +10,7 @@ import Image from 'next/image';
 const KYCSection = () => {
     const { user, userProfile, forceRefresh } = useAuth();
     const [step, setStep] = useState(1);
+    const [isResubmitting, setIsResubmitting] = useState(false);
     const [idFront, setIdFront] = useState<string | null>(null);
     const [idBack, setIdBack] = useState<string | null>(null);
     const [selfie, setSelfie] = useState<string | null>(null);
@@ -85,6 +86,33 @@ const KYCSection = () => {
                 </div>
                 <h3 className="text-2xl font-bold text-navy-900 mb-2">Verification Pending</h3>
                 <p className="text-gray-500 max-w-md">We are currently reviewing your documents. This process usually takes 24-48 hours. Thank you for your patience.</p>
+            </div>
+        );
+    }
+
+    if (userProfile?.kycStatus === 'rejected' && !isResubmitting) {
+        return (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-6">
+                    <X className="w-10 h-10" />
+                </div>
+                <h3 className="text-2xl font-bold text-navy-900 mb-2">Verification Declined</h3>
+                <p className="text-gray-500 max-w-md mb-8">Unfortunately, your identity verification was declined. This could be due to unclear document photos or mismatched information.</p>
+                <div className="bg-red-50 p-4 rounded-xl mb-8 w-full max-w-md border border-red-100">
+                    <p className="text-red-600 text-sm font-medium">Reason: {userProfile.kycRejectionReason || "No specific reason provided."}</p>
+                </div>
+                <button 
+                    onClick={() => {
+                        setIdFront(null);
+                        setIdBack(null);
+                        setSelfie(null);
+                        setStep(1);
+                        setIsResubmitting(true);
+                    }}
+                    className="px-8 py-3 bg-navy-900 text-gold-500 rounded-xl font-bold transition-all hover:bg-navy-800"
+                >
+                    Resubmit Documents
+                </button>
             </div>
         );
     }

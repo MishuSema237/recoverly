@@ -456,6 +456,43 @@ export const emailTemplates = {
     ),
     text: `Hello ${userName}, your ${planName} strategy has completed. ${capitalReturned ? 'Capital returned.' : ''}`
   }),
+
+  // 12. Broadcast Intelligence
+  broadcastEmail: (subject: string, htmlContent: string) => ({
+    subject: subject,
+    html: getBaseTemplate(
+      subject,
+      `
+      <div class="broadcast-payload">
+        ${htmlContent}
+      </div>
+      <p style="font-size: 10px; color: #9ca3af; margin-top: 40px; text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">
+        Transmission Authorized by Global Wealth Management Intelligence
+      </p>
+      `
+    ),
+    text: `Recoverly Intelligence Update: ${subject}`
+  }),
+
+  // 13. Support Response Protocol
+  supportResponse: (userName: string, subject: string, reply: string) => ({
+    subject: `Secure Response: ${subject} - Recoverly`,
+    html: getBaseTemplate(
+      'Authorized Intelligence Response',
+      `
+      <p>A secure response has been authorized for your inquiry: <strong>${subject}</strong></p>
+      <div style="background-color: #f9fafb; padding: 25px; border-radius: 12px; border: 1px solid #e5e7eb; margin: 30px 0;">
+        <p style="margin: 0; font-size: 15px; color: #111827; line-height: 1.6;">${reply}</p>
+      </div>
+      <p>If you require further assistance, please log in to your dashboard and initiate a follow-up sequence.</p>
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard?section=support" class="button">View Communications</a>
+      </div>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, an admin has replied to your support request: ${subject}. Reply: ${reply}`
+  }),
 };
 
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+import { sendEmail, emailTemplates } from '@/lib/email';
 
 interface Notification {
   _id?: ObjectId;
@@ -59,13 +60,52 @@ export async function POST(request: NextRequest) {
       // Insert all notifications
       if (notifications.length > 0) {
         await db.collection('notifications').insertMany(notifications);
+        
+        // Send emails to all users
+        const emailTemplate = emailTemplates.broadcastEmail(
+          notificationData.title,
+          notificationData.message
+        );
+        
+        // Send emails in batches or parallel (parallel for now as it's cleaner, but consider batches for large user bases)
+        await Promise.allSettled(
+          users.map(user => 
+            sendEmail({
+              to: user.email,
+              ...emailTemplate
+            })
+          )
+        );
       }
       
       return NextResponse.json({
         success: true,
-        message: `Broadcast notification sent to ${notifications.length} users`,
+        message: `Broadcast notification sent to ${notifications.length} users and queued for transmission`,
         data: { count: notifications.length }
       });
+    }
+    
+    // For individual notifications
+    const recipients = Array.isArray(notificationData.recipients) ? notificationData.recipients : [];
+    
+    if (notificationData.type === 'individual' && recipients.length > 0) {
+      const users = await db.collection('users').find({ 
+        _id: { $in: recipients.map(id => new ObjectId(id)) } 
+      }).toArray();
+
+      const emailTemplate = emailTemplates.broadcastEmail(
+        notificationData.title,
+        notificationData.message
+      );
+
+      await Promise.allSettled(
+        users.map(user => 
+          sendEmail({
+            to: user.email,
+            ...emailTemplate
+          })
+        )
+      );
     }
     
     // For individual notifications or non-broadcast

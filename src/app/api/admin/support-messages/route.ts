@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { requireAdmin } from '@/middleware/auth';
+import { sendEmail, emailTemplates } from '@/lib/email';
+import { ObjectId } from 'mongodb';
 
 export const GET = requireAdmin(async (request) => {
   try {
@@ -86,10 +88,17 @@ export const PUT = requireAdmin(async (request) => {
       );
     }
 
-    // Create notification for the user about the reply
+    // Create notification and send email for the user about the reply
     if (adminReply) {
-      const message = await supportMessagesCollection.findOne({ _id: messageId });
+      const message = await supportMessagesCollection.findOne({ 
+        _id: messageId as string
+      });
+      
       if (message) {
+        // Fetch User to get email and name
+        const usersCollection = db.collection('users');
+        const user = await usersCollection.findOne({ _id: new ObjectId(message.userId) });
+
         const notificationsCollection = db.collection('notifications');
         await notificationsCollection.insertOne({
           title: 'Support Reply',
@@ -105,6 +114,20 @@ export const PUT = requireAdmin(async (request) => {
           sentAt: new Date(),
           read: false
         });
+
+        // Send Email
+        if (user && user.email) {
+          const emailTemplate = emailTemplates.supportResponse(
+            user.firstName || 'Participant',
+            message.subject,
+            adminReply
+          );
+
+          await sendEmail({
+            to: user.email,
+            ...emailTemplate
+          });
+        }
       }
     }
 

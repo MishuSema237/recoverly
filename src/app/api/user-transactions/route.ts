@@ -28,18 +28,28 @@ export const GET = requireAuth(async (request) => {
       db.collection('investments').find({ userId }).sort({ createdAt: -1 }).toArray()
     ]);
 
+    // Fetch payment methods to resolve IDs to names
+    const paymentMethods = await db.collection('paymentMethods').find({}).toArray();
+    const paymentMethodMap = paymentMethods.reduce((acc, pm) => ({
+      ...acc,
+      [pm._id.toString()]: pm.name
+    }), {} as Record<string, string>);
+
     // Transform deposits
-    const depositTransactions = deposits.map(deposit => ({
-      id: deposit._id.toString(),
-      type: 'deposit',
-      date: deposit.createdAt,
-      amount: deposit.amount,
-      currency: 'USD',
-      status: deposit.status === 'approved' ? 'completed' : deposit.status === 'rejected' ? 'failed' : 'pending',
-      details: `Deposit via ${deposit.paymentMethodId}`,
-      method: deposit.paymentMethodId,
-      transactionId: deposit._id.toString()
-    }));
+    const depositTransactions = deposits.map(deposit => {
+      const methodName = paymentMethodMap[deposit.paymentMethodId] || 'Bank Transfer';
+      return {
+        id: deposit._id.toString(),
+        type: 'deposit',
+        date: deposit.createdAt,
+        amount: deposit.amount,
+        currency: 'USD',
+        status: deposit.status === 'approved' ? 'completed' : deposit.status === 'rejected' ? 'failed' : 'pending',
+        details: `Deposit via ${methodName}`,
+        method: methodName,
+        transactionId: deposit._id.toString()
+      };
+    });
 
     // Transform withdrawals
     const withdrawalTransactions = withdrawals.map(withdrawal => ({

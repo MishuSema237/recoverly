@@ -33,6 +33,7 @@ interface User {
   };
   kycSubmittedAt?: Date;
   kycVerifiedAt?: Date;
+  kycRejectionReason?: string;
   balances?: {
     main: number;
     investment: number;

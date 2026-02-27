@@ -1,244 +1,153 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import CircularGallery from './CircularGallery.jsx';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 
-// Function to create a review card image with text and star ratings
-const createReviewCardImage = (reviewText: string, rating: number, author: string): string => {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return '';
+interface Testimonial {
+  _id?: string;
+  name: string;
+  content: string;
+  rating: number;
+  picture: string;
+}
 
-  canvas.width = 800;
-  canvas.height = 600;
-
-  // Background - Navy gradient
-  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, '#0B1626'); // Navy 900
-  gradient.addColorStop(1, '#173653'); // Navy 700
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Add a subtle gold accent/glow
-  const glow = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, 500);
-  glow.addColorStop(0, 'rgba(201, 147, 58, 0.1)'); // Gold with low opacity
-  glow.addColorStop(1, 'transparent');
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Border
-  ctx.strokeStyle = '#2E5A8D'; // Navy 500
-  ctx.lineWidth = 2;
-  ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
-
-  // Text properties
-  ctx.fillStyle = '#ffffff';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-
-  // Dynamic font size based on text length
-  let fontSize = 32;
-  if (reviewText.length > 150) fontSize = 28;
-  if (reviewText.length > 200) fontSize = 24;
-
-  ctx.font = `bold ${fontSize}px Inter, sans-serif`;
-  const maxWidth = canvas.width - 120; // More padding
-  const lineHeight = fontSize * 1.5;
-
-  // Word wrap logic
-  const words = reviewText.split(' ');
-  const lines = [];
-  let currentLine = words[0];
-
-  for (let i = 1; i < words.length; i++) {
-    const word = words[i];
-    const width = ctx.measureText(currentLine + " " + word).width;
-    if (width < maxWidth) {
-      currentLine += " " + word;
-    } else {
-      lines.push(currentLine);
-      currentLine = word;
-    }
+const fallbackTestimonials: Testimonial[] = [
+  {
+    name: 'Sarah Jenkins',
+    content: 'I lost $45,000 to a crypto romance scam. The police did nothing. Recoverly filed legal action and got 80% of my funds back in 3 weeks! The professionalism and speed was unexpected.',
+    rating: 5.0,
+    picture: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1000'
+  },
+  {
+    name: 'Michael Torres',
+    content: 'My bank refused to refund an unauthorized $12k transaction. Recoverly used a court order to force them to pay up. Amazing service. They know the banking laws better than the bankers do.',
+    rating: 4.8,
+    picture: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1000'
   }
-  lines.push(currentLine);
-
-  // Calculate total text height to center vertically
-  const totalTextHeight = lines.length * lineHeight;
-  const startY = (canvas.height - totalTextHeight) / 2 - 40; // Shift up slightly for stars/author
-
-  // Draw review text lines
-  lines.forEach((line, index) => {
-    ctx.fillText(line, canvas.width / 2, startY + index * lineHeight);
-  });
-
-  // Draw stars
-  const starSize = 30;
-  const starSpacing = 40;
-  const starsX = (canvas.width - (starSpacing * 5 - (starSpacing - starSize))) / 2; // Correct centering
-  const starsY = startY + totalTextHeight + 40;
-
-  for (let i = 0; i < 5; i++) {
-    ctx.fillStyle = i < rating ? '#C9933A' : '#4b5563'; // Gold stars
-    ctx.beginPath();
-    // Draw star shape
-    const cx = starsX + i * starSpacing + starSize / 2;
-    const cy = starsY;
-    const spikes = 5;
-    const outerRadius = starSize / 2;
-    const innerRadius = starSize / 4;
-
-    let rot = Math.PI / 2 * 3;
-    let x = cx;
-    let y = cy;
-    const step = Math.PI / spikes;
-
-    ctx.moveTo(cx, cy - outerRadius);
-    for (let j = 0; j < spikes; j++) {
-      x = cx + Math.cos(rot) * outerRadius;
-      y = cy + Math.sin(rot) * outerRadius;
-      ctx.lineTo(x, y);
-      rot += step;
-
-      x = cx + Math.cos(rot) * innerRadius;
-      y = cy + Math.sin(rot) * innerRadius;
-      ctx.lineTo(x, y);
-      rot += step;
-    }
-    ctx.lineTo(cx, cy - outerRadius);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  // Author name
-  ctx.fillStyle = '#9FB3CB'; // Navy 200
-  ctx.font = 'italic 24px Inter, sans-serif';
-  ctx.fillText(`- ${author}`, canvas.width / 2, starsY + 50);
-
-  return canvas.toDataURL('image/png');
-};
+];
 
 const TestimonialsSection = () => {
-  const reviews = [
-    {
-      text: 'I lost $45,000 to a crypto romance scam. The police did nothing. Recoverly filed legal action and got 80% of my funds back in 3 weeks!',
-      rating: 5,
-      author: 'Sarah Jenkins'
-    },
-    {
-      text: 'My bank refused to refund an unauthorized $12k transaction. Recoverly used a court order to force them to pay up. Amazing service.',
-      rating: 5,
-      author: 'Michael Torres'
-    },
-    {
-      text: 'I was skeptical at first, but their legal team is legit. They recovered my stolen Bitcoin from a fake exchange.',
-      rating: 5,
-      author: 'David Chen'
-    },
-    {
-      text: 'Finally, a service that actually fights for victims. The process was transparent and I could track my case every step of the way.',
-      rating: 5,
-      author: 'Amanda Lewis'
-    },
-    {
-      text: 'Professional, aggressive against scammers, and kind to clients. Recoverly saved my retirement savings.',
-      rating: 5,
-      author: 'Robert Wilson'
-    },
-    {
-      text: 'They know exactly how to deal with banks. My claim was approved 48 hours after Recoverly stepped in.',
-      rating: 5,
-      author: 'Jessica White'
-    }
-  ];
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(fallbackTestimonials);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const testimonials = useMemo(() => {
-    if (typeof window === 'undefined') {
-      return reviews.map(review => ({
-        image: '',
-        text: `${review.author} - ${review.rating}★`
-      }));
-    }
-    return reviews.map(review => ({
-      image: createReviewCardImage(review.text, review.rating, review.author),
-      text: `${review.author} - ${review.rating}★`
-    }));
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const res = await fetch('/api/testimonials');
+        const data = await res.json();
+        if (data.success && data.data.length > 0) {
+          setTestimonials(data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch testimonials');
+      }
+    };
+    fetchTestimonials();
   }, []);
 
-  const recentWins = [
-    {
-      type: 'Crypto Scam Recovery',
-      amount: '$145,000.00',
-      date: '2 Days Ago',
-    },
-    {
-      type: 'Bank Wire Reversal',
-      amount: '$28,400.00',
-      date: '4 Hours Ago',
-    },
-    {
-      type: 'Credit Card Fraud',
-      amount: '$9,250.00',
-      date: 'Just Now',
-    },
-  ];
+  const next = () => setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+  const prev = () => setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+
+  useEffect(() => {
+    const interval = setInterval(next, 8000);
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
 
   return (
-    <section className="py-12 mobile:py-20 lg:py-24 bg-gray-50">
+    <section className="py-24 bg-white overflow-hidden relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Customer Testimonials */}
-        <div className="mb-20">
-          <div className="text-center mb-10 mobile:mb-16">
-            <span className="text-gold-600 font-bold tracking-wider uppercase text-xs mobile:text-sm">Success Stories</span>
-            <h2 className="text-2xl mobile:text-3xl lg:text-5xl font-bold text-navy-900 mt-2 font-playfair">
-              Victory for Victims
-            </h2>
-            <p className="text-base mobile:text-xl text-gray-600 max-w-2xl mx-auto mt-3 mobile:mt-4">
-              We have helped thousands of people reclaim what is rightfully theirs.
-            </p>
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold-50 border border-gold-100 rounded-full mb-4">
+            <span className="w-1.5 h-1.5 bg-gold-600 rounded-full animate-pulse"></span>
+            <span className="text-gold-600 font-black tracking-widest uppercase text-[10px]">Intelligence Ledger</span>
           </div>
-
-          {/* Circular Gallery for Testimonials */}
-          <div style={{ height: '600px', position: 'relative' }}>
-            <CircularGallery bend={3} textColor="#1F466F" borderRadius={0.05} scrollEase={0.02} items={testimonials} />
-          </div>
+          <h2 className="text-4xl md:text-5xl font-black text-navy-900 uppercase tracking-tighter">Validated Success</h2>
         </div>
 
-        {/* Recent Wins */}
-        <div className="bg-white rounded-3xl p-6 mobile:p-12 shadow-xl border border-gray-100">
-          <div className="text-center mb-8 mobile:mb-12">
-            <h2 className="text-xl mobile:text-2xl lg:text-3xl font-bold text-navy-900 mb-3 mobile:mb-4 font-playfair">
-              Recent Case Victories
-            </h2>
-            <p className="text-sm mobile:text-base text-gray-600">
-              Live updates of funds recovered for our clients.
-            </p>
-          </div>
+        <div className="relative h-[600px] md:h-[700px] w-full rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100 group">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 1, ease: "circOut" }}
+              className="absolute inset-0"
+            >
+              {/* Background with zoom effect */}
+              <div className="absolute inset-0 transform transition-transform duration-[8000ms] group-hover:scale-110">
+                <img 
+                  src={testimonials[currentIndex].picture} 
+                  alt={testimonials[currentIndex].name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/40 to-navy-900/20"></div>
+                <div className="absolute inset-0 bg-navy-900/30"></div>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {recentWins.map((win, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="text-center p-6 mobile:p-8 bg-navy-50 rounded-2xl border border-navy-100 hover:shadow-lg transition-all duration-300"
-              >
-                <div className="w-12 h-12 mobile:w-16 mobile:h-16 bg-navy-100 rounded-full flex items-center justify-center mx-auto mb-3 mobile:mb-4 text-xl mobile:text-2xl">
-                  ⚖️
+              {/* Centered Content */}
+              <div className="relative h-full z-10 flex flex-col items-center justify-center text-center px-8 md:px-20 max-w-4xl mx-auto">
+                <div className="w-20 h-20 bg-gold-500/10 backdrop-blur-xl border border-gold-500/20 rounded-3xl flex items-center justify-center mb-10">
+                  <Quote className="w-10 h-10 text-gold-500" />
                 </div>
-                <h3 className="text-lg mobile:text-xl font-bold text-navy-900 mb-1.5 mobile:mb-2 text-sm mobile:text-base">
-                  {win.type}
-                </h3>
-                <p className="text-gold-600 font-bold text-xl mobile:text-2xl font-mono mb-1.5 mobile:mb-2">
-                  {win.amount}
+                
+                <p className="text-2xl md:text-4xl font-black text-white leading-tight mb-12 drop-shadow-2xl">
+                  "{testimonials[currentIndex].content}"
                 </p>
-                <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold flex items-center justify-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                  {win.date}
-                </p>
-              </motion.div>
-            ))}
+
+                <div className="flex flex-col items-center space-y-6">
+                  <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
+                    {[...Array(5)].map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className={`w-4 h-4 ${
+                          i < Math.floor(testimonials[currentIndex].rating) 
+                          ? 'text-gold-500 fill-gold-500' 
+                          : (i < testimonials[currentIndex].rating ? 'text-gold-500 fill-gold-500 opacity-50' : 'text-gray-400')
+                        }`} 
+                      />
+                    ))}
+                    <span className="text-gold-500 font-black text-sm ml-2">{testimonials[currentIndex].rating.toFixed(1)}</span>
+                  </div>
+
+                  <div className="text-center">
+                    <h4 className="text-3xl font-black text-gold-500 uppercase tracking-tighter">{testimonials[currentIndex].name}</h4>
+                    <p className="text-gray-300 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 opacity-80">Verified Protocol Recipient</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Navigation Controls */}
+          <div className="absolute bottom-12 left-0 right-0 flex justify-center items-center gap-8 z-20">
+            <button 
+              onClick={prev}
+              className="w-16 h-16 bg-white/5 backdrop-blur-xl rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:text-navy-900 transition-all border border-white/10 hover:border-gold-500 shadow-xl"
+            >
+              <ChevronLeft className="w-8 h-8" />
+            </button>
+            
+            {/* Slide Indicators */}
+            <div className="flex gap-2">
+              {testimonials.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentIndex(i)}
+                  className={`h-1.5 rounded-full transition-all duration-500 ${
+                    i === currentIndex ? 'w-12 bg-gold-500' : 'w-4 bg-white/20 hover:bg-white/40'
+                  }`}
+                />
+              ))}
+            </div>
+
+            <button 
+              onClick={next}
+              className="w-16 h-16 bg-white/5 backdrop-blur-xl rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:text-navy-900 transition-all border border-white/10 hover:border-gold-500 shadow-xl"
+            >
+              <ChevronRight className="w-8 h-8" />
+            </button>
           </div>
         </div>
       </div>
