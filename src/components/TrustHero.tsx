@@ -3,14 +3,24 @@
 import React, { useState } from 'react';
 import { Shield, ArrowRight, Lock, Scale, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const TrustHero = () => {
+    const router = useRouter();
     const [transactionId, setTransactionId] = useState('');
+    const [scamType, setScamType] = useState('Crypto Scam / Investment Fraud');
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // In a real app, this would redirect to the claim flow with this ID
-        window.location.href = `/start-claim?tid=${transactionId}`;
+        
+        // Build the URL with search parameters
+        const params = new URLSearchParams();
+        params.set('section', 'recovery');
+        params.set('scamType', scamType);
+        if (transactionId) params.set('tid', transactionId);
+
+        // Redirect to dashboard recovery section
+        router.push(`/dashboard?${params.toString()}`);
     };
 
     return (
@@ -80,12 +90,16 @@ const TrustHero = () => {
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-semibold text-navy-700 mb-1">Was this a Scam or Unauthorized Charge?</label>
-                                    <select className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-navy-600 focus:border-transparent outline-none transition-all text-gray-700">
-                                        <option>Crypto Scam / Investment Fraud</option>
-                                        <option>Unauthorized Bank Transfer</option>
-                                        <option>Credit Card Chargeback</option>
-                                        <option>Romance Scam</option>
-                                        <option>Other Fraud</option>
+                                    <select 
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-navy-600 focus:border-transparent outline-none transition-all text-gray-700"
+                                        value={scamType}
+                                        onChange={(e) => setScamType(e.target.value)}
+                                    >
+                                        <option value="crypto">Crypto Scam / Investment Fraud</option>
+                                        <option value="bank_transfer">Unauthorized Bank Transfer</option>
+                                        <option value="credit_card">Credit Card Chargeback</option>
+                                        <option value="romance">Romance Scam</option>
+                                        <option value="other">Other Fraud</option>
                                     </select>
                                 </div>
 

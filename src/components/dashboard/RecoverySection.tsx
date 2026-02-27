@@ -19,15 +19,23 @@ import {
   Lock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
 
 const RecoverySection = () => {
-  const [activeTab, setActiveTab] = useState<'tracker' | 'form' | 'education'>('tracker');
+  const searchParams = useSearchParams();
+  const urlScamType = searchParams.get('scamType');
+  const urlTid = searchParams.get('tid');
+
+  const [activeTab, setActiveTab] = useState<'tracker' | 'form' | 'education'>(
+    urlScamType ? 'form' : 'tracker'
+  );
+  
   const [formData, setFormData] = useState({
-    scamType: '',
+    scamType: urlScamType || '',
     amountLost: '',
     dateOfIncident: '',
     platformName: '',
-    details: ''
+    details: urlTid ? `Transaction ID: ${urlTid}\n` : ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -392,4 +400,10 @@ const RecoverySection = () => {
   );
 };
 
-export default RecoverySection;
+export default function RecoverySectionWrapper() {
+  return (
+    <React.Suspense fallback={<div className="flex justify-center items-center h-64"><div className="w-8 h-8 border-4 border-gold-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+      <RecoverySection />
+    </React.Suspense>
+  );
+}
