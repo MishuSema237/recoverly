@@ -33,7 +33,8 @@ import {
   Briefcase,
   FileText,
   Globe,
-  ArrowLeftRight
+  ArrowLeftRight,
+  FileSearch
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';

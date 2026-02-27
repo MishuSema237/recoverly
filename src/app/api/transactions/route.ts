@@ -90,6 +90,32 @@ export async function POST(request: NextRequest) {
       
       return NextResponse.json({ success: true, data: result.insertedId });
     } else if (type === 'withdrawal') {
+      // Check withdrawal schedule before proceeding
+      const scheduleCollection = db.collection('withdrawalSchedule');
+      const withdrawalSchedule = await scheduleCollection.findOne({ type: 'withdrawal_schedule' });
+
+      if (withdrawalSchedule && withdrawalSchedule.enabled) {
+        const now = new Date();
+        const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        const currentTime = now.toLocaleTimeString('en-US', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        const isDayAllowed = withdrawalSchedule.allowedDays.includes(currentDay);
+        const startTime = withdrawalSchedule.allowedTimes.start;
+        const endTime = withdrawalSchedule.allowedTimes.end;
+        const isTimeAllowed = currentTime >= startTime && currentTime <= endTime;
+
+        if (!isDayAllowed || !isTimeAllowed) {
+          return NextResponse.json({ 
+            success: false, 
+            error: `Withdrawals are not allowed at this time. Allowed window: ${withdrawalSchedule.allowedDays.join(', ')} from ${startTime} to ${endTime} (${withdrawalSchedule.timezone})` 
+          }, { status: 403 });
+        }
+      }
+
       const collection = db.collection<WithdrawalRequest>('withdrawalRequests');
       const newWithdrawal = {
         ...transactionData,

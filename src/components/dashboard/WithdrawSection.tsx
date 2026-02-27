@@ -156,7 +156,7 @@ const WithdrawSection = () => {
     return null;
   };
   const isAmountValid = withdrawalAmount <= availableBalance && withdrawalAmount > 0;
-  const isFormValid = isAmountValid && selectedMethod && accountName && accountNumber;
+  const isFormValid = isAmountValid && selectedMethod && accountName && accountNumber && isWithdrawalAllowed();
 
   useEffect(() => {
     loadPaymentMethods();
@@ -342,17 +342,20 @@ const WithdrawSection = () => {
         )}
 
         {/* Balance Display */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-6">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-700">Available Balance:</span>
-            <span className="text-lg font-bold text-gray-900">${userProfile?.balances?.main || 0}</span>
+        <div className={`transition-all duration-700 ${!isWithdrawalAllowed() && !scheduleLoading ? 'blur-md grayscale pointer-events-none opacity-50' : ''}`}>
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-700">Available Balance:</span>
+              <span className="text-lg font-bold text-gray-900">${userProfile?.balances?.main || 0}</span>
+            </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mobile:space-y-6" style={{
-          opacity: userProfile?.kycStatus !== 'verified' ? 0.5 : 1,
-          pointerEvents: userProfile?.kycStatus !== 'verified' ? 'none' : 'auto'
-        }}>
+        <form onSubmit={handleSubmit} className={`space-y-4 mobile:space-y-6 transition-all duration-700 ${
+          (!isWithdrawalAllowed() && !scheduleLoading) || userProfile?.kycStatus !== 'verified' 
+          ? 'blur-md grayscale pointer-events-none opacity-40' 
+          : ''
+        }`}>
           {/* Payment Method Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">Select Withdrawal Method</label>
