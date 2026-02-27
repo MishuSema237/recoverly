@@ -91,7 +91,7 @@ export const PUT = requireAdmin(async (request) => {
       await NotificationService.createNotification({
         title: 'Virtual Card Approved',
         message: `Your ${card.cardLevel} ${card.cardType} virtual card has been approved and is now ready for use.`,
-        type: 'system',
+        type: 'individual',
         recipients: [card.userId],
         sentBy: 'system'
       });
@@ -112,7 +112,7 @@ export const PUT = requireAdmin(async (request) => {
       await NotificationService.createNotification({
         title: 'Virtual Card Declined',
         message: `Unfortunately, your application for a ${card.cardLevel} virtual card was declined. Reason: ${reason || 'Insufficient information'}`,
-        type: 'system',
+        type: 'individual',
         recipients: [card.userId],
         sentBy: 'system'
       });

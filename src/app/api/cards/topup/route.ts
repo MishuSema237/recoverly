@@ -80,7 +80,7 @@ export const POST = requireAuth(async (request) => {
     await NotificationService.createNotification({
       title: 'Top-up Request Received',
       message: `Your request to top up $${amount} to your virtual card has been received and is pending admin approval.`,
-      type: 'system',
+      type: 'individual',
       recipients: [userId],
       sentBy: 'system'
     });

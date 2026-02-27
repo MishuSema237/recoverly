@@ -6,9 +6,10 @@ import RecoveryCase from '@/lib/models/RecoveryCase';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
     const token = request.cookies.get('auth-token')?.value;
     if (!token) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
@@ -22,7 +23,7 @@ export async function PUT(
     const { status, adminNotes, updateMessage } = body;
 
     await getDb();
-    const recoveryCase = await RecoveryCase.findById(params.id);
+    const recoveryCase = await RecoveryCase.findById(id);
     if (!recoveryCase) return NextResponse.json({ success: false, error: 'Case not found' }, { status: 404 });
 
     if (status) recoveryCase.status = status;
@@ -47,9 +48,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
     const token = request.cookies.get('auth-token')?.value;
     if (!token) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
@@ -60,7 +62,7 @@ export async function DELETE(
     if (!user || !user.isAdmin) return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
 
     await getDb();
-    const result = await RecoveryCase.findByIdAndDelete(params.id);
+    const result = await RecoveryCase.findByIdAndDelete(id);
     if (!result) return NextResponse.json({ success: false, error: 'Case not found' }, { status: 404 });
 
     return NextResponse.json({ success: true, message: 'Case removed' });

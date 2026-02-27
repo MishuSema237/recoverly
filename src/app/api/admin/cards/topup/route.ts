@@ -80,7 +80,7 @@ export const PUT = requireAdmin(async (request) => {
       await NotificationService.createNotification({
         title: 'Card Top-up Successful',
         message: `Your card top-up of $${topUp.amount} has been approved and added to your card balance.`,
-        type: 'system',
+        type: 'individual',
         recipients: [topUp.userId],
         sentBy: 'system'
       });
@@ -120,7 +120,7 @@ export const PUT = requireAdmin(async (request) => {
       await NotificationService.createNotification({
         title: 'Card Top-up Declined',
         message: `Your card top-up request of $${topUp.amount} was declined. The funds have been returned to your main balance.`,
-        type: 'system',
+        type: 'individual',
         recipients: [topUp.userId],
         sentBy: 'system'
       });
