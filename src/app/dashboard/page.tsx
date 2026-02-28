@@ -88,9 +88,9 @@ const TransactionsHub = ({ setActiveSection }: { setActiveSection: (s: string) =
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto">
       {[
         { id: 'transfer', name: 'Send Money', icon: <Send className="w-5 h-5" />, desc: 'Transfer funds securely', color: 'text-gold-500 bg-gold-500/5' },
-        { id: 'deposit', name: 'Deposit', icon: <Plus className="w-5 h-5" />, desc: 'Add funds to your account', color: 'text-green-500 bg-green-500/5' },
-        { id: 'withdraw', name: 'Withdrawal', icon: <ArrowUpDown className="w-5 h-5" />, desc: 'Request your earnings', color: 'text-blue-500 bg-blue-500/5' },
-        { id: 'logs', name: 'History', icon: <History className="w-5 h-5" />, desc: 'Detailed transaction logs', color: 'text-purple-500 bg-purple-500/5' },
+        { id: 'deposit', name: 'Deposit', icon: <Plus className="w-5 h-5" />, desc: 'Add funds to your account', color: 'text-gold-500 bg-gold-500/5' },
+        { id: 'withdraw', name: 'Withdrawal', icon: <ArrowUpDown className="w-5 h-5" />, desc: 'Request your earnings', color: 'text-gold-500 bg-gold-500/5' },
+        { id: 'logs', name: 'History', icon: <History className="w-5 h-5" />, desc: 'Detailed transaction logs', color: 'text-gold-500 bg-gold-500/5' },
       ].map((item) => (
         <button
           key={item.id}
@@ -178,8 +178,8 @@ const ServicesHub = ({ setActiveSection }: { setActiveSection: (s: string) => vo
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto">
       {[
         { id: 'cards', name: 'Virtual Cards', icon: <CreditCard className="w-5 h-5" />, desc: 'Secure online payments', color: 'text-gold-500 bg-gold-500/5' },
-        { id: 'loans', name: 'Loan Services', icon: <Briefcase className="w-5 h-5" />, desc: 'Financial assistance', color: 'text-blue-500 bg-blue-500/5' },
-        { id: 'tax-refund', name: 'IRS Tax Refund', icon: <FileText className="w-5 h-5" />, desc: 'Tax rebate claims', color: 'text-green-500 bg-green-500/5' },
+        { id: 'loans', name: 'Loan Services', icon: <Briefcase className="w-5 h-5" />, desc: 'Financial assistance', color: 'text-gold-500 bg-gold-500/5' },
+        { id: 'tax-refund', name: 'IRS Tax Refund', icon: <FileText className="w-5 h-5" />, desc: 'Tax rebate claims', color: 'text-gold-500 bg-gold-500/5' },
       ].map((item) => (
         <button
           key={item.id}
