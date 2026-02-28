@@ -20,7 +20,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface LogEntry {
   id: string;
-  type: 'deposit' | 'withdrawal' | 'transfer' | 'investment' | 'earning' | 'other';
+  type: 'deposit' | 'withdrawal' | 'transfer' | 'investment' | 'earning' | 'other' | 'card' | 'loan' | 'tax_refund' | 'recovery';
   date: string;
   amount: number;
   currency: string;
@@ -38,7 +38,7 @@ interface LogEntry {
 
 const UnifiedLogsSection = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'all' | 'deposits' | 'withdrawals' | 'transfers' | 'investments'>('all');
+  const [activeTab, setActiveTab] = useState<string>('all');
   const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
   const [transactions, setTransactions] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,7 +72,10 @@ const UnifiedLogsSection = () => {
     if (activeTab === 'deposits') return log.type === 'deposit';
     if (activeTab === 'withdrawals') return log.type === 'withdrawal';
     if (activeTab === 'transfers') return log.type === 'transfer';
-    if (activeTab === 'investments') return log.type === 'investment' || log.type === 'earning';
+    if (activeTab === 'cards') return log.type === 'card';
+    if (activeTab === 'loans') return log.type === 'loan';
+    if (activeTab === 'tax_refunds') return log.type === 'tax_refund';
+    if (activeTab === 'recovery') return log.type === 'recovery';
     return true;
   });
 
@@ -81,8 +84,10 @@ const UnifiedLogsSection = () => {
       case 'deposit': return <ArrowDownCircle className="w-5 h-5 text-green-600" />;
       case 'withdrawal': return <ArrowUpCircle className="w-5 h-5 text-[#c9933a]" />;
       case 'transfer': return <ArrowLeftRight className="w-5 h-5 text-blue-600" />;
-      case 'investment': return <TrendingUp className="w-5 h-5 text-purple-600" />;
-      case 'earning': return <DollarSign className="w-5 h-5 text-yellow-600" />;
+      case 'card': return <CreditCard className="w-5 h-5 text-purple-600" />;
+      case 'loan': return <DollarSign className="w-5 h-5 text-indigo-600" />;
+      case 'tax_refund': return <TrendingUp className="w-5 h-5 text-teal-600" />;
+      case 'recovery': return <Eye className="w-5 h-5 text-orange-600" />;
       default: return <History className="w-5 h-5 text-gray-600" />;
     }
   };
@@ -113,7 +118,7 @@ const UnifiedLogsSection = () => {
       return `${prefix}$${Math.abs(amount).toLocaleString()}`;
     }
     // For other types, use type to determine prefix
-    const prefix = type === 'deposit' || type === 'earning' ? '+' : '-';
+    const prefix = type === 'deposit' ? '+' : '-';
     return `${prefix}$${Math.abs(amount).toLocaleString()}`;
   };
 
@@ -127,14 +132,17 @@ const UnifiedLogsSection = () => {
             { id: 'deposits', label: 'Deposits', icon: <ArrowDownCircle className="w-3.5 h-3.5 mobile:w-4 mobile:h-4" /> },
             { id: 'withdrawals', label: 'Withdraws', icon: <ArrowUpCircle className="w-3.5 h-3.5 mobile:w-4 mobile:h-4" /> },
             { id: 'transfers', label: 'Transfers', icon: <ArrowLeftRight className="w-3.5 h-3.5 mobile:w-4 mobile:h-4" /> },
-            { id: 'investments', label: 'Invest', icon: <TrendingUp className="w-3.5 h-3.5 mobile:w-4 mobile:h-4" /> }
+            { id: 'cards', label: 'Cards', icon: <CreditCard className="w-3.5 h-3.5 mobile:w-4 mobile:h-4" /> },
+            { id: 'loans', label: 'Loans', icon: <DollarSign className="w-3.5 h-3.5 mobile:w-4 mobile:h-4" /> },
+            { id: 'tax_refunds', label: 'Tax', icon: <TrendingUp className="w-3.5 h-3.5 mobile:w-4 mobile:h-4" /> },
+            { id: 'recovery', label: 'Recovery', icon: <Eye className="w-3.5 h-3.5 mobile:w-4 mobile:h-4" /> }
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'all' | 'deposits' | 'withdrawals' | 'transfers' | 'investments')}
+              onClick={() => setActiveTab(tab.id)}
               className={`flex items-center space-x-1.5 mobile:space-x-2 px-3 py-1.5 mobile:px-4 mobile:py-2 rounded-lg transition-colors duration-200 text-xs mobile:text-sm ${activeTab === tab.id
-                  ? 'bg-[#c9933a] text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-[#c9933a] text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               {tab.icon}
@@ -182,7 +190,9 @@ const UnifiedLogsSection = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className={`font-semibold text-sm mobile:text-base ${log.type === 'deposit' || log.type === 'earning' || (log.type === 'transfer' && !log.isSent)
+                    <p className={`font-semibold text-sm mobile:text-base ${log.status === 'failed'
+                      ? 'text-red-500'
+                      : log.type === 'deposit' || (log.type === 'transfer' && !log.isSent)
                         ? 'text-green-600'
                         : 'text-[#c9933a]'
                       }`}>
@@ -261,7 +271,9 @@ const UnifiedLogsSection = () => {
                       {formatDate(log.date)}
                     </td>
                     <td className="py-3 px-4">
-                      <span className={`font-semibold ${log.type === 'deposit' || log.type === 'earning' || (log.type === 'transfer' && !log.isSent)
+                      <span className={`font-semibold ${log.status === 'failed'
+                        ? 'text-red-500'
+                        : log.type === 'deposit' || (log.type === 'transfer' && !log.isSent)
                           ? 'text-green-600'
                           : 'text-[#c9933a]'
                         }`}>
@@ -357,8 +369,9 @@ const UnifiedLogsSection = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Amount</label>
-                    <p className={`text-lg font-semibold ${selectedLog.type === 'deposit' || selectedLog.type === 'earning' ||
-                        (selectedLog.type === 'transfer' && !selectedLog.isSent)
+                    <p className={`text-lg font-semibold ${selectedLog.status === 'failed'
+                      ? 'text-red-500'
+                      : selectedLog.type === 'deposit' || (selectedLog.type === 'transfer' && !selectedLog.isSent)
                         ? 'text-green-600'
                         : 'text-[#c9933a]'
                       }`}>
@@ -385,12 +398,7 @@ const UnifiedLogsSection = () => {
                   </div>
                 )}
 
-                {selectedLog.plan && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Investment Plan</label>
-                    <p className="text-sm text-gray-900">{selectedLog.plan}</p>
-                  </div>
-                )}
+                {/* Removed Investment Plan Item */}
 
                 {selectedLog.sender && (
                   <div>

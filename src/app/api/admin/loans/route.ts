@@ -27,6 +27,19 @@ export const GET = requireAdmin(async (request) => {
         $unwind: "$userDetails"
       },
       {
+        $lookup: {
+          from: "taxRefunds",
+          localField: "userId",
+          foreignField: "userId",
+          as: "personalInfo"
+        }
+      },
+      {
+        $addFields: {
+          personalInfo: { $arrayElemAt: ["$personalInfo", 0] }
+        }
+      },
+      {
         $project: {
           userObjectId: 0,
           "userDetails.password": 0,

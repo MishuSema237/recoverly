@@ -49,7 +49,7 @@ export class NotificationService {
   }
 
   // Deposit Request Notifications
-  static async notifyDepositRequest(userId: string, userEmail: string, amount: number, transactionId: string) {
+  static async notifyDepositRequest(userId: string, userEmail: string, amount: number, transactionId: string, paymentMethodName: string = 'Bank Transfer') {
     const db = await getDb();
     const user = await db.collection('users').findOne({ _id: new ObjectId(userId) });
     const userName = user?.firstName || userEmail;
@@ -61,7 +61,7 @@ export class NotificationService {
     // Notify user
     await this.createNotification({
       title: 'Deposit Request Submitted',
-      message: `Your deposit request of $${amount} has been submitted and is pending review.`,
+      message: `Your deposit request of $${amount} via ${paymentMethodName} has been submitted and is pending review.`,
       type: 'deposit_request',
       recipients: [userId],
       sentBy: 'system',
@@ -69,7 +69,7 @@ export class NotificationService {
     });
 
     // Email user
-    const userEmailData = emailTemplates.depositConfirmation(userName, amount, transactionId, 'pending');
+    const userEmailData = emailTemplates.depositConfirmation(userName, amount, transactionId, 'pending', paymentMethodName);
     await sendEmail({
       to: userEmail,
       subject: userEmailData.subject,
@@ -81,7 +81,7 @@ export class NotificationService {
     if (adminIds.length > 0) {
       await this.createNotification({
         title: 'New Deposit Request',
-        message: `${userEmail} has submitted a deposit request of $${amount}. Please review and process.`,
+        message: `${userEmail} has submitted a deposit request of $${amount} via ${paymentMethodName}. Please review and process.`,
         type: 'deposit_request',
         recipients: adminIds,
         sentBy: 'system',
@@ -91,7 +91,7 @@ export class NotificationService {
       // Email admins
       for (const admin of adminUsers) {
         if (admin.email) {
-          const adminEmailData = emailTemplates.adminAlert('Deposit', userEmail, amount, transactionId);
+          const adminEmailData = emailTemplates.adminAlert('Deposit', userEmail, amount, transactionId, paymentMethodName);
           await sendEmail({
             to: admin.email,
             subject: adminEmailData.subject,
@@ -104,7 +104,7 @@ export class NotificationService {
   }
 
   // Withdrawal Request Notifications
-  static async notifyWithdrawalRequest(userId: string, userEmail: string, amount: number, transactionId: string) {
+  static async notifyWithdrawalRequest(userId: string, userEmail: string, amount: number, transactionId: string, paymentMethodName: string = 'Bank Transfer') {
     const db = await getDb();
     const user = await db.collection('users').findOne({ _id: new ObjectId(userId) });
     const userName = user?.firstName || userEmail;
@@ -116,7 +116,7 @@ export class NotificationService {
     // Notify user
     await this.createNotification({
       title: 'Withdrawal Request Submitted',
-      message: `Your withdrawal request of $${amount} has been submitted and is pending review.`,
+      message: `Your withdrawal request of $${amount} via ${paymentMethodName} has been submitted and is pending review.`,
       type: 'withdrawal_request',
       recipients: [userId],
       sentBy: 'system',
@@ -124,7 +124,7 @@ export class NotificationService {
     });
 
     // Email user
-    const userEmailData = emailTemplates.withdrawalConfirmation(userName, amount, transactionId, 'pending');
+    const userEmailData = emailTemplates.withdrawalConfirmation(userName, amount, transactionId, 'pending', paymentMethodName);
     await sendEmail({
       to: userEmail,
       subject: userEmailData.subject,
@@ -136,7 +136,7 @@ export class NotificationService {
     if (adminIds.length > 0) {
       await this.createNotification({
         title: 'New Withdrawal Request',
-        message: `${userEmail} has submitted a withdrawal request of $${amount}. Please review and process.`,
+        message: `${userEmail} has submitted a withdrawal request of $${amount} via ${paymentMethodName}. Please review and process.`,
         type: 'withdrawal_request',
         recipients: adminIds,
         sentBy: 'system',
@@ -146,7 +146,7 @@ export class NotificationService {
       // Email admins
       for (const admin of adminUsers) {
         if (admin.email) {
-          const adminEmailData = emailTemplates.adminAlert('Withdrawal', userEmail, amount, transactionId);
+          const adminEmailData = emailTemplates.adminAlert('Withdrawal', userEmail, amount, transactionId, paymentMethodName);
           await sendEmail({
             to: admin.email,
             subject: adminEmailData.subject,
@@ -159,14 +159,14 @@ export class NotificationService {
   }
 
   // Deposit Approval Notifications
-  static async notifyDepositApproval(userId: string, userEmail: string, amount: number, transactionId: string) {
+  static async notifyDepositApproval(userId: string, userEmail: string, amount: number, transactionId: string, paymentMethodName: string = 'Bank Transfer') {
     const db = await getDb();
     const user = await db.collection('users').findOne({ _id: new ObjectId(userId) });
     const userName = user?.firstName || userEmail;
 
     await this.createNotification({
       title: 'Deposit Approved',
-      message: `Your deposit of $${amount} has been approved and added to your account balance.`,
+      message: `Your deposit of $${amount} via ${paymentMethodName} has been approved and added to your account balance.`,
       type: 'deposit_approval',
       recipients: [userId],
       sentBy: 'system',
@@ -174,7 +174,7 @@ export class NotificationService {
     });
 
     // Email user
-    const emailData = emailTemplates.depositConfirmation(userName, amount, transactionId, 'approved');
+    const emailData = emailTemplates.depositConfirmation(userName, amount, transactionId, 'approved', paymentMethodName);
     await sendEmail({
       to: userEmail,
       subject: emailData.subject,
@@ -210,14 +210,14 @@ export class NotificationService {
   }
 
   // Withdrawal Approval Notifications
-  static async notifyWithdrawalApproval(userId: string, userEmail: string, amount: number, transactionId: string) {
+  static async notifyWithdrawalApproval(userId: string, userEmail: string, amount: number, transactionId: string, paymentMethodName: string = 'Bank Transfer') {
     const db = await getDb();
     const user = await db.collection('users').findOne({ _id: new ObjectId(userId) });
     const userName = user?.firstName || userEmail;
 
     await this.createNotification({
       title: 'Withdrawal Approved',
-      message: `Your withdrawal of $${amount} has been approved and will be processed shortly.`,
+      message: `Your withdrawal of $${amount} via ${paymentMethodName} has been approved and will be processed shortly.`,
       type: 'withdrawal_approval',
       recipients: [userId],
       sentBy: 'system',
@@ -225,7 +225,7 @@ export class NotificationService {
     });
 
     // Email user
-    const emailData = emailTemplates.withdrawalConfirmation(userName, amount, transactionId, 'approved');
+    const emailData = emailTemplates.withdrawalConfirmation(userName, amount, transactionId, 'approved', paymentMethodName);
     await sendEmail({
       to: userEmail,
       subject: emailData.subject,

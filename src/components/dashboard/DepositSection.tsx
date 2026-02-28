@@ -151,11 +151,9 @@ const DepositSection = () => {
 
   return (
     <div className="px-0 py-4 mobile:px-6 mobile:py-6">
-      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-4 mobile:p-6 lg:p-8">
+      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-0 lg:p-8">
         <div className="flex items-center space-x-3 mb-5 mobile:mb-8">
-          <div className="p-2.5 mobile:p-3 bg-green-100 rounded-full">
-            <DollarSign className="w-5 h-5 mobile:w-6 mobile:h-6 text-green-600" />
-          </div>
+
           <div>
             <h2 className="text-xl mobile:text-2xl font-bold text-gray-900">Make a Deposit</h2>
             <p className="text-xs mobile:text-sm text-gray-600">Choose a payment method and submit your deposit request</p>

@@ -10,6 +10,7 @@ export interface IRecoveryCase extends Document {
   userId: mongoose.Types.ObjectId;
   scamType: string;
   amountLost: number;
+  currency: string;
   dateOfIncident: string;
   platformName: string;
   details: string;
@@ -30,6 +31,7 @@ const RecoveryCaseSchema = new Schema<IRecoveryCase>({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   scamType: { type: String, required: true },
   amountLost: { type: Number, required: true },
+  currency: { type: String, default: 'USD' },
   dateOfIncident: { type: String, required: true },
   platformName: { type: String, required: true },
   details: { type: String, required: true },

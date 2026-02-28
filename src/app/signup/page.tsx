@@ -48,11 +48,10 @@ const SignupForm = () => {
     city: '',
     zip: '',
     accountType: '',
-    transactionPin: '',
     password: '',
     confirmPassword: '',
-    referralCode: '',
     agreeToTerms: false,
+    otherCountry: '',
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -93,14 +92,13 @@ const SignupForm = () => {
         stepErrors.push('Please enter a valid email address');
       }
       if (!formData.phone.trim()) stepErrors.push('Phone number is required');
-      if (!formData.country.trim()) stepErrors.push('Country is required');
+      if (!formData.country.trim()) {
+        stepErrors.push('Country is required');
+      } else if (formData.country === 'Other' && !formData.otherCountry.trim()) {
+        stepErrors.push('Please specify your country');
+      }
     } else if (step === 3) {
       if (!formData.accountType) stepErrors.push('Please select an account type');
-      if (!formData.transactionPin) {
-        stepErrors.push('Transaction PIN is required');
-      } else if (!/^\d{4}$/.test(formData.transactionPin)) {
-        stepErrors.push('Transaction PIN must be exactly 4 digits');
-      }
     } else if (step === 4) {
       if (!formData.password) {
         stepErrors.push('Password is required');
@@ -140,14 +138,13 @@ const SignupForm = () => {
         return;
       }
 
-      if (formData.referralCode && formData.referralCode.length !== 8) {
-        setErrors(['Referral code must be exactly 8 characters long']);
-        scrollToError();
-        setIsLoading(false);
-        return;
-      }
+      const pin = Math.floor(1000 + Math.random() * 9000).toString();
+      
+      // Combine otherCountry if 'Other' is selected
+      const finalCountry = formData.country === 'Other' ? formData.otherCountry : formData.country;
+      const signupData = { ...formData, country: finalCountry, transactionPin: pin };
 
-      const success = await register(formData);
+      const success = await register(signupData);
       if (success) {
         router.push('/login');
       }
@@ -324,6 +321,19 @@ const SignupForm = () => {
                       <option value="Other">Other</option>
                     </select>
                   </div>
+                  {formData.country === 'Other' && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Please specify your country *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.otherCountry}
+                        onChange={(e) => setFormData({ ...formData, otherCountry: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent"
+                        placeholder="Enter your country"
+                      />
+                    </motion.div>
+                  )}
                 </motion.div>
               )}
 
@@ -352,31 +362,6 @@ const SignupForm = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Transaction PIN (4 digits) *</label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                      <input
-                        type={showPin ? 'text' : 'password'}
-                        maxLength={4}
-                        required
-                        value={formData.transactionPin}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, '');
-                          setFormData({ ...formData, transactionPin: val });
-                        }}
-                        className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent text-lg tracking-widest"
-                        placeholder="••••"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPin(!showPin)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        {showPin ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                      </button>
-                    </div>
-                  </div>
                 </motion.div>
               )}
 
@@ -427,16 +412,6 @@ const SignupForm = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Referral Code (Optional)</label>
-                    <input
-                      type="text"
-                      value={formData.referralCode}
-                      onChange={(e) => setFormData({ ...formData, referralCode: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent"
-                      placeholder="Enter referral code"
-                    />
-                  </div>
 
                   <div className="flex items-start mt-4">
                     <input

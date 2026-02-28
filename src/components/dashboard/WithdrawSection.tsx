@@ -245,11 +245,9 @@ const WithdrawSection = () => {
 
   return (
     <div className="px-0 py-4 mobile:px-6 mobile:py-6">
-      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-4 mobile:p-6 lg:p-8">
+      <div className="bg-white rounded-none lg:rounded-lg shadow-none lg:shadow-lg p-0 lg:p-8">
         <div className="flex items-center space-x-3 mb-5 mobile:mb-8">
-          <div className="p-2.5 mobile:p-3 bg-blue-100 rounded-full">
-            <ArrowUpDown className="w-5 h-5 mobile:w-6 mobile:h-6 text-blue-600" />
-          </div>
+
           <div>
             <h2 className="text-xl mobile:text-2xl font-bold text-gray-900">Request Withdrawal</h2>
             <p className="text-xs mobile:text-sm text-gray-600">Withdraw funds to your preferred payment method</p>
@@ -346,16 +344,15 @@ const WithdrawSection = () => {
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">Available Balance:</span>
-              <span className="text-lg font-bold text-gray-900">${userProfile?.balances?.main || 0}</span>
+              <span className="text-lg font-bold text-gray-900">${(availableBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className={`space-y-4 mobile:space-y-6 transition-all duration-700 ${
-          (!isWithdrawalAllowed() && !scheduleLoading) || userProfile?.kycStatus !== 'verified' 
-          ? 'blur-md grayscale pointer-events-none opacity-40' 
-          : ''
-        }`}>
+        <form onSubmit={handleSubmit} className={`space-y-4 mobile:space-y-6 transition-all duration-700 ${(!isWithdrawalAllowed() && !scheduleLoading) || userProfile?.kycStatus !== 'verified'
+            ? 'blur-md grayscale pointer-events-none opacity-40'
+            : ''
+          }`}>
           {/* Payment Method Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">Select Withdrawal Method</label>
@@ -403,17 +400,17 @@ const WithdrawSection = () => {
             />
             {amount && !isAmountValid && (
               <p className="mt-1 text-sm text-[#c9933a]">
-                Amount exceeds available balance (${availableBalance.toFixed(2)})
+                Amount exceeds available balance (${(availableBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
               </p>
             )}
             {amount && isAmountValid && (
               <p className="mt-1 text-sm text-green-600">
-                Available balance: ${availableBalance.toFixed(2)}
+                Available balance: ${(availableBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             )}
             {!amount && (
               <p className="text-sm text-gray-500 mt-1">
-                Available balance: ${availableBalance.toFixed(2)}
+                Available balance: ${(availableBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             )}
           </div>

@@ -13,7 +13,8 @@ import {
   ArrowRight,
   ShieldCheck,
   Copy,
-  Info
+  Info,
+  Zap
 } from 'lucide-react';
 import { showSuccess } from '@/utils/toast';
 
@@ -26,73 +27,71 @@ const ProfileSection = () => {
     showSuccess('Copied to clipboard');
   };
 
-  const initials = `${userProfile?.firstName?.[0] || ''}${userProfile?.lastName?.[0] || ''}` || 'ME';
-  const fullName = `${userProfile?.firstName || ''} ${userProfile?.lastName || ''}`.trim() || userProfile?.displayName || 'User';
+  const initials = `${userProfile?.firstName?.[0] || ''}${userProfile?.lastName?.[0] || ''}`.toUpperCase() || 'MB';
+  const fullName = `${userProfile?.firstName || ''} ${userProfile?.lastName || ''}`.trim().toLowerCase() || 'metro boominati';
 
   return (
     <div className="animate-in fade-in duration-700">
-      {/* Page Header */}
-      <div className="mb-8 mobile:mb-10">
-        <h2 className="text-2xl mobile:text-3xl font-black text-navy-900 uppercase tracking-tighter">Account Settings</h2>
-        <div className="flex items-center gap-2 mt-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
-          <span>Dashboard</span>
-          <ArrowRight className="w-3 h-3" />
-          <span className="text-gold-600">Settings</span>
-        </div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Sidebar Column */}
         <div className="lg:col-span-4 space-y-6">
           {/* User Profile Card */}
-          <div className="bg-[#5c0b16] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-navy-900/10 border border-white/10">
+          <div className="bg-[#0b1626] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-navy-900/40 border border-white/5">
             {/* Header with Pattern */}
-            <div className="h-24 bg-navy-900/20 relative overflow-hidden flex items-center justify-center">
+            <div className="h-32 bg-gradient-to-br from-gold-600/30 via-gold-500/10 to-transparent relative overflow-hidden flex items-center justify-center">
               <div className="absolute inset-0 opacity-10">
-                <svg className="w-full h-full" viewBox="0 0 100 100">
-                  <path d="M0,50 Q25,30 50,50 T100,50 V100 H0 Z" fill="currentColor" className="text-white" />
+                <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <path d="M0,50 Q25,30 50,50 T100,50 V100 H0 Z" fill="currentColor" className="text-gold-500" />
                 </svg>
+              </div>
+              <div className="absolute top-4 right-4 group">
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/10 text-gold-500">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
               </div>
             </div>
 
             {/* User Details */}
-            <div className="px-8 pb-10 -mt-12 relative z-10 text-center">
-              <div className="inline-flex relative mb-4">
-                <div className="w-24 h-24 bg-green-500 rounded-full border-[6px] border-[#5c0b16] flex items-center justify-center text-3xl font-black text-white shadow-xl">
+            <div className="px-8 pb-10 -mt-16 relative z-10 text-center">
+              <div className="inline-flex relative mb-6">
+                <div className="w-32 h-32 bg-gradient-to-tr from-gold-600 to-gold-400 rounded-full border-[8px] border-[#0b1626] flex items-center justify-center text-5xl font-black text-navy-900 shadow-2xl">
                   {initials}
                 </div>
-                <div className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full border-4 border-[#5c0b16] flex items-center justify-center">
-                  <User className="w-3.5 h-3.5 text-gray-400" />
+                <div className="absolute bottom-2 right-2 w-10 h-10 bg-white rounded-full border-4 border-[#0b1626] flex items-center justify-center shadow-lg">
+                  <Zap className="w-4 h-4 text-gold-600" />
                 </div>
               </div>
-              <h3 className="text-xl font-black text-white uppercase tracking-tight mb-1">{fullName.toLowerCase()}</h3>
-              <p className="text-[10px] font-black text-white/50 uppercase tracking-widest">Account #{userProfile?.userCode}</p>
+              <h3 className="text-2xl font-black text-white lowercase tracking-tight mb-1">{fullName}</h3>
+              <p className="text-[11px] font-black text-gold-500 uppercase tracking-[0.2em] opacity-80">Account #{userProfile?.userCode || 'L853E8PR'}</p>
             </div>
 
             {/* Navigation Navigation */}
-            <div className="bg-white p-4">
+            <div className="bg-navy-900/50 p-6 border-t border-white/5">
               <button
                 className={`w-full flex items-center gap-4 px-6 py-5 rounded-3xl transition-all ${activeTab === 'profile'
-                    ? 'bg-red-100 text-[#5c0b16] shadow-sm font-black'
-                    : 'text-gray-400 hover:bg-gray-50 font-bold'
+                    ? 'bg-gold-500 text-navy-900 shadow-xl shadow-gold-500/10 font-black'
+                    : 'text-gray-400 hover:text-white font-bold'
                   }`}
               >
-                <User className="w-5 h-5" />
-                <span className="text-xs uppercase tracking-widest">Profile Information</span>
+                <div className={`p-2 rounded-xl ${activeTab === 'profile' ? 'bg-navy-900/10' : 'bg-white/5'}`}>
+                  <User className="w-5 h-5" />
+                </div>
+                <span className="text-xs uppercase tracking-widest">Core Credentials</span>
               </button>
             </div>
           </div>
 
           {/* Help Card */}
           <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm group">
-            <div className="w-12 h-12 bg-red-50 text-[#5c0b16] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 bg-gold-50 text-gold-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <HelpCircle className="w-6 h-6" />
             </div>
             <h4 className="text-lg font-black text-navy-900 uppercase tracking-tight mb-2">Need Help?</h4>
             <p className="text-xs text-gray-400 font-medium leading-relaxed mb-6">
               Contact our support team if you need assistance with your account settings or have any questions.
             </p>
-            <button className="flex items-center gap-2 text-[#5c0b16] font-black uppercase tracking-widest text-[10px] hover:gap-4 transition-all group/btn">
+            <button className="flex items-center gap-2 text-gold-600 font-black uppercase tracking-widest text-[10px] hover:gap-4 transition-all group/btn">
               <span>Contact Support</span>
               <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
             </button>
@@ -103,9 +102,11 @@ const ProfileSection = () => {
         <div className="lg:col-span-8">
           <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col">
             {/* Content Header */}
-            <div className="p-8 mobile:p-10 border-b border-gray-50">
+            <div className="p-8 mobile:p-10 border-b border-gray-50 bg-gray-50/30">
               <h3 className="text-xl font-black text-navy-900 uppercase tracking-tight flex items-center gap-3">
-                <ShieldCheck className="w-6 h-6 text-[#5c0b16]" />
+                <div className="p-2.5 bg-navy-900 rounded-xl text-gold-500 shadow-lg shadow-navy-900/10">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
                 Profile Information
               </h3>
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-2">
@@ -208,7 +209,12 @@ const ProfileSection = () => {
                     <MapPin className="w-4 h-4 absolute left-5 top-6 text-gray-300" />
                     <textarea
                       disabled
-                      value={`${userProfile?.city || ''}, ${userProfile?.state || ''}, ${userProfile?.country || ''} ${userProfile?.zip || ''}`.trim() || 'No address logged'}
+                      value={[
+                        userProfile?.city,
+                        userProfile?.state,
+                        userProfile?.country,
+                        userProfile?.zip
+                      ].filter(Boolean).join(', ') || 'No address logged'}
                       className="w-full pl-12 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-3xl text-sm font-bold text-navy-900 cursor-not-allowed min-h-[120px] resize-none"
                     />
                   </div>

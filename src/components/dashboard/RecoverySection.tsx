@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Shield, 
   Bitcoin, 
@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
+import { showSuccess, showError } from '@/utils/toast';
 
 const RecoverySection = () => {
   const searchParams = useSearchParams();
@@ -33,6 +34,7 @@ const RecoverySection = () => {
   const [formData, setFormData] = useState({
     scamType: urlScamType || '',
     amountLost: '',
+    currency: 'USD',
     dateOfIncident: '',
     platformName: '',
     details: urlTid ? `Transaction ID: ${urlTid}\n` : ''
@@ -57,9 +59,37 @@ const RecoverySection = () => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchCases();
+
+    // Retrieve pending recovery claim (Auth Bridge)
+    const pendingClaim = sessionStorage.getItem('pendingRecoveryClaim');
+    if (pendingClaim) {
+      try {
+        const data = JSON.parse(pendingClaim);
+        // Only restore if the claim is relatively fresh (e.g., within last 30 mins)
+        if (Date.now() - data.timestamp < 30 * 60 * 1000) {
+          setFormData(prev => ({
+            ...prev,
+            scamType: data.scamType || prev.scamType,
+            details: data.tid ? `Transaction ID: ${data.tid}\n${prev.details}` : prev.details
+          }));
+          setActiveTab('form');
+        }
+      } catch (e) {
+        console.error('Error restoring pending claim:', e);
+      } finally {
+        // Clear the bridge data
+        sessionStorage.removeItem('pendingRecoveryClaim');
+      }
+    }
   }, []);
+
+  const totalRecovered = cases
+    .filter(c => c.status === 'completed' || c.status === 'recovered')
+    .reduce((sum, c) => sum + (Number(c.amountLost) || 0), 0);
+
+  const activeCasesCount = cases.filter(c => !['completed', 'recovered', 'rejected', 'closed'].includes(c.status.toLowerCase())).length;
 
   const getStatusSteps = (status: string) => {
     const steps = [
@@ -74,7 +104,7 @@ const RecoverySection = () => {
     } else if (['legal'].includes(status)) {
       steps[0].status = 'completed';
       steps[1].status = 'active';
-    } else if (['recovered'].includes(status)) {
+    } else if (['recovered', 'completed'].includes(status)) {
       steps[0].status = 'completed';
       steps[1].status = 'completed';
       steps[2].status = 'completed';
@@ -97,22 +127,28 @@ const RecoverySection = () => {
       });
       const data = await res.json();
       if (data.success) {
+        showSuccess('Forensic briefing transmitted successfully!');
         setSubmitted(true);
         fetchCases();
         setFormData({
           scamType: '',
           amountLost: '',
+          currency: 'USD',
           dateOfIncident: '',
           platformName: '',
           details: ''
         });
+      } else {
+        showError(data.error || 'Failed to submit report');
       }
     } catch (err) {
       console.error('Failed to submit report:', err);
+      showError('An error occurred during transmission. Please check your connection.');
     } finally {
       setIsSubmitting(false);
     }
   };
+
   const scamTypes = [
     { id: 'crypto', name: 'Crypto Wealth', icon: <Bitcoin className="text-orange-500" /> },
     { id: 'forex', name: 'Forex/Investment', icon: <TrendingDown className="text-red-500" /> },
@@ -123,16 +159,29 @@ const RecoverySection = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       {/* Header Area */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 p-8 bg-white rounded-[2rem] border border-gray-100 shadow-sm">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
             <div className="w-2 h-2 bg-gold-500 rounded-full animate-pulse"></div>
             <p className="text-[10px] font-black text-gold-600 uppercase tracking-[0.2em]">Forensic Intelligence Division</p>
           </div>
-          <h2 className="text-3xl font-black text-navy-900 uppercase tracking-tighter">Asset Recovery Hub</h2>
+          <h2 className="text-3xl font-black text-navy-900 uppercase tracking-tighter mb-1">Recovery Intelligence OPS</h2>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Global Asset Tracking & Repatriation</p>
+        </div>
+
+        <div className="flex items-center gap-6 px-8 py-4 bg-navy-900 rounded-[1.5rem] border border-navy-800 shadow-xl">
+          <div className="flex flex-col">
+            <span className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-0.5">Active Cases</span>
+            <span className="text-xl font-black text-white leading-none">{activeCasesCount}</span>
+          </div>
+          <div className="w-px h-8 bg-white/10"></div>
+          <div className="flex flex-col">
+            <span className="text-[9px] font-black text-gold-500/40 uppercase tracking-widest mb-0.5">Recovered Total</span>
+            <span className="text-xl font-black text-gold-500 leading-none">${totalRecovered.toLocaleString()}</span>
+          </div>
         </div>
         
-        <div className="flex gap-2 p-1 bg-gray-100 rounded-xl">
+        <div className="flex gap-2 p-1 bg-gray-100 rounded-xl lg:self-center">
           {(['tracker', 'form', 'education'] as const).map((tab) => (
             <button
               key={tab}
@@ -184,8 +233,8 @@ const RecoverySection = () => {
                           
                           <div className="grid grid-cols-2 gap-4">
                             <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Loss Targeted</p>
-                              <p className="text-xl font-black text-white">${recoveryCase.amountLost?.toLocaleString()}</p>
+                              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Loss Targeted ({recoveryCase.currency || 'USD'})</p>
+                              <p className="text-xl font-black text-white">{recoveryCase.currency === 'EUR' ? '€' : recoveryCase.currency === 'GBP' ? '£' : '$'}{recoveryCase.amountLost?.toLocaleString()}</p>
                             </div>
                             <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
                               <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Incident Date</p>
@@ -311,14 +360,52 @@ const RecoverySection = () => {
                         </select>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Value of Loss (USD)</label>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Value of Loss</label>
+                        <div className="flex gap-2">
+                          <select
+                            required
+                            className="w-24 h-14 bg-gray-50 border border-gray-100 rounded-2xl px-4 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all appearance-none"
+                            value={formData.currency}
+                            onChange={(e) => setFormData({...formData, currency: e.target.value})}
+                          >
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="GBP">GBP</option>
+                            <option value="CAD">CAD</option>
+                            <option value="AUD">AUD</option>
+                          </select>
+                          <input 
+                            required
+                            type="number"
+                            placeholder="e.g. 5000"
+                            className="flex-1 h-14 bg-gray-50 border border-gray-100 rounded-2xl px-6 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all"
+                            value={formData.amountLost}
+                            onChange={(e) => setFormData({...formData, amountLost: e.target.value})}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Platform/Website Name</label>
                         <input 
                           required
-                          type="number"
-                          placeholder="e.g. 5000"
+                          type="text"
+                          placeholder="e.g. Binance, TrustWallet, or Scammer.com"
                           className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-6 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all"
-                          value={formData.amountLost}
-                          onChange={(e) => setFormData({...formData, amountLost: e.target.value})}
+                          value={formData.platformName}
+                          onChange={(e) => setFormData({...formData, platformName: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Date of Incident</label>
+                        <input 
+                          required
+                          type="date"
+                          className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-6 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all"
+                          value={formData.dateOfIncident}
+                          onChange={(e) => setFormData({...formData, dateOfIncident: e.target.value})}
                         />
                       </div>
                     </div>

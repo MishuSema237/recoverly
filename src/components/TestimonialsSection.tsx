@@ -7,6 +7,7 @@ import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 interface Testimonial {
   _id?: string;
   name: string;
+  role: string;
   content: string;
   rating: number;
   picture: string;
@@ -15,12 +16,14 @@ interface Testimonial {
 const fallbackTestimonials: Testimonial[] = [
   {
     name: 'Sarah Jenkins',
+    role: 'Fraud Recovery Client',
     content: 'I lost $45,000 to a crypto romance scam. The police did nothing. Recoverly filed legal action and got 80% of my funds back in 3 weeks! The professionalism and speed was unexpected.',
     rating: 5.0,
     picture: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1000'
   },
   {
     name: 'Michael Torres',
+    role: 'Corporate Banking Client',
     content: 'My bank refused to refund an unauthorized $12k transaction. Recoverly used a court order to force them to pay up. Amazing service. They know the banking laws better than the bankers do.',
     rating: 4.8,
     picture: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1000'
@@ -55,7 +58,7 @@ const TestimonialsSection = () => {
   }, [testimonials.length]);
 
   return (
-    <section className="py-24 bg-white overflow-hidden relative">
+    <section className="py-24 bg-gray-50 overflow-hidden relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold-50 border border-gold-100 rounded-full mb-4">
@@ -65,55 +68,52 @@ const TestimonialsSection = () => {
           <h2 className="text-4xl md:text-5xl font-black text-navy-900 uppercase tracking-tighter">Validated Success</h2>
         </div>
 
-        <div className="relative h-[600px] md:h-[700px] w-full rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100 group">
+        <div className="relative max-w-4xl mx-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentIndex}
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 1, ease: "circOut" }}
-              className="absolute inset-0"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ duration: 0.6, ease: "circOut" }}
+              className="w-full"
             >
-              {/* Background with zoom effect */}
-              <div className="absolute inset-0 transform transition-transform duration-[8000ms] group-hover:scale-110">
-                <img 
-                  src={testimonials[currentIndex].picture} 
-                  alt={testimonials[currentIndex].name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/40 to-navy-900/20"></div>
-                <div className="absolute inset-0 bg-navy-900/30"></div>
-              </div>
-
-              {/* Centered Content */}
-              <div className="relative h-full z-10 flex flex-col items-center justify-center text-center px-8 md:px-20 max-w-4xl mx-auto">
-                <div className="w-20 h-20 bg-gold-500/10 backdrop-blur-xl border border-gold-500/20 rounded-3xl flex items-center justify-center mb-10">
-                  <Quote className="w-10 h-10 text-gold-500" />
+              <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-gray-100 flex flex-col md:flex-row min-h-[450px]">
+                {/* Image Side */}
+                <div className="w-full md:w-2/5 relative h-64 md:h-auto">
+                   <img 
+                    src={testimonials[currentIndex].picture} 
+                    alt={testimonials[currentIndex].name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-navy-900/20"></div>
                 </div>
-                
-                <p className="text-2xl md:text-4xl font-black text-white leading-tight mb-12 drop-shadow-2xl">
-                  "{testimonials[currentIndex].content}"
-                </p>
 
-                <div className="flex flex-col items-center space-y-6">
-                  <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
+                {/* Content Side */}
+                <div className="w-full md:w-3/5 p-8 mobile:p-12 flex flex-col justify-center">
+                  <div className="flex items-center gap-1 mb-6">
                     {[...Array(5)].map((_, i) => (
                       <Star 
                         key={i} 
-                        className={`w-4 h-4 ${
+                        className={`w-5 h-5 ${
                           i < Math.floor(testimonials[currentIndex].rating) 
                           ? 'text-gold-500 fill-gold-500' 
-                          : (i < testimonials[currentIndex].rating ? 'text-gold-500 fill-gold-500 opacity-50' : 'text-gray-400')
+                          : 'text-gray-200 fill-gray-100'
                         }`} 
                       />
                     ))}
-                    <span className="text-gold-500 font-black text-sm ml-2">{testimonials[currentIndex].rating.toFixed(1)}</span>
                   </div>
 
-                  <div className="text-center">
-                    <h4 className="text-3xl font-black text-gold-500 uppercase tracking-tighter">{testimonials[currentIndex].name}</h4>
-                    <p className="text-gray-300 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 opacity-80">Verified Protocol Recipient</p>
+                  <div className="relative mb-8">
+                    <Quote className="w-12 h-12 text-gold-500/10 absolute -top-6 -left-6" />
+                    <p className="text-xl mobile:text-2xl font-bold text-navy-900 leading-relaxed italic relative z-10">
+                      "{testimonials[currentIndex].content}"
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="text-2xl font-black text-navy-900 uppercase tracking-tighter">{testimonials[currentIndex].name}</h4>
+                    <p className="text-gold-600 font-black tracking-widest uppercase text-[10px] mt-1">{testimonials[currentIndex].role}</p>
                   </div>
                 </div>
               </div>
@@ -121,22 +121,21 @@ const TestimonialsSection = () => {
           </AnimatePresence>
 
           {/* Navigation Controls */}
-          <div className="absolute bottom-12 left-0 right-0 flex justify-center items-center gap-8 z-20">
+          <div className="flex justify-center items-center gap-6 mt-12">
             <button 
               onClick={prev}
-              className="w-16 h-16 bg-white/5 backdrop-blur-xl rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:text-navy-900 transition-all border border-white/10 hover:border-gold-500 shadow-xl"
+              className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-navy-900 hover:bg-navy-900 hover:text-gold-500 transition-all border border-gray-100 shadow-lg active:scale-90"
             >
-              <ChevronLeft className="w-8 h-8" />
+              <ChevronLeft className="w-6 h-6" />
             </button>
             
-            {/* Slide Indicators */}
             <div className="flex gap-2">
               {testimonials.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentIndex(i)}
                   className={`h-1.5 rounded-full transition-all duration-500 ${
-                    i === currentIndex ? 'w-12 bg-gold-500' : 'w-4 bg-white/20 hover:bg-white/40'
+                    i === currentIndex ? 'w-10 bg-navy-900' : 'w-3 bg-gray-200'
                   }`}
                 />
               ))}
@@ -144,9 +143,9 @@ const TestimonialsSection = () => {
 
             <button 
               onClick={next}
-              className="w-16 h-16 bg-white/5 backdrop-blur-xl rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:text-navy-900 transition-all border border-white/10 hover:border-gold-500 shadow-xl"
+              className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-navy-900 hover:bg-navy-900 hover:text-gold-500 transition-all border border-gray-100 shadow-lg active:scale-90"
             >
-              <ChevronRight className="w-8 h-8" />
+              <ChevronRight className="w-6 h-6" />
             </button>
           </div>
         </div>

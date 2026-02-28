@@ -9,12 +9,9 @@ export const PUT = requireAdmin(async (request: AuthenticatedRequest) => {
     const userId = pathSegments[pathSegments.length - 1];
     const updates = await request.json();
 
-    // Remove sensitive fields that shouldn't be updated via this endpoint
     const {
       password: _p1,
       email: _e1,
-      isAdmin: _a1,
-      isActive: _s1,
       userCode: _c1,
       _id: _i1,
       ...allowedUpdates

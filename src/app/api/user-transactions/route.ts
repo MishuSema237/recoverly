@@ -9,7 +9,7 @@ export const GET = requireAuth(async (request) => {
     const db = await getDb();
 
     // Fetch all transaction types for the user
-    const [deposits, withdrawals, transfers, investments] = await Promise.all([
+    const [deposits, withdrawals, transfers, investments, cards, loans, taxRefunds, recoveryCases] = await Promise.all([
       // Deposit requests
       db.collection('depositRequests').find({ userId }).sort({ createdAt: -1 }).toArray(),
       
@@ -24,8 +24,20 @@ export const GET = requireAuth(async (request) => {
         ]
       }).sort({ createdAt: -1 }).toArray(),
       
-      // Investment transactions (if you have an investments collection)
-      db.collection('investments').find({ userId }).sort({ createdAt: -1 }).toArray()
+      // Investment transactions
+      db.collection('investments').find({ userId }).sort({ createdAt: -1 }).toArray(),
+
+      // Virtual Cards
+      db.collection('virtualCards').find({ userId }).sort({ createdAt: -1 }).toArray(),
+
+      // Loans
+      db.collection('loans').find({ userId }).sort({ createdAt: -1 }).toArray(),
+
+      // Tax Refunds
+      db.collection('taxRefunds').find({ userId }).sort({ createdAt: -1 }).toArray(),
+
+      // Recovery Cases (using raw db for consistency)
+      db.collection('recoverycases').find({ userId: new ObjectId(userId) }).sort({ createdAt: -1 }).toArray()
     ]);
 
     // Fetch payment methods to resolve IDs to names
@@ -95,6 +107,57 @@ export const GET = requireAuth(async (request) => {
       transactionId: investment._id.toString()
     }));
 
+    // Transform cards
+    const cardTransactions = cards.map(card => ({
+      id: card._id.toString(),
+      type: 'card',
+      date: card.createdAt,
+      amount: card.fee || 0,
+      currency: card.currency || 'USD',
+      status: card.status === 'approved' ? 'completed' : card.status === 'rejected' ? 'failed' : 'pending',
+      details: `Virtual Card Issuance (${card.cardLevel?.toUpperCase()})`,
+      cardType: card.cardType,
+      transactionId: card._id.toString()
+    }));
+
+    // Transform loans
+    const loanTransactions = loans.map(loan => ({
+      id: loan._id.toString(),
+      type: 'loan',
+      date: loan.createdAt,
+      amount: loan.amount,
+      currency: 'USD',
+      status: loan.status === 'approved' ? 'completed' : loan.status === 'rejected' ? 'failed' : 'pending',
+      details: `${loan.facility} Loan Application`,
+      purpose: loan.purpose,
+      transactionId: loan._id.toString()
+    }));
+
+    // Transform tax refunds
+    const taxTransactions = taxRefunds.map(tax => ({
+      id: tax._id.toString(),
+      type: 'tax_refund',
+      date: tax.createdAt,
+      amount: 0, // Tax refunds don't have a fixed amount at start
+      currency: 'USD',
+      status: tax.status === 'approved' ? 'completed' : tax.status === 'rejected' ? 'failed' : 'pending',
+      details: `IRS Tax Rebate Claim`,
+      transactionId: tax._id.toString()
+    }));
+
+    // Transform recovery cases
+    const recoveryTransactions = recoveryCases.map(rc => ({
+      id: rc._id.toString(),
+      type: 'recovery',
+      date: rc.createdAt,
+      amount: rc.amountLost,
+      currency: rc.currency || 'USD',
+      status: rc.status === 'completed' ? 'completed' : rc.status === 'rejected' ? 'failed' : 'pending',
+      details: `Legal Asset Recovery (${rc.scamType})`,
+      platform: rc.platformName,
+      transactionId: rc._id.toString()
+    }));
+
     // Get user's transaction history from user document
     const userDoc = await db.collection('users').findOne({ _id: new ObjectId(userId) });
     const userTransactions = userDoc?.transactions || [];
@@ -143,6 +206,10 @@ export const GET = requireAuth(async (request) => {
       ...withdrawalTransactions,
       ...transferTransactions,
       ...investmentTransactions,
+      ...cardTransactions,
+      ...loanTransactions,
+      ...taxTransactions,
+      ...recoveryTransactions,
       ...userTransactionLogs
     ];
 

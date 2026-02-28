@@ -79,13 +79,23 @@ export async function POST(request: NextRequest) {
       // Get user details for notification
       const user = await db.collection('users').findOne({ _id: new ObjectId(transactionData.userId) });
       const userEmail = user?.email || 'Unknown User';
+
+      // Look up the payment method name
+      let paymentMethodName = 'Bank Transfer';
+      if (transactionData.paymentMethodId) {
+        try {
+          const pm = await db.collection('paymentMethods').findOne({ _id: new ObjectId(transactionData.paymentMethodId) });
+          if (pm?.name) paymentMethodName = pm.name;
+        } catch { /* ignore invalid id */ }
+      }
       
       // Send notifications using NotificationService
       await NotificationService.notifyDepositRequest(
         transactionData.userId,
         userEmail,
         transactionData.amount,
-        result.insertedId.toString()
+        result.insertedId.toString(),
+        paymentMethodName
       );
       
       return NextResponse.json({ success: true, data: result.insertedId });
@@ -128,13 +138,23 @@ export async function POST(request: NextRequest) {
       // Get user details for notification
       const user = await db.collection('users').findOne({ _id: new ObjectId(transactionData.userId) });
       const userEmail = user?.email || 'Unknown User';
+
+      // Look up the payment method name
+      let paymentMethodName = 'Bank Transfer';
+      if (transactionData.paymentMethodId) {
+        try {
+          const pm = await db.collection('paymentMethods').findOne({ _id: new ObjectId(transactionData.paymentMethodId) });
+          if (pm?.name) paymentMethodName = pm.name;
+        } catch { /* ignore invalid id */ }
+      }
       
       // Send notifications using NotificationService
       await NotificationService.notifyWithdrawalRequest(
         transactionData.userId,
         userEmail,
         transactionData.amount,
-        result.insertedId.toString()
+        result.insertedId.toString(),
+        paymentMethodName
       );
       
       return NextResponse.json({ success: true, data: result.insertedId });
@@ -181,13 +201,23 @@ export async function PUT(request: NextRequest) {
           // Get user details for notification
           const user = await db.collection('users').findOne({ _id: new ObjectId(depositRequest.userId) });
           const userEmail = user?.email || 'Unknown User';
+
+          // Look up payment method name
+          let pmName = 'Bank Transfer';
+          if (depositRequest.paymentMethodId) {
+            try {
+              const pm = await db.collection('paymentMethods').findOne({ _id: new ObjectId(depositRequest.paymentMethodId) });
+              if (pm?.name) pmName = pm.name;
+            } catch { /* ignore */ }
+          }
           
           // Notify user of approval
           await NotificationService.notifyDepositApproval(
             depositRequest.userId,
             userEmail,
             depositRequest.amount,
-            depositRequest._id?.toString() || ''
+            depositRequest._id?.toString() || '',
+            pmName
           );
 
           // Check if this is the user's FIRST deposit (check before adding current deposit)
@@ -305,13 +335,23 @@ export async function PUT(request: NextRequest) {
           // Get user details for notification
           const user = await db.collection('users').findOne({ _id: new ObjectId(withdrawalRequest.userId) });
           const userEmail = user?.email || 'Unknown User';
+
+          // Look up payment method name
+          let pmName = 'Bank Transfer';
+          if (withdrawalRequest.paymentMethodId) {
+            try {
+              const pm = await db.collection('paymentMethods').findOne({ _id: new ObjectId(withdrawalRequest.paymentMethodId) });
+              if (pm?.name) pmName = pm.name;
+            } catch { /* ignore */ }
+          }
           
           // Notify user of completion
           await NotificationService.notifyWithdrawalApproval(
             withdrawalRequest.userId,
             userEmail,
             withdrawalRequest.amount,
-            withdrawalRequest._id?.toString() || ''
+            withdrawalRequest._id?.toString() || '',
+            pmName
           );
         }
       } else if (status === 'rejected') {

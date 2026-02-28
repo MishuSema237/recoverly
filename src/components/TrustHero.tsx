@@ -13,6 +13,14 @@ const TrustHero = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
+        // Store data for auth bridge
+        const claimData = {
+            scamType: scamType,
+            tid: transactionId,
+            timestamp: Date.now()
+        };
+        sessionStorage.setItem('pendingRecoveryClaim', JSON.stringify(claimData));
+
         // Build the URL with search parameters
         const params = new URLSearchParams();
         params.set('section', 'recovery');
@@ -52,11 +60,11 @@ const TrustHero = () => {
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-3 mobile:gap-4 pt-4">
-                            <Link href="/services/asset-recovery" className="bg-gold-500 hover:bg-gold-600 text-navy-900 px-6 py-3 mobile:px-8 mobile:py-4 rounded-lg font-bold text-base mobile:text-lg transition-all shadow-[0_0_20px_rgba(201,147,58,0.3)] hover:shadow-[0_0_30px_rgba(201,147,58,0.5)] flex items-center justify-center gap-2">
+                            <Link href="/asset-recovery" className="bg-gold-500 hover:bg-gold-600 text-navy-900 px-6 py-3 mobile:px-8 mobile:py-4 rounded-lg font-bold text-base mobile:text-lg transition-all shadow-[0_0_20px_rgba(201,147,58,0.3)] hover:shadow-[0_0_30px_rgba(201,147,58,0.5)] flex items-center justify-center gap-2">
                                 Start Recovery
                                 <ArrowRight className="w-5 h-5" />
                             </Link>
-                            <Link href="/services/banking" className="px-6 py-3 mobile:px-8 mobile:py-4 rounded-lg font-bold text-base mobile:text-lg text-white border-2 border-navy-600 hover:bg-navy-800 hover:border-gold-500/50 transition-all flex items-center justify-center">
+                            <Link href="/banking" className="px-6 py-3 mobile:px-8 mobile:py-4 rounded-lg font-bold text-base mobile:text-lg text-white border-2 border-navy-600 hover:bg-navy-800 hover:border-gold-500/50 transition-all flex items-center justify-center">
                                 Explore Banking
                             </Link>
                         </div>
@@ -91,15 +99,14 @@ const TrustHero = () => {
                                 <div>
                                     <label className="block text-sm font-semibold text-navy-700 mb-1">Was this a Scam or Unauthorized Charge?</label>
                                     <select 
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-navy-600 focus:border-transparent outline-none transition-all text-gray-700"
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-navy-600 focus:border-transparent outline-none transition-all text-gray-700 font-bold"
                                         value={scamType}
                                         onChange={(e) => setScamType(e.target.value)}
                                     >
-                                        <option value="crypto">Crypto Scam / Investment Fraud</option>
-                                        <option value="bank_transfer">Unauthorized Bank Transfer</option>
-                                        <option value="credit_card">Credit Card Chargeback</option>
-                                        <option value="romance">Romance Scam</option>
-                                        <option value="other">Other Fraud</option>
+                                        <option value="crypto">Bitcoin/Crypto Wealth Fraud</option>
+                                        <option value="forex">Forex & Investment Scams</option>
+                                        <option value="romance">Romance & Social Engineering</option>
+                                        <option value="phishing">Phishing & Asset Hacks</option>
                                     </select>
                                 </div>
 

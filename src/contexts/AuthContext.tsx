@@ -162,14 +162,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Clear any existing polling
     stopPolling();
 
-    // Poll every 10 seconds for user data updates
+    // Poll every 20 seconds for user data updates (reduced frequency to prevent flicker)
     const interval = setInterval(async () => {
       try {
         await refreshUser();
       } catch (error) {
         console.error('Polling error:', error);
       }
-    }, 10000); // 10 seconds
+    }, 20000); // 20 seconds
 
     setPollingInterval(interval);
   };
@@ -370,8 +370,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
-          setUser(result.data.user);
-          setUserProfile(result.data.user);
+          // Only update if data has changed to prevent infinite re-render loops or flickering
+          const newUser = result.data.user;
+          const currentUserStr = JSON.stringify(user);
+          const newUserStr = JSON.stringify(newUser);
+
+          if (currentUserStr !== newUserStr) {
+            setUser(newUser);
+            setUserProfile(newUser);
+          }
         }
       }
     } catch (error) {

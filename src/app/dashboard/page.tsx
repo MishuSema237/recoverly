@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import {
   TrendingUp,
   DollarSign,
@@ -38,13 +39,15 @@ import {
   FileText,
   Landmark,
   ArrowRight,
-  Activity
+  Activity,
+  ChevronRight
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { canAccessAdmin } from '@/utils/adminUtils';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense, useMemo } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { showError } from '@/utils/toast';
 import DashboardLoader from '@/components/DashboardLoader';
 import { AnimatePresence } from 'framer-motion';
 
@@ -65,6 +68,172 @@ const LoanSection = dynamic(() => import('@/components/dashboard/LoanSection'));
 const TaxRefundSection = dynamic(() => import('@/components/dashboard/TaxRefundSection'));
 const RecoverySection = dynamic(() => import('@/components/dashboard/RecoverySection'));
 
+const TransactionsHub = ({ setActiveSection }: { setActiveSection: (s: string) => void }) => {
+  const { userProfile } = useAuth();
+  const isVerified = userProfile?.emailVerified && userProfile?.kycStatus === 'verified';
+
+  const handleAction = (id: string) => {
+    if (id === 'deposit' || id === 'logs') {
+      setActiveSection(id);
+    } else {
+      if (!isVerified) {
+        showError('Please verify your email and complete KYC to access this feature.');
+        return;
+      }
+      setActiveSection(id);
+    }
+  };
+
+  return (
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto">
+      {[
+        { id: 'transfer', name: 'Send Money', icon: <Send className="w-5 h-5" />, desc: 'Transfer funds securely', color: 'text-gold-500 bg-gold-500/5' },
+        { id: 'deposit', name: 'Deposit', icon: <Plus className="w-5 h-5" />, desc: 'Add funds to your account', color: 'text-green-500 bg-green-500/5' },
+        { id: 'withdraw', name: 'Withdrawal', icon: <ArrowUpDown className="w-5 h-5" />, desc: 'Request your earnings', color: 'text-blue-500 bg-blue-500/5' },
+        { id: 'logs', name: 'History', icon: <History className="w-5 h-5" />, desc: 'Detailed transaction logs', color: 'text-purple-500 bg-purple-500/5' },
+      ].map((item) => (
+        <button
+          key={item.id}
+          onClick={() => handleAction(item.id)}
+          className="w-full flex items-center justify-between p-6 bg-white rounded-3xl border border-gray-100 hover:border-gold-500/30 hover:shadow-xl hover:shadow-navy-900/5 transition-all group active:scale-[0.98]"
+        >
+          <div className="flex items-center gap-5">
+            <div className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+              {item.icon}
+            </div>
+            <div className="text-left">
+              <h4 className="text-base font-black text-navy-900 uppercase tracking-tight leading-none mb-1.5">{item.name}</h4>
+              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{item.desc}</p>
+            </div>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-navy-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0">
+            <ChevronRight className="w-5 h-5 text-navy-600" />
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const AccountHub = ({ setActiveSection }: { setActiveSection: (s: string) => void }) => {
+  const { userProfile } = useAuth();
+  const isAdmin = canAccessAdmin(userProfile);
+
+  const items = [
+    { id: 'profile', name: 'Identity Management', icon: <User className="w-5 h-5" />, desc: 'Core ledger & credentials', color: 'text-gold-500 bg-navy-900 border-navy-800' },
+    { id: 'support', name: 'Authorized Support', icon: <HeadphonesIcon className="w-5 h-5" />, desc: 'Direct intelligence line', color: 'text-navy-900 bg-navy-50 border-gray-100' },
+    ...(isAdmin ? [{
+      id: 'admin',
+      name: 'Network Administration',
+      icon: <ShieldCheck className="w-5 h-5" />,
+      desc: 'System-wide governance',
+      color: 'text-gold-600 bg-gold-50 border-gold-200/50'
+    }] : [])
+  ];
+
+  return (
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto">
+      {items.map((item) => (
+        <button
+          key={item.id}
+          onClick={() => setActiveSection(item.id)}
+          className={`w-full flex items-center justify-between p-6 rounded-3xl border transition-all group active:scale-[0.98] ${
+            item.id === 'profile' ? 'bg-[#0b1626] border-white/5 shadow-2xl shadow-navy-900/10' : 'bg-white border-gray-100 shadow-sm hover:border-gold-500/30'
+          }`}
+        >
+          <div className="flex items-center gap-5">
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform ${
+              item.id === 'profile' ? 'bg-white/5 text-gold-500' : item.id === 'admin' ? 'bg-gold-50 text-gold-600' : 'bg-navy-50 text-navy-900'
+            }`}>
+              {item.icon}
+            </div>
+            <div className="text-left">
+              <h4 className={`text-base font-black uppercase tracking-tight leading-none mb-1.5 ${
+                item.id === 'profile' ? 'text-gold-500' : 'text-navy-900'
+              }`}>{item.name}</h4>
+              <p className={`text-[10px] font-black uppercase tracking-widest ${
+                item.id === 'profile' ? 'text-white/40' : 'text-gray-400'
+              }`}>{item.desc}</p>
+            </div>
+          </div>
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0 ${
+            item.id === 'profile' ? 'bg-white/5' : 'bg-navy-50'
+          }`}>
+            <ChevronRight className={`w-5 h-5 ${item.id === 'profile' ? 'text-gold-500' : 'text-navy-600'}`} />
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const ServicesHub = ({ setActiveSection }: { setActiveSection: (s: string) => void }) => {
+  const { userProfile } = useAuth();
+  const isVerified = userProfile?.emailVerified && userProfile?.kycStatus === 'verified';
+
+  const handleAction = (id: string) => {
+    if (!isVerified) {
+      showError('Please verify your email and complete KYC to access this feature.');
+      return;
+    }
+    setActiveSection(id);
+  };
+
+  return (
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto">
+      {[
+        { id: 'cards', name: 'Virtual Cards', icon: <CreditCard className="w-5 h-5" />, desc: 'Secure online payments', color: 'text-gold-500 bg-gold-500/5' },
+        { id: 'loans', name: 'Loan Services', icon: <Briefcase className="w-5 h-5" />, desc: 'Financial assistance', color: 'text-blue-500 bg-blue-500/5' },
+        { id: 'tax-refund', name: 'IRS Tax Refund', icon: <FileText className="w-5 h-5" />, desc: 'Tax rebate claims', color: 'text-green-500 bg-green-500/5' },
+      ].map((item) => (
+        <button
+          key={item.id}
+          onClick={() => handleAction(item.id)}
+          className="w-full flex items-center justify-between p-6 bg-white rounded-3xl border border-gray-100 hover:border-gold-500/30 hover:shadow-xl hover:shadow-navy-900/5 transition-all group active:scale-[0.98]"
+        >
+          <div className="flex items-center gap-5">
+            <div className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+              {item.icon}
+            </div>
+            <div className="text-left">
+              <h4 className="text-base font-black text-navy-900 uppercase tracking-tight leading-none mb-1.5">{item.name}</h4>
+              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{item.desc}</p>
+            </div>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-navy-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0">
+            <ChevronRight className="w-5 h-5 text-navy-600" />
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const DashboardClock = () => {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedDate = time.toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
+  const formattedTime = time.toLocaleTimeString('en-US', {
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+
+  return { formattedDate, formattedTime };
+};
+
 const DashboardContent = () => {
   const { user, userProfile, logout, loading, refreshUser } = useAuth();
   const router = useRouter();
@@ -72,8 +241,9 @@ const DashboardContent = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [statIndex, setStatIndex] = useState(0);
+
+  const { formattedDate, formattedTime } = DashboardClock();
 
   // Mock unreadCount if not provided by auth (to fix lint)
   const unreadCount = 0;
@@ -85,32 +255,17 @@ const DashboardContent = () => {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const formattedDate = currentTime.toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric'
-  });
-
-  const formattedTime = currentTime.toLocaleTimeString('en-US', {
-    hour12: false,
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  });
-
   const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
   const [loadingRecent, setLoadingRecent] = useState(false);
   const [stats, setStats] = useState({
     pendingTotal: 0,
     volumeTotal: 0,
-    accountAge: '1 second'
+    accountAge: '1 second',
+    activeCases: 0,
+    integrityLevel: 15,
+    securityScore: 75
   });
+  const [totalCardBalance, setTotalCardBalance] = useState(0);
 
   const formatAge = (createdAt: string | Date | undefined) => {
     if (!createdAt) return '1 second';
@@ -131,30 +286,58 @@ const DashboardContent = () => {
     return `${diffInYears} year${diffInYears === 1 ? '' : 's'}`;
   };
 
+  const fetchCardBalance = async () => {
+    try {
+      const response = await fetch('/api/cards');
+      const result = await response.json();
+      if (result.success && Array.isArray(result.data)) {
+        const approvedCards = result.data.filter((c: any) => c.status === 'approved');
+        const total = approvedCards.reduce((sum: number, c: any) => sum + (c.balance || 0), 0);
+        setTotalCardBalance(total);
+      }
+    } catch (error) {
+      console.error('Failed to fetch card balance');
+    }
+  };
+
   const fetchRecentTransactions = async () => {
     try {
       setLoadingRecent(true);
-      const response = await fetch('/api/user-transactions');
-      const result = await response.json();
+      const txRes = await fetch('/api/user-transactions');
+      const result = await txRes.json();
+
       if (result.success) {
         setRecentTransactions(result.data.slice(0, 5));
-        
+
         // Calculate Statistics
+        // Include 'pending' from any specialized collection
         const pending = result.data
-          .filter((tx: any) => tx.status === 'pending')
-          .reduce((sum: number, tx: any) => sum + Math.abs(tx.amount), 0);
-        
+          .filter((tx: any) => tx.status === 'pending' || tx.status === 'processing' || tx.status === 'in_review')
+          .reduce((sum: number, tx: any) => sum + Math.abs(tx.amount || 0), 0);
+
         const volume = result.data
-          .reduce((sum: number, tx: any) => sum + Math.abs(tx.amount), 0);
-          
+          .filter((tx: any) => tx.status === 'completed' || tx.status === 'processed')
+          .reduce((sum: number, tx: any) => sum + Math.abs(tx.amount || 0), 0);
+
+        let integrity = 15;
+        if (userProfile?.kycStatus === 'verified') integrity = 100;
+        else if (userProfile?.kycStatus === 'pending') integrity = 65;
+        else if (userProfile?.kycStatus === 'rejected') integrity = 25;
+
+        // Calculate active recovery cases from the unified data
+        const recoveryCasesCount = result.data.filter((tx: any) => tx.type === 'recovery' && tx.status !== 'completed' && tx.status !== 'failed').length;
+
         setStats(prev => ({
           ...prev,
           pendingTotal: pending,
-          volumeTotal: volume
+          volumeTotal: volume,
+          activeCases: recoveryCasesCount,
+          integrityLevel: integrity,
+          securityScore: userProfile?.kycStatus === 'verified' ? 94 : 75
         }));
       }
     } catch (err) {
-      console.error('Error fetching recent transactions:', err);
+      console.error('Error fetching dashboard data:', err);
     } finally {
       setLoadingRecent(false);
     }
@@ -163,6 +346,25 @@ const DashboardContent = () => {
   useEffect(() => {
     if (activeSection === 'dashboard') {
       fetchRecentTransactions();
+      fetchCardBalance();
+
+      // Check for pending recovery claim (Auth Bridge)
+      const pendingClaim = sessionStorage.getItem('pendingRecoveryClaim');
+      if (pendingClaim) {
+        try {
+          const data = JSON.parse(pendingClaim);
+          // Only pivot if the claim is relatively fresh (e.g., within last 30 mins)
+          if (Date.now() - data.timestamp < 30 * 60 * 1000) {
+            setActiveSection('recovery');
+          } else {
+            // Clear stale claim
+            sessionStorage.removeItem('pendingRecoveryClaim');
+          }
+        } catch (e) {
+          console.error('Error parsing pending claim:', e);
+          sessionStorage.removeItem('pendingRecoveryClaim');
+        }
+      }
     }
   }, [activeSection]);
 
@@ -177,35 +379,33 @@ const DashboardContent = () => {
 
 
   const dashboardLinks = useMemo(() => {
+    const isAdmin = canAccessAdmin(userProfile);
+
     const links = [
-      { 
-        id: 'dashboard', 
-        name: 'Dashboard', 
+      {
+        id: 'dashboard',
+        name: 'Dashboard',
         icon: <BarChart3 className="w-5 h-5" />,
       },
-      { 
-        id: 'transactions_hub', 
-        name: 'Transactions', 
-        icon: <ArrowLeftRight className="w-5 h-5" />, 
+      {
+        id: 'transactions_hub',
+        name: 'Transactions',
+        icon: <ArrowLeftRight className="w-5 h-5" />,
         subItems: ['transfer', 'deposit', 'withdraw', 'logs'],
       },
-      { 
-        id: 'account_hub', 
-        name: 'Account', 
-        icon: <User className="w-5 h-5" />, 
-        subItems: ['profile', 'support'],
+      {
+        id: 'account_hub',
+        name: 'Account',
+        icon: <User className="w-5 h-5" />,
+        // Include admin in the account hub logic if user is admin
+        subItems: ['profile', 'support', ...(isAdmin ? ['admin'] : [])],
       },
-      { 
-        id: 'services_hub', 
-        name: 'Services', 
-        icon: <Zap className="w-5 h-5" />, 
+      {
+        id: 'services_hub',
+        name: 'Services',
+        icon: <Zap className="w-5 h-5" />,
         subItems: ['cards', 'loans', 'tax-refund'],
       },
-      ...(canAccessAdmin(userProfile) ? [{ 
-        id: 'admin', 
-        name: 'Admin', 
-        icon: <ShieldCheck className="w-5 h-5" />,
-      }] : []),
     ];
 
     return links;
@@ -227,114 +427,7 @@ const DashboardContent = () => {
   const isSubSection = currentHub && currentHub.id !== activeSection && activeSection !== 'dashboard';
 
   // Hub Components
-
-  const TransactionsHub = () => (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-8">
-        <div>
-          <h3 className="text-3xl font-black text-navy-900 uppercase tracking-tighter">Transactions</h3>
-        </div>
-        <button 
-          onClick={() => setActiveSection('dashboard')}
-          className="px-6 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-500 font-bold rounded-xl transition-all flex items-center gap-2 border border-gray-100"
-        >
-          <X className="w-4 h-4" /> Close
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { id: 'transfer', name: 'Send Money', icon: <Send className="w-8 h-8" />, desc: 'Transfer funds', color: 'bg-gold-50 text-gold-600' },
-          { id: 'deposit', name: 'Deposit', icon: <Plus className="w-8 h-8" />, desc: 'Add funds', color: 'bg-green-50 text-green-600' },
-          { id: 'withdraw', name: 'Withdrawal', icon: <ArrowUpDown className="w-8 h-8" />, desc: 'Request earnings', color: 'bg-blue-50 text-blue-600' },
-          { id: 'logs', name: 'History', icon: <History className="w-8 h-8" />, desc: 'Transaction logs', color: 'bg-purple-50 text-purple-600' },
-        ].map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveSection(item.id)}
-            className="flex flex-col items-center justify-center p-10 bg-white rounded-[2rem] border border-gray-50 shadow-sm hover:border-gold-500 hover:shadow-xl hover:shadow-gold-500/5 group transition-all text-center relative overflow-hidden"
-          >
-            <div className={`w-20 h-20 ${item.color} rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-              {item.icon}
-            </div>
-            <h4 className="text-lg font-black text-navy-900 mb-1 uppercase tracking-tight">{item.name}</h4>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-widest">{item.desc}</p>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
-  const AccountHub = () => (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-8">
-        <div>
-          <h3 className="text-3xl font-black text-navy-900 uppercase tracking-tighter">Account</h3>
-        </div>
-        <button 
-          onClick={() => setActiveSection('dashboard')}
-          className="px-6 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-500 font-bold rounded-xl transition-all flex items-center gap-2 border border-gray-100"
-        >
-          <X className="w-4 h-4" /> Close
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {[
-          { id: 'profile', name: 'Account Info', icon: <User className="w-8 h-8" />, desc: 'Manage your profile', color: 'bg-navy-50 text-navy-600' },
-          { id: 'support', name: 'Contact Support', icon: <HeadphonesIcon className="w-8 h-8" />, desc: 'Get assistance', color: 'bg-gold-50 text-gold-600' },
-        ].map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveSection(item.id)}
-            className="flex flex-col items-center justify-center p-12 bg-white rounded-[2.5rem] border border-gray-50 shadow-sm hover:border-gold-500 hover:shadow-xl hover:shadow-gold-500/5 group transition-all text-center"
-          >
-            <div className={`w-20 h-20 ${item.color} rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-              {item.icon}
-            </div>
-            <h4 className="text-xl font-black text-navy-900 mb-1 uppercase tracking-tight">{item.name}</h4>
-            <p className="text-sm text-gray-400 font-medium uppercase tracking-widest">{item.desc}</p>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
-  const ServicesHub = () => (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-8">
-        <div>
-          <h3 className="text-3xl font-black text-navy-900 uppercase tracking-tighter">Services</h3>
-        </div>
-        <button 
-          onClick={() => setActiveSection('dashboard')}
-          className="px-6 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-500 font-bold rounded-xl transition-all flex items-center gap-2 border border-gray-100"
-        >
-          <X className="w-4 h-4" /> Close
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {[
-          { id: 'cards', name: 'Virtual Cards', icon: <CreditCard className="w-8 h-8" />, desc: 'Secure online payments', color: 'bg-gold-50 text-gold-600' },
-          { id: 'loans', name: 'Loan Services', icon: <Briefcase className="w-8 h-8" />, desc: 'Financial assistance', color: 'bg-blue-50 text-blue-600' },
-          { id: 'tax-refund', name: 'IRS Tax Refund', icon: <FileText className="w-8 h-8" />, desc: 'Tax rebate claims', color: 'bg-green-50 text-green-600' },
-        ].map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveSection(item.id)}
-            className="flex flex-col items-center justify-center p-10 bg-white rounded-[2rem] border border-gray-50 shadow-sm hover:border-gold-500 hover:shadow-xl hover:shadow-gold-500/5 group transition-all text-center"
-          >
-            <div className={`w-20 h-20 ${item.color} rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-              {item.icon}
-            </div>
-            <h4 className="text-lg font-black text-navy-900 mb-1 uppercase tracking-tight">{item.name}</h4>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-widest">{item.desc}</p>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+  // Moved outside to prevent re-renders
 
   return (
     <ProtectedRoute>
@@ -344,16 +437,41 @@ const DashboardContent = () => {
           <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#0b1626] text-white transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} hidden lg:block`}>
             <div className="flex flex-col h-full">
               <div className="p-4 mobile:p-6 border-b border-navy-800 flex items-center justify-between">
-                <span className="text-xl mobile:text-2xl font-bold tracking-tighter text-gold-500">RECOVERLY</span>
+                <Image
+                  src="/RecoverlyLogo.png"
+                  alt="Recoverly Trust Bank"
+                  width={160}
+                  height={40}
+                  className="h-8 mobile:h-10 w-auto object-contain brightness-0 invert"
+                  priority
+                />
               </div>
 
               <nav className="flex-1 px-3 mobile:px-4 py-4 mobile:py-8 space-y-1 mobile:space-y-2 overflow-y-auto">
+                {/* Auth Check Helper */}
+                {(() => {
+                  const isVerified = userProfile?.emailVerified && userProfile?.kycStatus === 'verified';
+                  const checkAuthAndNavigate = (id: string) => {
+                    if (id === 'deposit' || id === 'logs' || id === 'dashboard' || id === 'profile' || id === 'support' || id === 'admin') {
+                      setActiveSection(id);
+                      setIsSidebarOpen(false);
+                    } else {
+                      if (!isVerified) {
+                        showError('Please verify your email and complete KYC to access this feature.');
+                        return;
+                      }
+                      setActiveSection(id);
+                      setIsSidebarOpen(false);
+                    }
+                  };
+                  return (
+                    <>
                 {/* 1. Dashboard Hub Section */}
                 <div className="pt-2 pb-2 px-4">
                   <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Dashboard</p>
                 </div>
                 <button
-                  onClick={() => { setActiveSection('dashboard'); setIsSidebarOpen(false); }}
+                  onClick={() => checkAuthAndNavigate('dashboard')}
                   className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === 'dashboard' ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
                 >
                   <BarChart3 className="w-5 h-5 scale-90 mobile:scale-100" />
@@ -374,7 +492,7 @@ const DashboardContent = () => {
                   return (
                     <button
                       key={id}
-                      onClick={() => { setActiveSection(id); setIsSidebarOpen(false); }}
+                      onClick={() => checkAuthAndNavigate(id)}
                       className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
                     >
                       <span className="scale-90 mobile:scale-100">{link.icon}</span>
@@ -395,7 +513,7 @@ const DashboardContent = () => {
                   return (
                     <button
                       key={id}
-                      onClick={() => { setActiveSection(id); setIsSidebarOpen(false); }}
+                      onClick={() => checkAuthAndNavigate(id)}
                       className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
                     >
                       <span className="scale-90 mobile:scale-100">{link.icon}</span>
@@ -418,7 +536,7 @@ const DashboardContent = () => {
                   return (
                     <button
                       key={id}
-                      onClick={() => { setActiveSection(id); setIsSidebarOpen(false); }}
+                      onClick={() => checkAuthAndNavigate(id)}
                       className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
                     >
                       <span className="scale-90 mobile:scale-100">{link.icon}</span>
@@ -434,7 +552,7 @@ const DashboardContent = () => {
                       <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Admin</p>
                     </div>
                     <button
-                      onClick={() => { setActiveSection('admin'); setIsSidebarOpen(false); }}
+                      onClick={() => checkAuthAndNavigate('admin')}
                       className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === 'admin' ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
                     >
                       <ShieldCheck className="w-5 h-5 scale-90 mobile:scale-100" />
@@ -442,6 +560,9 @@ const DashboardContent = () => {
                     </button>
                   </>
                 )}
+                    </>
+                  );
+                })()}
               </nav>
 
               <div className="p-4 mobile:p-6 border-t border-navy-800">
@@ -459,7 +580,14 @@ const DashboardContent = () => {
             <header className="h-16 mobile:h-20 bg-white border-b border-gray-100 flex items-center justify-between px-4 mobile:px-6 shrink-0">
               <div className="flex items-center space-x-4">
                 <div className="lg:hidden">
-                  <span className="text-lg font-black tracking-tighter text-navy-900">RECOVERLY</span>
+                  <Image
+                    src="/RecoverlyLogo.png"
+                    alt="Recoverly Trust Bank"
+                    width={160}
+                    height={40}
+                    className="h-6 mobile:h-8 w-auto object-contain"
+                    priority
+                  />
                 </div>
                 <div className="hidden md:block">
                   <p className="text-sm font-medium text-gray-400">{formattedDate}</p>
@@ -468,17 +596,10 @@ const DashboardContent = () => {
 
               <div className="flex items-center space-x-4">
                 <div className="text-right mr-4 hidden sm:block">
-                  <p className="text-lg mobile:text-xl font-bold text-navy-900">${(userProfile?.balances?.total || 0).toLocaleString()}</p>
+                  <p className="text-lg mobile:text-xl font-bold text-navy-900">${(userProfile?.balances?.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
-                <button
-                  onClick={() => setActiveSection('notifications')}
-                  className="p-2 text-gray-400 hover:text-navy-900 relative"
-                >
-                  <Bell className="w-6 h-6" />
-                  {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-[#c9933a] rounded-full"></span>}
-                </button>
                 <div className="flex items-center space-x-3 p-1 pl-3 bg-gray-50 rounded-full border border-gray-100">
-                  <span className="hidden sm:inline font-semibold text-navy-900">{userProfile?.firstName || 'User'}</span>
+                  <span className="inline font-semibold text-navy-900">{userProfile?.firstName || 'User'}</span>
                   <div className="w-8 h-8 mobile:w-10 mobile:h-10 bg-navy-900 text-gold-500 rounded-full flex items-center justify-center font-bold text-xs mobile:text-sm">
                     {(userProfile?.firstName?.[0] || 'U')}{(userProfile?.lastName?.[0] || 'U')}
                   </div>
@@ -487,7 +608,7 @@ const DashboardContent = () => {
             </header>
 
             {/* Scrollable Area */}
-            <div className="flex-1 overflow-y-auto p-3.5 mobile:p-6 space-y-4 mobile:space-y-8 pb-20">
+            <div className="flex-1 overflow-y-auto p-3.5 mobile:p-6 bg-white space-y-4 mobile:space-y-8 pb-32 mb:pb-20">
               {activeSection === 'dashboard' ? (
                 <>
                   {/* Top Stats Cards Removed per request - replaced by slideshow in Welcome section */}
@@ -524,46 +645,46 @@ const DashboardContent = () => {
 
                                 {statIndex === 1 && (
                                   <motion.div
-                                    key="investment-balance"
+                                    key="integrity-level"
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     className="absolute inset-0 flex flex-col justify-center md:items-start items-center"
                                   >
                                     <p className="text-4xl mobile:text-5xl lg:text-6xl font-black text-white tracking-tighter whitespace-nowrap">
-                                      ${(userProfile?.balances?.investment || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                      ${stats.volumeTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </p>
-                                    <p className="text-blue-400 font-bold uppercase tracking-widest text-[10px] mobile:text-xs mt-2 opacity-80">Total Capital Employed</p>
+                                    <p className="text-gold-500 font-bold uppercase tracking-widest text-[10px] mobile:text-xs mt-2 opacity-80">Total Account Volume</p>
                                   </motion.div>
                                 )}
 
                                 {statIndex === 2 && (
                                   <motion.div
-                                    key="referral-balance"
+                                    key="active-cases"
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     className="absolute inset-0 flex flex-col justify-center md:items-start items-center"
                                   >
                                     <p className="text-4xl mobile:text-5xl lg:text-6xl font-black text-white tracking-tighter whitespace-nowrap">
-                                      ${(userProfile?.balances?.referral || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                      ${stats.pendingTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </p>
-                                    <p className="text-green-400 font-bold uppercase tracking-widest text-[10px] mobile:text-xs mt-2 opacity-80">Network Incentive Rewards</p>
+                                    <p className="text-gold-500 font-bold uppercase tracking-widest text-[10px] mobile:text-xs mt-2 opacity-80">Pending Asset Transfers</p>
                                   </motion.div>
                                 )}
 
                                 {statIndex === 3 && (
                                   <motion.div
-                                    key="total-assets"
+                                    key="security-score"
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     className="absolute inset-0 flex flex-col justify-center md:items-start items-center"
                                   >
                                     <p className="text-4xl mobile:text-5xl lg:text-6xl font-black text-white tracking-tighter whitespace-nowrap">
-                                      ${(userProfile?.balances?.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                      ${totalCardBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </p>
-                                    <p className="text-gold-500 font-bold uppercase tracking-widest text-[10px] mobile:text-xs mt-2 opacity-80">Aggregate Account Value</p>
+                                    <p className="text-gold-500 font-bold uppercase tracking-widest text-[10px] mobile:text-xs mt-2 opacity-80">Virtual Card Liquidity</p>
                                   </motion.div>
                                 )}
                               </AnimatePresence>
@@ -572,24 +693,22 @@ const DashboardContent = () => {
                                 {[0, 1, 2, 3].map((i) => (
                                   <div
                                     key={i}
-                                    className={`h-1 rounded-full transition-all duration-300 ${
-                                      statIndex === i ? 'w-4 bg-gold-400' : 'w-1 bg-white/20'
-                                    }`}
+                                    className={`h-1 rounded-full transition-all duration-300 ${statIndex === i ? 'w-4 bg-gold-400' : 'w-1 bg-white/20'
+                                      }`}
                                   />
                                 ))}
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="mt-6 md:mt-0 text-center md:text-right border-t md:border-t-0 border-white/10 pt-6 md:pt-0 w-full md:w-auto">
                             <p className="text-gray-400 text-[10px] mobile:text-xs mb-1 uppercase tracking-widest font-bold">Account Authority</p>
                             <p className="text-xl mobile:text-2xl font-mono font-bold tracking-widest text-white mb-2 uppercase">{userProfile?.userCode || 'RECOVERLY_USER'}</p>
                             <div className="flex flex-col md:items-end items-center gap-2">
-                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                                userProfile?.kycStatus === 'verified' 
-                                ? 'bg-green-500/10 text-green-500 border-green-500/20' 
+                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${userProfile?.kycStatus === 'verified'
+                                ? 'bg-green-500/10 text-green-500 border-green-500/20'
                                 : 'bg-gold-500/10 text-gold-500 border-gold-500/20'
-                              }`}>
+                                }`}>
                                 {userProfile?.kycStatus === 'verified' ? 'System Verified' : 'Standard Access'}
                               </span>
                             </div>
@@ -603,7 +722,7 @@ const DashboardContent = () => {
                           <h3 className="text-lg mobile:text-xl font-bold text-navy-900">Financial Actions</h3>
                           <p className="text-sm mobile:text-base text-gray-400">Choose from our popular actions below</p>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mobile:gap-6">
                           {/* Deposit Action */}
                           <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:border-gold-500 transition-all group overflow-hidden relative">
@@ -611,29 +730,46 @@ const DashboardContent = () => {
                             <Plus className="relative z-10 w-8 h-8 text-gold-600 mb-4" />
                             <h4 className="relative z-10 font-bold text-navy-900 mb-1 text-sm mobile:text-base uppercase tracking-tighter">Deposit</h4>
                             <p className="relative z-10 text-[10px] text-gray-400 mb-4 font-black uppercase tracking-widest">Add funds to your account</p>
-                            <button onClick={() => setActiveSection('deposit')} className="relative z-10 text-xs font-black text-gold-600 uppercase tracking-widest hover:underline flex items-center">
+                            <button onClick={() => {
+                              const isVerified = userProfile?.emailVerified && userProfile?.kycStatus === 'verified';
+                              setActiveSection('deposit');
+                            }} className="relative z-10 text-xs font-black text-gold-600 uppercase tracking-widest hover:underline flex items-center">
                               Add Now <ArrowRight className="w-3 h-3 ml-1" />
                             </button>
                           </div>
 
                           {/* Loan Action */}
-                          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:border-blue-500 transition-all group overflow-hidden relative">
-                            <div className="absolute -right-4 -top-4 w-20 h-20 bg-blue-50 rounded-full group-hover:bg-blue-100 transition-colors"></div>
-                            <Briefcase className="relative z-10 w-8 h-8 text-blue-600 mb-4" />
+                          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:border-[#800020] transition-all group overflow-hidden relative">
+                            <div className="absolute -right-4 -top-4 w-20 h-20 bg-burgundy-50/10 rounded-full group-hover:bg-burgundy-50/20 transition-colors"></div>
+                            <Briefcase className="relative z-10 w-8 h-8 text-[#800020] mb-4" />
                             <h4 className="relative z-10 font-bold text-navy-900 mb-1 text-sm mobile:text-base uppercase tracking-tighter">Loan Services</h4>
                             <p className="relative z-10 text-[10px] text-gray-400 mb-4 font-black uppercase tracking-widest">Instant financial assistance</p>
-                            <button onClick={() => setActiveSection('loans')} className="relative z-10 text-xs font-black text-blue-600 uppercase tracking-widest hover:underline flex items-center">
+                            <button onClick={() => {
+                              const isVerified = userProfile?.emailVerified && userProfile?.kycStatus === 'verified';
+                              if (!isVerified) {
+                                showError('Please verify your email and complete KYC to access this feature.');
+                                return;
+                              }
+                              setActiveSection('loans');
+                            }} className="relative z-10 text-xs font-black text-[#800020] uppercase tracking-widest hover:underline flex items-center">
                               Apply Now <ArrowRight className="w-3 h-3 ml-1" />
                             </button>
                           </div>
 
                           {/* Tax Refund Action */}
-                          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:border-green-500 transition-all group overflow-hidden relative">
-                            <div className="absolute -right-4 -top-4 w-24 h-24 bg-green-50 rounded-full group-hover:bg-green-100 transition-colors"></div>
-                            <FileText className="relative z-10 w-8 h-8 text-green-600 mb-4" />
+                          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:border-gold-500 transition-all group overflow-hidden relative">
+                            <div className="absolute -right-4 -top-4 w-24 h-24 bg-gold-50 rounded-full group-hover:bg-gold-100 transition-colors"></div>
+                            <FileText className="relative z-10 w-8 h-8 text-gold-600 mb-4" />
                             <h4 className="relative z-10 font-bold text-navy-900 mb-1 text-sm mobile:text-base uppercase tracking-tighter">IRS Tax Refund</h4>
                             <p className="relative z-10 text-[10px] text-gray-400 mb-4 font-black uppercase tracking-widest">Claim your tax rebate</p>
-                            <button onClick={() => setActiveSection('tax-refund')} className="relative z-10 text-xs font-black text-green-600 uppercase tracking-widest hover:underline flex items-center">
+                            <button onClick={() => {
+                              const isVerified = userProfile?.emailVerified && userProfile?.kycStatus === 'verified';
+                              if (!isVerified) {
+                                showError('Please verify your email and complete KYC to access this feature.');
+                                return;
+                              }
+                              setActiveSection('tax-refund');
+                            }} className="relative z-10 text-xs font-black text-gold-600 uppercase tracking-widest hover:underline flex items-center">
                               Submit Claim <ArrowRight className="w-3 h-3 ml-1" />
                             </button>
                           </div>
@@ -659,11 +795,19 @@ const DashboardContent = () => {
                                     tx.type === 'deposit' ? 'bg-green-50 text-green-600' :
                                     tx.type === 'withdrawal' ? 'bg-red-50 text-red-600' :
                                     tx.type === 'transfer' ? 'bg-blue-50 text-blue-600' :
-                                    'bg-purple-50 text-purple-600'
+                                    tx.type === 'card' ? 'bg-navy-50 text-navy-600' :
+                                    tx.type === 'loan' ? 'bg-purple-50 text-purple-600' :
+                                    tx.type === 'tax_refund' ? 'bg-gold-50 text-gold-600' :
+                                    tx.type === 'recovery' ? 'bg-orange-50 text-orange-600' :
+                                    'bg-gray-50 text-gray-600'
                                   }`}>
-                                    {tx.type === 'deposit' ? <Plus className="w-5 h-5" /> : 
+                                    {tx.type === 'deposit' ? <Plus className="w-5 h-5" /> :
                                      tx.type === 'withdrawal' ? <ArrowDownUp className="w-5 h-5" /> :
                                      tx.type === 'transfer' ? <ArrowLeftRight className="w-5 h-5" /> :
+                                     tx.type === 'card' ? <CreditCard className="w-5 h-5" /> :
+                                     tx.type === 'loan' ? <Briefcase className="w-5 h-5" /> :
+                                     tx.type === 'tax_refund' ? <FileText className="w-5 h-5" /> :
+                                     tx.type === 'recovery' ? <Activity className="w-5 h-5" /> :
                                      <Activity className="w-5 h-5" />}
                                   </div>
                                   <div>
@@ -675,12 +819,18 @@ const DashboardContent = () => {
                                 </div>
                                 <div className="text-right">
                                   <p className={`text-xs mobile:text-sm font-black ${
-                                    tx.type === 'deposit' || (tx.type === 'transfer' && !tx.isSent) ? 'text-green-600' : 'text-red-500'
+                                    tx.type === 'deposit' || (tx.type === 'transfer' && !tx.isSent) ? 'text-green-600' : 
+                                    (tx.type === 'tax_refund' || tx.type === 'recovery') ? 'text-navy-900' :
+                                    'text-red-500'
                                   }`}>
-                                    {tx.type === 'deposit' || (tx.type === 'transfer' && !tx.isSent) ? '+' : '-'}${Math.abs(tx.amount).toLocaleString()}
+                                    {tx.type === 'deposit' || (tx.type === 'transfer' && !tx.isSent) ? '+' : 
+                                     (tx.type === 'tax_refund' || tx.type === 'recovery') ? '' : '-'}$
+                                    {Math.abs(tx.amount || 0).toLocaleString(undefined, { minimumFractionDigits: tx.amount > 0 ? 2 : 0 })}
                                   </p>
                                   <p className={`text-[8px] mobile:text-[9px] font-black uppercase tracking-widest ${
-                                    tx.status === 'completed' ? 'text-green-500' : 'text-gold-500'
+                                    tx.status === 'completed' || tx.status === 'processed' ? 'text-green-500' : 
+                                    tx.status === 'failed' || tx.status === 'rejected' ? 'text-red-500' :
+                                    'text-gold-500'
                                   }`}>{tx.status}</p>
                                 </div>
                               </div>
@@ -716,72 +866,71 @@ const DashboardContent = () => {
                             <h3 className="font-bold text-navy-900 text-sm mobile:text-base">Asset Overview</h3>
                             <PieChart className="w-4 h-4 text-gold-600" />
                           </div>
-                          <div className="flex flex-col items-center">
-                            {/* Simple SVG Pie Chart */}
-                            <div className="relative w-40 h-40">
-                              <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                                {/* Main Balance */}
-                                <circle
-                                  cx="50" cy="50" r="40"
-                                  fill="transparent"
-                                  stroke="#0b1626"
-                                  strokeWidth="12"
-                                  strokeDasharray={`${Math.max(0, (userProfile?.balances?.main || 0) / (userProfile?.balances?.total || 1) * 251.2)} 251.2`}
-                                  className="transition-all duration-1000"
-                                />
-                                {/* Investment slice */}
-                                <circle
-                                  cx="50" cy="50" r="40"
-                                  fill="transparent"
-                                  stroke="#c9933a"
-                                  strokeWidth="12"
-                                  strokeDashoffset={-((userProfile?.balances?.main || 0) / (userProfile?.balances?.total || 1) * 251.2)}
-                                  strokeDasharray={`${Math.max(0, (userProfile?.balances?.investment || 0) / (userProfile?.balances?.total || 1) * 251.2)} 251.2`}
-                                  className="transition-all duration-1000"
-                                />
-                                {/* Referral slice */}
-                                <circle
-                                  cx="50" cy="50" r="40"
-                                  fill="transparent"
-                                  stroke="#3b82f6"
-                                  strokeWidth="12"
-                                  strokeDashoffset={-(((userProfile?.balances?.main || 0) + (userProfile?.balances?.investment || 0)) / (userProfile?.balances?.total || 1) * 251.2)}
-                                  strokeDasharray={`${Math.max(0, (userProfile?.balances?.referral || 0) / (userProfile?.balances?.total || 1) * 251.2)} 251.2`}
-                                  className="transition-all duration-1000"
-                                />
-                              </svg>
-                              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <span className="text-xl font-black text-navy-900 leading-none">
-                                  {userProfile?.balances?.total ? '100%' : '0%'}
-                                </span>
-                                <span className="text-[10px] text-gray-400 font-bold uppercase">Assets</span>
-                              </div>
-                            </div>
+                          
+                          {(() => {
+                            const settles = userProfile?.balances?.main || 0;
+                            const cardLiquidity = totalCardBalance;
+                            const total = settles + cardLiquidity;
+                            const circum = 251.32;
+                            
+                            const settlesP = total > 0 ? (settles / total) * circum : 0;
+                            const liquidityP = total > 0 ? (cardLiquidity / total) * circum : 0;
 
-                            <div className="mt-6 w-full space-y-2">
-                              <div className="flex items-center justify-between text-[11px] font-bold">
-                                <div className="flex items-center space-x-2">
-                                  <div className="w-3 h-3 bg-[#0b1626] rounded-sm"></div>
-                                  <span className="text-gray-500 uppercase">Main Wallet</span>
+                            return (
+                              <div className="flex flex-col items-center">
+                                <div className="relative w-40 h-40">
+                                  <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                                    {/* Background Circle */}
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f8fafc" strokeWidth="12" />
+                                    
+                                    {/* Settled Funds */}
+                                    <circle
+                                      cx="50" cy="50" r="40"
+                                      fill="transparent"
+                                      stroke="#0b1626"
+                                      strokeWidth="12"
+                                      strokeDasharray={`${settlesP} ${circum}`}
+                                      className="transition-all duration-1000"
+                                    />
+                                    
+                                    {/* Card Liquidity */}
+                                    <circle
+                                      cx="50" cy="50" r="40"
+                                      fill="transparent"
+                                      stroke="#EAB308"
+                                      strokeWidth="12"
+                                      strokeDasharray={`${liquidityP} ${circum}`}
+                                      strokeDashoffset={-settlesP}
+                                      className="transition-all duration-1000"
+                                    />
+                                  </svg>
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span className="text-xl font-black text-navy-900 leading-none">
+                                      {total > 0 ? '100%' : '0%'}
+                                    </span>
+                                    <span className="text-[10px] text-gray-400 font-bold uppercase">Equity</span>
+                                  </div>
                                 </div>
-                                <span className="text-navy-900">${(userProfile?.balances?.main || 0).toLocaleString()}</span>
-                              </div>
-                              <div className="flex items-center justify-between text-[11px] font-bold">
-                                <div className="flex items-center space-x-2">
-                                  <div className="w-3 h-3 bg-[#c9933a] rounded-sm"></div>
-                                  <span className="text-gray-500 uppercase">Investment</span>
+
+                                <div className="mt-6 w-full space-y-2">
+                                  <div className="flex items-center justify-between text-[11px] font-bold">
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-3 h-3 bg-[#0b1626] rounded-sm"></div>
+                                      <span className="text-gray-500 uppercase">Settled Funds</span>
+                                    </div>
+                                    <span className="text-navy-900">${settles.toLocaleString()}</span>
+                                  </div>
+                                  <div className="flex items-center justify-between text-[11px] font-bold">
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-3 h-3 bg-gold-500 rounded-sm"></div>
+                                      <span className="text-gray-500 uppercase">Card Liquidity</span>
+                                    </div>
+                                    <span className="text-navy-900">${cardLiquidity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                  </div>
                                 </div>
-                                <span className="text-navy-900">${(userProfile?.balances?.investment || 0).toLocaleString()}</span>
                               </div>
-                              <div className="flex items-center justify-between text-[11px] font-bold">
-                                <div className="flex items-center space-x-2">
-                                  <div className="w-3 h-3 bg-blue-500 rounded-sm"></div>
-                                  <span className="text-gray-500 uppercase">Referral</span>
-                                </div>
-                                <span className="text-navy-900">${(userProfile?.balances?.referral || 0).toLocaleString()}</span>
-                              </div>
-                            </div>
-                          </div>
+                            );
+                          })()}
                         </div>
                       </div>
 
@@ -826,8 +975,8 @@ const DashboardContent = () => {
                           </div>
                         </div>
                         <p className="text-[10px] text-gray-400 mb-4 relative z-10">Create virtual cards for secure online payments and subscription management.</p>
-                        <button 
-                          onClick={() => setActiveSection('cards')} 
+                        <button
+                          onClick={() => setActiveSection('cards')}
                           className="w-full py-2 bg-gold-500 text-navy-900 rounded-xl font-bold text-xs mobile:text-sm hover:bg-gold-400 transition-colors"
                         >
                           Apply Now
@@ -846,54 +995,57 @@ const DashboardContent = () => {
                   </div>
                 </>
               ) : (
-                <div className="bg-white rounded-2xl mobile:rounded-3xl p-4 mobile:p-8 border border-gray-100 shadow-sm min-h-[500px]">
-                  <div className="flex flex-col space-y-4 mb-6 mobile:mb-8 pb-4 mobile:pb-6 border-b border-gray-50">
-                    {/* Breadcrumbs/Back button for mobile */}
-                    {isSubSection && (
-                      <button
-                        onClick={() => setActiveSection(currentHub?.id || 'dashboard')}
-                        className="flex items-center text-gold-600 text-xs mobile:text-sm font-bold hover:translate-x-[-4px] transition-transform w-fit"
-                      >
-                        <ArrowUpDown className="w-3 h-3 rotate-90 mr-1.5" />
-                        Back to {currentHub?.name}
-                      </button>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-xl mobile:text-2xl font-bold text-navy-900 flex items-center">
-                        <span className="w-10 h-10 bg-gold-50 text-gold-600 rounded-xl flex items-center justify-center mr-3 scale-90 mobile:scale-100">
+                <div className="bg-transparent min-h-[500px]">
+                  {/* Section Content (Header removed per request if it's redundant) */}
+                  {!(activeSection === 'profile' || activeSection === 'support' || activeSection === 'settings' || activeSection === 'account_hub') && (
+                    <div className="flex flex-col space-y-4 mb-6 mobile:mb-8 pb-4 mobile:pb-6 border-b border-gray-50">
+                      {/* Breadcrumbs/Back button for mobile */}
+                      {isSubSection && (
+                        <button
+                          onClick={() => setActiveSection(currentHub?.id || 'dashboard')}
+                          className="flex items-center text-gold-600 text-xs mobile:text-sm font-bold hover:translate-x-[-4px] transition-transform w-fit"
+                        >
+                          <ArrowUpDown className="w-3 h-3 rotate-90 mr-1.5" />
+                          Back to {currentHub?.name}
+                        </button>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-xl mobile:text-2xl font-bold text-navy-900 flex items-center">
+                          <span className="w-10 h-10 bg-gold-50 text-gold-600 rounded-xl flex items-center justify-center mr-3 scale-90 mobile:scale-100">
+                            {isSubSection
+                              ? (activeSection === 'deposit' ? <ArrowDownUp /> : activeSection === 'withdraw' ? <ArrowUpDown /> : activeSection === 'transfer' ? <Send /> : currentHub?.icon)
+                              : currentHub?.icon
+                            }
+                          </span>
                           {isSubSection
-                            ? (activeSection === 'deposit' ? <ArrowDownUp /> : activeSection === 'withdraw' ? <ArrowUpDown /> : activeSection === 'transfer' ? <Send /> : currentHub?.icon)
-                            : currentHub?.icon
-                          }
-                        </span>
-                        {isSubSection
-                          ? (
-                            {
-                              deposit: 'Deposit',
-                              withdraw: 'Withdrawal',
-                              transfer: 'Send Money',
-                              logs: 'History',
-                              notifications: 'Notifications',
-                              profile: 'Account Info',
-                              kyc: 'Identity Verification',
-                              support: 'Contact Support',
-                              cards: 'Virtual Cards',
-                              loans: 'Loan Services',
-                              'tax-refund': 'IRS Tax Refund',
-                            } as Record<string, string>
-                          )[activeSection]
-                          : currentHub?.name}
-                      </h2>
-                      <button onClick={() => setActiveSection('dashboard')} className="text-gray-400 hover:text-navy-900 flex items-center text-xs mobile:text-sm font-bold">
-                        <X className="w-4 h-4 mr-1" /> Close
-                      </button>
+                            ? (
+                              {
+                                deposit: 'Deposit',
+                                withdraw: 'Withdrawal',
+                                transfer: 'Send Money',
+                                logs: 'History',
+                                notifications: 'Notifications',
+                                profile: 'Account Info',
+                                kyc: 'Identity Verification',
+                                support: 'Contact Support',
+                                cards: 'Virtual Cards',
+                                loans: 'Loan Services',
+                                'tax-refund': 'IRS Tax Refund',
+                              } as Record<string, string>
+                            )[activeSection]
+                            : currentHub?.name}
+                        </h2>
+                        <button onClick={() => setActiveSection('dashboard')} className="text-gray-400 hover:text-navy-900 flex items-center text-xs mobile:text-sm font-bold">
+                          <X className="w-4 h-4 mr-1" /> Close
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Sections and Hubs */}
-                  {activeSection === 'transactions_hub' && <TransactionsHub />}
-                  {activeSection === 'account_hub' && <AccountHub />}
-                  {activeSection === 'services_hub' && <ServicesHub />}
+                  {activeSection === 'transactions_hub' && <TransactionsHub setActiveSection={setActiveSection} />}
+                  {activeSection === 'account_hub' && <AccountHub setActiveSection={setActiveSection} />}
+                  {activeSection === 'services_hub' && <ServicesHub setActiveSection={setActiveSection} />}
 
                   {activeSection === 'deposit' && <DepositSection />}
                   {activeSection === 'withdraw' && <WithdrawSection />}
@@ -905,12 +1057,12 @@ const DashboardContent = () => {
                   {activeSection === 'tax-refund' && <TaxRefundSection />}
                   {activeSection === 'recovery' && <RecoverySection />}
                   {activeSection === 'kyc' && (
-                    userProfile?.kycStatus === 'verified' 
+                    userProfile?.kycStatus === 'verified'
                       ? <div className="flex flex-col items-center justify-center py-20 text-center">
-                          <CheckCircle className="w-20 h-20 text-green-500 mb-6" />
-                          <h2 className="text-3xl font-bold text-navy-900 mb-2">Account Verified</h2>
-                          <p className="text-gray-500">Your identity documents have already been successfully verified.</p>
-                        </div>
+                        <CheckCircle className="w-20 h-20 text-green-500 mb-6" />
+                        <h2 className="text-3xl font-bold text-navy-900 mb-2">Account Verified</h2>
+                        <p className="text-gray-500">Your identity documents have already been successfully verified.</p>
+                      </div>
                       : <KYCSection />
                   )}
                   {activeSection === 'admin' && <AdminSection />}

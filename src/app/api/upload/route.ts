@@ -3,7 +3,6 @@ import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 
-
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();

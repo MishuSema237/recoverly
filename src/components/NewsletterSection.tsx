@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Send, CheckCircle } from 'lucide-react';
+import { showError } from '@/utils/toast';
 
 const NewsletterSection = () => {
   const [email, setEmail] = useState('');
@@ -35,8 +36,7 @@ const NewsletterSection = () => {
       setTimeout(() => setIsSubscribed(false), 3000);
     } catch (error) {
       console.error('Subscription failed:', error);
-      // You might want to show an error message to the user here
-      alert('Failed to subscribe. Please try again.');
+      showError('Failed to subscribe. Please try again.');
     } finally {
       setIsLoading(false);
     }

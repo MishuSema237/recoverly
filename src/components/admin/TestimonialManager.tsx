@@ -19,6 +19,7 @@ import { showSuccess, showError } from '@/utils/toast';
 interface Testimonial {
   _id: string;
   name: string;
+  role: string;
   content: string;
   rating: number;
   picture: string;
@@ -35,6 +36,7 @@ const TestimonialManager = () => {
 
   const [formData, setFormData] = useState({
     name: '',
+    role: '',
     content: '',
     rating: '5.0',
     picture: '',
@@ -63,6 +65,7 @@ const TestimonialManager = () => {
       setEditingItem(item);
       setFormData({
         name: item.name,
+        role: item.role || '',
         content: item.content,
         rating: item.rating.toString(),
         picture: item.picture,
@@ -72,6 +75,7 @@ const TestimonialManager = () => {
       setEditingItem(null);
       setFormData({
         name: '',
+        role: '',
         content: '',
         rating: '5.0',
         picture: '',
@@ -175,8 +179,11 @@ const TestimonialManager = () => {
                 </div>
               </div>
               <div className="p-5">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-bold text-navy-900">{t.name}</h3>
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="font-bold text-navy-900">{t.name}</h3>
+                    <p className="text-[10px] text-gold-600 font-black uppercase tracking-widest">{t.role}</p>
+                  </div>
                   {t.isActive ? (
                     <span className="text-[9px] font-black text-green-500 uppercase tracking-widest flex items-center gap-1">
                       <CheckCircle className="w-3 h-3" /> Active
@@ -224,6 +231,17 @@ const TestimonialManager = () => {
                     placeholder="Full Name"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Role / Title</label>
+                  <input
+                    required
+                    type="text"
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 font-bold text-navy-900"
+                    placeholder="e.g. Fraud Recovery Client"
+                    value={formData.role}
+                    onChange={(e) => setFormData({...formData, role: e.target.value})}
                   />
                 </div>
                 <div className="space-y-1.5">

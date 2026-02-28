@@ -3,6 +3,26 @@ import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { requireAuth } from '@/middleware/auth';
 
+export const GET = requireAuth(async (request) => {
+  try {
+    const db = await getDb();
+    const userId = request.user!.id;
+
+    const requests = await db.collection('taxRefunds')
+      .find({ userId })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    return NextResponse.json({
+      success: true,
+      data: requests
+    });
+  } catch (error) {
+    console.error('Error fetching tax refunds:', error);
+    return NextResponse.json({ success: false, error: 'Failed to fetch tax refund requests' }, { status: 500 });
+  }
+});
+
 export const POST = requireAuth(async (request) => {
   try {
     const db = await getDb();

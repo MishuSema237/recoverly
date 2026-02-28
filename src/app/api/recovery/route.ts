@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/mongodb';
+import dbConnect from '@/lib/mongoose';
+
 import { verifyToken } from '@/lib/auth/jwt';
 import RecoveryCase from '@/lib/models/RecoveryCase';
 import { ObjectId } from 'mongodb';
@@ -12,7 +13,8 @@ export async function GET(request: NextRequest) {
     const payload = verifyToken(token);
     if (!payload) return NextResponse.json({ success: false, error: 'Invalid token' }, { status: 401 });
 
-    await getDb();
+    await dbConnect();
+
     const cases = await RecoveryCase.find({ userId: new ObjectId(payload.userId) }).sort({ createdAt: -1 });
 
     return NextResponse.json({ success: true, data: cases });
@@ -36,7 +38,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
-    await getDb();
+    await dbConnect();
+
     const newCase = new RecoveryCase({
       userId: new ObjectId(payload.userId),
       scamType,

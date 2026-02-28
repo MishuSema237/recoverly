@@ -190,9 +190,9 @@ const VirtualCardsSection = () => {
             className="space-y-8"
           >
             {/* Hero Header */}
-            <div className="bg-[#0b1626] rounded-3xl p-8 text-white relative overflow-hidden border border-gold-500/20">
+            <div className="bg-[#0b1626] rounded-3xl p-6 mobile:p-8 text-white relative overflow-hidden border border-gold-500/20">
               <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-              <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
+              <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-6 mobile:gap-8">
                 <div className="max-w-xl text-center lg:text-left">
                   <h2 className="text-3xl font-bold mb-4">Virtual Cards Made Easy</h2>
                   <p className="text-gray-400 mb-6 leading-relaxed">
@@ -214,13 +214,13 @@ const VirtualCardsSection = () => {
                   </div>
                   <button 
                     onClick={() => setView('apply')}
-                    className="px-8 py-3 bg-gold-500 text-navy-900 rounded-xl font-bold hover:bg-gold-400 transition-all shadow-lg shadow-gold-500/20"
+                    className="w-full mobile:w-auto px-8 py-3 bg-gold-500 text-navy-900 rounded-xl font-bold hover:bg-gold-400 transition-all shadow-lg shadow-gold-500/20"
                   >
                     Apply Now
                   </button>
                 </div>
-                <div className="relative group">
-                  <div className="bg-gradient-to-br from-navy-800 to-navy-900 border border-white/20 rounded-2xl p-6 w-80 aspect-[1.58/1] shadow-2xl relative transition-transform group-hover:scale-105">
+                <div className="relative group w-full mobile:w-auto flex justify-center">
+                  <div className="bg-gradient-to-br from-navy-800 to-navy-900 border border-white/20 rounded-2xl p-4 mobile:p-6 w-full max-w-[320px] aspect-[1.58/1] shadow-2xl relative transition-transform group-hover:scale-105">
                     <div className="flex justify-between items-start mb-8">
                       <div className="w-12 h-10 bg-gold-500/20 rounded-lg flex items-center justify-center">
                         <CreditCard className="w-6 h-6 text-gold-500" />
@@ -281,7 +281,7 @@ const VirtualCardsSection = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {cards.map((card) => (
                     <div key={card._id} className="group relative">
-                      <div className={`relative bg-gradient-to-br transition-all duration-500 ${card.cardLevel === 'black' ? 'from-gray-800 to-black' : card.cardLevel === 'platinum' ? 'from-gray-300 to-gray-500' : card.cardLevel === 'gold' ? 'from-gold-400 to-gold-600' : 'from-navy-800 to-navy-900'} rounded-3xl p-8 aspect-[1.58/1] shadow-xl overflow-hidden text-white flex flex-col justify-between border border-white/10`}>
+                      <div className={`relative bg-gradient-to-br transition-all duration-500 ${card.cardLevel === 'black' ? 'from-gray-800 to-black' : card.cardLevel === 'platinum' ? 'from-gray-300 to-gray-500' : card.cardLevel === 'gold' ? 'from-gold-400 to-gold-600' : 'from-navy-800 to-navy-900'} rounded-3xl p-6 mobile:p-8 aspect-[1.58/1] shadow-xl overflow-hidden text-white flex flex-col justify-between border border-white/10`}>
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                         
                         <div className="flex justify-between items-start relative z-10">
@@ -304,7 +304,7 @@ const VirtualCardsSection = () => {
                           <div>
                             {card.status === 'approved' ? (
                               <div className="space-y-1">
-                                <p className="text-2xl font-mono tracking-[0.2em] flex items-center">
+                                <p className="text-lg mobile:text-2xl font-mono tracking-[0.2em] flex items-center">
                                   {revealedCards[card._id] ? (
                                     card.cardNumber.replace(/(\d{4})/g, '$1 ').trim()
                                   ) : (
@@ -479,7 +479,7 @@ const VirtualCardsSection = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleApply} className="p-8 lg:p-12 space-y-10">
+              <form onSubmit={handleApply} className="p-6 mobile:p-8 lg:p-12 space-y-8 mobile:space-y-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                   {/* Column 1: Card Selection */}
                   <div className="space-y-8">

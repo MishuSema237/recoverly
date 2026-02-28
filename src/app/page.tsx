@@ -46,17 +46,7 @@ const FinalCTA = dynamic(() => import('@/components/FinalCTA'), {
 });
 
 export default function Home() {
-  const { loading } = useAuth();
-
-  // Show loading while checking authentication
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-navy-900">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500"></div>
-      </div>
-    );
-  }
-
+  // Remove auth-blocking loading spinner for homepage performance
   return (
     <PublicRoute>
       <div className="min-h-screen bg-white">

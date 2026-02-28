@@ -6,7 +6,7 @@ import { showSuccess, showError } from '@/utils/toast';
 import { ShieldCheck, AlertCircle, Clock } from 'lucide-react';
 
 const TransferMoneySection = () => {
-  const { userProfile } = useAuth();
+  const { userProfile, refreshUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [receiverEmail, setReceiverEmail] = useState('');
   const [receiverUserCode, setReceiverUserCode] = useState('');
@@ -77,36 +77,7 @@ const TransferMoneySection = () => {
     }
   }, [receiverEmail, receiverUserCode]);
 
-  // Auto-validate when both email and user code are entered and code length is correct
-  useEffect(() => {
-    // Check if we've already validated this exact combination
-    const currentCombination = receiverEmail + receiverUserCode;
-    const lastCombination = lastValidatedRef.current.email + lastValidatedRef.current.code;
-
-    // Only reset if it's a new combination
-    if (currentCombination !== lastCombination) {
-      setReceiverValid(false);
-      setValidationError('');
-      setError('');
-    }
-
-    // Validate if all conditions are met and it's a different combination
-    const shouldValidate = receiverEmail &&
-      receiverUserCode &&
-      receiverUserCode.length === 8 &&
-      !isValidating &&
-      currentCombination !== lastCombination;
-
-    if (shouldValidate) {
-      const timeoutId = setTimeout(() => {
-        console.log('Validating receiver...', receiverEmail, receiverUserCode);
-        validateReceiver();
-      }, 500); // Debounce validation
-
-      return () => clearTimeout(timeoutId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [receiverEmail, receiverUserCode, isValidating]);
+  // Removed auto-validation useEffect to reduce API hits
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,6 +118,8 @@ const TransferMoneySection = () => {
 
       // Success - show success message and reset form
       showSuccess('Transfer completed successfully!');
+      await refreshUser();
+
 
       // Reset form
       setReceiverEmail('');
@@ -169,8 +142,24 @@ const TransferMoneySection = () => {
   const feeAmount = parseFloat(transferAmount) * (transferFee / 100);
   const totalAmount = parseFloat(transferAmount) + feeAmount;
 
-  const handleNext = () => {
-    if (receiverValid) {
+  const handleNext = async () => {
+    // Check if basic requirements are met
+    if (!receiverEmail || receiverUserCode.length !== 8) {
+      setValidationError('Please enter a valid email and 8-character user code');
+      return;
+    }
+
+    // Check if we already validated this exact combination
+    if (receiverValid && 
+        receiverEmail === lastValidatedRef.current.email && 
+        receiverUserCode === lastValidatedRef.current.code) {
+      setCurrentStep(2);
+      return;
+    }
+
+    // Perform validation
+    const isValid = await validateReceiver();
+    if (isValid) {
       setCurrentStep(2);
       setError('');
       setValidationError('');
@@ -298,10 +287,10 @@ const TransferMoneySection = () => {
             <button
               type="button"
               onClick={handleNext}
-              disabled={!receiverValid || isValidating || userProfile?.kycStatus !== 'verified'}
+              disabled={!receiverEmail || receiverUserCode.length !== 8 || isValidating || userProfile?.kycStatus !== 'verified'}
               className="w-full bg-[#0b1626] hover:bg-[#1a2b45] disabled:bg-gray-400 disabled:cursor-not-allowed text-gold-500 py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center text-sm mobile:text-base border border-gold-500/20"
             >
-              Next: Enter Amount →
+              {isValidating ? 'Validating Receiver...' : 'Next: Enter Amount →'}
             </button>
           </div>
         )}

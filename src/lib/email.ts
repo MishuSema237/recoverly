@@ -279,7 +279,7 @@ export const emailTemplates = {
   }),
 
   // 4. Deposit Confirmation
-  depositConfirmation: (userName: string, amount: number, transactionId: string, status: string = 'approved') => ({
+  depositConfirmation: (userName: string, amount: number, transactionId: string, status: string = 'approved', paymentMethodName: string = 'Bank Transfer') => ({
     subject: `Deposit ${status === 'approved' ? 'Successful' : 'Pending'} - Recoverly`,
     html: getBaseTemplate(
       `Deposit ${status === 'approved' ? 'Confirmed' : 'Received'}`,
@@ -287,6 +287,7 @@ export const emailTemplates = {
       <p>Your deposit has been ${status === 'approved' ? 'successfully processed and added to your balance' : 'received and is currently pending review'}.</p>
       <table class="data-table">
         <tr><td>Amount:</td><td class="highlight">$${amount.toLocaleString()}</td></tr>
+        <tr><td>Payment Method:</td><td>${paymentMethodName}</td></tr>
         <tr><td>Transaction ID:</td><td>${transactionId}</td></tr>
         <tr><td>Status:</td><td>${status.toUpperCase()}</td></tr>
         <tr><td>Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
@@ -298,11 +299,11 @@ export const emailTemplates = {
       `,
       userName
     ),
-    text: `Hello ${userName}, your deposit of $${amount} is ${status}. Transaction ID: ${transactionId}`
+    text: `Hello ${userName}, your deposit of $${amount} via ${paymentMethodName} is ${status}. Transaction ID: ${transactionId}`
   }),
 
   // 5. Withdrawal Confirmation
-  withdrawalConfirmation: (userName: string, amount: number, transactionId: string, status: string = 'pending') => ({
+  withdrawalConfirmation: (userName: string, amount: number, transactionId: string, status: string = 'pending', paymentMethodName: string = 'Bank Transfer') => ({
     subject: `Withdrawal ${status === 'approved' ? 'Processed' : 'Request Received'} - Recoverly`,
     html: getBaseTemplate(
       `Withdrawal ${status === 'approved' ? 'Successful' : 'Request'}`,
@@ -310,6 +311,7 @@ export const emailTemplates = {
       <p>Your withdrawal ${status === 'approved' ? 'has been processed successfully' : 'request has been received and is being reviewed by our team'}.</p>
       <table class="data-table">
         <tr><td>Amount:</td><td class="highlight">$${amount.toLocaleString()}</td></tr>
+        <tr><td>Payment Method:</td><td>${paymentMethodName}</td></tr>
         <tr><td>Transaction ID:</td><td>${transactionId}</td></tr>
         <tr><td>Status:</td><td>${status.toUpperCase()}</td></tr>
         <tr><td>Date:</td><td>${new Date().toLocaleDateString()}</td></tr>
@@ -321,7 +323,7 @@ export const emailTemplates = {
       `,
       userName
     ),
-    text: `Hello ${userName}, your withdrawal of $${amount} is ${status}. Transaction ID: ${transactionId}`
+    text: `Hello ${userName}, your withdrawal of $${amount} via ${paymentMethodName} is ${status}. Transaction ID: ${transactionId}`
   }),
 
   // 6. Money Transfer
@@ -413,7 +415,7 @@ export const emailTemplates = {
   }),
 
   // 10. Withdrawal/Deposit Request (Admin only)
-  adminAlert: (type: 'Deposit' | 'Withdrawal', userEmail: string, amount: number, transactionId: string) => ({
+  adminAlert: (type: 'Deposit' | 'Withdrawal', userEmail: string, amount: number, transactionId: string, paymentMethodName: string = 'Bank Transfer') => ({
     subject: `Admin Alert: New ${type} Request - $${amount}`,
     html: getBaseTemplate(
       `New ${type} Request`,
@@ -422,6 +424,7 @@ export const emailTemplates = {
       <table class="data-table">
         <tr><td>User:</td><td>${userEmail}</td></tr>
         <tr><td>Amount:</td><td class="highlight">$${amount.toLocaleString()}</td></tr>
+        <tr><td>Payment Method:</td><td>${paymentMethodName}</td></tr>
         <tr><td>Transaction ID:</td><td>${transactionId}</td></tr>
         <tr><td>Date:</td><td>${new Date().toLocaleString()}</td></tr>
       </table>
@@ -432,7 +435,7 @@ export const emailTemplates = {
       `,
       'Admin'
     ),
-    text: `Admin Alert: New ${type} request of $${amount} from ${userEmail}.`
+    text: `Admin Alert: New ${type} request of $${amount} via ${paymentMethodName} from ${userEmail}.`
   }),
   // 11. Plan Completed
   planCompleted: (userName: string, planName: string, amount: number, capitalReturned: boolean) => ({
