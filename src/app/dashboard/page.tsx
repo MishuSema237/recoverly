@@ -137,28 +137,23 @@ const AccountHub = ({ setActiveSection }: { setActiveSection: (s: string) => voi
         <button
           key={item.id}
           onClick={() => setActiveSection(item.id)}
-          className={`w-full flex items-center justify-between p-6 rounded-3xl border transition-all group active:scale-[0.98] ${
-            item.id === 'profile' ? 'bg-[#0b1626] border-white/5 shadow-2xl shadow-navy-900/10' : 'bg-white border-gray-100 shadow-sm hover:border-gold-500/30'
-          }`}
+          className={`w-full flex items-center justify-between p-6 rounded-3xl border transition-all group active:scale-[0.98] ${item.id === 'profile' ? 'bg-[#0b1626] border-white/5 shadow-2xl shadow-navy-900/10' : 'bg-white border-gray-100 shadow-sm hover:border-gold-500/30'
+            }`}
         >
           <div className="flex items-center gap-5">
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform ${
-              item.id === 'profile' ? 'bg-white/5 text-gold-500' : item.id === 'admin' ? 'bg-gold-50 text-gold-600' : 'bg-navy-50 text-navy-900'
-            }`}>
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform ${item.id === 'profile' ? 'bg-white/5 text-gold-500' : item.id === 'admin' ? 'bg-gold-50 text-gold-600' : 'bg-navy-50 text-navy-900'
+              }`}>
               {item.icon}
             </div>
             <div className="text-left">
-              <h4 className={`text-base font-black uppercase tracking-tight leading-none mb-1.5 ${
-                item.id === 'profile' ? 'text-gold-500' : 'text-navy-900'
-              }`}>{item.name}</h4>
-              <p className={`text-[10px] font-black uppercase tracking-widest ${
-                item.id === 'profile' ? 'text-white/40' : 'text-gray-400'
-              }`}>{item.desc}</p>
+              <h4 className={`text-base font-black uppercase tracking-tight leading-none mb-1.5 ${item.id === 'profile' ? 'text-gold-500' : 'text-navy-900'
+                }`}>{item.name}</h4>
+              <p className={`text-[10px] font-black uppercase tracking-widest ${item.id === 'profile' ? 'text-white/40' : 'text-gray-400'
+                }`}>{item.desc}</p>
             </div>
           </div>
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0 ${
-            item.id === 'profile' ? 'bg-white/5' : 'bg-navy-50'
-          }`}>
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0 ${item.id === 'profile' ? 'bg-white/5' : 'bg-navy-50'
+            }`}>
             <ChevronRight className={`w-5 h-5 ${item.id === 'profile' ? 'text-gold-500' : 'text-navy-600'}`} />
           </div>
         </button>
@@ -436,13 +431,13 @@ const DashboardContent = () => {
           {/* Sidebar */}
           <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#0b1626] text-white transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} hidden lg:block`}>
             <div className="flex flex-col h-full">
-              <div className="p-4 mobile:p-6 border-b border-navy-800 flex items-center justify-between">
+              <div className="p-3 bg-white flex items-center justify-between">
                 <Image
                   src="/RecoverlyLogo.png"
                   alt="Recoverly Trust Bank"
-                  width={160}
-                  height={40}
-                  className="h-8 mobile:h-10 w-auto object-contain brightness-0 invert"
+                  width={200}
+                  height={56}
+                  className="h-12 mobile:h-14 w-auto object-contain"
                   priority
                 />
               </div>
@@ -466,100 +461,100 @@ const DashboardContent = () => {
                   };
                   return (
                     <>
-                {/* 1. Dashboard Hub Section */}
-                <div className="pt-2 pb-2 px-4">
-                  <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Dashboard</p>
-                </div>
-                <button
-                  onClick={() => checkAuthAndNavigate('dashboard')}
-                  className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === 'dashboard' ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
-                >
-                  <BarChart3 className="w-5 h-5 scale-90 mobile:scale-100" />
-                  <span className="text-sm mobile:text-base font-semibold">Overview</span>
-                </button>
+                      {/* 1. Dashboard Hub Section */}
+                      <div className="pt-2 pb-2 px-4">
+                        <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Dashboard</p>
+                      </div>
+                      <button
+                        onClick={() => checkAuthAndNavigate('dashboard')}
+                        className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === 'dashboard' ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
+                      >
+                        <BarChart3 className="w-5 h-5 scale-90 mobile:scale-100" />
+                        <span className="text-sm mobile:text-base font-semibold">Overview</span>
+                      </button>
 
-                {/* 2. Transactions Hub Section */}
-                <div className="pt-4 pb-2 px-4">
-                  <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Transactions</p>
-                </div>
-                {['transfer', 'deposit', 'withdraw', 'logs'].map(id => {
-                  const link = {
-                    transfer: { name: 'Send Money', icon: <Send className="w-5 h-5" /> },
-                    deposit: { name: 'Deposit', icon: <ArrowDownUp className="w-5 h-5" /> },
-                    withdraw: { name: 'Withdrawal', icon: <ArrowUpDown className="w-5 h-5" /> },
-                    logs: { name: 'History', icon: <History className="w-5 h-5" /> }
-                  }[id as 'transfer' | 'deposit' | 'withdraw' | 'logs'];
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => checkAuthAndNavigate(id)}
-                      className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
-                    >
-                      <span className="scale-90 mobile:scale-100">{link.icon}</span>
-                      <span className="text-sm mobile:text-base font-semibold">{link.name}</span>
-                    </button>
-                  );
-                })}
+                      {/* 2. Transactions Hub Section */}
+                      <div className="pt-4 pb-2 px-4">
+                        <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Transactions</p>
+                      </div>
+                      {['transfer', 'deposit', 'withdraw', 'logs'].map(id => {
+                        const link = {
+                          transfer: { name: 'Send Money', icon: <Send className="w-5 h-5" /> },
+                          deposit: { name: 'Deposit', icon: <ArrowDownUp className="w-5 h-5" /> },
+                          withdraw: { name: 'Withdrawal', icon: <ArrowUpDown className="w-5 h-5" /> },
+                          logs: { name: 'History', icon: <History className="w-5 h-5" /> }
+                        }[id as 'transfer' | 'deposit' | 'withdraw' | 'logs'];
+                        return (
+                          <button
+                            key={id}
+                            onClick={() => checkAuthAndNavigate(id)}
+                            className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
+                          >
+                            <span className="scale-90 mobile:scale-100">{link.icon}</span>
+                            <span className="text-sm mobile:text-base font-semibold">{link.name}</span>
+                          </button>
+                        );
+                      })}
 
-                {/* 3. Account Hub Section */}
-                <div className="pt-4 pb-2 px-4">
-                  <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Account</p>
-                </div>
-                {['profile', 'support'].map(id => {
-                  const link = {
-                    profile: { name: 'Account Info', icon: <User className="w-5 h-5" /> },
-                    support: { name: 'Contact Support', icon: <HeadphonesIcon className="w-5 h-5" /> }
-                  }[id as 'profile' | 'support'];
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => checkAuthAndNavigate(id)}
-                      className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
-                    >
-                      <span className="scale-90 mobile:scale-100">{link.icon}</span>
-                      <span className="text-sm mobile:text-base font-semibold">{link.name}</span>
-                    </button>
-                  );
-                })}
+                      {/* 3. Account Hub Section */}
+                      <div className="pt-4 pb-2 px-4">
+                        <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Account</p>
+                      </div>
+                      {['profile', 'support'].map(id => {
+                        const link = {
+                          profile: { name: 'Account Info', icon: <User className="w-5 h-5" /> },
+                          support: { name: 'Contact Support', icon: <HeadphonesIcon className="w-5 h-5" /> }
+                        }[id as 'profile' | 'support'];
+                        return (
+                          <button
+                            key={id}
+                            onClick={() => checkAuthAndNavigate(id)}
+                            className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
+                          >
+                            <span className="scale-90 mobile:scale-100">{link.icon}</span>
+                            <span className="text-sm mobile:text-base font-semibold">{link.name}</span>
+                          </button>
+                        );
+                      })}
 
-                {/* 4. Services Section */}
-                <div className="pt-4 pb-2 px-4">
-                  <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Services</p>
-                </div>
-                {['cards', 'loans', 'tax-refund', 'recovery'].map(id => {
-                  const link = {
-                    cards: { name: 'Virtual Cards', icon: <CreditCard className="w-5 h-5" /> },
-                    loans: { name: 'Loan Services', icon: <Briefcase className="w-5 h-5" /> },
-                    'tax-refund': { name: 'IRS Tax Refund', icon: <FileText className="w-5 h-5" /> },
-                    recovery: { name: 'Asset Recovery', icon: <Shield className="w-5 h-5" /> }
-                  }[id as 'cards' | 'loans' | 'tax-refund' | 'recovery'];
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => checkAuthAndNavigate(id)}
-                      className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
-                    >
-                      <span className="scale-90 mobile:scale-100">{link.icon}</span>
-                      <span className="text-sm mobile:text-base font-semibold">{link.name}</span>
-                    </button>
-                  );
-                })}
+                      {/* 4. Services Section */}
+                      <div className="pt-4 pb-2 px-4">
+                        <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Services</p>
+                      </div>
+                      {['cards', 'loans', 'tax-refund', 'recovery'].map(id => {
+                        const link = {
+                          cards: { name: 'Virtual Cards', icon: <CreditCard className="w-5 h-5" /> },
+                          loans: { name: 'Loan Services', icon: <Briefcase className="w-5 h-5" /> },
+                          'tax-refund': { name: 'IRS Tax Refund', icon: <FileText className="w-5 h-5" /> },
+                          recovery: { name: 'Asset Recovery', icon: <Shield className="w-5 h-5" /> }
+                        }[id as 'cards' | 'loans' | 'tax-refund' | 'recovery'];
+                        return (
+                          <button
+                            key={id}
+                            onClick={() => checkAuthAndNavigate(id)}
+                            className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
+                          >
+                            <span className="scale-90 mobile:scale-100">{link.icon}</span>
+                            <span className="text-sm mobile:text-base font-semibold">{link.name}</span>
+                          </button>
+                        );
+                      })}
 
-                {/* 5. Admin Section */}
-                {canAccessAdmin(userProfile) && (
-                  <>
-                    <div className="pt-4 pb-2 px-4">
-                      <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Admin</p>
-                    </div>
-                    <button
-                      onClick={() => checkAuthAndNavigate('admin')}
-                      className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === 'admin' ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
-                    >
-                      <ShieldCheck className="w-5 h-5 scale-90 mobile:scale-100" />
-                      <span className="text-sm mobile:text-base font-semibold">Administration</span>
-                    </button>
-                  </>
-                )}
+                      {/* 5. Admin Section */}
+                      {canAccessAdmin(userProfile) && (
+                        <>
+                          <div className="pt-4 pb-2 px-4">
+                            <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Admin</p>
+                          </div>
+                          <button
+                            onClick={() => checkAuthAndNavigate('admin')}
+                            className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === 'admin' ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
+                          >
+                            <ShieldCheck className="w-5 h-5 scale-90 mobile:scale-100" />
+                            <span className="text-sm mobile:text-base font-semibold">Administration</span>
+                          </button>
+                        </>
+                      )}
                     </>
                   );
                 })()}
@@ -791,24 +786,23 @@ const DashboardContent = () => {
                             recentTransactions.map((tx) => (
                               <div key={tx.id} className="p-4 mobile:p-5 flex items-center justify-between hover:bg-gray-50 transition-colors">
                                 <div className="flex items-center gap-3 mobile:gap-4">
-                                  <div className={`w-10 h-10 mobile:w-12 mobile:h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                                    tx.type === 'deposit' ? 'bg-green-50 text-green-600' :
+                                  <div className={`w-10 h-10 mobile:w-12 mobile:h-12 rounded-xl flex items-center justify-center shrink-0 ${tx.type === 'deposit' ? 'bg-green-50 text-green-600' :
                                     tx.type === 'withdrawal' ? 'bg-red-50 text-red-600' :
-                                    tx.type === 'transfer' ? 'bg-blue-50 text-blue-600' :
-                                    tx.type === 'card' ? 'bg-navy-50 text-navy-600' :
-                                    tx.type === 'loan' ? 'bg-purple-50 text-purple-600' :
-                                    tx.type === 'tax_refund' ? 'bg-gold-50 text-gold-600' :
-                                    tx.type === 'recovery' ? 'bg-orange-50 text-orange-600' :
-                                    'bg-gray-50 text-gray-600'
-                                  }`}>
+                                      tx.type === 'transfer' ? 'bg-blue-50 text-blue-600' :
+                                        tx.type === 'card' ? 'bg-navy-50 text-navy-600' :
+                                          tx.type === 'loan' ? 'bg-purple-50 text-purple-600' :
+                                            tx.type === 'tax_refund' ? 'bg-gold-50 text-gold-600' :
+                                              tx.type === 'recovery' ? 'bg-orange-50 text-orange-600' :
+                                                'bg-gray-50 text-gray-600'
+                                    }`}>
                                     {tx.type === 'deposit' ? <Plus className="w-5 h-5" /> :
-                                     tx.type === 'withdrawal' ? <ArrowDownUp className="w-5 h-5" /> :
-                                     tx.type === 'transfer' ? <ArrowLeftRight className="w-5 h-5" /> :
-                                     tx.type === 'card' ? <CreditCard className="w-5 h-5" /> :
-                                     tx.type === 'loan' ? <Briefcase className="w-5 h-5" /> :
-                                     tx.type === 'tax_refund' ? <FileText className="w-5 h-5" /> :
-                                     tx.type === 'recovery' ? <Activity className="w-5 h-5" /> :
-                                     <Activity className="w-5 h-5" />}
+                                      tx.type === 'withdrawal' ? <ArrowDownUp className="w-5 h-5" /> :
+                                        tx.type === 'transfer' ? <ArrowLeftRight className="w-5 h-5" /> :
+                                          tx.type === 'card' ? <CreditCard className="w-5 h-5" /> :
+                                            tx.type === 'loan' ? <Briefcase className="w-5 h-5" /> :
+                                              tx.type === 'tax_refund' ? <FileText className="w-5 h-5" /> :
+                                                tx.type === 'recovery' ? <Activity className="w-5 h-5" /> :
+                                                  <Activity className="w-5 h-5" />}
                                   </div>
                                   <div>
                                     <p className="text-[11px] mobile:text-xs font-black text-navy-900 uppercase tracking-tight truncate max-w-[120px] mobile:max-w-none">{tx.details}</p>
@@ -818,20 +812,18 @@ const DashboardContent = () => {
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className={`text-xs mobile:text-sm font-black ${
-                                    tx.type === 'deposit' || (tx.type === 'transfer' && !tx.isSent) ? 'text-green-600' : 
+                                  <p className={`text-xs mobile:text-sm font-black ${tx.type === 'deposit' || (tx.type === 'transfer' && !tx.isSent) ? 'text-green-600' :
                                     (tx.type === 'tax_refund' || tx.type === 'recovery') ? 'text-navy-900' :
-                                    'text-red-500'
-                                  }`}>
-                                    {tx.type === 'deposit' || (tx.type === 'transfer' && !tx.isSent) ? '+' : 
-                                     (tx.type === 'tax_refund' || tx.type === 'recovery') ? '' : '-'}$
+                                      'text-red-500'
+                                    }`}>
+                                    {tx.type === 'deposit' || (tx.type === 'transfer' && !tx.isSent) ? '+' :
+                                      (tx.type === 'tax_refund' || tx.type === 'recovery') ? '' : '-'}$
                                     {Math.abs(tx.amount || 0).toLocaleString(undefined, { minimumFractionDigits: tx.amount > 0 ? 2 : 0 })}
                                   </p>
-                                  <p className={`text-[8px] mobile:text-[9px] font-black uppercase tracking-widest ${
-                                    tx.status === 'completed' || tx.status === 'processed' ? 'text-green-500' : 
+                                  <p className={`text-[8px] mobile:text-[9px] font-black uppercase tracking-widest ${tx.status === 'completed' || tx.status === 'processed' ? 'text-green-500' :
                                     tx.status === 'failed' || tx.status === 'rejected' ? 'text-red-500' :
-                                    'text-gold-500'
-                                  }`}>{tx.status}</p>
+                                      'text-gold-500'
+                                    }`}>{tx.status}</p>
                                 </div>
                               </div>
                             ))
@@ -866,13 +858,13 @@ const DashboardContent = () => {
                             <h3 className="font-bold text-navy-900 text-sm mobile:text-base">Asset Overview</h3>
                             <PieChart className="w-4 h-4 text-gold-600" />
                           </div>
-                          
+
                           {(() => {
                             const settles = userProfile?.balances?.main || 0;
                             const cardLiquidity = totalCardBalance;
                             const total = settles + cardLiquidity;
                             const circum = 251.32;
-                            
+
                             const settlesP = total > 0 ? (settles / total) * circum : 0;
                             const liquidityP = total > 0 ? (cardLiquidity / total) * circum : 0;
 
@@ -882,7 +874,7 @@ const DashboardContent = () => {
                                   <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
                                     {/* Background Circle */}
                                     <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f8fafc" strokeWidth="12" />
-                                    
+
                                     {/* Settled Funds */}
                                     <circle
                                       cx="50" cy="50" r="40"
@@ -892,7 +884,7 @@ const DashboardContent = () => {
                                       strokeDasharray={`${settlesP} ${circum}`}
                                       className="transition-all duration-1000"
                                     />
-                                    
+
                                     {/* Card Liquidity */}
                                     <circle
                                       cx="50" cy="50" r="40"

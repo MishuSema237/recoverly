@@ -104,9 +104,9 @@ const Header = () => {
               <Image
                 src="/RecoverlyLogo.png"
                 alt="Recoverly Trust Bank"
-                width={160}
-                height={40}
-                className="h-8 mobile:h-10 w-auto object-contain"
+                width={200}
+                height={56}
+                className="h-12 mobile:h-14 w-auto object-contain"
                 priority
               />
             </Link>
