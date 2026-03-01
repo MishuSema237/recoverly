@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Shield, 
-  Bitcoin, 
-  HeartHandshake, 
-  TrendingDown, 
-  FileSearch, 
-  Scale, 
-  Building2, 
+import {
+  Shield,
+  Bitcoin,
+  HeartHandshake,
+  TrendingDown,
+  FileSearch,
+  Scale,
+  Building2,
   RefreshCw,
   Search,
   ArrowRight,
@@ -30,7 +30,7 @@ const RecoverySection = () => {
   const [activeTab, setActiveTab] = useState<'tracker' | 'form' | 'education'>(
     urlScamType ? 'form' : 'tracker'
   );
-  
+
   const [formData, setFormData] = useState({
     scamType: urlScamType || '',
     amountLost: '',
@@ -157,19 +157,19 @@ const RecoverySection = () => {
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-4 mobile:space-y-8 animate-in fade-in duration-700 px-0 py-4 mobile:px-0 mobile:py-0">
       {/* Header Area */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 p-8 bg-white rounded-[2rem] border border-gray-100 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mobile:gap-6 p-5 mobile:p-8 bg-white rounded-xl mobile:rounded-[2rem] border border-gray-100 shadow-sm">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-2 h-2 bg-gold-500 rounded-full animate-pulse"></div>
             <p className="text-[10px] font-black text-gold-600 uppercase tracking-[0.2em]">Forensic Intelligence Division</p>
           </div>
-          <h2 className="text-3xl font-black text-navy-900 uppercase tracking-tighter mb-1">Recovery Intelligence OPS</h2>
+          <h2 className="text-xl mobile:text-3xl font-black text-navy-900 uppercase tracking-tighter mb-1">Recovery Intelligence OPS</h2>
           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Global Asset Tracking & Repatriation</p>
         </div>
 
-        <div className="flex items-center gap-6 px-8 py-4 bg-navy-900 rounded-[1.5rem] border border-navy-800 shadow-xl">
+        <div className="flex items-center gap-6 px-8 py-4 bg-navy-900 mobile:rounded-[1.5rem] rounded-lg border border-navy-800 shadow-xl">
           <div className="flex flex-col">
             <span className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-0.5">Active Cases</span>
             <span className="text-xl font-black text-white leading-none">{activeCasesCount}</span>
@@ -180,17 +180,16 @@ const RecoverySection = () => {
             <span className="text-xl font-black text-gold-500 leading-none">${totalRecovered.toLocaleString()}</span>
           </div>
         </div>
-        
+
         <div className="flex gap-2 p-1 bg-gray-100 rounded-xl lg:self-center">
           {(['tracker', 'form', 'education'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-lg text-[10px] mobile:text-xs font-black uppercase tracking-widest transition-all ${
-                activeTab === tab 
-                ? 'bg-navy-900 text-gold-500 shadow-md' 
+              className={`px-4 py-2 rounded-lg text-[10px] mobile:text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab
+                ? 'bg-navy-900 text-gold-500 shadow-md'
                 : 'text-gray-400 hover:text-navy-900'
-              }`}
+                }`}
             >
               {tab === 'form' ? 'Rapid Report' : tab}
             </button>
@@ -200,7 +199,7 @@ const RecoverySection = () => {
 
       <AnimatePresence mode="wait">
         {activeTab === 'tracker' && (
-          <motion.div 
+          <motion.div
             key="tracker"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -217,9 +216,9 @@ const RecoverySection = () => {
                 {cases.map((recoveryCase) => (
                   <div key={recoveryCase._id} className="space-y-6">
                     {/* Active Status Card */}
-                    <div className="bg-[#0b1626] rounded-3xl p-8 text-white relative overflow-hidden border border-gold-500/20">
+                    <div className="bg-[#0b1626] mobile:rounded-3xl rounded-xl p-8 text-white relative overflow-hidden border border-gold-500/20">
                       <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                      
+
                       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div>
                           <div className="flex items-center gap-3 mb-4">
@@ -227,10 +226,10 @@ const RecoverySection = () => {
                             <h3 className="text-2xl font-bold uppercase tracking-tighter">Case: #{recoveryCase._id.slice(-6).toUpperCase()}</h3>
                           </div>
                           <p className="text-gray-400 text-sm leading-relaxed mb-8">
-                            Status: <span className="text-gold-500 font-black uppercase tracking-widest">{recoveryCase.status}</span>. 
+                            Status: <span className="text-gold-500 font-black uppercase tracking-widest">{recoveryCase.status}</span>.
                             {recoveryCase.adminNotes || 'Our task force is currently processing this recovery claim. Systems are optimized for high-speed digital tracing.'}
                           </p>
-                          
+
                           <div className="grid grid-cols-2 gap-4">
                             <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
                               <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Loss Targeted ({recoveryCase.currency || 'USD'})</p>
@@ -270,18 +269,16 @@ const RecoverySection = () => {
                     {/* Steps Visualizer */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       {getStatusSteps(recoveryCase.status).map((step, idx) => (
-                        <div key={idx} className={`p-6 rounded-2xl border transition-all ${
-                          step.status === 'active' 
-                          ? 'bg-white border-gold-500 shadow-xl shadow-gold-500/5' 
+                        <div key={idx} className={`p-6 rounded-2xl border transition-all ${step.status === 'active'
+                          ? 'bg-white border-gold-500 shadow-xl shadow-gold-500/5'
                           : step.status === 'completed'
-                          ? 'bg-green-50 border-green-100'
-                          : 'bg-gray-50 border-gray-100 opacity-60'
-                        }`}>
-                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
-                            step.status === 'active' ? 'bg-navy-900 text-gold-500' : 
-                            step.status === 'completed' ? 'bg-green-500 text-white' :
-                            'bg-gray-200 text-gray-400'
+                            ? 'bg-green-50 border-green-100'
+                            : 'bg-gray-50 border-gray-100 opacity-60'
                           }`}>
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${step.status === 'active' ? 'bg-navy-900 text-gold-500' :
+                            step.status === 'completed' ? 'bg-green-500 text-white' :
+                              'bg-gray-200 text-gray-400'
+                            }`}>
                             {step.status === 'completed' ? <CheckCircle2 className="w-6 h-6" /> : step.icon}
                           </div>
                           <h4 className="font-black text-navy-900 text-xs uppercase tracking-tight mb-2">{step.title}</h4>
@@ -293,11 +290,11 @@ const RecoverySection = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-20 bg-gray-50 rounded-[3rem] border border-dashed border-gray-200">
-                <FileSearch className="w-20 h-20 text-gray-200 mx-auto mb-6" />
-                <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter">No Active Protocols</h3>
-                <p className="text-gray-400 max-w-sm mx-auto mt-2 font-medium">You haven't initialized any asset recovery reports yet. Use the 'Rapid Report' tab to begin.</p>
-                <button 
+              <div className="text-center py-12 mobile:py-20 bg-gray-50 rounded-2xl mobile:rounded-[3rem] border border-dashed border-gray-200">
+                <FileSearch className="w-14 h-14 mobile:w-20 mobile:h-20 text-gray-200 mx-auto mb-4 mobile:mb-6" />
+                <h3 className="text-lg mobile:text-2xl font-black text-navy-900 uppercase tracking-tighter">No Active Protocols</h3>
+                <p className="text-gray-400 max-w-sm mx-auto mt-2 font-medium text-xs mobile:text-sm">You haven't initialized any asset recovery reports yet. Use the 'Rapid Report' tab to begin.</p>
+                <button
                   onClick={() => setActiveTab('form')}
                   className="mt-8 px-8 py-3 bg-navy-900 text-gold-500 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-navy-900/10"
                 >
@@ -309,14 +306,14 @@ const RecoverySection = () => {
         )}
 
         {activeTab === 'form' && (
-          <motion.div 
+          <motion.div
             key="form"
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             className="max-w-3xl mx-auto"
           >
-            <div className="bg-white rounded-[2.5rem] p-8 mobile:p-12 border border-gray-100 shadow-2xl relative overflow-hidden">
+            <div className="bg-white rounded-2xl mobile:rounded-[2.5rem] p-5 mobile:p-12 border border-gray-100 shadow-2xl relative overflow-hidden">
               {submitted ? (
                 <div className="text-center py-12 animate-in zoom-in-95 duration-500">
                   <div className="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-8">
@@ -326,7 +323,7 @@ const RecoverySection = () => {
                   <p className="text-gray-500 max-w-md mx-auto mb-8 font-medium">
                     Our forensic division has received your intelligence packet. A lead investigator will be assigned to your case shortly.
                   </p>
-                  <button 
+                  <button
                     onClick={() => setSubmitted(false)}
                     className="px-8 py-3 bg-navy-900 text-gold-500 rounded-xl font-bold uppercase tracking-widest hover:bg-navy-800 transition-all"
                   >
@@ -340,7 +337,7 @@ const RecoverySection = () => {
                       <FileSearch className="text-gold-500 w-7 h-7" />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter line-none">Rapid Forensic Report</h3>
+                      <h3 className="text-lg mobile:text-2xl font-black text-navy-900 uppercase tracking-tighter line-none">Rapid Forensic Report</h3>
                       <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Initialize Scam Investigation Protocol</p>
                     </div>
                   </div>
@@ -349,11 +346,11 @@ const RecoverySection = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Classification of Scam</label>
-                        <select 
+                        <select
                           required
                           className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-6 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all appearance-none"
                           value={formData.scamType}
-                          onChange={(e) => setFormData({...formData, scamType: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, scamType: e.target.value })}
                         >
                           <option value="">Select Category</option>
                           {scamTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -366,7 +363,7 @@ const RecoverySection = () => {
                             required
                             className="w-24 h-14 bg-gray-50 border border-gray-100 rounded-2xl px-4 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all appearance-none"
                             value={formData.currency}
-                            onChange={(e) => setFormData({...formData, currency: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
                           >
                             <option value="USD">USD</option>
                             <option value="EUR">EUR</option>
@@ -374,13 +371,13 @@ const RecoverySection = () => {
                             <option value="CAD">CAD</option>
                             <option value="AUD">AUD</option>
                           </select>
-                          <input 
+                          <input
                             required
                             type="number"
                             placeholder="e.g. 5000"
                             className="flex-1 h-14 bg-gray-50 border border-gray-100 rounded-2xl px-6 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all"
                             value={formData.amountLost}
-                            onChange={(e) => setFormData({...formData, amountLost: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, amountLost: e.target.value })}
                           />
                         </div>
                       </div>
@@ -389,35 +386,35 @@ const RecoverySection = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Platform/Website Name</label>
-                        <input 
+                        <input
                           required
                           type="text"
                           placeholder="e.g. Binance, TrustWallet, or Scammer.com"
                           className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-6 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all"
                           value={formData.platformName}
-                          onChange={(e) => setFormData({...formData, platformName: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, platformName: e.target.value })}
                         />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Date of Incident</label>
-                        <input 
+                        <input
                           required
                           type="date"
                           className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-6 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all"
                           value={formData.dateOfIncident}
-                          onChange={(e) => setFormData({...formData, dateOfIncident: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, dateOfIncident: e.target.value })}
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Incident Details & Metadata</label>
-                      <textarea 
+                      <textarea
                         required
                         className="w-full p-6 bg-gray-50 border border-gray-100 rounded-2xl font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all min-h-[150px]"
                         placeholder="Describe the platform, website URLs, and sequence of events..."
                         value={formData.details}
-                        onChange={(e) => setFormData({...formData, details: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, details: e.target.value })}
                       />
                     </div>
 
@@ -428,10 +425,10 @@ const RecoverySection = () => {
                       </p>
                     </div>
 
-                    <button 
+                    <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full h-16 bg-navy-900 text-gold-500 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-navy-900/20 hover:bg-navy-800 transition-all flex items-center justify-center gap-3"
+                      className="w-full h-12 mobile:h-16 bg-navy-900 text-gold-500 rounded-xl mobile:rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-navy-900/20 hover:bg-navy-800 transition-all flex items-center justify-center gap-3 text-xs mobile:text-base"
                     >
                       {isSubmitting ? (
                         <>
@@ -453,7 +450,7 @@ const RecoverySection = () => {
         )}
 
         {activeTab === 'education' && (
-          <motion.div 
+          <motion.div
             key="education"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

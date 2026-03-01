@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  CreditCard, 
-  Plus, 
-  Shield, 
-  Globe, 
-  Zap, 
-  ArrowLeft, 
-  CheckCircle, 
+import {
+  CreditCard,
+  Plus,
+  Shield,
+  Globe,
+  Zap,
+  ArrowLeft,
+  CheckCircle,
   HelpCircle,
   ChevronDown,
   ChevronUp,
@@ -26,7 +26,7 @@ const VirtualCardsSection = () => {
   const [topUpModalCard, setTopUpModalCard] = useState<any | null>(null);
   const [topUpAmount, setTopUpAmount] = useState('50');
   const [isToppingUp, setIsToppingUp] = useState(false);
-  
+
   // Card Data State
   const [cards, setCards] = useState<any[]>([]);
   const [loadingCards, setLoadingCards] = useState(true);
@@ -47,27 +47,27 @@ const VirtualCardsSection = () => {
     { id: 'platinum', name: 'Platinum', fee: 25, limit: '5,000 - 10,000' },
     { id: 'black', name: 'Black', fee: 50, limit: '10,000 - 50,000' },
   ];
-  
+
   const faqs = [
-    { 
-      q: "What is a virtual card?", 
-      a: "A virtual card is a digital-only version of a traditional credit card. It's specifically designed for secure online payments, providing you with a card number, expiry date, and CVV without a physical card." 
+    {
+      q: "What is a virtual card?",
+      a: "A virtual card is a digital-only version of a traditional credit card. It's specifically designed for secure online payments, providing you with a card number, expiry date, and CVV without a physical card."
     },
-    { 
-      q: "How soon can I use it?", 
-      a: "Once your application is approved by our team, your card is generated instantly. You can access its details from your dashboard and start using it for online purchases immediately." 
+    {
+      q: "How soon can I use it?",
+      a: "Once your application is approved by our team, your card is generated instantly. You can access its details from your dashboard and start using it for online purchases immediately."
     },
-    { 
-      q: "Is it safe to use online?", 
-      a: "Absolutely. Virtual cards offer an extra layer of security for your main account. You can set specific spending limits and easily freeze or cancel the card if you suspect any unauthorized activity." 
+    {
+      q: "Is it safe to use online?",
+      a: "Absolutely. Virtual cards offer an extra layer of security for your main account. You can set specific spending limits and easily freeze or cancel the card if you suspect any unauthorized activity."
     },
-    { 
-      q: "Where is the card accepted?", 
-      a: "Our virtual cards are accepted globally at millions of online merchants where Visa, Mastercard, or American Express are supported." 
+    {
+      q: "Where is the card accepted?",
+      a: "Our virtual cards are accepted globally at millions of online merchants where Visa, Mastercard, or American Express are supported."
     },
-    { 
-      q: "Can I manage my subscriptions?", 
-      a: "Yes, virtual cards are perfect for recurring payments. You can monitor all transactions in real-time and maintain full control over your subscription spending." 
+    {
+      q: "Can I manage my subscriptions?",
+      a: "Yes, virtual cards are perfect for recurring payments. You can monitor all transactions in real-time and maintain full control over your subscription spending."
     }
   ];
 
@@ -190,12 +190,12 @@ const VirtualCardsSection = () => {
             className="space-y-8"
           >
             {/* Hero Header */}
-            <div className="bg-[#0b1626] rounded-3xl p-6 mobile:p-8 text-white relative overflow-hidden border border-gold-500/20">
+            <div className="bg-[#0b1626] rounded-2xl mobile:rounded-3xl p-4 mobile:p-6 mobile:p-8 text-white relative overflow-hidden border border-gold-500/20">
               <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-              <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-6 mobile:gap-8">
+              <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-4 mobile:gap-8">
                 <div className="max-w-xl text-center lg:text-left">
-                  <h2 className="text-3xl font-bold mb-4">Virtual Cards Made Easy</h2>
-                  <p className="text-gray-400 mb-6 leading-relaxed">
+                  <h2 className="text-xl mobile:text-3xl font-bold mb-2 mobile:mb-4">Virtual Cards Made Easy</h2>
+                  <p className="text-gray-400 mb-4 mobile:mb-6 leading-relaxed text-xs mobile:text-base">
                     Create virtual cards for secure online payments, subscription management, and more. Our virtual cards offer enhanced security and control over your spending.
                   </p>
                   <div className="grid grid-cols-2 gap-4 mb-8">
@@ -212,9 +212,9 @@ const VirtualCardsSection = () => {
                       <CheckCircle className="w-4 h-4" /> <span>Spending Controls</span>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setView('apply')}
-                    className="w-full mobile:w-auto px-8 py-3 bg-gold-500 text-navy-900 rounded-xl font-bold hover:bg-gold-400 transition-all shadow-lg shadow-gold-500/20"
+                    className="w-full mobile:w-auto px-6 mobile:px-8 py-2.5 mobile:py-3 bg-gold-500 text-navy-900 rounded-xl font-bold hover:bg-gold-400 transition-all shadow-lg shadow-gold-500/20 text-sm mobile:text-base"
                   >
                     Apply Now
                   </button>
@@ -246,30 +246,30 @@ const VirtualCardsSection = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mobile:gap-6">
+              <div className="bg-white p-4 mobile:p-6 rounded-xl mobile:rounded-2xl border border-gray-100 shadow-sm">
                 <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Pending Applications</p>
-                <p className="text-3xl font-black text-navy-900">{cards.filter(c => c.status === 'pending').length}</p>
+                <p className="text-base mobile:text-3xl font-black text-navy-900">{cards.filter(c => c.status === 'pending').length}</p>
               </div>
-              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+              <div className="bg-white p-4 mobile:p-6 rounded-xl mobile:rounded-2xl border border-gray-100 shadow-sm">
                 <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Active Cards</p>
-                <p className="text-3xl font-black text-navy-900">{cards.filter(c => c.status === 'approved').length}</p>
+                <p className="text-base mobile:text-3xl font-black text-navy-900">{cards.filter(c => c.status === 'approved').length}</p>
               </div>
-              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+              <div className="bg-white p-4 mobile:p-6 rounded-xl mobile:rounded-2xl border border-gray-100 shadow-sm">
                 <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Total Card Balance</p>
-                <p className="text-3xl font-black text-navy-900">${(cards.filter(c => c.status === 'approved').reduce((acc, c) => acc + (c.balance || 0), 0)).toFixed(2)}</p>
+                <p className="text-base mobile:text-3xl font-black text-navy-900">${(cards.filter(c => c.status === 'approved').reduce((acc, c) => acc + (c.balance || 0), 0)).toFixed(2)}</p>
               </div>
             </div>
 
             {/* Cards List */}
-            <div className="space-y-6">
+            <div className="space-y-4 mobile:space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-bold text-navy-900">Your Cards</h3>
-                <button 
+                <h3 className="text-lg mobile:text-xl font-bold text-navy-900">Your Cards</h3>
+                <button
                   onClick={() => setView('apply')}
                   className="flex items-center space-x-2 text-gold-600 font-bold hover:text-gold-500 transition-colors"
                 >
-                  <Plus className="w-4 h-4" /> <span>New Card</span>
+                  <Plus className="w-4 h-4" /> <span className="text-xs mobile:text-base">New Card</span>
                 </button>
               </div>
 
@@ -283,20 +283,17 @@ const VirtualCardsSection = () => {
                     <div key={card._id} className="group relative">
                       <div className={`relative bg-gradient-to-br transition-all duration-500 ${card.cardLevel === 'black' ? 'from-gray-800 to-black' : card.cardLevel === 'platinum' ? 'from-gray-300 to-gray-500' : card.cardLevel === 'gold' ? 'from-gold-400 to-gold-600' : 'from-navy-800 to-navy-900'} rounded-3xl p-6 mobile:p-8 aspect-[1.58/1] shadow-xl overflow-hidden text-white flex flex-col justify-between border border-white/10`}>
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                        
+
                         <div className="flex justify-between items-start relative z-10">
-                          <div className="w-14 h-10 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center border border-white/20">
-                            <CreditCard className={`w-8 h-8 ${card.cardLevel === 'platinum' || card.cardLevel === 'standard' ? 'text-white' : 'text-navy-900/40'}`} />
+                          <div className="w-8 h-8 flex-col rounded-lg flex items-start">
+                            <p className="text-[8px] font-black tracking-widest opacity-60">VIRTUAL</p>
+                            <p className={`text-xs font-black uppercase tracking-widest ${card.cardLevel === 'gold' ? 'text-navy-900' : 'text-gold-500'}`}>{card.cardLevel}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-[10px] font-black tracking-widest opacity-60">VIRTUAL</p>
-                            <p className={`text-xs font-black uppercase tracking-widest ${card.cardLevel === 'gold' ? 'text-navy-900' : 'text-gold-500'}`}>{card.cardLevel}</p>
-                            <div className="mt-2 text-right">
-                              <p className="text-[8px] opacity-60 uppercase tracking-widest leading-none mb-1">Balance</p>
-                              <p className={`text-lg font-black font-mono ${(card.cardLevel === 'platinum' || card.cardLevel === 'standard') ? 'text-white' : (card.cardLevel === 'gold' ? 'text-navy-900' : 'text-gold-500')}`}>
-                                ${ (card.balance || 0).toFixed(2) }
-                              </p>
-                            </div>
+                            <p className="text-[8px] opacity-60 uppercase tracking-widest leading-none mb-1">Balance</p>
+                            <p className={`text-base font-black font-mono ${(card.cardLevel === 'platinum' || card.cardLevel === 'standard') ? 'text-white' : (card.cardLevel === 'gold' ? 'text-navy-900' : 'text-gold-500')}`}>
+                              ${(card.balance || 0).toFixed(2)}
+                            </p>
                           </div>
                         </div>
 
@@ -344,13 +341,13 @@ const VirtualCardsSection = () => {
 
                         {card.status === 'approved' && (
                           <div className="absolute inset-0 bg-navy-900/60 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 z-20">
-                            <button 
+                            <button
                               onClick={() => toggleReveal(card._id)}
                               className="px-5 py-2.5 bg-gold-500 text-navy-900 rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-transform"
                             >
                               {revealedCards[card._id] ? 'Hide' : 'Reveal'}
                             </button>
-                            <button 
+                            <button
                               onClick={() => setTopUpModalCard(card)}
                               className="px-5 py-2.5 bg-white text-navy-900 rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-transform"
                             >
@@ -373,13 +370,13 @@ const VirtualCardsSection = () => {
                   ))}
                 </div>
               ) : (
-                <div className="space-y-4 text-center py-12 bg-white rounded-3xl border border-dashed border-gray-200">
-                  <div className="w-16 h-16 bg-navy-50 text-navy-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CreditCard className="w-8 h-8" />
+                <div className="space-y-4 text-center py-8 mobile:py-12 bg-white rounded-2xl mobile:rounded-3xl border border-dashed border-gray-200">
+                  <div className="w-12 h-12 mobile:w-16 mobile:h-16 bg-navy-50 text-navy-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CreditCard className="w-6 h-6 mobile:w-8 mobile:h-8" />
                   </div>
-                  <h3 className="text-xl font-bold text-navy-900">No cards yet</h3>
-                  <p className="text-gray-500 max-w-sm mx-auto mb-8">You haven't applied for any virtual cards yet. Apply for a new card to get started with secure online payments.</p>
-                  <button 
+                  <h3 className="text-lg mobile:text-xl font-bold text-navy-900">No cards yet</h3>
+                  <p className="text-gray-500 max-w-sm mx-auto mb-4 mobile:mb-8 text-xs mobile:text-sm px-4">You haven't applied for any virtual cards yet. Apply for a new card to get started with secure online payments.</p>
+                  <button
                     onClick={() => setView('apply')}
                     className="px-6 py-2.5 bg-navy-900 text-gold-500 rounded-xl font-bold hover:bg-navy-800 transition-colors"
                   >
@@ -391,7 +388,7 @@ const VirtualCardsSection = () => {
 
             {/* How it works */}
             <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-navy-900">How Virtual Cards Work</h3>
+              <h3 className="text-lg font-bold text-navy-900">How Virtual Cards Work</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {[
                   { step: 1, name: 'Apply', desc: 'Complete the application form for your virtual card. Select your preferred card type and set your spending limits.' },
@@ -400,25 +397,25 @@ const VirtualCardsSection = () => {
                 ].map(s => (
                   <div key={s.step} className="bg-white p-8 rounded-2xl border border-gray-100 relative shadow-sm h-full">
                     <span className="absolute top-4 right-4 text-6xl font-black text-gold-500/10">{s.step}</span>
-                    <h4 className="text-xl font-bold text-navy-900 mb-3">{s.name}</h4>
-                    <p className="text-sm text-gray-500 leading-relaxed">{s.desc}</p>
+                    <h4 className="text-lg font-bold text-navy-900 mb-3">{s.name}</h4>
+                    <p className="text-xs text-gray-500 leading-relaxed">{s.desc}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* FAQ */}
-            <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-navy-900">Frequently Asked Questions</h3>
+            <div className="space-y-4 mobile:space-y-6">
+              <h3 className="text-lg mobile:text-2xl font-bold text-navy-900">Frequently Asked Questions</h3>
               <div className="space-y-3">
                 {faqs.map((f, i) => (
                   <div key={i} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                    <button 
+                    <button
                       onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                      className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+                      className="w-full px-4 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
                     >
-                      <span className="font-bold text-navy-900">{f.q}</span>
-                      {openFaq === i ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                      <span className="font-bold text-sm mobile:text-base text-navy-900">{f.q}</span>
+                      {openFaq === i ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>
                     <AnimatePresence>
                       {openFaq === i && (
@@ -426,7 +423,7 @@ const VirtualCardsSection = () => {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          className="px-6 pb-4 text-sm text-gray-500 leading-relaxed"
+                          className="px-4 pb-4 text-xs mobile:text-sm text-gray-500 leading-relaxed"
                         >
                           {f.a}
                         </motion.div>
@@ -445,19 +442,19 @@ const VirtualCardsSection = () => {
             exit={{ opacity: 0, x: -20 }}
             className="max-w-4xl mx-auto space-y-8"
           >
-            <button 
+            <button
               onClick={() => setView('overview')}
               className="flex items-center text-gold-600 font-bold hover:-translate-x-1 transition-transform mb-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" /> Back to Cards
             </button>
 
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
-              <div className="bg-navy-900 p-8 text-white relative h-48 flex items-end">
+            <div className="bg-white rounded-2xl mobile:rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
+              <div className="bg-navy-900 p-5 mobile:p-8 text-white relative h-36 mobile:h-48 flex items-end">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full -mr-16 -mt-16 blur-xl"></div>
                 <div className="relative z-10">
-                  <h2 className="text-3xl font-bold mb-2">Apply for a Virtual Card</h2>
-                  <p className="text-gray-400">Get instant access to a virtual card for online payments and subscriptions</p>
+                  <h2 className="text-xl mobile:text-3xl font-bold mb-1 mobile:mb-2">Apply for a Virtual Card</h2>
+                  <p className="text-gray-400 text-xs mobile:text-sm">Get instant access to a virtual card for online payments and subscriptions</p>
                 </div>
                 <div className="absolute -bottom-10 right-8 transform rotate-12 hidden md:block">
                   <div className="bg-gradient-to-br from-navy-800 to-navy-900 border border-white/20 rounded-xl p-4 w-64 aspect-[1.58/1] shadow-2xl">
@@ -479,7 +476,7 @@ const VirtualCardsSection = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleApply} className="p-6 mobile:p-8 lg:p-12 space-y-8 mobile:space-y-10">
+              <form onSubmit={handleApply} className="p-4 mobile:p-8 lg:p-12 space-y-6 mobile:space-y-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                   {/* Column 1: Card Selection */}
                   <div className="space-y-8">
@@ -488,7 +485,7 @@ const VirtualCardsSection = () => {
                         <span className="w-8 h-8 bg-navy-50 text-navy-600 rounded-lg flex items-center justify-center mr-3 text-sm">1</span>
                         Card Selection
                       </h3>
-                      
+
                       <div className="space-y-6">
                         <div>
                           <label className="block text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">Card Type</label>
@@ -529,7 +526,7 @@ const VirtualCardsSection = () => {
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-bold text-gray-500 uppercase tracking-widest mb-2">Currency</label>
-                            <select 
+                            <select
                               value={currency}
                               onChange={(e) => setCurrency(e.target.value)}
                               className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-navy-900 text-sm font-semibold"
@@ -630,7 +627,7 @@ const VirtualCardsSection = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting || !agreeTerms || !cardLevel}
-                    className="w-full h-14 bg-navy-900 text-gold-500 rounded-2xl font-black text-lg uppercase tracking-widest hover:bg-navy-800 disabled:bg-gray-300 disabled:text-gray-500 transition-all shadow-xl shadow-navy-100 flex items-center justify-center space-x-3"
+                    className="w-full h-12 mobile:h-14 bg-navy-900 text-gold-500 rounded-2xl font-black text-sm mobile:text-lg uppercase tracking-widest hover:bg-navy-800 disabled:bg-gray-300 disabled:text-gray-500 transition-all shadow-xl shadow-navy-100 flex items-center justify-center space-x-3"
                   >
                     {isSubmitting ? (
                       <>
@@ -667,16 +664,16 @@ const VirtualCardsSection = () => {
       {topUpModalCard && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-navy-900/80 backdrop-blur-md" onClick={() => setTopUpModalCard(null)}></div>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className="relative bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300"
           >
-            <div className="p-8 mobile:p-10">
-              <div className="flex justify-between items-center mb-8">
+            <div className="p-6 mobile:p-8 mobile:p-10">
+              <div className="flex justify-between items-center mb-6 mobile:mb-8">
                 <div>
-                  <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter">Top Up Card</h3>
-                  <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Transfer from Main Balance</p>
+                  <h3 className="text-lg mobile:text-2xl font-black text-navy-900 uppercase tracking-tighter">Top Up Card</h3>
+                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Transfer from Main Balance</p>
                 </div>
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${topUpModalCard.cardLevel === 'black' ? 'bg-black text-gold-500' : 'bg-navy-900 text-gold-500'}`}>
                   <CreditCard className="w-6 h-6" />
@@ -698,7 +695,7 @@ const VirtualCardsSection = () => {
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Top-up Amount (USD)</label>
                   <div className="relative">
                     <span className="absolute left-5 top-1/2 -translate-y-1/2 text-xl font-black text-navy-900">$</span>
-                    <input 
+                    <input
                       required
                       type="number"
                       className="w-full h-16 pl-10 pr-6 bg-gray-50 border border-gray-100 rounded-2xl text-2xl font-black text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all"
@@ -716,14 +713,14 @@ const VirtualCardsSection = () => {
                 </div>
 
                 <div className="flex gap-4">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setTopUpModalCard(null)}
                     className="flex-1 h-14 bg-gray-100 text-gray-500 rounded-xl font-bold uppercase tracking-widest hover:bg-gray-200 transition-all"
                   >
                     Cancel
                   </button>
-                  <button 
+                  <button
                     type="submit"
                     disabled={isToppingUp || parseFloat(topUpAmount) <= 0 || parseFloat(topUpAmount) > (userProfile?.balances?.main || 0)}
                     className="flex-[2] h-14 bg-navy-900 text-gold-500 rounded-xl font-black uppercase tracking-widest hover:bg-navy-800 transition-all shadow-lg shadow-navy-100 disabled:bg-gray-200 disabled:text-gray-400"

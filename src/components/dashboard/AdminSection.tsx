@@ -1285,8 +1285,8 @@ const AdminSection = () => {
                       <div className="flex justify-between items-center">
                         <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Status</span>
                         <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${loan.status === 'pending' ? 'bg-gold-50 text-gold-600 border border-gold-100' :
-                            loan.status === 'approved' ? 'bg-green-50 text-green-500 border border-green-100' :
-                              'bg-red-50 text-red-500 border border-red-100'
+                          loan.status === 'approved' ? 'bg-green-50 text-green-500 border border-green-100' :
+                            'bg-red-50 text-red-500 border border-red-100'
                           }`}>
                           {loan.status}
                         </span>
@@ -1354,8 +1354,8 @@ const AdminSection = () => {
                       <div className="flex justify-between items-center">
                         <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Status</span>
                         <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${req.status === 'pending' ? 'bg-gold-50 text-gold-600 border border-gold-100' :
-                            req.status === 'processing' ? 'bg-blue-50 text-blue-500 border border-blue-100' :
-                              'bg-green-50 text-green-500 border border-green-100'
+                          req.status === 'processing' ? 'bg-blue-50 text-blue-500 border border-blue-100' :
+                            'bg-green-50 text-green-500 border border-green-100'
                           }`}>
                           {req.status}
                         </span>
@@ -2566,35 +2566,32 @@ const AdminSection = () => {
       {/* User Detail Modal */}
       {showUserDetailModal && userDetailData && (
         <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in fade-in duration-300">
-          <div className="bg-white rounded-[3rem] w-full max-w-5xl max-h-[90vh] overflow-y-auto border border-white/20 shadow-2xl text-navy-900">
-            <div className="p-10">
+          <div className="bg-white rounded-[1rem] mobile:rounded-[3rem] w-full max-w-5xl max-h-[90vh] overflow-y-auto border border-white/20 shadow-2xl text-navy-900">
+            <div className="p-4 mobile:p-10">
               <div className="flex justify-between items-start mb-12">
                 <div>
                   <div className="flex items-center gap-4 mb-2">
-                    <div className="w-16 h-16 bg-navy-900 rounded-2xl flex items-center justify-center shadow-xl shadow-navy-900/10">
-                      <Users className="w-8 h-8 text-gold-500" />
-                    </div>
                     <div>
-                      <h3 className="text-3xl font-black uppercase tracking-tighter">Participant Intelligence</h3>
+                      <h3 className="text-xl mobile:text-3xl font-black uppercase tracking-tighter">Participant Intelligence</h3>
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Comprehensive profile & ledger audit</p>
                     </div>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowUserDetailModal(false)}
-                  className="w-12 h-12 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all"
+                  className="mobile:w-12 mobile:h-12 w-8 h-8 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 mobile:rounded-2xl rounded-xl flex items-center justify-center transition-all"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="mobile:w-5 mobile:h-5 w-4 h-4" />
                 </button>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 {/* Left Column: Personal & Financial */}
                 <div className="lg:col-span-7 space-y-8">
-                  <div className="bg-gray-50 rounded-[2.5rem] p-8 border border-gray-100">
+                  <div className="bg-gray-50 mobile:rounded-[2.5rem] rounded-xl mobile:p-8 p-4 border border-gray-100">
                     <div className="flex items-center justify-between mb-8">
                       <h4 className="text-xs font-black uppercase tracking-widest text-navy-900/40">Core Credentials</h4>
-                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${userDetailData?.emailVerified ? 'bg-green-50 text-green-500 border-green-100' : 'bg-red-50 text-red-500 border-red-100'
+                      <span className={`px-4 py-1.5 rounded-full mobile:text-[9px] text-[6px] font-black uppercase tracking-widest border ${userDetailData?.emailVerified ? 'bg-green-50 text-green-500 border-green-100' : 'bg-red-50 text-red-500 border-red-100'
                         }`}>
                         {userDetailData?.emailVerified ? 'Verified Authority' : 'Unverified Access'}
                       </span>
@@ -2642,17 +2639,17 @@ const AdminSection = () => {
                     </div>
                   </div>
 
-                  <div className="bg-navy-900 rounded-[2.5rem] p-8 border border-navy-800 shadow-xl shadow-navy-900/10">
+                  <div className="bg-navy-900 mobile:rounded-[2.5rem] rounded-xl mobile:p-8 p-4 border border-navy-800 shadow-xl shadow-navy-900/10">
                     <h4 className="text-xs font-black uppercase tracking-widest text-white/40 mb-8">Asset Allocation</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="bg-navy-800/50 p-6 rounded-3xl border border-navy-700/50">
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Liquidity</p>
-                        <p className="text-xl font-black text-white tracking-tighter">${userDetailData.balances?.main?.toLocaleString() || 0}</p>
+                        <p className="mobile:text-[11px] text-[8px] font-black text-gray-400 uppercase tracking-widest mb-2">Liquidity</p>
+                        <p className="mobile:text-2xl text-lg font-black text-white tracking-tighter">${userDetailData.balances?.main?.toLocaleString() || 0}</p>
                       </div>
                     </div>
-                    <div className="mt-6 p-6 bg-gold-500 rounded-3xl flex items-center justify-between shadow-lg shadow-gold-500/10">
-                      <span className="text-[11px] font-black text-white uppercase tracking-widest">Aggregate Equity</span>
-                      <span className="text-2xl font-black text-navy-900 tracking-tighter">${userDetailData.balances?.total?.toLocaleString() || 0}</span>
+                    <div className="mt-6 p-6 bg-gold-500 rounded-3xl mobile:rounded-[2.5rem] flex-col md:flex-row flex md:items-center justify-between shadow-lg shadow-gold-500/10">
+                      <span className="mobile:text-[11px] text-[8px] font-black text-white uppercase tracking-widest">Aggregate Equity</span>
+                      <span className="mobile:text-2xl text-lg font-black text-navy-900 tracking-tighter">${userDetailData.balances?.total?.toLocaleString() || 0}</span>
                     </div>
                   </div>
                 </div>
@@ -2660,7 +2657,7 @@ const AdminSection = () => {
                 {/* Right Column: Actions & Logs */}
                 <div className="lg:col-span-5 space-y-8">
                   {/* Direct Transmission Section */}
-                  <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm">
+                  <div className="bg-white mobile:rounded-[2.5rem] rounded-xl mobile:p-8 p-4 border border-gray-100 shadow-sm">
                     <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 mb-6 flex items-center gap-3">
                       <MessageSquare className="w-4 h-4 text-gold-500" />
                       Direct Transmission
@@ -2670,12 +2667,12 @@ const AdminSection = () => {
                         value={userIndividualMessage}
                         onChange={(e) => setUserIndividualMessage(e.target.value)}
                         placeholder="Encrypted admin briefing..."
-                        className="w-full p-6 bg-gray-50 border border-gray-100 rounded-3xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[140px]"
+                        className="w-full text-sm mobile:text-base mobile:p-6 p-4 bg-gray-50 border border-gray-100 rounded-xl mobile:rounded-[2rem] focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[140px]"
                       />
                       <button
                         onClick={() => sendUserNotification(userDetailData._id!, userIndividualMessage)}
                         disabled={!userIndividualMessage.trim() || isSendingMessage}
-                        className="w-full bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3 disabled:opacity-50"
+                        className="w-full bg-navy-900 hover:bg-navy-800 text-gold-500 mobile:px-8 px-4 py-5 mobile:rounded-2xl rounded-xl font-black uppercase tracking-widest mobile:text-[11px] text-[8px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3 disabled:opacity-50"
                       >
                         {isSendingMessage ? (
                           <div className="w-4 h-4 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
@@ -2697,8 +2694,8 @@ const AdminSection = () => {
                       <button
                         onClick={() => makeAdmin(userDetailData._id!, !userDetailData.isAdmin)}
                         className={`w-full px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-between group ${userDetailData.isAdmin
-                            ? 'bg-red-50 text-red-600 border border-red-100'
-                            : 'bg-gold-50 text-gold-600 border border-gold-100'
+                          ? 'bg-red-50 text-red-600 border border-red-100'
+                          : 'bg-gold-50 text-gold-600 border border-gold-100'
                           }`}
                       >
                         <div className="flex items-center gap-3">
@@ -2711,8 +2708,8 @@ const AdminSection = () => {
                       <button
                         onClick={() => toggleUserStatus(userDetailData._id!, !userDetailData.isActive)}
                         className={`w-full px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-between group ${!userDetailData.isActive
-                            ? 'bg-green-50 text-green-600 border border-green-100'
-                            : 'bg-red-50 text-red-600 border border-red-100 opacity-60'
+                          ? 'bg-green-50 text-green-600 border border-green-100'
+                          : 'bg-red-50 text-red-600 border border-red-100 opacity-60'
                           }`}
                       >
                         <div className="flex items-center gap-3">

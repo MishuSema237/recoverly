@@ -31,15 +31,15 @@ const ProfileSection = () => {
   const fullName = `${userProfile?.firstName || ''} ${userProfile?.lastName || ''}`.trim().toLowerCase() || 'metro boominati';
 
   return (
-    <div className="animate-in fade-in duration-700">
+    <div className="animate-in fade-in duration-700 px-0 py-4 mobile:px-0 mobile:py-0">
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mobile:gap-8">
         {/* Left Sidebar Column */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-4 mobile:space-y-6">
           {/* User Profile Card */}
-          <div className="bg-[#0b1626] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-navy-900/40 border border-white/5">
+          <div className="bg-[#0b1626] rounded-2xl mobile:rounded-[2.5rem] overflow-hidden shadow-2xl shadow-navy-900/40 border border-white/5">
             {/* Header with Pattern */}
-            <div className="h-32 bg-gradient-to-br from-gold-600/30 via-gold-500/10 to-transparent relative overflow-hidden flex items-center justify-center">
+            <div className="h-24 mobile:h-32 bg-gradient-to-br from-gold-600/30 via-gold-500/10 to-transparent relative overflow-hidden flex items-center justify-center">
               <div className="absolute inset-0 opacity-10">
                 <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                   <path d="M0,50 Q25,30 50,50 T100,50 V100 H0 Z" fill="currentColor" className="text-gold-500" />
@@ -53,16 +53,16 @@ const ProfileSection = () => {
             </div>
 
             {/* User Details */}
-            <div className="px-8 pb-10 -mt-16 relative z-10 text-center">
-              <div className="inline-flex relative mb-6">
-                <div className="w-32 h-32 bg-gradient-to-tr from-gold-600 to-gold-400 rounded-full border-[8px] border-[#0b1626] flex items-center justify-center text-5xl font-black text-navy-900 shadow-2xl">
+            <div className="px-5 mobile:px-8 pb-8 mobile:pb-10 -mt-14 mobile:-mt-16 relative z-10 text-center">
+              <div className="inline-flex relative mb-4 mobile:mb-6">
+                <div className="w-24 h-24 mobile:w-32 mobile:h-32 bg-gradient-to-tr from-gold-600 to-gold-400 rounded-full border-[6px] mobile:border-[8px] border-[#0b1626] flex items-center justify-center text-3xl mobile:text-5xl font-black text-navy-900 shadow-2xl">
                   {initials}
                 </div>
-                <div className="absolute bottom-2 right-2 w-10 h-10 bg-white rounded-full border-4 border-[#0b1626] flex items-center justify-center shadow-lg">
-                  <Zap className="w-4 h-4 text-gold-600" />
+                <div className="absolute bottom-2 right-2 w-8 h-8 mobile:w-10 mobile:h-10 bg-white rounded-full border-4 border-[#0b1626] flex items-center justify-center shadow-lg">
+                  <Zap className="w-3 h-3 mobile:w-4 mobile:h-4 text-gold-600" />
                 </div>
               </div>
-              <h3 className="text-2xl font-black text-white lowercase tracking-tight mb-1">{fullName}</h3>
+              <h3 className="text-lg mobile:text-2xl font-black text-white lowercase tracking-tight mb-1">{fullName}</h3>
               <p className="text-[11px] font-black text-gold-500 uppercase tracking-[0.2em] opacity-80">Account #{userProfile?.userCode || 'L853E8PR'}</p>
             </div>
 
@@ -83,12 +83,12 @@ const ProfileSection = () => {
           </div>
 
           {/* Help Card */}
-          <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm group">
-            <div className="w-12 h-12 bg-gold-50 text-gold-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <HelpCircle className="w-6 h-6" />
+          <div className="bg-white rounded-2xl mobile:rounded-[2.5rem] p-5 mobile:p-8 border border-gray-100 shadow-sm group">
+            <div className="w-10 h-10 mobile:w-12 mobile:h-12 bg-gold-50 text-gold-600 rounded-2xl flex items-center justify-center mb-4 mobile:mb-6 group-hover:scale-110 transition-transform">
+              <HelpCircle className="w-5 h-5 mobile:w-6 mobile:h-6" />
             </div>
-            <h4 className="text-lg font-black text-navy-900 uppercase tracking-tight mb-2">Need Help?</h4>
-            <p className="text-xs text-gray-400 font-medium leading-relaxed mb-6">
+            <h4 className="text-base mobile:text-lg font-black text-navy-900 uppercase tracking-tight mb-2">Need Help?</h4>
+            <p className="text-xs text-gray-400 font-medium leading-relaxed mb-4 mobile:mb-6">
               Contact our support team if you need assistance with your account settings or have any questions.
             </p>
             <button className="flex items-center gap-2 text-gold-600 font-black uppercase tracking-widest text-[10px] hover:gap-4 transition-all group/btn">
@@ -100,22 +100,22 @@ const ProfileSection = () => {
 
         {/* Right Content Column */}
         <div className="lg:col-span-8">
-          <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col">
+          <div className="bg-white rounded-2xl mobile:rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col">
             {/* Content Header */}
-            <div className="p-8 mobile:p-10 border-b border-gray-50 bg-gray-50/30">
-              <h3 className="text-xl font-black text-navy-900 uppercase tracking-tight flex items-center gap-3">
-                <div className="p-2.5 bg-navy-900 rounded-xl text-gold-500 shadow-lg shadow-navy-900/10">
-                  <ShieldCheck className="w-6 h-6" />
+            <div className="p-5 mobile:p-8 mobile:p-10 border-b border-gray-50 bg-gray-50/30">
+              <h3 className="text-base mobile:text-xl font-black text-navy-900 uppercase tracking-tight flex items-center gap-3">
+                <div className="p-2 mobile:p-2.5 bg-navy-900 rounded-xl text-gold-500 shadow-lg shadow-navy-900/10">
+                  <ShieldCheck className="w-5 h-5 mobile:w-6 mobile:h-6" />
                 </div>
                 Profile Information
               </h3>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-2">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">
                 Your personal credentials and validated account details
               </p>
             </div>
 
             {/* Information Grid */}
-            <div className="p-8 mobile:p-10 space-y-8 flex-1">
+            <div className="p-5 mobile:p-8 mobile:p-10 space-y-5 mobile:space-y-8 flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* First Name */}
                 <div className="space-y-2">
@@ -197,7 +197,7 @@ const ProfileSection = () => {
                     <input
                       disabled
                       value={userProfile?.phone || 'Not provided'}
-                      className="w-full pl-12 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-navy-900 cursor-not-allowed"
+                      className="w-full pl-10 mobile:pl-12 pr-6 py-3 mobile:py-4 bg-gray-50 border border-gray-100 rounded-2xl text-xs mobile:text-sm font-bold text-navy-900 cursor-not-allowed"
                     />
                   </div>
                 </div>

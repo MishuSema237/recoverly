@@ -87,27 +87,27 @@ const TransactionsHub = ({ setActiveSection }: { setActiveSection: (s: string) =
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto">
       {[
-        { id: 'transfer', name: 'Send Money', icon: <Send className="w-5 h-5" />, desc: 'Transfer funds securely', color: 'text-gold-500 bg-gold-500/5' },
-        { id: 'deposit', name: 'Deposit', icon: <Plus className="w-5 h-5" />, desc: 'Add funds to your account', color: 'text-gold-500 bg-gold-500/5' },
-        { id: 'withdraw', name: 'Withdrawal', icon: <ArrowUpDown className="w-5 h-5" />, desc: 'Request your earnings', color: 'text-gold-500 bg-gold-500/5' },
-        { id: 'logs', name: 'History', icon: <History className="w-5 h-5" />, desc: 'Detailed transaction logs', color: 'text-gold-500 bg-gold-500/5' },
+        { id: 'transfer', name: 'Send Money', icon: <Send className="w-4 mobile:w-5 h-4 mobile:h-5" />, desc: 'Transfer funds securely', color: 'text-gold-500 bg-gold-500/5' },
+        { id: 'deposit', name: 'Deposit', icon: <Plus className="w-4 mobile:w-5 h-4 mobile:h-5" />, desc: 'Add funds to your account', color: 'text-gold-500 bg-gold-500/5' },
+        { id: 'withdraw', name: 'Withdrawal', icon: <ArrowUpDown className="w-4 mobile:w-5 h-4 mobile:h-5" />, desc: 'Request your earnings', color: 'text-gold-500 bg-gold-500/5' },
+        { id: 'logs', name: 'History', icon: <History className="w-4 mobile:w-5 h-4 mobile:h-5" />, desc: 'Detailed transaction logs', color: 'text-gold-500 bg-gold-500/5' },
       ].map((item) => (
         <button
           key={item.id}
           onClick={() => handleAction(item.id)}
-          className="w-full flex items-center justify-between p-6 bg-white rounded-3xl border border-gray-100 hover:border-gold-500/30 hover:shadow-xl hover:shadow-navy-900/5 transition-all group active:scale-[0.98]"
+          className="w-full flex items-center justify-between p-4 mobile:p-6 bg-white rounded-xl mobile:rounded-3xl border border-gray-100 hover:border-gold-500/30 hover:shadow-xl hover:shadow-navy-900/5 transition-all group active:scale-[0.98]"
         >
           <div className="flex items-center gap-5">
-            <div className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+            <div className={`w-8 h-8 ${item.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
               {item.icon}
             </div>
             <div className="text-left">
-              <h4 className="text-base font-black text-navy-900 uppercase tracking-tight leading-none mb-1.5">{item.name}</h4>
-              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{item.desc}</p>
+              <h4 className="text-xs mobile:text-base font-black text-navy-900 uppercase tracking-tight leading-none mb-1.5">{item.name}</h4>
+              <p className="text-[8px] mobile:text-[10px] text-gray-400 font-black uppercase tracking-widest">{item.desc}</p>
             </div>
           </div>
-          <div className="w-10 h-10 rounded-full bg-navy-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0">
-            <ChevronRight className="w-5 h-5 text-navy-600" />
+          <div className="w-8 mobile:w-10 h-8 mobile:h-10 rounded-full bg-navy-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0">
+            <ChevronRight className="w-4 mobile:w-5 h-4 mobile:h-5 text-navy-600" />
           </div>
         </button>
       ))}
@@ -137,24 +137,24 @@ const AccountHub = ({ setActiveSection }: { setActiveSection: (s: string) => voi
         <button
           key={item.id}
           onClick={() => setActiveSection(item.id)}
-          className={`w-full flex items-center justify-between p-6 rounded-3xl border transition-all group active:scale-[0.98] ${item.id === 'profile' ? 'bg-[#0b1626] border-white/5 shadow-2xl shadow-navy-900/10' : 'bg-white border-gray-100 shadow-sm hover:border-gold-500/30'
+          className={`w-full flex items-center justify-between p-4 mobile:p-6 rounded-xl mobile:rounded-3xl border transition-all group active:scale-[0.98] ${item.id === 'profile' ? 'bg-[#0b1626] border-white/5 shadow-2xl shadow-navy-900/10' : 'bg-white border-gray-100 shadow-sm hover:border-gold-500/30'
             }`}
         >
           <div className="flex items-center gap-5">
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform ${item.id === 'profile' ? 'bg-white/5 text-gold-500' : item.id === 'admin' ? 'bg-gold-50 text-gold-600' : 'bg-navy-50 text-navy-900'
+            <div className={`w-8 mobile:w-14 h-8 mobile:h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform ${item.id === 'profile' ? 'bg-white/5 text-gold-500' : item.id === 'admin' ? 'bg-gold-50 text-gold-600' : 'bg-navy-50 text-navy-900'
               }`}>
               {item.icon}
             </div>
             <div className="text-left">
-              <h4 className={`text-base font-black uppercase tracking-tight leading-none mb-1.5 ${item.id === 'profile' ? 'text-gold-500' : 'text-navy-900'
+              <h4 className={`text-xs mobile:text-base font-black uppercase tracking-tight leading-none mb-1.5 ${item.id === 'profile' ? 'text-gold-500' : 'text-navy-900'
                 }`}>{item.name}</h4>
-              <p className={`text-[10px] font-black uppercase tracking-widest ${item.id === 'profile' ? 'text-white/40' : 'text-gray-400'
+              <p className={`text-[8px] mobile:text-[10px] font-black uppercase tracking-widest ${item.id === 'profile' ? 'text-white/40' : 'text-gray-400'
                 }`}>{item.desc}</p>
             </div>
           </div>
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0 ${item.id === 'profile' ? 'bg-white/5' : 'bg-navy-50'
+          <div className={`w-8 mobile:w-10 h-8 mobile:h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0 ${item.id === 'profile' ? 'bg-white/5' : 'bg-navy-50'
             }`}>
-            <ChevronRight className={`w-5 h-5 ${item.id === 'profile' ? 'text-gold-500' : 'text-navy-600'}`} />
+            <ChevronRight className={`w-4 mobile:w-5 h-4 mobile:h-5 ${item.id === 'profile' ? 'text-gold-500' : 'text-navy-600'}`} />
           </div>
         </button>
       ))}
@@ -180,23 +180,24 @@ const ServicesHub = ({ setActiveSection }: { setActiveSection: (s: string) => vo
         { id: 'cards', name: 'Virtual Cards', icon: <CreditCard className="w-5 h-5" />, desc: 'Secure online payments', color: 'text-gold-500 bg-gold-500/5' },
         { id: 'loans', name: 'Loan Services', icon: <Briefcase className="w-5 h-5" />, desc: 'Financial assistance', color: 'text-gold-500 bg-gold-500/5' },
         { id: 'tax-refund', name: 'IRS Tax Refund', icon: <FileText className="w-5 h-5" />, desc: 'Tax rebate claims', color: 'text-gold-500 bg-gold-500/5' },
+        { id: 'recovery', name: 'Asset Recovery', icon: <Shield className="w-5 h-5" />, desc: 'Recover lost assets', color: 'text-gold-500 bg-gold-500/5' },
       ].map((item) => (
         <button
           key={item.id}
           onClick={() => handleAction(item.id)}
-          className="w-full flex items-center justify-between p-6 bg-white rounded-3xl border border-gray-100 hover:border-gold-500/30 hover:shadow-xl hover:shadow-navy-900/5 transition-all group active:scale-[0.98]"
+          className="w-full flex items-center justify-between p-4 mobile:p-6 bg-white rounded-xl mobile:rounded-3xl border border-gray-100 hover:border-gold-500/30 hover:shadow-xl hover:shadow-navy-900/5 transition-all group active:scale-[0.98]"
         >
           <div className="flex items-center gap-5">
-            <div className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+            <div className={`w-8 mobile:w-14 h-8 mobile:h-14 ${item.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
               {item.icon}
             </div>
             <div className="text-left">
-              <h4 className="text-base font-black text-navy-900 uppercase tracking-tight leading-none mb-1.5">{item.name}</h4>
-              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{item.desc}</p>
+              <h4 className="text-xs mobile:text-base font-black text-navy-900 uppercase tracking-tight leading-none mb-1.5">{item.name}</h4>
+              <p className="text-[8px] mobile:text-[10px] text-gray-400 font-black uppercase tracking-widest">{item.desc}</p>
             </div>
           </div>
-          <div className="w-10 h-10 rounded-full bg-navy-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0">
-            <ChevronRight className="w-5 h-5 text-navy-600" />
+          <div className="w-8 mobile:w-10 h-8 mobile:h-10 rounded-full bg-navy-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0">
+            <ChevronRight className="w-4 mobile:w-5 h-4 mobile:h-5 text-navy-600" />
           </div>
         </button>
       ))}
@@ -578,9 +579,9 @@ const DashboardContent = () => {
                   <Image
                     src="/RecoverlyLogo.png"
                     alt="Recoverly Trust Bank"
-                    width={160}
-                    height={40}
-                    className="h-6 mobile:h-8 w-auto object-contain"
+                    width={200}
+                    height={56}
+                    className="h-12 mobile:h-14 w-auto object-contain"
                     priority
                   />
                 </div>
@@ -1003,12 +1004,6 @@ const DashboardContent = () => {
                       )}
                       <div className="flex items-center justify-between">
                         <h2 className="text-xl mobile:text-2xl font-bold text-navy-900 flex items-center">
-                          <span className="w-10 h-10 bg-gold-50 text-gold-600 rounded-xl flex items-center justify-center mr-3 scale-90 mobile:scale-100">
-                            {isSubSection
-                              ? (activeSection === 'deposit' ? <ArrowDownUp /> : activeSection === 'withdraw' ? <ArrowUpDown /> : activeSection === 'transfer' ? <Send /> : currentHub?.icon)
-                              : currentHub?.icon
-                            }
-                          </span>
                           {isSubSection
                             ? (
                               {

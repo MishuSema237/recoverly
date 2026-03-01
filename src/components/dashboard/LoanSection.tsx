@@ -4,16 +4,16 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Briefcase, 
-  Home, 
-  Car, 
-  Users, 
-  ShieldCheck, 
-  Zap, 
-  Clock, 
-  CheckCircle, 
-  ChevronRight, 
+import {
+  Briefcase,
+  Home,
+  Car,
+  Users,
+  ShieldCheck,
+  Zap,
+  Clock,
+  CheckCircle,
+  ChevronRight,
   ArrowLeft,
   Info,
   DollarSign,
@@ -46,18 +46,18 @@ interface InfoViewProps {
 }
 
 const InfoView = ({ onApply, openFaq, setOpenFaq }: InfoViewProps) => (
-  <div className="space-y-12">
+  <div className="space-y-8 mobile:space-y-12">
     {/* Hero Header */}
-    <div className="bg-[#0b1626] rounded-3xl p-6 mobile:p-12 text-white relative overflow-hidden border border-gold-500/20">
+    <div className="bg-[#0b1626] rounded-2xl mobile:rounded-3xl p-5 mobile:p-12 text-white relative overflow-hidden border border-gold-500/20">
       <div className="absolute top-0 right-0 w-96 h-96 bg-gold-500/10 rounded-full -mr-48 -mt-48 blur-3xl"></div>
       <div className="relative z-10 text-center lg:text-left">
-        <h2 className="text-3xl mobile:text-5xl font-black mb-6 tracking-tight">Loan Services</h2>
-        <p className="text-gray-400 text-lg mobile:text-xl max-w-2xl leading-relaxed mb-8">
+        <h2 className="text-2xl mobile:text-5xl font-black mb-3 mobile:mb-6 tracking-tight">Loan Services</h2>
+        <p className="text-gray-400 text-sm mobile:text-xl max-w-2xl leading-relaxed mb-5 mobile:mb-8">
           Financial solutions to help you achieve your goals. High-speed approvals with competitive rates tailored for you.
         </p>
-        <button 
+        <button
           onClick={onApply}
-          className="px-10 py-4 bg-gold-500 text-navy-900 rounded-2xl font-black uppercase tracking-widest hover:bg-gold-400 transition-all shadow-xl shadow-gold-500/20 active:scale-95"
+          className="px-6 mobile:px-10 py-3 mobile:py-4 bg-gold-500 text-navy-900 rounded-xl mobile:rounded-2xl font-black uppercase tracking-widest hover:bg-gold-400 transition-all shadow-xl shadow-gold-500/20 active:scale-95 text-sm mobile:text-base"
         >
           Apply for a Loan
         </button>
@@ -65,8 +65,8 @@ const InfoView = ({ onApply, openFaq, setOpenFaq }: InfoViewProps) => (
     </div>
 
     {/* Why Choose Us */}
-    <div className="space-y-8">
-      <h3 className="text-2xl font-black text-navy-900 text-center uppercase tracking-tight">Why Choose Our Loan Services</h3>
+    <div className="space-y-5 mobile:space-y-8">
+      <h3 className="text-lg mobile:text-2xl font-black text-navy-900 text-center uppercase tracking-tight">Why Choose Our Loan Services</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           { title: 'Quick Approval', icon: <Zap className="w-6 h-6 text-gold-500" />, desc: 'Get a decision within hours and funds within days' },
@@ -74,8 +74,8 @@ const InfoView = ({ onApply, openFaq, setOpenFaq }: InfoViewProps) => (
           { title: 'Simple Process', icon: <Clock className="w-6 h-6 text-gold-500" />, desc: 'Straightforward application with minimal paperwork' },
           { title: 'Secure & Confidential', icon: <ShieldCheck className="w-6 h-6 text-gold-500" />, desc: 'Your information is protected with bank-level security' },
         ].map((item, i) => (
-          <div key={i} className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
-            <div className="w-12 h-12 bg-gold-50 rounded-2xl flex items-center justify-center mb-6">
+          <div key={i} className="bg-white p-4 rounded-lg mobile:p-8 mobile:rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+            <div className="w-8 h-8 mobile:w-12 mobile:h-12 bg-gold-50 rounded-lg flex items-center justify-center mb-6">
               {item.icon}
             </div>
             <h4 className="font-black text-navy-900 mb-3 uppercase tracking-tight text-sm">{item.title}</h4>
@@ -86,24 +86,24 @@ const InfoView = ({ onApply, openFaq, setOpenFaq }: InfoViewProps) => (
     </div>
 
     {/* Loan Types */}
-    <div className="space-y-8">
+    <div className="space-y-5 mobile:space-y-8">
       <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tight">Available Loan Types</h3>
+        <h3 className="text-lg mobile:text-2xl font-black text-navy-900 uppercase tracking-tight">Available Loan Types</h3>
         <button className="text-gold-600 font-black text-xs uppercase tracking-widest hover:text-gold-500 flex items-center gap-2">
           View all <ChevronRight className="w-4 h-4" />
         </button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loanTypes.map((loan) => (
-          <div key={loan.id} className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:border-gold-500/30 group transition-all cursor-pointer">
+          <div key={loan.id} className="bg-white mobile:p-8 p-4 mobile:rounded-3xl rounded-lg border border-gray-100 shadow-sm hover:border-gold-500/30 group transition-all cursor-pointer">
             <div className="flex items-center space-x-4 mb-6">
-              <div className="w-12 h-12 bg-navy-50 text-navy-600 rounded-2xl flex items-center justify-center group-hover:bg-navy-900 group-hover:text-gold-500 transition-colors">
+              <div className="mobile:w-12 mobile:h-12 w-8 h-8 bg-navy-50 text-navy-600 mobile:rounded-2xl rounded-lg flex items-center justify-center group-hover:bg-navy-900 group-hover:text-gold-500 transition-colors">
                 {loan.icon}
               </div>
               <h4 className="font-black text-navy-900 uppercase tracking-tight text-sm">{loan.name}</h4>
             </div>
             <p className="text-gray-500 text-xs leading-relaxed mb-6">{loan.desc}</p>
-            <button 
+            <button
               onClick={onApply}
               className="text-navy-900 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 group-hover:text-gold-600"
             >
@@ -115,8 +115,8 @@ const InfoView = ({ onApply, openFaq, setOpenFaq }: InfoViewProps) => (
     </div>
 
     {/* How it works */}
-    <div className="bg-white rounded-[2.5rem] p-6 mobile:p-12 border border-gray-100 shadow-sm">
-      <h3 className="text-2xl font-black text-navy-900 text-center uppercase tracking-tight mb-12">How It Works</h3>
+    <div className="bg-white rounded-2xl mobile:rounded-[2.5rem] p-5 mobile:p-12 border border-gray-100 shadow-sm">
+      <h3 className="text-lg mobile:text-2xl font-black text-navy-900 text-center uppercase tracking-tight mb-6 mobile:mb-12">How It Works</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
         <div className="hidden md:block absolute top-12 left-[20%] right-[20%] h-px bg-dashed border-t-2 border-dashed border-gray-100"></div>
         {[
@@ -125,7 +125,7 @@ const InfoView = ({ onApply, openFaq, setOpenFaq }: InfoViewProps) => (
           { step: '3', title: 'Approval & Disbursement', desc: 'Once approved, the loan amount will be transferred to your account' },
         ].map((item, i) => (
           <div key={i} className="text-center relative z-10">
-            <div className="w-16 h-16 bg-navy-900 text-gold-500 rounded-3xl flex items-center justify-center text-2xl font-black mx-auto mb-8 shadow-xl shadow-navy-900/10">
+            <div className="mobile:w-16 mobile:h-16 w-12 h-12 bg-navy-900 text-gold-500 rounded-3xl flex items-center justify-center text-2xl font-black mx-auto mb-8 shadow-xl shadow-navy-900/10">
               {item.step}
             </div>
             <h4 className="font-black text-navy-900 uppercase tracking-tight mb-4">{item.title}</h4>
@@ -143,12 +143,12 @@ const InfoView = ({ onApply, openFaq, setOpenFaq }: InfoViewProps) => (
         { q: "How long does approval take?", a: "Standard applications are typically processed within 1-3 business days, depending on verification requirements." }
       ].map((faq, i) => (
         <div key={i} className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-          <button 
+          <button
             onClick={() => setOpenFaq(openFaq === i ? null : i)}
-            className="w-full flex items-center justify-between p-6 text-left"
+            className="w-full flex items-center justify-between p-4 mobile:p-6 text-left"
           >
-            <span className="font-bold text-navy-900">{faq.q}</span>
-            <ChevronRight className={`w-5 h-5 transition-transform ${openFaq === i ? 'rotate-90' : ''}`} />
+            <span className="font-bold text-sm text-navy-900">{faq.q}</span>
+            <ChevronRight className={`mobile:w-5 mobile:h-5 w-4 h-4 transition-transform ${openFaq === i ? 'rotate-90' : ''}`} />
           </button>
           <AnimatePresence>
             {openFaq === i && (
@@ -158,7 +158,7 @@ const InfoView = ({ onApply, openFaq, setOpenFaq }: InfoViewProps) => (
                 exit={{ height: 0 }}
                 className="overflow-hidden"
               >
-                <p className="px-6 pb-6 text-gray-500 text-sm leading-relaxed">{faq.a}</p>
+                <p className="mobile:px-6 px-4 pb-6 text-gray-500 text-xs mobile:text-sm leading-relaxed">{faq.a}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -170,12 +170,12 @@ const InfoView = ({ onApply, openFaq, setOpenFaq }: InfoViewProps) => (
     </div>
 
     {/* Footer Call to Action */}
-    <div className="text-center py-12 px-8 bg-gold-50 rounded-[2.5rem] border border-gold-100">
-      <h3 className="text-2xl font-black text-navy-900 mb-4 uppercase tracking-tight">Ready to get started?</h3>
-      <p className="text-gray-600 mb-8 max-w-md mx-auto">Apply now and get a decision on your loan application quickly</p>
-      <button 
+    <div className="text-center py-8 mobile:py-12 px-5 mobile:px-8 bg-gold-50 rounded-2xl mobile:rounded-[2.5rem] border border-gold-100">
+      <h3 className="text-lg mobile:text-2xl font-black text-navy-900 mb-2 mobile:mb-4 uppercase tracking-tight">Ready to get started?</h3>
+      <p className="text-gray-600 mb-5 mobile:mb-8 max-w-md mx-auto text-sm">Apply now and get a decision on your loan application quickly</p>
+      <button
         onClick={onApply}
-        className="px-10 py-4 bg-navy-900 text-gold-500 rounded-2xl font-black uppercase tracking-widest hover:bg-navy-800 transition-all shadow-xl active:scale-95"
+        className="px-6 mobile:px-10 py-3 mobile:py-4 bg-navy-900 text-gold-500 rounded-xl mobile:rounded-2xl font-black uppercase tracking-widest hover:bg-navy-800 transition-all shadow-xl active:scale-95 text-sm mobile:text-base"
       >
         Apply for a Loan
       </button>
@@ -219,7 +219,7 @@ const ApplyView = ({
   setAgreeTerms
 }: ApplyViewProps) => (
   <div className="max-w-3xl mx-auto">
-    <button 
+    <button
       onClick={onBack}
       className="flex items-center space-x-2 text-gray-500 hover:text-navy-900 transition-colors mb-8 group"
     >
@@ -227,13 +227,13 @@ const ApplyView = ({
       <span className="font-bold uppercase tracking-widest text-xs">Back to Information</span>
     </button>
 
-    <div className="bg-white rounded-[2.5rem] p-6 mobile:p-12 border border-gray-100 shadow-sm relative overflow-hidden">
+    <div className="bg-white rounded-2xl mobile:rounded-[2.5rem] p-5 mobile:p-12 border border-gray-100 shadow-sm relative overflow-hidden">
       <div className="absolute top-0 right-0 w-64 h-64 bg-navy-50 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-      
+
       <div className="relative z-10">
-        <div className="mb-10">
-          <h3 className="text-3xl font-black text-navy-900 uppercase tracking-tight mb-2">Loan Application</h3>
-          <p className="text-gray-500 text-sm">Complete the form below to apply for your loan</p>
+        <div className="mb-6 mobile:mb-10">
+          <h3 className="text-xl mobile:text-3xl font-black text-navy-900 uppercase tracking-tight mb-2">Loan Application</h3>
+          <p className="text-gray-500 text-xs mobile:text-sm">Complete the form below to apply for your loan</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -242,7 +242,7 @@ const ApplyView = ({
             <h4 className="flex items-center gap-2 text-xs font-black text-gold-600 uppercase tracking-[0.2em]">
               <Layers className="w-4 h-4" /> Loan Details
             </h4>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-navy-900 uppercase tracking-widest ml-1">Loan Amount (USD) *</label>
@@ -342,7 +342,7 @@ const ApplyView = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-10 py-5 bg-navy-900 text-gold-500 rounded-2xl font-black uppercase tracking-widest hover:bg-navy-800 transition-all shadow-xl shadow-navy-900/10 active:scale-95 disabled:opacity-50"
+              className="flex-1 px-6 mobile:px-10 py-3 mobile:py-5 bg-navy-900 text-gold-500 rounded-xl mobile:rounded-2xl font-black uppercase tracking-widest hover:bg-navy-800 transition-all shadow-xl shadow-navy-900/10 active:scale-95 disabled:opacity-50 text-xs mobile:text-sm"
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center space-x-2">
@@ -354,7 +354,7 @@ const ApplyView = ({
             <button
               type="button"
               onClick={onBack}
-              className="px-10 py-5 bg-gray-50 text-gray-500 rounded-2xl font-black uppercase tracking-widest hover:bg-gray-100 transition-all active:scale-95"
+              className="px-6 mobile:px-10 py-3 mobile:py-5 bg-gray-50 text-gray-500 rounded-xl mobile:rounded-2xl font-black uppercase tracking-widest hover:bg-gray-100 transition-all active:scale-95 text-xs mobile:text-sm"
             >
               Cancel
             </button>
@@ -397,7 +397,7 @@ const TrackingView = ({ onBack }: { onBack: () => void }) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 mobile:space-y-8">
-      <button 
+      <button
         onClick={onBack}
         className="flex items-center space-x-2 text-gray-500 hover:text-navy-900 transition-colors mb-2 mobile:mb-4 group"
       >
@@ -441,7 +441,7 @@ const TrackingView = ({ onBack }: { onBack: () => void }) => {
                       <p className="text-[10px] mobile:text-[11px] font-bold text-gray-400 uppercase tracking-widest">Ref: {loan._id.slice(-8).toUpperCase()}</p>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 mobile:grid-cols-3 gap-4 mobile:gap-8 lg:gap-12 pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-200/50 lg:border-none">
                     <div>
                       <p className="text-[8px] mobile:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Principle Sum</p>
@@ -470,14 +470,12 @@ const TrackingView = ({ onBack }: { onBack: () => void }) => {
                         { label: 'Finalization', active: loan.status === 'approved' || loan.status === 'rejected', done: loan.status === 'approved' || loan.status === 'rejected' }
                       ].map((step, i) => (
                         <div key={i} className="flex flex-col items-center gap-3 relative z-10">
-                          <div className={`w-4 h-4 rounded-full border-2 border-white transition-all ${
-                            step.done ? 'bg-green-500 scale-125 shadow-[0_0_10px_rgba(34,197,94,0.3)]' : 
-                            step.active ? 'bg-gold-500 scale-110 animate-pulse shadow-[0_0_10px_rgba(201,147,58,0.3)]' : 
-                            'bg-gray-300'
-                          }`}></div>
-                          <span className={`text-[9px] font-black uppercase tracking-widest ${
-                            step.active ? 'text-navy-900' : 'text-gray-400'
-                          }`}>{step.label}</span>
+                          <div className={`w-4 h-4 rounded-full border-2 border-white transition-all ${step.done ? 'bg-green-500 scale-125 shadow-[0_0_10px_rgba(34,197,94,0.3)]' :
+                            step.active ? 'bg-gold-500 scale-110 animate-pulse shadow-[0_0_10px_rgba(201,147,58,0.3)]' :
+                              'bg-gray-300'
+                            }`}></div>
+                          <span className={`text-[9px] font-black uppercase tracking-widest ${step.active ? 'text-navy-900' : 'text-gray-400'
+                            }`}>{step.label}</span>
                         </div>
                       ))}
                     </div>
@@ -492,17 +490,15 @@ const TrackingView = ({ onBack }: { onBack: () => void }) => {
                     ].map((step, i) => (
                       <div key={i} className="flex gap-4">
                         <div className="flex flex-col items-center shrink-0">
-                          <div className={`w-3 h-3 rounded-full border-2 border-white transition-all ${
-                            step.done ? 'bg-green-500 scale-125' : 
-                            step.active ? 'bg-gold-500 scale-110 animate-pulse' : 
-                            'bg-gray-300'
-                          }`}></div>
+                          <div className={`w-3 h-3 rounded-full border-2 border-white transition-all ${step.done ? 'bg-green-500 scale-125' :
+                            step.active ? 'bg-gold-500 scale-110 animate-pulse' :
+                              'bg-gray-300'
+                            }`}></div>
                           {i < 2 && <div className={`w-0.5 h-full min-h-[20px] bg-gray-200 mt-1`}></div>}
                         </div>
                         <div className="pb-4">
-                          <span className={`text-[10px] font-black uppercase tracking-widest block mb-0.5 ${
-                            step.active ? 'text-navy-900' : 'text-gray-400'
-                          }`}>{step.label}</span>
+                          <span className={`text-[10px] font-black uppercase tracking-widest block mb-0.5 ${step.active ? 'text-navy-900' : 'text-gray-400'
+                            }`}>{step.label}</span>
                           <p className="text-[9px] font-medium text-gray-400 lowercase">{step.desc}</p>
                         </div>
                       </div>
@@ -519,7 +515,7 @@ const TrackingView = ({ onBack }: { onBack: () => void }) => {
             </div>
             <h4 className="text-base mobile:text-lg font-black text-navy-900 uppercase tracking-tight mb-2">No Active Protocols</h4>
             <p className="text-gray-400 text-xs mobile:text-sm max-w-[240px] mobile:max-w-xs mx-auto mb-8">You haven't submitted any loan applications to the ledger yet.</p>
-            <button 
+            <button
               onClick={onBack}
               className="px-8 py-3 bg-navy-900 text-gold-500 rounded-xl font-black uppercase tracking-widest text-[11px] shadow-lg shadow-navy-900/10 active:scale-95 transition-all"
             >
@@ -587,7 +583,7 @@ const LoanSection = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="px-0 py-4 mobile:px-0 mobile:py-0">
       <AnimatePresence mode="wait">
         <motion.div
           key={view}
@@ -599,7 +595,7 @@ const LoanSection = () => {
           {view === 'info' ? (
             <div className="space-y-6">
               <div className="flex justify-end mb-4">
-                <button 
+                <button
                   onClick={() => setView('track')}
                   className="px-6 py-2.5 bg-white border border-gray-100 text-navy-900 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-sm hover:border-gold-500/30 transition-all flex items-center gap-2"
                 >
@@ -607,14 +603,14 @@ const LoanSection = () => {
                   Track Applications
                 </button>
               </div>
-              <InfoView 
-                onApply={() => setView('apply')} 
-                openFaq={openFaq} 
-                setOpenFaq={setOpenFaq} 
+              <InfoView
+                onApply={() => setView('apply')}
+                openFaq={openFaq}
+                setOpenFaq={setOpenFaq}
               />
             </div>
           ) : view === 'apply' ? (
-            <ApplyView 
+            <ApplyView
               onBack={() => setView('info')}
               handleSubmit={handleSubmit}
               isSubmitting={isSubmitting}
