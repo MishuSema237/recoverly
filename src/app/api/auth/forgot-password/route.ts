@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     // Request password reset
     const resetToken = await UserService.requestPasswordReset(email.toLowerCase());
-    
+
     if (!resetToken) {
       // Don't reveal if email exists or not for security
       return NextResponse.json({
@@ -26,8 +26,8 @@ export async function POST(request: NextRequest) {
 
     // Send password reset email
     try {
-      const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
-      
+      const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://recoverly-pi.vercel.app'}/reset-password/${resetToken}`;
+
       await sendEmail({
         to: email,
         subject: 'Reset Your Password - Recoverly',
@@ -60,9 +60,9 @@ If you didn't request a password reset, please ignore this email.
 
 © 2024 Recoverly. All rights reserved.`
       });
-      
+
       console.log('Password reset email sent successfully to:', email);
-      
+
     } catch (emailError) {
       console.error('Failed to send password reset email:', emailError);
       // Still return success for security - don't reveal if email sending failed
@@ -80,9 +80,9 @@ If you didn't request a password reset, please ignore this email.
   } catch (error) {
     console.error('Forgot password error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Password reset request failed' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Password reset request failed'
       },
       { status: 500 }
     );

@@ -37,9 +37,9 @@ const PrivacyPage = () => {
               <div className="prose prose-lg max-w-none">
                 <h2 className="text-3xl font-bold text-gray-900 mb-6">1. Information We Collect</h2>
                 <p className="text-gray-700 mb-6">
-                  Recoverly collects information necessary to provide our investment services. This includes personal 
-                  information such as name, email address, contact information, and financial information required for 
-                  deposits and withdrawals. We also collect information about your investment activities, account balances, 
+                  Recoverly collects information necessary to provide our banking and recovery services. This includes personal
+                  information such as name, email address, contact information, and financial details required for
+                  secure deposits and withdrawals. We also collect information about your account activities, balances,
                   and transaction history.
                 </p>
 
@@ -48,38 +48,38 @@ const PrivacyPage = () => {
                   We use your information to:
                 </p>
                 <ul className="list-disc pl-6 text-gray-700 mb-6 space-y-2">
-                  <li>Process your investment plans and manage your account</li>
-                  <li>Calculate and credit daily earnings based on your investment plan</li>
-                  <li>Process deposits and withdrawals</li>
-                  <li>Invest your funds into top-performing stocks and manage crypto mining operations</li>
-                  <li>Communicate with you about your account and investment activities</li>
-                  <li>Provide customer support and respond to inquiries</li>
-                  <li>Comply with legal and regulatory requirements</li>
+                  <li>Process your financial plans and manage your secure account</li>
+                  <li>Calculate and credit daily yields based on your selected plan</li>
+                  <li>Process deposits and withdrawals through our banking network</li>
+                  <li>Execute and manage asset recovery operations using professional protocols</li>
+                  <li>Communicate with you about your account and recovery status</li>
+                  <li>Provide customer support and respond to financial inquiries</li>
+                  <li>Comply with international banking and recovery regulations</li>
                 </ul>
 
-                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">3. How Recoverly Makes Money</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">3. How Recoverly Operates</h2>
                 <p className="text-gray-700 mb-6">
-                  Recoverly acts as an investment middleman. We take your funds and invest them strategically into 
-                  top-performing stocks on the stock exchange market. We also use your capital for crypto mining operations. 
-                  Our expert team manages all investment decisions, market analysis, and operations. When your investments 
-                  generate returns, we distribute profits to you according to your selected plan (based on ROI and daily 
-                  rates we calculate). Recoverly keeps a portion of the profits as our service fee. This win-win 
-                  arrangement allows you to benefit from our expertise without managing the complexities of stock market 
-                  investing or crypto mining yourself.
+                  Recoverly operates as a specialized bank and recovery agency. We manage your funds through secure
+                  financial pathways and leverage our global infrastructure for asset reclamation.
+                  Our expert team handles all technical aspects, financial analysis, and recovery operations.
+                  Growth is generated through these optimized banking processes and successful reclamation projects.
+                  Recoverly retains a portion of the generated proceeds as a service fee for our infrastructure and expertise.
+                  This arrangement allows you to benefit from our secure financial systems without managing technical
+                  banking or recovery complexities yourself.
                 </p>
 
-                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">4. Investment Data and Performance</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">4. Financial Data and Performance</h2>
                 <p className="text-gray-700 mb-6">
-                  We track your investment performance, daily earnings, plan duration, and account balances. This data is 
-                  used to calculate your returns based on the investment plans you select. Daily rates and ROI percentages 
-                  are calculated by Recoverly based on our actual investment performance in top stocks and crypto mining 
-                  operations. This performance data helps us determine appropriate returns for each investment plan.
+                  We track your account performance, daily yields, plan status, and balances. This data is
+                  used to manage your returns based on the banking plans you select. Daily rates and yield percentages
+                  are determined by Recoverly based on our banking performance and successful recovery
+                  operations. This data helps us ensure the stability and growth of each plan.
                 </p>
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">5. Data Security</h2>
                 <p className="text-gray-700 mb-6">
-                  Recoverly employs industry-standard security measures to protect your personal and financial 
-                  information. We use encryption, secure servers, and access controls to safeguard your data. However, 
+                  Recoverly employs industry-standard security measures to protect your personal and financial
+                  information. We use encryption, secure servers, and access controls to safeguard your data. However,
                   no system is 100% secure, and you acknowledge that transmission of data over the internet carries inherent risks.
                 </p>
 
@@ -88,10 +88,10 @@ const PrivacyPage = () => {
                   We do not sell your personal information. We may share information with:
                 </p>
                 <ul className="list-disc pl-6 text-gray-700 mb-6 space-y-2">
-                  <li>Service providers who assist in operating our platform (subject to confidentiality agreements)</li>
+                  <li>Service providers who assist in operating our secure platform</li>
                   <li>Financial institutions for processing deposits and withdrawals</li>
-                  <li>Legal authorities when required by law or to protect our rights</li>
-                  <li>Business partners involved in our stock market investments and crypto mining operations (as necessary for investment execution)</li>
+                  <li>Legal and regulatory authorities as required for compliance</li>
+                  <li>Global partners involved in our asset recovery operations (as necessary for execution)</li>
                 </ul>
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">7. Your Rights</h2>
@@ -108,32 +108,32 @@ const PrivacyPage = () => {
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">8. Cookies and Tracking</h2>
                 <p className="text-gray-700 mb-6">
-                  We use cookies and similar technologies to enhance your experience, analyze platform usage, and improve 
+                  We use cookies and similar technologies to enhance your experience, analyze platform usage, and improve
                   our services. You can control cookie preferences through your browser settings.
                 </p>
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">9. Children&apos;s Privacy</h2>
                 <p className="text-gray-700 mb-6">
-                  Recoverly services are not intended for individuals under 18 years of age. We do not knowingly collect 
+                  Recoverly services are not intended for individuals under 18 years of age. We do not knowingly collect
                   personal information from children.
                 </p>
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">10. International Users</h2>
                 <p className="text-gray-700 mb-6">
-                  If you are using Recoverly from outside the country where our servers are located, your information 
+                  If you are using Recoverly from outside the country where our servers are located, your information
                   may be transferred across international borders. By using our services, you consent to such transfers.
                 </p>
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">11. Changes to Privacy Policy</h2>
                 <p className="text-gray-700 mb-6">
-                  Recoverly may update this privacy policy from time to time. We will notify users of significant 
-                  changes via email or platform notification. Continued use of our services after changes constitutes 
+                  Recoverly may update this privacy policy from time to time. We will notify users of significant
+                  changes via email or platform notification. Continued use of our services after changes constitutes
                   acceptance of the updated policy.
                 </p>
 
                 <div className="mt-12 p-6 bg-[#fdfcf0] rounded-lg border border-red-200">
                   <p className="text-[#b08132]">
-                    <strong>Contact Us:</strong> For questions about this privacy policy or to exercise your rights, 
+                    <strong>Contact Us:</strong> For questions about this privacy policy or to exercise your rights,
                     please contact us through the <Link href="/contact" className="text-[#c9933a] underline">contact page</Link>.
                   </p>
                 </div>

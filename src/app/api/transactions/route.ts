@@ -340,6 +340,20 @@ export async function PUT(request: NextRequest) {
               console.log(`Referral commission of $${commissionAmount} added to referrer ${referrer.email}`);
             }
           }
+
+          // Check for Automatic Unblocking
+          if (user && (user.isAccountBlocked || user.isAccountRestricted) && (user.accountUnblockFee || 0) > 0) {
+            // Re-fetch user to get latest balance after deposit
+            const updatedUser = await db.collection('users').findOne({ _id: new ObjectId(depositRequest.userId) });
+            const mainBalance = updatedUser?.balances?.main || 0;
+            const fee = updatedUser?.accountUnblockFee || 0;
+
+            if (mainBalance >= fee) {
+              console.log(`Triggering automatic unblock for user ${depositRequest.userId} (Balance: ${mainBalance}, Fee: ${fee})`);
+              const { processAccountUnblock } = await import('@/lib/admin/unblockUtils');
+              await processAccountUnblock(db, depositRequest.userId, 'system');
+            }
+          }
         }
       } else if (status === 'rejected') {
         updateDoc = { ...updateDoc, rejectionReason };

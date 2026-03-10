@@ -584,7 +584,7 @@ export class UserService {
   }
 
   static generateReferralLink(userCode: string): string {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://recoverly-pi.vercel.app';
     return `${baseUrl}/signup?ref=${userCode}`;
   }
 

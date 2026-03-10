@@ -21,7 +21,12 @@ interface DepositRequest {
   paymentMethod?: PaymentMethod;
 }
 
-const DepositSection = () => {
+interface DepositSectionProps {
+  initialAmount?: number;
+  isFixedAmount?: boolean;
+}
+
+const DepositSection: React.FC<DepositSectionProps> = ({ initialAmount, isFixedAmount = false }) => {
   const { user, userProfile, forceRefresh } = useAuth();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
@@ -36,6 +41,12 @@ const DepositSection = () => {
   const depositAmount = parseFloat(amount) || 0;
   const isAmountValid = depositAmount > 0;
   const isFormValid = isAmountValid && selectedMethod;
+
+  useEffect(() => {
+    if (initialAmount && initialAmount > 0) {
+      setAmount(initialAmount.toString());
+    }
+  }, [initialAmount]);
 
   useEffect(() => {
     loadPaymentMethods();
@@ -392,55 +403,40 @@ const DepositSection = () => {
               </motion.div>
             )}
 
-            {/* Amount Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Amount (USD)</label>
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className={`w-full px-4 py-2.5 mobile:py-3 border rounded-lg focus:ring-2 focus:border-transparent text-sm mobile:text-base ${amount && !isAmountValid
-                  ? 'border-[#c9933a] focus:ring-[#c9933a] bg-[#fdfcf0]'
-                  : 'border-gray-300 focus:ring-[#c9933a]'
-                  }`}
-                placeholder="Enter amount to deposit"
-                min="1"
-                step="0.01"
-                required
-              />
-              {amount && !isAmountValid && (
-                <p className="mt-1 text-sm text-[#c9933a]">
-                  Please enter a valid amount greater than $0
-                </p>
-              )}
-              {amount && isAmountValid && (
-                <p className="mt-1 text-sm text-green-600">
-                  Amount: ${depositAmount.toFixed(2)}
-                </p>
-              )}
-            </div>
+            {amount && !isAmountValid && (
+              <p className="mt-1 text-sm text-[#c9933a]">
+                Please enter a valid amount greater than $0
+              </p>
+            )}
+            {amount && isAmountValid && (
+              <p className="mt-1 text-sm text-green-600">
+                Amount: ${depositAmount.toFixed(2)}
+              </p>
+            )}
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={!isFormValid || isSubmitting || !userProfile?.emailVerified}
-              className={`w-full text-white py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm mobile:text-base ${(!isFormValid || isSubmitting)
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-[#c9933a] hover:bg-[#b08132]'
-                }`}
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  <span>Submitting...</span>
-                </>
-              ) : (
-                <>
-                  <CreditCard className="w-5 h-5" />
-                  <span>Submit Deposit Request</span>
-                </>
-              )}
-            </button>
+            <div className="pt-4">
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={!isFormValid || isSubmitting || !userProfile?.emailVerified}
+                className={`w-full text-white py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm mobile:text-base ${(!isFormValid || isSubmitting)
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-[#c9933a] hover:bg-[#b08132]'
+                  }`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Submitting...</span>
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="w-5 h-5" />
+                    <span>Submit Deposit Request</span>
+                  </>
+                )}
+              </button>
+            </div>
           </form>
         )}
       </div>

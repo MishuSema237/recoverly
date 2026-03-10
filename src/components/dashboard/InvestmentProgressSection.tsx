@@ -96,7 +96,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
       const amount = Number(activeInvestment?.amount ?? userProfile?.currentInvestment ?? 0);
       const investmentDateRaw = activeInvestment?.createdAt ?? new Date();
       const investmentDate = new Date(investmentDateRaw);
-      const planName: string = activeInvestment?.plan?.name ?? userProfile?.investmentPlan ?? 'Investment Plan';
+      const planName: string = activeInvestment?.plan?.name ?? userProfile?.investmentPlan ?? 'Financial Plan';
       let durationDays: number | null = null;
       let dailyRatePct: number | null = null; // percent per day
       let totalROI: number | null = null; // total ROI percentage
@@ -342,7 +342,7 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
         <div className="p-4 lg:p-8 text-center">
           <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">No Active Investment</h3>
-          <p className="text-gray-600">You don&apos;t have an active investment plan. Start investing to see your progress here.</p>
+          <p className="text-gray-600">You don&apos;t have an active financial plan. Get started to see your progress here.</p>
         </div>
       </div>
     );

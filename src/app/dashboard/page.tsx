@@ -71,27 +71,7 @@ const RecoverySection = dynamic(() => import('@/components/dashboard/RecoverySec
 const AccountBlockedOverlay = dynamic(() => import('@/components/dashboard/AccountBlockedOverlay'));
 const AccountRestrictedBanner = dynamic(() => import('@/components/dashboard/AccountRestrictedBanner'));
 
-const TransactionsHub = ({ setActiveSection }: { setActiveSection: (s: string) => void }) => {
-  const { userProfile } = useAuth();
-  const isVerified = userProfile?.emailVerified && userProfile?.kycStatus === 'verified';
-
-  const handleAction = (id: string) => {
-    if (userProfile?.isAccountRestricted && (id === 'transfer' || id === 'withdraw')) {
-      showError('Financial actions are restricted. Please resolve the account restriction to proceed.');
-      return;
-    }
-
-    if (id === 'deposit' || id === 'logs') {
-      setActiveSection(id);
-    } else {
-      if (!isVerified) {
-        showError('Please verify your email and complete KYC to access this feature.');
-        return;
-      }
-      setActiveSection(id);
-    }
-  };
-
+const TransactionsHub = ({ onNavigate }: { onNavigate: (id: string) => void }) => {
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto">
       {[
@@ -102,7 +82,7 @@ const TransactionsHub = ({ setActiveSection }: { setActiveSection: (s: string) =
       ].map((item) => (
         <button
           key={item.id}
-          onClick={() => handleAction(item.id)}
+          onClick={() => onNavigate(item.id)}
           className="w-full flex items-center justify-between p-4 mobile:p-6 bg-white rounded-xl mobile:rounded-3xl border border-gray-100 hover:border-gold-500/30 hover:shadow-xl hover:shadow-navy-900/5 transition-all group active:scale-[0.98]"
         >
           <div className="flex items-center gap-5">
@@ -123,7 +103,7 @@ const TransactionsHub = ({ setActiveSection }: { setActiveSection: (s: string) =
   );
 };
 
-const AccountHub = ({ setActiveSection }: { setActiveSection: (s: string) => void }) => {
+const AccountHub = ({ onNavigate }: { onNavigate: (id: string) => void }) => {
   const { userProfile } = useAuth();
   const isAdmin = canAccessAdmin(userProfile);
 
@@ -151,7 +131,7 @@ const AccountHub = ({ setActiveSection }: { setActiveSection: (s: string) => voi
       {items.map((item) => (
         <button
           key={item.id}
-          onClick={() => setActiveSection(item.id)}
+          onClick={() => onNavigate(item.id)}
           className={`w-full flex items-center justify-between p-4 mobile:p-6 rounded-xl mobile:rounded-3xl border transition-all group active:scale-[0.98] ${item.id === 'profile' ? 'bg-[#0b1626] border-white/5 shadow-2xl shadow-navy-900/10' : 'bg-white border-gray-100 shadow-sm hover:border-gold-500/30'
             }`}
         >
@@ -177,18 +157,7 @@ const AccountHub = ({ setActiveSection }: { setActiveSection: (s: string) => voi
   );
 };
 
-const ServicesHub = ({ setActiveSection }: { setActiveSection: (s: string) => void }) => {
-  const { userProfile } = useAuth();
-  const isVerified = userProfile?.emailVerified && userProfile?.kycStatus === 'verified';
-
-  const handleAction = (id: string) => {
-    if (!isVerified) {
-      showError('Please verify your email and complete KYC to access this feature.');
-      return;
-    }
-    setActiveSection(id);
-  };
-
+const ServicesHub = ({ onNavigate }: { onNavigate: (id: string) => void }) => {
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto">
       {[
@@ -199,7 +168,7 @@ const ServicesHub = ({ setActiveSection }: { setActiveSection: (s: string) => vo
       ].map((item) => (
         <button
           key={item.id}
-          onClick={() => handleAction(item.id)}
+          onClick={() => onNavigate(item.id)}
           className="w-full flex items-center justify-between p-4 mobile:p-6 bg-white rounded-xl mobile:rounded-3xl border border-gray-100 hover:border-gold-500/30 hover:shadow-xl hover:shadow-navy-900/5 transition-all group active:scale-[0.98]"
         >
           <div className="flex items-center gap-5">
@@ -253,6 +222,7 @@ const DashboardContent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [statIndex, setStatIndex] = useState(0);
+  const [pendingDepositAmount, setPendingDepositAmount] = useState<number | undefined>(undefined);
 
   const { formattedDate, formattedTime } = DashboardClock();
 
@@ -430,6 +400,41 @@ const DashboardContent = () => {
     } catch (e) { console.error(e); }
   };
 
+  const handleNavigate = (id: string) => {
+    // 1. Basic Navigation
+    if (id === 'dashboard' || id === 'logs' || id === 'admin' || id === 'support' || id === 'profile' || id === 'kyc' || id === 'account_hub' || id === 'transactions_hub' || id === 'services_hub') {
+      if (pendingDepositAmount !== undefined) setPendingDepositAmount(undefined);
+      setActiveSection(id);
+      setIsSidebarOpen(false);
+      return;
+    }
+
+    // 2. Deposit handled separately for Blocked accounts
+    if (id === 'deposit') {
+      setActiveSection(id);
+      setIsSidebarOpen(false);
+      return;
+    }
+
+    // 3. Restriction Check for Financial/Premium Actions
+    const financialActions = ['transfer', 'withdraw', 'cards', 'loans', 'tax-refund'];
+    if (userProfile?.isAccountRestricted && financialActions.includes(id)) {
+      showError('Financial actions are restricted. Please resolve the account restriction to proceed.');
+      return;
+    }
+
+    // 4. Verification Check
+    const isVerified = userProfile?.emailVerified && userProfile?.kycStatus === 'verified';
+    if (!isVerified) {
+      showError('Please verify your email and complete KYC to access this feature.');
+      return;
+    }
+
+    // 5. Success
+    setActiveSection(id);
+    setIsSidebarOpen(false);
+  };
+
   // Helper to determine if we are in a sub-section
   const currentHub = useMemo(() => {
     return dashboardLinks.find(link => link.id === activeSection || (link.subItems && link.subItems.includes(activeSection)));
@@ -463,17 +468,7 @@ const DashboardContent = () => {
                 {(() => {
                   const isVerified = userProfile?.emailVerified && userProfile?.kycStatus === 'verified';
                   const checkAuthAndNavigate = (id: string) => {
-                    if (id === 'deposit' || id === 'logs' || id === 'dashboard' || id === 'profile' || id === 'support' || id === 'admin') {
-                      setActiveSection(id);
-                      setIsSidebarOpen(false);
-                    } else {
-                      if (!isVerified) {
-                        showError('Please verify your email and complete KYC to access this feature.');
-                        return;
-                      }
-                      setActiveSection(id);
-                      setIsSidebarOpen(false);
-                    }
+                    handleNavigate(id);
                   };
                   return (
                     <>
@@ -522,14 +517,23 @@ const DashboardContent = () => {
                           support: { name: 'Contact Support', icon: <HeadphonesIcon className="w-5 h-5" /> },
                           kyc: { name: 'Identity Verification', icon: <ShieldCheck className="w-5 h-5" /> }
                         }[id as 'profile' | 'support' | 'kyc'];
+
+                        const showDot = (id === 'profile' && !userProfile?.emailVerified) ||
+                          (id === 'kyc' && userProfile?.kycStatus !== 'verified');
+                        const dotColor = (id === 'profile') ? 'bg-amber-500' :
+                          (userProfile?.kycStatus === 'pending' ? 'bg-amber-500' : 'bg-red-500');
+
                         return (
                           <button
                             key={id}
                             onClick={() => checkAuthAndNavigate(id)}
-                            className={`w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
+                            className={`relative w-full flex items-center space-x-3 px-3.5 mobile:px-4 py-2.5 mobile:py-3 rounded-xl transition-all ${activeSection === id ? 'bg-gold-500 text-[#0b1626] shadow-lg shadow-gold-500/20' : 'text-gray-400 hover:bg-navy-800 hover:text-white'}`}
                           >
                             <span className="scale-90 mobile:scale-100">{link.icon}</span>
                             <span className="text-sm mobile:text-base font-semibold">{link.name}</span>
+                            {showDot && (
+                              <span className={`absolute right-4 w-2 h-2 rounded-full ${dotColor} animate-pulse shadow-[0_0_8px_rgba(234,179,8,0.5)]`}></span>
+                            )}
                           </button>
                         );
                       })}
@@ -620,8 +624,11 @@ const DashboardContent = () => {
                 </div>
                 <div className="flex items-center space-x-3 p-1 pl-3 bg-gray-50 rounded-full border border-gray-100">
                   <span className="inline font-semibold text-navy-900">{userProfile?.firstName || 'User'}</span>
-                  <div className="w-8 h-8 mobile:w-10 mobile:h-10 bg-navy-900 text-gold-500 rounded-full flex items-center justify-center font-bold text-xs mobile:text-sm">
+                  <div className="relative w-8 h-8 mobile:w-10 mobile:h-10 bg-navy-900 text-gold-500 rounded-full flex items-center justify-center font-bold text-xs mobile:text-sm">
                     {(userProfile?.firstName?.[0] || 'U')}{(userProfile?.lastName?.[0] || 'U')}
+                    {(!userProfile?.emailVerified || userProfile?.kycStatus !== 'verified') && (
+                      <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-red-500 border-2 border-white rounded-full"></span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -629,7 +636,13 @@ const DashboardContent = () => {
 
             {/* Scrollable Area */}
             <div className="flex-1 overflow-y-auto p-3.5 mobile:p-6 bg-white space-y-4 mobile:space-y-8 pb-32 mb:pb-20 relative">
-              <VerificationBanner onNavigate={(section) => setActiveSection(section)} />
+              <VerificationBanner onNavigate={(section) => {
+                if (section === 'activate-email') {
+                  router.push('/activate-email');
+                } else {
+                  setActiveSection(section);
+                }
+              }} />
               {activeSection === 'dashboard' ? (
                 <>
                   {/* Top Stats Cards Removed per request - replaced by slideshow in Welcome section */}
@@ -726,12 +739,22 @@ const DashboardContent = () => {
                             <p className="text-gray-400 text-[10px] mobile:text-xs mb-1 uppercase tracking-widest font-bold">Account Authority</p>
                             <p className="text-xl mobile:text-2xl font-mono font-bold tracking-widest text-white mb-2 uppercase">{userProfile?.userCode || 'RECOVERLY_USER'}</p>
                             <div className="flex flex-col md:items-end items-center gap-2">
-                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${userProfile?.kycStatus === 'verified'
-                                ? 'bg-green-500/10 text-green-500 border-green-500/20'
-                                : 'bg-gold-500/10 text-gold-500 border-gold-500/20'
-                                }`}>
-                                {userProfile?.kycStatus === 'verified' ? 'System Verified' : 'Standard Access'}
-                              </span>
+                              <div className="flex flex-wrap gap-2 justify-center md:justify-end">
+                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${userProfile?.emailVerified
+                                  ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                  : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                                  }`}>
+                                  {userProfile?.emailVerified ? 'Email Verified' : 'Email Pending'}
+                                </span>
+                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${userProfile?.kycStatus === 'verified'
+                                  ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                  : userProfile?.kycStatus === 'pending'
+                                    ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                                    : 'bg-red-500/10 text-red-500 border-red-500/20'
+                                  }`}>
+                                  {userProfile?.kycStatus === 'verified' ? 'System Verified' : userProfile?.kycStatus === 'pending' ? 'Verification Pending' : 'KYC Required'}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1002,7 +1025,7 @@ const DashboardContent = () => {
                         </div>
                         <p className="text-[10px] text-gray-400 mb-4 relative z-10">Create virtual cards for secure online payments and subscription management.</p>
                         <button
-                          onClick={() => setActiveSection('cards')}
+                          onClick={() => handleNavigate('cards')}
                           className="w-full py-2 bg-gold-500 text-navy-900 rounded-xl font-bold text-xs mobile:text-sm hover:bg-gold-400 transition-colors"
                         >
                           Apply Now
@@ -1072,11 +1095,16 @@ const DashboardContent = () => {
                   )}
 
                   {/* Sections and Hubs */}
-                  {activeSection === 'transactions_hub' && <TransactionsHub setActiveSection={setActiveSection} />}
-                  {activeSection === 'account_hub' && <AccountHub setActiveSection={setActiveSection} />}
-                  {activeSection === 'services_hub' && <ServicesHub setActiveSection={setActiveSection} />}
+                  {activeSection === 'transactions_hub' && <TransactionsHub onNavigate={handleNavigate} />}
+                  {activeSection === 'account_hub' && <AccountHub onNavigate={handleNavigate} />}
+                  {activeSection === 'services_hub' && <ServicesHub onNavigate={handleNavigate} />}
 
-                  {activeSection === 'deposit' && <DepositSection />}
+                  {activeSection === 'deposit' && (
+                    <DepositSection
+                      initialAmount={pendingDepositAmount}
+                      isFixedAmount={!!pendingDepositAmount}
+                    />
+                  )}
                   {activeSection === 'withdraw' && <WithdrawSection />}
                   {activeSection === 'transfer' && <TransferMoneySection />}
                   {activeSection === 'logs' && <UnifiedLogsSection />}
@@ -1101,7 +1129,10 @@ const DashboardContent = () => {
               <AccountBlockedOverlay
                 reason={userProfile.accountBlockReason || ''}
                 unblockFee={userProfile.accountUnblockFee || 0}
-                onPayFee={() => setActiveSection('deposit')}
+                onPayFee={() => {
+                  setPendingDepositAmount(userProfile.accountUnblockFee || 0);
+                  setActiveSection('deposit');
+                }}
               />
             )}
 
@@ -1110,11 +1141,17 @@ const DashboardContent = () => {
               <div className="bg-[#0b1626]/95 backdrop-blur-xl border border-navy-800 rounded-full p-1.5 flex items-center justify-between shadow-2xl">
                 {dashboardLinks.map((link) => {
                   const isActive = activeSection === link.id || (link.subItems && link.subItems.includes(activeSection));
+
+                  const hasUnverifiedEmail = !userProfile?.emailVerified && link.id === 'account_hub';
+                  const hasUnverifiedKyc = userProfile?.kycStatus !== 'verified' && link.id === 'account_hub';
+                  const showMobileDot = hasUnverifiedEmail || hasUnverifiedKyc;
+                  const dotColor = hasUnverifiedEmail ? 'bg-amber-500' : (userProfile?.kycStatus === 'pending' ? 'bg-amber-500' : 'bg-red-500');
+
                   return (
                     <button
                       key={link.id}
-                      onClick={() => setActiveSection(link.id)}
-                      className={`flex items-center transition-all duration-500 ease-out group ${isActive
+                      onClick={() => handleNavigate(link.id)}
+                      className={`relative flex items-center transition-all duration-500 ease-out group ${isActive
                         ? 'bg-gold-500 text-[#0b1626] rounded-full pr-4 pl-1 pb-1 pt-1'
                         : 'text-gray-400 p-3 hover:text-white'
                         }`}
@@ -1124,13 +1161,12 @@ const DashboardContent = () => {
                         {link.icon}
                       </div>
                       {isActive && (
-                        <motion.span
-                          initial={{ opacity: 0, width: 0, x: -10 }}
-                          animate={{ opacity: 1, width: 'auto', x: 0 }}
-                          className="ml-2 font-black text-[10px] uppercase tracking-tighter whitespace-nowrap"
-                        >
+                        <span className="text-xs font-bold ml-1 whitespace-nowrap overflow-hidden">
                           {link.name}
-                        </motion.span>
+                        </span>
+                      )}
+                      {showMobileDot && !isActive && (
+                        <span className={`absolute top-2 right-2 w-2 h-2 rounded-full ${dotColor} animate-pulse shadow-[0_0_8px_rgba(234,179,8,0.5)]`}></span>
                       )}
                     </button>
                   );
@@ -1140,7 +1176,7 @@ const DashboardContent = () => {
           </main>
         </div>
       </DashboardLoader>
-    </ProtectedRoute>
+    </ProtectedRoute >
   );
 };
 

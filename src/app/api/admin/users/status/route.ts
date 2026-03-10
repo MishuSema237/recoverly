@@ -89,6 +89,24 @@ export const POST = requireAdmin(async (request) => {
         };
         await db.collection('notifications').insertOne(notificationData);
 
+        // Send Email
+        try {
+            const { emailTemplates, sendEmail } = await import('@/lib/email');
+            const emailTemplate = emailTemplates.accountStatusUpdate(
+                user.firstName || user.displayName || 'User',
+                action,
+                reason || (action === 'normal' ? 'Account verification complete' : 'Security audit required'),
+                action !== 'normal' ? (parseFloat(fee) || 0) : 0
+            );
+
+            await sendEmail({
+                to: user.email,
+                ...emailTemplate
+            });
+        } catch (emailError) {
+            console.error('Failed to send status update email:', emailError);
+        }
+
         return NextResponse.json({
             success: true,
             message: `User account ${action}ed successfully`,

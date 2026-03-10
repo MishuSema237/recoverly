@@ -72,7 +72,7 @@ EMAILJS_PUBLIC_KEY=your_public_key_here
 EMAIL_FROM=noreply@teslacapital.com
 
 # App URL
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=https://recoverly-pi.vercel.app
 ```
 
 **Example:**
@@ -81,7 +81,7 @@ EMAILJS_SERVICE_ID=service_abc123
 EMAILJS_TEMPLATE_ID=template_xyz789
 EMAILJS_PUBLIC_KEY=abcdefghijklmnop
 EMAIL_FROM=noreply@teslacapital.com
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=https://recoverly-pi.vercel.app
 ```
 
 ### Step 6: Test It!

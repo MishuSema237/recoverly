@@ -2802,7 +2802,7 @@ const AdminSection = () => {
                               >
                                 <div className="flex items-center gap-3">
                                   <ShieldCheck className="w-4 h-4" />
-                                  <span>Restore to Normal & Refund Fee</span>
+                                  <span>Execute Security Release Protocol</span>
                                 </div>
                                 <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0" />
                               </button>
@@ -2978,6 +2978,25 @@ const AdminSection = () => {
                       </div>
                     </div>
                   </div>
+
+                  {selectedTransactionType === 'deposits' && (
+                    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm col-span-1 md:col-span-2">
+                      <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-4">Selected Inbound Gateway</p>
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gold-50 rounded-2xl flex items-center justify-center shrink-0">
+                          <CreditCard className="w-6 h-6 text-gold-500" />
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-black uppercase tracking-tight">
+                            {('paymentMethodId' in selectedTransaction && selectedTransaction.paymentMethodId)
+                              ? (paymentMethods.find(m => m._id === (selectedTransaction as any).paymentMethodId)?.name || 'Protocol gateway')
+                              : 'Standard Protocol'}
+                          </p>
+                          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Authorized Financial Endpoint</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Evidence Artifacts */}

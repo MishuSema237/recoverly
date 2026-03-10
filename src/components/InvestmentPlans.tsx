@@ -8,7 +8,7 @@ import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
 import dynamic from 'next/dynamic';
 
 
-const InvestmentProgressSection = dynamic(() => import('@/components/dashboard/InvestmentProgressSection'), {
+const FinancialProgressSection = dynamic(() => import('@/components/dashboard/InvestmentProgressSection'), {
   loading: () => <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
 });
 
@@ -56,7 +56,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
     // Auto-scroll to calculator when a plan is selected
     if (plan && !isDashboard) {
       setTimeout(() => {
-        const calculatorElement = document.getElementById('investment-calculator');
+        const calculatorElement = document.getElementById('financial-calculator');
         if (calculatorElement) {
           calculatorElement.scrollIntoView({
             behavior: 'smooth',
@@ -337,7 +337,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
 
       setMessage({
         type: 'success',
-        text: `Investment of $${investmentAmount.toLocaleString()} in ${selectedPlan.name} plan confirmed! Your investment is now active.`
+        text: `Secure deposit of $${investmentAmount.toLocaleString()} in ${selectedPlan.name} plan confirmed! Your financial plan is now active.`
       });
 
       // Reset form
@@ -380,16 +380,16 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
             {/* Header */}
             <div className="text-center mb-10 mobile:mb-16">
               <h2 className="text-2xl mobile:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 mobile:mb-4">
-                Upgrade Your Investment Plan
+                Upgrade Your Financial Plan
               </h2>
               <p className="text-base mobile:text-xl text-gray-600 max-w-3xl mx-auto">
-                Choose a new plan to upgrade your current investment for better returns.
+                Choose a new plan to upgrade your current financial structure for better yields.
               </p>
               <button
                 onClick={() => setShowUpgradeInterface(false)}
                 className="mt-4 text-[#c9933a] hover:text-[#b08132] font-medium"
               >
-                ← Back to Investment Progress
+                ← Back to Financial Progress
               </button>
             </div>
             {/* Plan selection content will be rendered below */}
@@ -399,7 +399,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
     } else {
       // Show progress interface with upgrade option
       return (
-        <InvestmentProgressSection
+        <FinancialProgressSection
           onUpgradePlan={() => setShowUpgradeInterface(true)}
         />
       );
@@ -413,7 +413,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
         <div className="text-center mb-10 mobile:mb-16" id="investment-plans">
           <div className="flex items-center justify-center gap-3 mobile:gap-4 mb-2 mobile:mb-4">
             <h2 className="text-2xl mobile:text-3xl lg:text-4xl font-bold text-gray-900">
-              Our Investment Plans
+              Our Financial Plans
             </h2>
             {isOffline && (
               <div className="flex items-center space-x-2 text-orange-600 bg-orange-50 px-3 py-2 rounded-lg">
@@ -433,7 +433,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
             )}
           </div>
           <p className="text-base mobile:text-xl text-gray-600 max-w-3xl mx-auto">
-            Choose from our carefully crafted investment plans designed to maximize your returns
+            Choose from our carefully crafted financial plans designed to maximize your yield
             while maintaining security and transparency.
           </p>
         </div>
@@ -473,7 +473,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-bold">{plan.roi}%</div>
-                        <div className="text-sm opacity-90">ROI</div>
+                        <div className="text-sm opacity-90">Yield</div>
                       </div>
                     </div>
                   </div>
@@ -525,7 +525,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                         </>
                       ) : (
                         <>
-                          {!user ? 'Invest' : !user.emailVerified ? 'Verify Email' : isDashboard ? (selectedPlan?._id === plan._id ? 'Selected' : 'Select Plan') : 'Invest Now'}
+                          {!user ? 'Get Started' : !user.emailVerified ? 'Verify Email' : isDashboard ? (selectedPlan?._id === plan._id ? 'Selected' : 'Select Plan') : 'Secure Plan'}
                         </>
                       )}
                     </button>
@@ -578,7 +578,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
         {isDashboard && showCalculation && selectedPlan && (
           <div className="bg-white rounded-2xl shadow-lg p-8 mt-8">
             <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-              Investment Calculation
+              Financial Calculation
             </h3>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -625,7 +625,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                       {getIcon(selectedPlan.icon)}
                       <div>
                         <h4 className="font-semibold text-gray-900">{selectedPlan.name}</h4>
-                        <p className="text-sm text-gray-600">{selectedPlan.roi}% ROI • {selectedPlan.duration}</p>
+                        <p className="text-sm text-gray-600">{selectedPlan.roi}% Yield • {selectedPlan.duration}</p>
                       </div>
                     </div>
                   </div>
@@ -633,7 +633,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
               </div>
 
               <div className="bg-gray-50 rounded-lg p-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">Investment Summary</h4>
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Plan Summary</h4>
                 {investmentAmount > 0 ? (
                   <div className="space-y-3">
                     <div className="flex justify-between">
@@ -668,7 +668,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                   </div>
                 ) : (
                   <p className="text-gray-500 text-center py-8">
-                    Enter an investment amount to see calculations.
+                    Enter an amount to see calculations.
                   </p>
                 )}
               </div>
@@ -677,7 +677,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
             {/* Investment Details */}
             {investmentAmount > 0 && !amountError && (
               <div className="mt-8">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">Investment Details</h4>
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Plan Details</h4>
 
                 {/* How Your Money Multiplies */}
                 <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 mb-6">
@@ -698,9 +698,9 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                     </div>
                     <div className="bg-blue-50 rounded-lg p-3 mt-2 mb-2">
                       <p className="text-xs text-blue-800">
-                        <strong>Note:</strong> ROI (Return on Investment) is calculated by Recoverly based on our actual
-                        investment performance in top stocks and crypto mining operations. Daily Rate = ROI ÷ Duration days.
-                        Your first daily earning comes the next day after investment.
+                        <strong>Note:</strong> Yield is calculated by Recoverly based on our actual
+                        banking performance and recovery operations. Daily Rate = Yield ÷ Duration days.
+                        Your first daily earning comes the next day after activation.
                       </p>
                     </div>
 
@@ -796,7 +796,7 @@ const InvestmentPlans = ({ isDashboard = false }: InvestmentPlansProps) => {
                     onClick={handleInvestment}
                     disabled={isProcessing || investmentAmount === 0 || !!amountError || investmentAmount > accountBalance}
                   >
-                    {isProcessing ? 'Processing...' : 'Confirm Investment'}
+                    {isProcessing ? 'Processing...' : 'Confirm Plan'}
                   </button>
                 </div>
               </div>

@@ -276,9 +276,9 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Change Your Investment Plan</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Change Your Financial Plan</h2>
               <p className="text-gray-600">
-                Switch to a different investment plan. Your current plan ({userProfile?.investmentPlan || 'N/A'}) will be completed and a new investment will start with your selected plan.
+                Switch to a different financial plan. Your current plan ({userProfile?.investmentPlan || 'N/A'}) will be matured and a new plan will start with your selected term.
               </p>
             </div>
           </div>
@@ -305,7 +305,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
           <div className="text-center py-20">
             <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No Upgrade Plans Available</h3>
-            <p className="text-gray-600">There are no other investment plans available for upgrade at the moment.</p>
+            <p className="text-gray-600">There are no other financial plans available for adjustment at the moment.</p>
           </div>
         ) : (
           <div className="relative">

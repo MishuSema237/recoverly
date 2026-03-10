@@ -16,12 +16,13 @@ const AssetRecoverySection = () => {
                 <div className="flex flex-col lg:flex-row items-center gap-16">
                     {/* Visual Side */}
                     <div className="lg:w-1/2 order-2 lg:order-1">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Separate Cards for Desktop & Tablet */}
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 whileInView={{ opacity: 1, scale: 1 }}
                                 viewport={{ once: true }}
-                                className="bg-navy-900 p-8 rounded-3xl text-white space-y-4 shadow-xl shadow-navy-900/10"
+                                className="hidden md:flex flex-col bg-navy-900 p-8 rounded-3xl text-white space-y-4 shadow-xl shadow-navy-900/10"
                             >
                                 <div className="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500">
                                     <ShieldCheck className="w-6 h-6" />
@@ -35,13 +36,48 @@ const AssetRecoverySection = () => {
                                 whileInView={{ opacity: 1, scale: 1 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.1 }}
-                                className="bg-gold-500 p-8 rounded-3xl text-navy-900 space-y-4 shadow-xl shadow-gold-500/10"
+                                className="hidden md:flex flex-col bg-gold-500 p-8 rounded-3xl text-navy-900 space-y-4 shadow-xl shadow-gold-500/10 text-right items-end md:text-left md:items-start"
                             >
                                 <div className="w-12 h-12 rounded-2xl bg-black/5 flex items-center justify-center">
                                     <Activity className="w-6 h-6" />
                                 </div>
                                 <h4 className="text-xl font-black uppercase tracking-tight">Real-time Intel</h4>
                                 <p className="text-xs text-black/60 font-black uppercase tracking-widest leading-tight">Live tracking of blockchain movements and cold-wallet forensic updates.</p>
+                            </motion.div>
+
+                            {/* Merged Card with Diagonal Split for Mobile */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                className="md:hidden col-span-1 relative rounded-3xl overflow-hidden shadow-2xl min-h-[400px] flex flex-col"
+                            >
+                                {/* Top Section: Navy-900 */}
+                                <div
+                                    className="bg-navy-900 p-8 pt-12 pb-24 text-white space-y-4 relative flex-1 flex flex-col justify-center overflow-hidden"
+                                    style={{ clipPath: 'polygon(0 0, 100% 0, 100% 80%, 0 100%)' }}
+                                >
+                                    {/* Background Icon */}
+                                    <ShieldCheck className="absolute -right-4 -top-4 w-56 h-56 text-gold-500/10 rotate-12 pointer-events-none" />
+
+                                    <div className="relative z-10">
+                                        <h4 className="text-2xl font-black uppercase tracking-tight mb-2">94% Recovery Rate</h4>
+                                        <p className="text-sm text-white/70 font-medium leading-relaxed">Successfully repatriated over $2.4B in assets across 12,000+ forensic cases globally.</p>
+                                    </div>
+                                </div>
+
+                                {/* Bottom Section: Gold-500 */}
+                                <div
+                                    className="bg-gold-500 p-8 pt-20 pb-12 text-navy-900 space-y-4 -mt-16 relative z-[-1] flex-1 flex flex-col justify-center items-end text-right overflow-hidden"
+                                >
+                                    {/* Background Icon */}
+                                    <Activity className="absolute -left-6 -bottom-6 w-64 h-64 text-black/5 -rotate-12 pointer-events-none" />
+
+                                    <div className="relative z-10">
+                                        <h4 className="text-2xl font-black uppercase tracking-tight mb-2">Real-time Intel</h4>
+                                        <p className="text-sm text-black/70 font-black uppercase tracking-widest leading-tight">Live tracking of blockchain movements and cold-wallet forensic updates.</p>
+                                    </div>
+                                </div>
                             </motion.div>
 
                             <motion.div

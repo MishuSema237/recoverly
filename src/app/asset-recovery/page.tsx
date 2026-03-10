@@ -171,24 +171,29 @@ export default function AssetRecoveryPage() {
                             <h3 className="text-4xl font-bold text-navy-900">How You Get Your Money Back</h3>
                         </div>
 
-                        <div className="relative">
-                            {/* Connecting Line */}
-                            <div className="hidden lg:block absolute top-[28px] left-[12%] right-[12%] h-1 bg-gray-100 rounded-full" />
+                        <div className="relative max-w-4xl mx-auto">
+                            {/* Vertical Connecting Line */}
+                            <div className="absolute left-[31px] top-0 bottom-0 w-0.5 bg-gray-100 hidden md:block" />
 
-                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 relative z-10">
+                            <div className="flex flex-col gap-12 relative z-10">
                                 {processSteps.map((step, index) => (
-                                    <div key={index} className="flex flex-col items-center text-center group">
-                                        <div className="w-16 h-16 bg-white border-4 border-gray-100 rounded-full flex items-center justify-center mb-6 group-hover:border-gold-500 group-hover:bg-gold-50 transition-colors shadow-sm relative relative bg-white z-10">
+                                    <div key={index} className="flex flex-col md:flex-row items-center md:items-start gap-8 group">
+                                        {/* Step Number Circle */}
+                                        <div className="w-16 h-16 bg-white border-4 border-gray-100 rounded-full flex items-center justify-center shrink-0 group-hover:border-gold-500 group-hover:bg-gold-50 transition-colors shadow-sm relative z-10">
                                             <span className="text-xl font-bold text-navy-900">{index + 1}</span>
                                         </div>
-                                        <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 group-hover:shadow-md transition-shadow w-full h-full">
-                                            <div className="flex justify-center mb-4">
+
+                                        {/* Step Content Card */}
+                                        <div className="bg-gray-50 p-8 rounded-2xl border border-gray-100 group-hover:shadow-lg transition-all w-full flex flex-col md:flex-row items-center md:items-start gap-6">
+                                            <div className="w-16 h-16 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0">
                                                 <step.icon className="w-8 h-8 text-gold-500" />
                                             </div>
-                                            <h4 className="text-xl font-bold text-navy-900 mb-3">{step.title}</h4>
-                                            <p className="text-gray-600 text-sm leading-relaxed">
-                                                {step.description}
-                                            </p>
+                                            <div className="text-center md:text-left">
+                                                <h4 className="text-2xl font-bold text-navy-900 mb-2">{step.title}</h4>
+                                                <p className="text-gray-600 text-lg leading-relaxed">
+                                                    {step.description}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}

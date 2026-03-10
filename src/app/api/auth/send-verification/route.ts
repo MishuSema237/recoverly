@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send verification email
-    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/verify-email?token=${user.emailVerificationToken || 'no-token'}`;
+    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://recoverly-pi.vercel.app'}/verify-email?token=${user.emailVerificationToken || 'no-token'}`;
     const template = emailTemplates.emailVerification(user.firstName, verificationUrl);
 
     // Send email

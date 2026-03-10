@@ -499,11 +499,11 @@ export class NotificationService {
     const userName = user?.firstName || userEmail;
 
     const message = capitalReturned
-      ? `Your ${planName} investment plan has completed. Your capital of $${amount} has been returned to your main balance.`
-      : `Your ${planName} investment plan has completed.`;
+      ? `Your ${planName} financial plan has completed. Your capital of $${amount} has been returned to your main balance.`
+      : `Your ${planName} financial plan has completed.`;
 
     await this.createNotification({
-      title: 'Investment Plan Completed',
+      title: 'Financial Plan Completed',
       message: message,
       type: 'plan_completed',
       recipients: [userId],
@@ -581,7 +581,7 @@ export class NotificationService {
     const userName = user?.firstName || userEmail;
 
     await this.createNotification({
-      title: 'Investment Plan Selected',
+      title: 'Financial Plan Selected',
       message: `You have successfully selected the ${planName} plan with an investment of $${amount}.`,
       type: 'plan_selected',
       recipients: [userId],
@@ -608,8 +608,8 @@ export class NotificationService {
     const userName = user?.firstName || userEmail;
 
     await this.createNotification({
-      title: 'Investment Plan Updated',
-      message: `Your investment plan has been updated from ${oldPlan} to ${newPlan} with an investment of $${amount}.`,
+      title: 'Financial Plan Updated',
+      message: `Your financial plan has been updated from ${oldPlan} to ${newPlan} with an account credit of $${amount}.`,
       type: 'plan_updated',
       recipients: [userId],
       sentBy: 'system',

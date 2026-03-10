@@ -61,7 +61,7 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
 export const getBaseTemplate = (title: string, content: string, userName?: string) => {
   const year = new Date().getFullYear();
   const appName = 'Recoverly';
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://recoverly.vercel.app';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://recoverly-pi.vercel.app';
   const logoUrl = `${appUrl}/RecoverlyLogo.png`;
 
   return `
@@ -174,6 +174,7 @@ export const getBaseTemplate = (title: string, content: string, userName?: strin
         .data-table td:last-child {
           text-align: right;
           color: #111827;
+          word-break: break-all;
         }
         .highlight {
           color: #c9933a;
@@ -594,6 +595,56 @@ export const emailTemplates = {
     ),
     text: `Hello ${userName}, case #${claimNumber} finalized. $${recoveredAmount} recovered. Register at ${process.env.NEXT_PUBLIC_APP_URL}/signup to receive funds.`
   }),
+
+  // 18. Account Status Update
+  accountStatusUpdate: (userName: string, status: 'block' | 'restrict' | 'normal' | 'blocked' | 'restricted', reason: string, fee: number = 0) => {
+    const statusTitles: Record<string, string> = {
+      block: 'ACCOUNT ACCESS SUSPENDED',
+      blocked: 'ACCOUNT ACCESS SUSPENDED',
+      restrict: 'ACCOUNT ACTIVITY RESTRICTED',
+      restricted: 'ACCOUNT ACTIVITY RESTRICTED',
+      normal: 'ACCOUNT STATUS RESTORED'
+    };
+
+    const statusColors: Record<string, string> = {
+      block: '#ef4444',
+      blocked: '#ef4444',
+      restrict: '#f59e0b',
+      restricted: '#f59e0b',
+      normal: '#10b981'
+    };
+
+    return {
+      subject: `Account Status Update: ${status.toUpperCase()} - Recoverly`,
+      html: getBaseTemplate(
+        statusTitles[status],
+        `
+        <div style="text-align: center; margin-bottom: 30px;">
+          <div style="display: inline-block; padding: 10px 20px; border-radius: 99px; background-color: ${statusColors[status]}20; color: ${statusColors[status]}; font-weight: 800; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid ${statusColors[status]}40;">
+            Current Status: ${status}
+          </div>
+        </div>
+        <p>This is an automated intelligence briefing regarding a shift in your account's operational status.</p>
+        <div style="background-color: #f9fafb; padding: 25px; border-radius: 12px; border: 1px solid #e5e7eb; margin: 30px 0;">
+          <p style="margin: 0; font-size: 14px; color: #4b5563; line-height: 1.6;"><strong>Reason for Adjustment:</strong><br>${reason}</p>
+        </div>
+        ${status !== 'normal' && fee > 0 ? `
+        <table class="data-table">
+          <tr><td>Safety Clearance Fee:</td><td class="highlight">$${fee.toLocaleString()}</td></tr>
+          <tr><td>Protocol:</td><td>Refundable Security Deposit</td></tr>
+        </table>
+        <p style="font-size: 13px; color: #6b7280; font-style: italic;">Note: This fee is a refundable security protocol and will be credited back to your balance upon account restoration.</p>
+        ` : ''}
+        <p>To ${status === 'normal' ? 'resume' : 'initiate status resolution'} and access your assets, please log in to your dashboard.</p>
+        <div class="button-container">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" class="button">Go to Dashboard</a>
+        </div>
+        `,
+        userName
+      ),
+      text: `Hello ${userName}, your account status has been updated to ${status.toUpperCase()}. Reason: ${reason}. ${fee > 0 ? `Unblock fee: $${fee}` : ''}`
+    };
+  },
 };
 
 

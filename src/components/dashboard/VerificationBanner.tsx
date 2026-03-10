@@ -22,7 +22,7 @@ const VerificationBanner: React.FC<VerificationBannerProps> = ({ onNavigate }) =
         <div className="space-y-3 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
             {showEmailBanner && (
                 <div className="bg-amber-50 border border-amber-100 rounded-xl mobile:rounded-2xl p-4 mobile:p-5 flex items-center justify-between group cursor-pointer hover:bg-amber-100/50 transition-all"
-                    onClick={() => onNavigate('profile')}>
+                    onClick={() => onNavigate('activate-email')}>
                     <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
                             <Mail className="w-5 h-5" />
@@ -38,7 +38,7 @@ const VerificationBanner: React.FC<VerificationBannerProps> = ({ onNavigate }) =
 
             {showKycBanner && (
                 <div className="bg-navy-900 border border-gold-500/20 rounded-xl mobile:rounded-2xl p-4 mobile:p-5 flex items-center justify-between group cursor-pointer hover:bg-navy-800 transition-all shadow-xl shadow-navy-900/10"
-                    onClick={() => onNavigate('profile')}>
+                    onClick={() => onNavigate('kyc')}>
                     <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-full bg-gold-500/10 flex items-center justify-center text-gold-500">
                             <ShieldAlert className="w-5 h-5" />

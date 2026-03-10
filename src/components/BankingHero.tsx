@@ -17,16 +17,6 @@ const BankingHero = () => {
                 <div className="flex flex-col lg:flex-row items-center gap-16">
                     {/* Left Content */}
                     <div className="lg:w-1/2 text-center lg:text-left">
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6 }}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-500 text-xs font-black uppercase tracking-widest mb-8"
-                        >
-                            <Landmark className="w-4 h-4" />
-                            Institiutional Grade Private Banking
-                        </motion.div>
-
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}

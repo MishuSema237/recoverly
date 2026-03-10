@@ -37,81 +37,81 @@ const TermsPage = () => {
               <div className="prose prose-lg max-w-none">
                 <h2 className="text-3xl font-bold text-gray-900 mb-6">1. About Recoverly</h2>
                 <p className="text-gray-700 mb-6">
-                  Recoverly is an investment platform that acts as a middleman between investors and the stock market. 
-                  We take your investment funds and strategically invest them into top-performing stocks on the stock 
-                  exchange market. We also engage in crypto mining operations using your capital as investment funds. 
-                  Our expert team handles all market analysis, stock selection, and crypto mining operations. You simply 
-                  choose an investment plan, deposit your funds, and watch your money grow. Recoverly does all the 
-                  hard work while you wait for your returns.
+                  Recoverly is a specialized financial institution and asset recovery agency that facilitates secure banking
+                  operations and fund reclamation. We manage your financial assets through regulated banking procedures and
+                  leverage our global network for efficient asset recovery. Our expert team handles all financial analysis,
+                  security monitoring, and reclamation operations. You simply choose a financial plan, deposit your funds,
+                  and watch your balance grow through our automated banking systems. Recoverly does all the
+                  complex work while you benefit from our secure financial infrastructure.
                 </p>
 
-                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">2. Investment Plans and Returns</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">2. Financial Plans and Returns</h2>
                 <p className="text-gray-700 mb-6">
-                  <strong>Daily Rate and ROI:</strong> ROI (Return on Investment) represents the total percentage return 
-                  you&apos;ll earn over the entire duration of your investment plan. Daily Rate is calculated by dividing the 
-                  total ROI by the number of days in your plan. Recoverly calculates these rates based on our actual 
-                  investment performance in top stocks and crypto mining operations. The rates reflect our expertise in 
-                  identifying profitable stock market opportunities and managing crypto mining operations.
+                  <strong>Daily Rate and Yield:</strong> Yield represents the total percentage growth
+                  you&apos;ll earn over the entire duration of your financial plan. Daily Rate is calculated by dividing the
+                  total yield by the number of days in your plan. Recoverly calculates these rates based on our banking
+                  performance and successful recovery operations. The rates reflect our expertise in
+                  managing secure financial pathways and executing complex asset reclamation.
                 </p>
                 <p className="text-gray-700 mb-6">
-                  <strong>First Daily Earning:</strong> Your first daily earning will be credited to your account the day 
-                  after you make your investment. This ensures fairness and prevents exploitation of the system.
+                  <strong>First Daily Earning:</strong> Your first daily earning will be credited to your account the day
+                  after you activate your plan. This ensures stable processing and account verification.
                 </p>
                 <p className="text-gray-700 mb-6">
-                  <strong>Plan Upgrades:</strong> You must wait for your current plan to finish before you can upgrade to 
-                  a new plan. This ensures that you receive the full benefits of your current investment. Upgrading before 
-                  your plan completes is not permitted.
+                  <strong>Plan Upgrades:</strong> You must wait for your current plan to reach maturity before you can upgrade to
+                  a new plan. This ensures that you receive the full benefits of your current banking agreement. Upgrading before
+                  your plan completes its term is not permitted.
                 </p>
 
-                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">3. How Your Money Grows</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">3. How Your Assets Grow</h2>
                 <p className="text-gray-700 mb-6">
-                  Recoverly invests your funds into top-performing stocks from leading companies on the stock exchange 
-                  market. We strategically allocate investments based on market analysis and our expertise in identifying 
-                  profitable opportunities. Additionally, we use your capital for crypto mining operations. Your investments 
-                  multiply through these strategic stock market investments and crypto mining activities. We then return your 
-                  money with profits based on the plan you selected, keeping our share of the profits. This creates a 
-                  win-win situation where you benefit from our expertise without doing any of the complex work yourself.
+                  Recoverly manages your funds through high-efficiency banking operations and asset recovery strategies.
+                  We strategically allocate resources to ensure stable growth and maximize the success of reclamation activities.
+                  Your account balance grows through these secure banking processes and professional recovery operations.
+                  We then return your funds with the agreed-upon yield based on the plan you selected. This creates a
+                  secure environment where you benefit from our banking expertise and global recovery network without
+                  managing technical financial complexities yourself.
                 </p>
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">4. User Responsibilities</h2>
                 <p className="text-gray-700 mb-6">
-                  Users are responsible for ensuring they have sufficient funds in their account before making investments. 
-                  You must provide accurate information during registration and maintain the security of your account 
-                  credentials. You agree not to attempt to exploit or manipulate the investment system, including but not 
+                  Users are responsible for ensuring they have sufficient funds in their account before activating plans.
+                  You must provide accurate information during registration and maintain the security of your account
+                  credentials. You agree not to attempt to exploit or manipulate the banking system, including but not
                   limited to creating multiple accounts or attempting to gain immediate earnings by repeatedly upgrading plans.
                 </p>
 
-                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">5. Investment Risks</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">5. Financial Considerations</h2>
                 <p className="text-gray-700 mb-6">
-                  While Recoverly employs expert strategies and invests in top-performing stocks, all investments carry 
-                  inherent risks. Stock market performance can fluctuate, and crypto mining operations are subject to market 
-                  volatility. Past performance does not guarantee future results. You should only invest funds that you can 
-                  afford to lose.
+                  While Recoverly employs secure banking strategies and advanced recovery techniques, all financial
+                  activities are subject to market conditions and regulatory changes. Recovery operations depend on
+                  external factors and cross-border financial protocols. Past performance does not guarantee future results.
+                  You should only allocate funds that align with your financial capacity.
                 </p>
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">6. Account Management</h2>
                 <p className="text-gray-700 mb-6">
-                  Each user is permitted only one account. Multiple accounts detected will be disabled. You must wait for 
-                  your current investment plan to complete before initiating a new plan or upgrade. Account balances are 
-                  updated in real-time based on deposits, withdrawals, and daily earnings.
+                  Each user is permitted only one account. Multiple accounts detected will be disabled. You must wait for
+                  your current financial plan to complete its term before initiating a new plan or upgrade. Account balances
+                  are updated in real-time based on deposits, withdrawals, and daily interest/yield.
                 </p>
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">7. Withdrawals and Deposits</h2>
                 <p className="text-gray-700 mb-6">
-                  Deposits are processed according to our deposit policies. Withdrawal requests are processed within 4-6 hours 
-                  on business days and 6-12 hours on weekends. There are no withdrawal limits as long as your account balance 
-                  reflects sufficient funds.
+                  Deposits are processed according to our banking policies. Withdrawal requests are processed within 4-6 hours
+                  on business days and 6-12 hours on weekends. There are no withdrawal limits as long as your account balance
+                  reflects sufficient cleared funds.
                 </p>
 
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">8. Modifications to Terms</h2>
                 <p className="text-gray-700 mb-6">
-                  Recoverly reserves the right to modify these terms at any time. Users will be notified of significant 
+                  Recoverly reserves the right to modify these terms at any time. Users will be notified of significant
                   changes. Continued use of the platform constitutes acceptance of modified terms.
                 </p>
 
                 <div className="mt-12 p-6 bg-[#fdfcf0] rounded-lg border border-red-200">
                   <p className="text-[#b08132]">
-                    <strong>Contact Us:</strong> If you have questions about these terms, please contact our support team 
+                    <strong>Contact Us:</strong> If you have questions about these terms, please contact our support team
                     through the <Link href="/contact" className="text-[#c9933a] underline">contact page</Link>.
                   </p>
                 </div>
