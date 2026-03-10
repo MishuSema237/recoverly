@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb';
 import { requireAuth } from '@/middleware/auth';
 import { NotificationService } from '@/lib/notifications/NotificationService';
 import { generateCardNumber, generateCVV, generateExpiryDate } from '@/lib/utils/cardUtils';
+import { sendEmail, emailTemplates } from '@/lib/email';
 
 // Helper to check for admin access
 const requireAdmin = (handler: (req: any) => Promise<NextResponse>) => {
@@ -67,6 +68,11 @@ export const PUT = requireAdmin(async (request) => {
       return NextResponse.json({ success: false, error: 'Card request not found' }, { status: 404 });
     }
 
+    const user = await db.collection('users').findOne({ _id: new ObjectId(card.userId) });
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
+    }
+
     if (action === 'approve') {
       const cardNumber = generateCardNumber(card.cardType);
       const cvv = generateCVV(card.cardType);
@@ -74,8 +80,8 @@ export const PUT = requireAdmin(async (request) => {
 
       await db.collection('virtualCards').updateOne(
         { _id: new ObjectId(cardId) },
-        { 
-          $set: { 
+        {
+          $set: {
             status: 'approved',
             cardNumber, // In a real system, these would be encrypted/PCI DSS compliant
             cvv,
@@ -83,7 +89,7 @@ export const PUT = requireAdmin(async (request) => {
             lastFour: cardNumber.slice(-4),
             approvedAt: new Date(),
             updatedAt: new Date()
-          } 
+          }
         }
       );
 
@@ -96,15 +102,39 @@ export const PUT = requireAdmin(async (request) => {
         sentBy: 'system'
       });
 
+      // Send Email
+      if (user.email) {
+        const subject = 'Your Virtual Card is Ready - Recoverly';
+        const html = `
+          <div style="font-family: Arial, sans-serif; color: #333;">
+            <h2 style="color: #c9933a;">Virtual Card Approved</h2>
+            <p>Hello <strong>${user.firstName}</strong>,</p>
+            <p>Your request for a <strong>${card.cardLevel} ${card.cardType}</strong> virtual card has been approved.</p>
+            <p>Your card is now ready for use. You can securely access your full card details, including the card number and CVV, directly from your dashboard.</p>
+            <div style="margin: 20px 0;">
+              <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" style="background-color: #c9933a; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">View Your Card</a>
+            </div>
+            <p>If you did not request this card, please contact our support team immediately.</p>
+            <p>Best regards,<br/>The Recoverly Team</p>
+          </div>
+        `;
+        await sendEmail({
+          to: user.email,
+          subject,
+          text: `Hello ${user.firstName}, your ${card.cardLevel} ${card.cardType} virtual card has been approved and is ready for use. View it on your dashboard.`,
+          html
+        });
+      }
+
     } else if (action === 'decline') {
       await db.collection('virtualCards').updateOne(
         { _id: new ObjectId(cardId) },
-        { 
-          $set: { 
+        {
+          $set: {
             status: 'rejected',
             rejectionReason: reason || 'Information provided was insufficient.',
             updatedAt: new Date()
-          } 
+          }
         }
       );
 
@@ -116,6 +146,27 @@ export const PUT = requireAdmin(async (request) => {
         recipients: [card.userId],
         sentBy: 'system'
       });
+
+      // Send Email
+      if (user.email) {
+        const subject = 'Virtual Card Request Declined - Recoverly';
+        const html = `
+          <div style="font-family: Arial, sans-serif; color: #333;">
+            <h2 style="color: #d9534f;">Card Request Declined</h2>
+            <p>Hello <strong>${user.firstName}</strong>,</p>
+            <p>Unfortunately, your application for a <strong>${card.cardLevel}</strong> virtual card was declined.</p>
+            ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
+            <p>If you have any questions, please contact our support team.</p>
+            <p>Best regards,<br/>The Recoverly Team</p>
+          </div>
+        `;
+        await sendEmail({
+          to: user.email,
+          subject,
+          text: `Hello ${user.firstName}, your virtual card request was declined. Reason: ${reason || 'Not specified'}`,
+          html
+        });
+      }
     }
 
     return NextResponse.json({ success: true });

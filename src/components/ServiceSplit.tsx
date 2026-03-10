@@ -45,7 +45,7 @@ const ServiceSplit = () => {
                                 </li>
                             </ul>
 
-                            <Link href="/services/asset-recovery" className="inline-flex items-center gap-2 text-navy-700 font-bold hover:text-gold-600 hover:gap-3 transition-all">
+                            <Link href="/asset-recovery/report" className="inline-flex items-center gap-2 text-navy-700 font-bold hover:text-gold-600 hover:gap-3 transition-all">
                                 Start a New Case <ArrowRight className="w-5 h-5" />
                             </Link>
                         </div>
@@ -80,7 +80,7 @@ const ServiceSplit = () => {
                                 </li>
                             </ul>
 
-                            <Link href="/services/banking" className="inline-flex items-center gap-2 text-white font-bold hover:text-gold-400 hover:gap-3 transition-all">
+                            <Link href="/signup" className="inline-flex items-center gap-2 text-white font-bold hover:text-gold-400 hover:gap-3 transition-all">
                                 Open an Account <ArrowRight className="w-5 h-5" />
                             </Link>
                         </div>

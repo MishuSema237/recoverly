@@ -1,24 +1,18 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import PublicRoute from '@/components/PublicRoute';
 
-// Lazy load components for better performance
-const TrustHero = dynamic(() => import('@/components/TrustHero'), {
-  loading: () => <div className="h-screen bg-navy-900 animate-pulse" />
+const BankingHero = dynamic(() => import('@/components/BankingHero'), {
+  loading: () => <div className="h-[90vh] bg-[#0a0f1a] animate-pulse" />
+});
+
+const AssetRecoverySection = dynamic(() => import('@/components/AssetRecoverySection'), {
+  loading: () => <div className="h-96 bg-white animate-pulse" />
 });
 
 const ServiceSplit = dynamic(() => import('@/components/ServiceSplit'), {
   loading: () => <div className="h-96 bg-gray-100 animate-pulse" />
-});
-
-const ProcessSteps = dynamic(() => import('@/components/ProcessSteps'), {
-  loading: () => <div className="h-96 bg-white animate-pulse" />
-});
-
-const ProofSection = dynamic(() => import('@/components/ProofSection'), {
-  loading: () => <div className="h-96 bg-navy-900 animate-pulse" />
 });
 
 const TestimonialsSection = dynamic(() => import('@/components/TestimonialsSection'), {
@@ -45,18 +39,21 @@ const FinalCTA = dynamic(() => import('@/components/FinalCTA'), {
   loading: () => <div className="h-96 bg-navy-900 animate-pulse" />
 });
 
+const TrustedPartnersSection = dynamic(() => import('@/components/TrustedPartnersSection'), {
+  loading: () => <div className="h-48 bg-gray-50 animate-pulse" />
+});
+
 export default function Home() {
-  // Remove auth-blocking loading spinner for homepage performance
   return (
     <PublicRoute>
       <div className="min-h-screen bg-white">
-        <TrustHero />
+        <BankingHero />
+        <TrustedPartnersSection />
         <ServiceSplit />
-        <ProcessSteps />
-        <ProofSection />
-        <TestimonialsSection />
+        <AssetRecoverySection />
         <WhyChooseUs />
         <RecentCases />
+        <TestimonialsSection />
         <FAQSection />
         <SecurityCompliance />
         <FinalCTA />

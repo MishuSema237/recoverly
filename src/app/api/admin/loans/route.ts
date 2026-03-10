@@ -7,7 +7,7 @@ import { sendEmail, emailTemplates } from '@/lib/email';
 export const GET = requireAdmin(async (request) => {
   try {
     const db = await getDb();
-    
+
     // Join with users to get applicant details
     const loans = await db.collection('loans').aggregate([
       {
@@ -78,13 +78,13 @@ export const PUT = requireAdmin(async (request) => {
       return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
     }
 
-    const updateData: any = { 
-      status, 
+    const updateData: any = {
+      status,
       updatedAt: new Date(),
       processedAt: new Date(),
       processedBy: request.user!.id
     };
-    
+
     if (rejectionReason) updateData.rejectionReason = rejectionReason;
 
     await db.collection('loans').updateOne(
@@ -92,18 +92,17 @@ export const PUT = requireAdmin(async (request) => {
       { $set: updateData }
     );
 
-    // If approved, send email with instructions
-    if (status === 'approved') {
+    // If approved, send email and update balance
+    if (status === 'approved' && loan.status !== 'approved') {
       const subject = 'Your Loan Application has been Approved';
-      const text = `Hello ${user.firstName}, your application for a ${loan.facility} has been approved. Please log in to your dashboard to view the instructions on how to receive your funds.`;
-      
-      // We can use a custom template or a simple one for now
-      // Recoverly instructions often involve some fee or direct contact
+      const text = `Hello ${user.firstName}, your application for a ${loan.facility} has been approved. Your balance has been credited.`;
+
       const html = `
         <div style="font-family: Arial, sans-serif; color: #333;">
           <h2 style="color: #c9933a;">Congratulations!</h2>
           <p>Hello <strong>${user.firstName}</strong>,</p>
           <p>We are pleased to inform you that your loan application for <strong>$${loan.amount.toLocaleString()}</strong> (${loan.facility}) has been <strong>APPROVED</strong>.</p>
+          <p>The funds have been credited to your main balance.</p>
           <div style="background: #fdf6ec; border: 1px solid #faecc5; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p style="margin: 0; font-weight: bold; color: #8a6d3b;">Next Steps:</p>
             <ol>
@@ -113,6 +112,44 @@ export const PUT = requireAdmin(async (request) => {
             </ol>
           </div>
           <p>If you have any questions, please contact our financial services department.</p>
+          <p>Best regards,<br/>The Recoverly Team</p>
+        </div>
+      `;
+
+      await sendEmail({
+        to: user.email,
+        subject,
+        text,
+        html
+      });
+
+      // Update user balances
+      await db.collection('users').updateOne(
+        { _id: new ObjectId(loan.userId) },
+        {
+          $inc: {
+            'balances.main': Number(loan.amount),
+            'balances.total': Number(loan.amount)
+          },
+          $push: {
+            activityLog: {
+              action: `Loan Approved: $${loan.amount.toLocaleString()} credited.`,
+              timestamp: new Date().toISOString()
+            }
+          } as any
+        }
+      );
+    } else if (status === 'rejected' && loan.status !== 'rejected') {
+      const subject = 'Update on Your Loan Application';
+      const text = `Hello ${user.firstName}, unfortunately, your loan application has been rejected. Reason: ${rejectionReason || 'Not specified'}`;
+
+      const html = `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2 style="color: #d9534f;">Loan Application Update</h2>
+          <p>Hello <strong>${user.firstName}</strong>,</p>
+          <p>We regret to inform you that your recent loan application for <strong>$${loan.amount.toLocaleString()}</strong> (${loan.facility}) has been <strong>REJECTED</strong>.</p>
+          ${rejectionReason ? `<p><strong>Reason provided:</strong> ${rejectionReason}</p>` : ''}
+          <p>If you have any questions or wish to appeal this decision, please contact our support team.</p>
           <p>Best regards,<br/>The Recoverly Team</p>
         </div>
       `;

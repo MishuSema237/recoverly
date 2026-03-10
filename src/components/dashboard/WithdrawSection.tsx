@@ -6,22 +6,7 @@ import Image from 'next/image';
 import { ArrowUpDown, CheckCircle, AlertCircle, CreditCard, DollarSign, Clock, Calendar, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
-
-interface PaymentMethod {
-  _id: string;
-  name: string;
-  logo: string;
-  accountDetails: {
-    accountName: string;
-    accountNumber: string;
-    bankName?: string;
-    walletAddress?: string;
-    network?: string;
-  };
-  instructions: string;
-  isActive: boolean;
-}
-
+import { getPaymentMethods, PaymentMethod } from '@/lib/services/PaymentMethodService';
 interface WithdrawalRequest {
   userId: string;
   paymentMethodId: string;
@@ -164,12 +149,8 @@ const WithdrawSection = () => {
 
   const loadPaymentMethods = async () => {
     try {
-      const response = await fetch('/api/payment-methods');
-      const result = await response.json();
-
-      if (result.success) {
-        setPaymentMethods(result.data.filter((method: PaymentMethod) => method.isActive));
-      }
+      const methods = await getPaymentMethods();
+      setPaymentMethods(methods.filter((method: PaymentMethod) => method.isActive));
     } catch (error) {
       console.error('Error loading payment methods:', error);
       showError('An error occurred while loading payment methods');
@@ -350,8 +331,8 @@ const WithdrawSection = () => {
         </div>
 
         <form onSubmit={handleSubmit} className={`space-y-4 mobile:space-y-6 transition-all duration-700 ${(!isWithdrawalAllowed() && !scheduleLoading) || userProfile?.kycStatus !== 'verified'
-            ? 'blur-md grayscale pointer-events-none opacity-40'
-            : ''
+          ? 'blur-md grayscale pointer-events-none opacity-40'
+          : ''
           }`}>
           {/* Payment Method Selection */}
           <div>

@@ -496,6 +496,104 @@ export const emailTemplates = {
     ),
     text: `Hello ${userName}, an admin has replied to your support request: ${subject}. Reply: ${reply}`
   }),
+
+  // 14. Recovery Claim Confirmation
+  recoveryClaimConfirmation: (userName: string, claimNumber: string, scamType: string) => ({
+    subject: `Claim Received: Case #${claimNumber} - Recoverly`,
+    html: getBaseTemplate(
+      'Recovery Claim Filed',
+      `
+      <p>Your forensic briefing has been received and logged into our secure registry.</p>
+      <table class="data-table">
+        <tr><td>Claim Number:</td><td class="highlight">${claimNumber}</td></tr>
+        <tr><td>Scam Type:</td><td>${scamType}</td></tr>
+        <tr><td>Status:</td><td>PENDING REVIEW</td></tr>
+        <tr><td>Date Filed:</td><td>${new Date().toLocaleDateString()}</td></tr>
+      </table>
+      <p>Our intelligence division will begin a preliminary audit of your case. You can track your claim progress using your email and claim number.</p>
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/track-claim" class="button">Track Your Claim</a>
+      </div>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, your recovery claim #${claimNumber} for ${scamType} has been received. Track it here: ${process.env.NEXT_PUBLIC_APP_URL}/track-claim`
+  }),
+
+  // 15. Recovery Claim Admin Alert
+  recoveryClaimAdminAlert: (userEmail: string, claimNumber: string, scamType: string, amount: number) => ({
+    subject: `Admin Alert: New Recovery Claim #${claimNumber}`,
+    html: getBaseTemplate(
+      'New Recovery Briefing',
+      `
+      <p>A new fraud recovery claim has been transmitted for forensic evaluation.</p>
+      <table class="data-table">
+        <tr><td>User Email:</td><td>${userEmail}</td></tr>
+        <tr><td>Claim Number:</td><td>${claimNumber}</td></tr>
+        <tr><td>Scam Type:</td><td>${scamType}</td></tr>
+        <tr><td>Amount Lost:</td><td class="highlight">$${amount.toLocaleString()}</td></tr>
+        <tr><td>Timestamp:</td><td>${new Date().toLocaleString()}</td></tr>
+      </table>
+      <p>Immediate officer assignment is recommended for this asset repatriation protocol.</p>
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard?section=admin" class="button">Admin Dashboard</a>
+      </div>
+      `,
+      'Forensic Admin'
+    ),
+    text: `Admin Alert: New Recovery Claim #${claimNumber} from ${userEmail}. Amount: $${amount}.`
+  }),
+
+  // 16. Recovery Claim Status Update
+  recoveryClaimStatusUpdate: (userName: string, claimNumber: string, status: string, message: string) => ({
+    subject: `Case Update: Case #${claimNumber} Status Shift - Recoverly`,
+    html: getBaseTemplate(
+      'Forensic Case Intelligence Update',
+      `
+      <p>An authorized update has been posted to your recovery case timeline.</p>
+      <table class="data-table">
+        <tr><td>Claim Number:</td><td class="highlight">${claimNumber}</td></tr>
+        <tr><td>New Status:</td><td>${status.toUpperCase().replace('_', ' ')}</td></tr>
+        <tr><td>Update Time:</td><td>${new Date().toLocaleString()}</td></tr>
+      </table>
+      <div style="background-color: #f9fafb; padding: 25px; border-radius: 12px; border: 1px solid #e5e7eb; margin: 30px 0;">
+        <p style="margin: 0; font-size: 15px; color: #111827; line-height: 1.6;"><strong>Forensic Note:</strong> ${message}</p>
+      </div>
+      <p>Please use the button below to view the full chronology of your repatriation process.</p>
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/track-claim" class="button">Track Your Claim</a>
+      </div>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, your case #${claimNumber} has been updated to ${status}. Note: ${message}`
+  }),
+
+  // 17. Recovery Claim Completion (Final Instruction)
+  recoveryClaimCompletion: (userName: string, claimNumber: string, recoveredAmount: number, serviceFee: number) => ({
+    subject: `FINAL AUTHORIZATION: Case #${claimNumber} Funds Ready - Recoverly`,
+    html: getBaseTemplate(
+      'Funds Recovery Protocol Finalized',
+      `
+      <p>We are pleased to inform you that our forensic team has successfully secured the repatriation of your lost assets.</p>
+      <table class="data-table">
+        <tr><td>Claim Number:</td><td>${claimNumber}</td></tr>
+        <tr><td>Recovered Amount:</td><td class="highlight">$${recoveredAmount.toLocaleString()}</td></tr>
+        <tr><td>Service Fee:</td><td>$${serviceFee.toLocaleString()}</td></tr>
+        <tr><td>Net Payout:</td><td class="highlight" style="color: #10b981;">$${(recoveredAmount - serviceFee).toLocaleString()}</td></tr>
+      </table>
+      <p><strong>Action Required:</strong> To receive your funds, you must have an active Recoverly account. If you haven't created one, please use the button below to register. Once your account is active and the service fee is cleared, the funds will be instantly credited to your Safe Vault.</p>
+      <div class="button-container">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/signup" class="button">Create Account / Login</a>
+      </div>
+      <p style="text-align: center; font-size: 12px; color: #6b7280; margin-top: 20px;">
+        Note: The recovered funds will be held in our secure escrow until identity verification and fee clearance are completed.
+      </p>
+      `,
+      userName
+    ),
+    text: `Hello ${userName}, case #${claimNumber} finalized. $${recoveredAmount} recovered. Register at ${process.env.NEXT_PUBLIC_APP_URL}/signup to receive funds.`
+  }),
 };
 
 

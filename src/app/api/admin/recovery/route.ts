@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/mongodb';
+import dbConnect from '@/lib/mongoose';
 import { verifyToken } from '@/lib/auth/jwt';
 import { UserService } from '@/lib/auth/user';
 import RecoveryCase from '@/lib/models/RecoveryCase';
+import { getDb } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,11 +17,38 @@ export async function GET(request: NextRequest) {
     const user = await UserService.getUserById(payload.userId);
     if (!user || !user.isAdmin) return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
 
-    await getDb();
-    const cases = await RecoveryCase.find({}).sort({ createdAt: -1 }).populate('userId', 'firstName lastName email');
+    await dbConnect();
+    const cases = await RecoveryCase.find({}).sort({ createdAt: -1 });
 
-    return NextResponse.json({ success: true, data: cases });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
+    const db = await getDb();
+    const usersCollection = db.collection('users');
+
+    const userIds = [...new Set(cases.map(c => c.userId?.toString()).filter(Boolean))];
+    const userDocs = await usersCollection.find({
+      _id: { $in: userIds.map(id => new ObjectId(id)) }
+    }).toArray();
+
+    const userMap: Record<string, any> = {};
+    userDocs.forEach(u => {
+      userMap[u._id.toString()] = {
+        _id: u._id,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        email: u.email
+      };
+    });
+
+    const casesWithUsers = cases.map(c => {
+      const caseObj = c.toObject();
+      if (caseObj.userId && userMap[caseObj.userId.toString()]) {
+        caseObj.userId = userMap[caseObj.userId.toString()];
+      }
+      return caseObj;
+    });
+
+    return NextResponse.json({ success: true, data: casesWithUsers });
+  } catch (error: any) {
+    console.error('Error in GET /api/admin/recovery:', error);
+    return NextResponse.json({ success: false, error: 'Internal Server Error', details: error.message }, { status: 500 });
   }
 }

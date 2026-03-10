@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import UpgradePlanSection from './UpgradePlanSection';
+
+const cachedPlanMeta: Record<string, any> = {};
 import { InvestmentPlan } from '@/lib/services/PlanService';
 
 interface InvestmentProgress {
@@ -119,10 +121,16 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
 
       // If missing details, fetch the plan by name for metadata
       if (durationDays === null || dailyRatePct === null) {
-        const planResponse = await fetch(`/api/plans?name=${encodeURIComponent(planName)}`);
-        const planResult = await planResponse.json();
-        if (planResult?.success && planResult?.data) {
-          const plan = planResult.data;
+        let plan = cachedPlanMeta[planName];
+        if (!plan) {
+          const planResponse = await fetch(`/api/plans?name=${encodeURIComponent(planName)}`);
+          const planResult = await planResponse.json();
+          if (planResult?.success && planResult?.data) {
+            plan = planResult.data;
+            cachedPlanMeta[planName] = plan;
+          }
+        }
+        if (plan) {
           // Parse duration
           if (typeof plan.duration === 'number') durationDays = plan.duration;
           if (typeof plan.duration === 'string') {
@@ -141,10 +149,16 @@ const InvestmentProgressSection = ({ onUpgradePlan }: InvestmentProgressSectionP
         }
       } else {
         // Even if we have snapshot data, fetch plan metadata for icon and color
-        const planResponse = await fetch(`/api/plans?name=${encodeURIComponent(planName)}`);
-        const planResult = await planResponse.json();
-        if (planResult?.success && planResult?.data) {
-          const plan = planResult.data;
+        let plan = cachedPlanMeta[planName];
+        if (!plan) {
+          const planResponse = await fetch(`/api/plans?name=${encodeURIComponent(planName)}`);
+          const planResult = await planResponse.json();
+          if (planResult?.success && planResult?.data) {
+            plan = planResult.data;
+            cachedPlanMeta[planName] = plan;
+          }
+        }
+        if (plan) {
           if (plan.icon) planIcon = plan.icon;
           if (plan.color) planColor = plan.color;
         }

@@ -6,7 +6,7 @@ import { requireAdmin } from '@/middleware/auth';
 export const GET = requireAdmin(async (request) => {
   try {
     const db = await getDb();
-    
+
     const requests = await db.collection('taxRefunds').aggregate([
       {
         $addFields: {
@@ -47,22 +47,78 @@ export const GET = requireAdmin(async (request) => {
 export const PUT = requireAdmin(async (request) => {
   try {
     const db = await getDb();
-    const { id, status, rejectionReason } = await request.json();
+    const { id, status, rejectionReason, amountToCredit } = await request.json();
 
     if (!['approved', 'rejected', 'processing'].includes(status)) {
       return NextResponse.json({ success: false, error: 'Invalid status' }, { status: 400 });
     }
 
+    const taxRefund = await db.collection('taxRefunds').findOne({ _id: new ObjectId(id) });
+    if (!taxRefund) {
+      return NextResponse.json({ success: false, error: 'Tax Refund not found' }, { status: 404 });
+    }
+
+    const user = await db.collection('users').findOne({ _id: new ObjectId(taxRefund.userId) });
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
+    }
+
     await db.collection('taxRefunds').updateOne(
       { _id: new ObjectId(id) },
-      { 
-        $set: { 
-          status, 
+      {
+        $set: {
+          status,
           updatedAt: new Date(),
-          rejectionReason: rejectionReason || null
-        } 
+          rejectionReason: rejectionReason || null,
+          amountCredited: status === 'approved' ? amountToCredit : (taxRefund.amountCredited || 0)
+        }
       }
     );
+
+    // If approved, update user's balance
+    if (status === 'approved' && amountToCredit > 0 && taxRefund.status !== 'approved') {
+      await db.collection('users').updateOne(
+        { _id: new ObjectId(user._id) },
+        {
+          $inc: {
+            'balances.main': Number(amountToCredit),
+            'balances.total': Number(amountToCredit)
+          },
+          $push: {
+            activityLog: {
+              action: `Tax Refund Approved: $${amountToCredit.toLocaleString()} credited.`,
+              timestamp: new Date().toISOString()
+            }
+          } as any
+        }
+      );
+    }
+
+    // Send Status Email
+    let subject = '';
+    let emailContent = '';
+
+    if (status === 'approved') {
+      subject = 'Tax Refund Approved - Recoverly';
+      emailContent = `We are pleased to inform you that your Tax Refund request has been approved.<br><br>An amount of <strong>$${amountToCredit ? amountToCredit.toLocaleString() : '0'}</strong> has been successfully credited to your main balance.`;
+    } else if (status === 'rejected') {
+      subject = 'Tax Refund Rejected - Recoverly';
+      emailContent = `Unfortunately, your Tax Refund request has been rejected.<br><br><strong>Reason:</strong> ${rejectionReason || 'No specific reason provided.'}`;
+    } else if (status === 'processing') {
+      subject = 'Tax Refund Processing - Recoverly';
+      emailContent = 'Your Tax Refund request is currently being processed by our forensic team. We will notify you once a final decision has been made.';
+    }
+
+    if (subject && emailContent && user.email) {
+      const { sendEmail, getBaseTemplate } = await import('@/lib/email');
+      const html = getBaseTemplate(subject, emailContent, user.firstName);
+      await sendEmail({
+        to: user.email,
+        subject,
+        text: emailContent.replace(/<[^>]+>/g, ''), // strip html for text version
+        html
+      });
+    }
 
     return NextResponse.json({ success: true });
 

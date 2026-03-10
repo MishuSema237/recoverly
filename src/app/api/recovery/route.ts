@@ -23,6 +23,15 @@ export async function GET(request: NextRequest) {
   }
 }
 
+function generateClaimNumber() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let randomPart = '';
+  for (let i = 0; i < 8; i++) {
+    randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return `REC-${new Date().getFullYear()}-${randomPart}`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const token = request.cookies.get('auth-token')?.value;
@@ -40,8 +49,12 @@ export async function POST(request: NextRequest) {
 
     await dbConnect();
 
+    const claimNumber = generateClaimNumber();
+
     const newCase = new RecoveryCase({
       userId: new ObjectId(payload.userId),
+      claimNumber,
+      isPublic: false,
       scamType,
       amountLost: parseFloat(amountLost),
       dateOfIncident,

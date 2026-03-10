@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Shield, Bitcoin, HeartHandshake, TrendingDown, FileSearch, Scale, Building2, CheckCircle2, ArrowRight, Zap, RefreshCw } from 'lucide-react';
+import { Shield, Bitcoin, HeartHandshake, TrendingDown, FileSearch, Scale, Building2, CheckCircle2, ArrowRight, Zap, RefreshCw, Search } from 'lucide-react';
 import PublicRoute from '@/components/PublicRoute';
 import Link from 'next/link';
 
@@ -34,23 +34,33 @@ const scamTypes = [
 const processSteps = [
     {
         icon: FileSearch,
-        title: 'Phase 1: Forensic Trace',
-        description: 'Our certified forensic accountants analyze the digital trails. We map out exactly where your funds were sent, parsing blockchain ledgers and international Swift wire records.'
+        title: 'Phase 1: Intelligence Audit',
+        description: 'Our certified forensic accountants analyze the digital trails. We verify the legitimacy of your claim and assign a dedicated case officer.'
+    },
+    {
+        icon: Search,
+        title: 'Phase 2: Forensic Trace',
+        description: 'Deep-dive analysis of blockchain ledgers and international Swift records to map out exactly where your assets were moved.'
     },
     {
         icon: Scale,
-        title: 'Phase 2: Legal Demand',
-        description: 'Leveraging our network, we issue formal legal demands to the receiving institutions (banks, exchanges) invoking compliance and anti-money laundering (AML) violations.'
+        title: 'Phase 3: Legal Demand',
+        description: 'Leveraging our network, we issue formal legal demands to receiving institutions, invoking strictly enforced AML and compliance protocols.'
     },
     {
         icon: Building2,
-        title: 'Phase 3: Bank Freeze',
-        description: 'We secure temporary freezing orders on the illicit accounts to prevent further dissipation of assets while the formal recovery claim is processed.'
+        title: 'Phase 4: Bank Freeze',
+        description: 'We secure temporary freezing orders on illicit accounts at the financial hubs to prevent the further dissipation of recovered assets.'
+    },
+    {
+        icon: Shield,
+        title: 'Phase 5: Asset Release',
+        description: 'Once liability is established, funds are authorized for repatriation and moved into our secure settlement custody.'
     },
     {
         icon: RefreshCw,
-        title: 'Phase 4: Fast Cashback',
-        description: 'Once liability is established, the recovered cashback is legally repatriated directly to your Recoverly Safe Vault or original banking institution.'
+        title: 'Phase 6: Fast Cashback',
+        description: 'Successful restitution of your assets directly into your Recoverly Safe Vault or original banking institution.'
     }
 ];
 
@@ -70,7 +80,7 @@ export default function AssetRecoveryPage() {
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <Link
-                                        href="/signup"
+                                        href="/asset-recovery/report"
                                         className="inline-flex items-center justify-center gap-2 bg-gold-500 hover:bg-gold-400 text-navy-900 font-bold px-8 py-4 rounded-lg transition-transform hover:-translate-y-1 shadow-lg"
                                     >
                                         Report a Scam Now
@@ -195,7 +205,7 @@ export default function AssetRecoveryPage() {
                             Scammers move stolen assets rapidly across jurisdictions. The faster we launch our forensic trace, the higher the probability of your cashback.
                         </p>
                         <Link
-                            href="/signup"
+                            href="/asset-recovery/report"
                             className="inline-flex items-center gap-2 bg-[#c9933a] hover:bg-[#b08132] text-white font-bold px-8 py-4 rounded-lg transition-transform hover:-translate-y-1 shadow-md"
                         >
                             Launch Emergency Trace

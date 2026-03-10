@@ -32,6 +32,10 @@ export interface User {
   };
   kycSubmittedAt?: Date;
   kycVerifiedAt?: Date;
+  isAccountBlocked?: boolean;
+  isAccountRestricted?: boolean;
+  accountBlockReason?: string;
+  accountUnblockFee?: number;
   updatedAt: Date;
   updatedBy: string;
 }

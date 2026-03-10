@@ -52,6 +52,16 @@ const nextConfig: NextConfig = {
   // Reduce bundle size
   images: {
     unoptimized: false,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'i.pravatar.cc',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
   },
 
   // Disable Turbopack for builds with custom webpack config

@@ -16,7 +16,9 @@ import {
   Clock,
   CheckCircle2,
   Zap,
-  Lock
+  Lock,
+  Landmark,
+  User
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
@@ -93,23 +95,42 @@ const RecoverySection = () => {
 
   const getStatusSteps = (status: string) => {
     const steps = [
-      { title: 'Forensic Trace', icon: <FileSearch />, status: 'pending', desc: 'Analyzing blockchain ledgers and international Swift records.' },
+      { title: 'Intelligence Audit', icon: <FileSearch />, status: 'pending', desc: 'Case initialized and awaiting officer assignment.' },
+      { title: 'Forensic Trace', icon: <Search />, status: 'pending', desc: 'Analyzing blockchain ledgers and international Swift records.' },
       { title: 'Legal Demand', icon: <Scale />, status: 'pending', desc: 'Issuing formal demands to receiving institutions and PSPs.' },
       { title: 'Bank Freeze', icon: <Building2 />, status: 'pending', desc: 'Securing temporary freezing orders on illicit accounts.' },
-      { title: 'Fast Cashback', icon: <RefreshCw />, status: 'pending', desc: 'Repatriation of recovered funds to your Safe Vault.' }
+      { title: 'Asset Release', icon: <Shield />, status: 'pending', desc: 'Authorized for repatriation to original banking vault.' },
+      { title: 'Transmission', icon: <RefreshCw />, status: 'pending', desc: 'Finalized settlement of assets into your secure wallet.' }
     ];
 
-    if (['pending', 'reviewing', 'tracing'].includes(status)) {
-      steps[0].status = 'active';
-    } else if (['legal'].includes(status)) {
-      steps[0].status = 'completed';
-      steps[1].status = 'active';
-    } else if (['recovered', 'completed'].includes(status)) {
-      steps[0].status = 'completed';
-      steps[1].status = 'completed';
-      steps[2].status = 'completed';
-      steps[3].status = 'active';
-    } else if (status === 'closed') {
+    const statusOrder = ['pending', 'investigating', 'forensic_phase', 'legal_action', 'funds_frozen', 'approved', 'completed'];
+    const currentIndex = statusOrder.indexOf(status);
+
+    if (currentIndex === -1) return steps;
+
+    // Mapping Status to Step Index
+    // 0: Intelligence Audit (pending, investigating)
+    // 1: Forensic Trace (forensic_phase)
+    // 2: Legal Demand (legal_action)
+    // 3: Bank Freeze (funds_frozen)
+    // 4: Asset Release (approved)
+    // 5: Transmission (completed)
+
+    let activeStepIndex = 0;
+    if (status === 'forensic_phase') activeStepIndex = 1;
+    else if (status === 'legal_action') activeStepIndex = 2;
+    else if (status === 'funds_frozen') activeStepIndex = 3;
+    else if (status === 'approved') activeStepIndex = 4;
+    else if (status === 'completed') activeStepIndex = 5;
+
+    steps.forEach((step, idx) => {
+      if (idx < activeStepIndex) step.status = 'completed';
+      else if (idx === activeStepIndex) step.status = 'active';
+      else step.status = 'pending';
+    });
+
+    // Special case for completed: everything is completed
+    if (status === 'completed') {
       steps.forEach(s => s.status = 'completed');
     }
 
@@ -150,10 +171,13 @@ const RecoverySection = () => {
   };
 
   const scamTypes = [
-    { id: 'crypto', name: 'Crypto Wealth', icon: <Bitcoin className="text-orange-500" /> },
-    { id: 'forex', name: 'Forex/Investment', icon: <TrendingDown className="text-red-500" /> },
-    { id: 'romance', name: 'Romance/Social', icon: <HeartHandshake className="text-pink-500" /> },
-    { id: 'phishing', name: 'Phishing/Hacks', icon: <Shield className="text-blue-500" /> }
+    { id: 'Crypto Wealth / Mining Scams', name: 'Crypto Wealth', icon: <Bitcoin className="text-orange-500" /> },
+    { id: 'Forex / Investment Fraud', name: 'Forex/Investment', icon: <TrendingDown className="text-red-500" /> },
+    { id: 'Romance / Social Engineering', name: 'Romance/Social', icon: <HeartHandshake className="text-pink-500" /> },
+    { id: 'Phishing / Wallet Hacks', name: 'Phishing/Hacks', icon: <Shield className="text-blue-500" /> },
+    { id: 'Overcharge Agency Fee', name: 'Overcharge Agency Fee', icon: <Landmark className="text-amber-600" /> },
+    { id: 'Shipment / Logistics Agency Fraud', name: 'Shipment/Logistics', icon: <Building2 className="text-emerald-600" /> },
+    { id: 'Identity Theft / Account Takeover', name: 'Identity Theft', icon: <User className="text-gray-600" /> }
   ];
 
   return (
@@ -223,8 +247,9 @@ const RecoverySection = () => {
                         <div>
                           <div className="flex items-center gap-3 mb-4">
                             <Shield className="text-gold-500 w-8 h-8" />
-                            <h3 className="text-2xl font-bold uppercase tracking-tighter">Case: #{recoveryCase._id.slice(-6).toUpperCase()}</h3>
+                            <h3 className="text-2xl font-bold uppercase tracking-tighter">Case Reference:</h3>
                           </div>
+                          <p className="text-3xl font-black text-white tracking-widest uppercase mb-4 font-mono">{recoveryCase.claimNumber || `REC-${recoveryCase._id.slice(-8).toUpperCase()}`}</p>
                           <p className="text-gray-400 text-sm leading-relaxed mb-8">
                             Status: <span className="text-gold-500 font-black uppercase tracking-widest">{recoveryCase.status}</span>.
                             {recoveryCase.adminNotes || 'Our task force is currently processing this recovery claim. Systems are optimized for high-speed digital tracing.'}
@@ -256,7 +281,7 @@ const RecoverySection = () => {
                                   <div className="w-1.5 h-1.5 bg-gold-500 rounded-full mt-1.5 shrink-0" />
                                   <div>
                                     <p className="text-[10px] font-bold text-white uppercase tracking-tight">{update.message}</p>
-                                    <p className="text-[8px] text-gray-400 font-black uppercase">{new Date(update.date).toLocaleDateString()}</p>
+                                    <p className="text-[8px] text-gray-400 font-black uppercase">{new Date(update.timestamp).toLocaleDateString()}</p>
                                   </div>
                                 </div>
                               ))}
@@ -267,7 +292,7 @@ const RecoverySection = () => {
                     </div>
 
                     {/* Steps Visualizer */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 mobile:gap-4">
                       {getStatusSteps(recoveryCase.status).map((step, idx) => (
                         <div key={idx} className={`p-6 rounded-2xl border transition-all ${step.status === 'active'
                           ? 'bg-white border-gold-500 shadow-xl shadow-gold-500/5'

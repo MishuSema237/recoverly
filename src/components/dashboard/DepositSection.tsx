@@ -6,28 +6,19 @@ import Image from 'next/image';
 import { Upload, CheckCircle, AlertCircle, CreditCard, DollarSign, ShieldCheck, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
-
-interface PaymentMethod {
-  _id: string;
-  name: string;
-  logo: string;
-  accountDetails: {
-    accountName: string;
-    accountNumber: string;
-    bankName?: string;
-    walletAddress?: string;
-    network?: string;
-  };
-  instructions: string;
-  isActive: boolean;
-}
+import { getPaymentMethods, PaymentMethod } from '@/lib/services/PaymentMethodService';
 
 interface DepositRequest {
+  _id: string;
   userId: string;
   paymentMethodId: string;
   amount: number;
-  screenshot: string;
-  status: 'pending' | 'approved' | 'rejected';
+  screenshot?: string;
+  paymentDetailsString?: string;
+  status: 'pending_details' | 'awaiting_payment' | 'verifying' | 'completed' | 'rejected' | 'pending' | 'approved';
+  createdAt: Date;
+  updatedAt: Date;
+  paymentMethod?: PaymentMethod;
 }
 
 const DepositSection = () => {
@@ -38,11 +29,13 @@ const DepositSection = () => {
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeDeposits, setActiveDeposits] = useState<DepositRequest[]>([]);
+  const [isLoadingActive, setIsLoadingActive] = useState(true);
 
   // Validation states
   const depositAmount = parseFloat(amount) || 0;
   const isAmountValid = depositAmount > 0;
-  const isFormValid = isAmountValid && selectedMethod && screenshot;
+  const isFormValid = isAmountValid && selectedMethod;
 
   useEffect(() => {
     loadPaymentMethods();
@@ -50,17 +43,36 @@ const DepositSection = () => {
 
   const loadPaymentMethods = async () => {
     try {
-      const response = await fetch('/api/payment-methods');
-      const result = await response.json();
-
-      if (result.success) {
-        setPaymentMethods(result.data.filter((method: PaymentMethod) => method.isActive));
-      }
+      const methods = await getPaymentMethods();
+      setPaymentMethods(methods.filter((method: PaymentMethod) => method.isActive));
     } catch (error) {
       console.error('Error loading payment methods:', error);
       showError('An error occurred while loading payment methods');
     }
   };
+
+  const loadActiveDeposits = async () => {
+    try {
+      const response = await fetch('/api/user/deposits');
+      const result = await response.json();
+      if (result.success && result.data) {
+        // filter for active statuses
+        const active = result.data.filter((d: DepositRequest) =>
+          ['pending_details', 'awaiting_payment', 'verifying', 'pending'].includes(d.status)
+        );
+        setActiveDeposits(active);
+      }
+    } catch (error) {
+      console.error('Error loading active deposits:', error);
+    } finally {
+      setIsLoadingActive(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPaymentMethods();
+    loadActiveDeposits();
+  }, [userProfile]);
 
   const handleScreenshotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -74,77 +86,89 @@ const DepositSection = () => {
     }
   };
 
+  const handleUploadProof = async (depositId: string, proofFile: File) => {
+    setIsSubmitting(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const base64Screenshot = reader.result as string;
+          const response = await fetch('/api/transactions', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              _id: depositId,
+              type: 'deposit',
+              status: 'verifying',
+              screenshot: base64Screenshot
+            })
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            showSuccess('Payment proof uploaded successfully. Admin is verifying.');
+            await loadActiveDeposits();
+            // Force refresh user data
+            await forceRefresh();
+          } else {
+            showError(result.error || 'Failed to upload proof');
+          }
+        } catch (err) {
+          showError('An error occurred during upload');
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
+      reader.readAsDataURL(proofFile);
+    } catch (e) {
+      setIsSubmitting(false);
+      showError('Error reading file');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Check if email is verified
     if (!userProfile?.emailVerified) {
       showError('Please verify your email address before making a deposit. Check your inbox for the verification link.');
       return;
     }
 
-    if (!selectedMethod || !amount || !screenshot) {
-      showError('Please fill in all fields and upload a screenshot');
+    if (!selectedMethod || !amount) {
+      showError('Please select a payment method and enter an amount.');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Convert screenshot to base64
-      const reader = new FileReader();
-      reader.onload = async () => {
-        try {
-          const base64Screenshot = reader.result as string;
-
-          const depositRequest: DepositRequest = {
-            userId: user?._id || '',
-            paymentMethodId: selectedMethod._id,
-            amount: parseFloat(amount),
-            screenshot: base64Screenshot,
-            status: 'pending'
-          };
-
-          const response = await fetch('/api/transactions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              type: 'deposit',
-              ...depositRequest
-            })
-          });
-
-          const result = await response.json();
-
-          if (result.success) {
-            showSuccess('Deposit request submitted successfully! Please wait for admin approval.');
-            setAmount('');
-            setScreenshot(null);
-            setScreenshotPreview('');
-            setSelectedMethod(null);
-            // Force refresh user data to get updated balances and notifications
-            await forceRefresh();
-          } else {
-            showError(result.error || 'Failed to submit deposit request');
-          }
-        } catch (error) {
-          console.error('Error submitting deposit request:', error);
-          showError('An error occurred while submitting your request');
-        } finally {
-          setIsSubmitting(false);
-        }
+      const depositRequest: any = {
+        userId: user?._id || '',
+        paymentMethodId: selectedMethod._id,
+        amount: parseFloat(amount),
       };
-      reader.onerror = () => {
-        console.error('Error reading file');
-        showError('Error reading screenshot file');
-        setIsSubmitting(false);
-      };
-      reader.readAsDataURL(screenshot);
+
+      const response = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'deposit', ...depositRequest })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        showSuccess('Deposit request submitted! Please wait for payment instructions.');
+        setAmount('');
+        setSelectedMethod(null);
+        await loadActiveDeposits();
+        await forceRefresh();
+      } else {
+        showError(result.error || 'Failed to submit deposit request');
+      }
     } catch (error) {
       console.error('Error submitting deposit request:', error);
       showError('An error occurred while submitting your request');
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -219,162 +243,206 @@ const DepositSection = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 mobile:space-y-6" style={{
-          opacity: userProfile?.kycStatus !== 'verified' ? 0.5 : 1,
-          pointerEvents: userProfile?.kycStatus !== 'verified' ? 'none' : 'auto'
-        }}>
-          {/* Payment Method Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Select Payment Method</label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {paymentMethods.map((method) => (
-                <motion.div
-                  key={method._id}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`p-3 mobile:p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedMethod?._id === method._id
-                    ? 'border-[#c9933a] bg-[#fdfcf0]'
-                    : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  onClick={() => setSelectedMethod(method)}
-                >
-                  <div className="flex items-center space-x-3">
-                    {method.logo && (
-                      <Image src={method.logo} alt={method.name} width={28} height={28} className="w-7 h-7 mobile:w-8 mobile:h-8 rounded" />
-                    )}
+        {/* Active Deposits UI */}
+        {!isLoadingActive && activeDeposits.length > 0 ? (
+          <div className="space-y-6">
+            <h3 className="text-lg font-bold text-gray-900 border-b pb-2">Active Deposit Requests</h3>
+            {activeDeposits.map((deposit) => (
+              <div key={deposit._id} className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <p className="text-sm text-gray-500 font-medium tracking-widest uppercase mb-1">Amount</p>
+                    <p className="text-2xl font-black text-navy-900">${deposit.amount.toLocaleString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${deposit.status === 'awaiting_payment' ? 'bg-amber-100 text-amber-800' :
+                      deposit.status === 'verifying' ? 'bg-blue-100 text-blue-800' :
+                        'bg-gray-200 text-gray-700'
+                      }`}>
+                      {deposit.status.replace('_', ' ').toUpperCase()}
+                    </span>
+                    <p className="text-xs text-gray-400 mt-2">{new Date(deposit.createdAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+
+                {/* State: Pending Details */}
+                {deposit.status === 'pending_details' && (
+                  <div className="bg-white p-4 rounded-lg border border-gray-100 text-sm text-gray-600">
+                    Your request has been received. Our secure intelligence team is currently generating your specific payment credentials. Please check back shortly.
+                  </div>
+                )}
+
+                {/* State: Awaiting Payment */}
+                {deposit.status === 'awaiting_payment' && (
+                  <div className="space-y-4">
+                    <div className="bg-white p-5 rounded-lg border border-gold-500/30">
+                      <h4 className="text-xs font-black text-gold-600 uppercase tracking-widest mb-3">Secure Payment Instructions</h4>
+                      <p className="text-sm text-navy-900 font-medium whitespace-pre-line leading-relaxed">
+                        {deposit.paymentDetailsString || 'No instructions provided.'}
+                      </p>
+                    </div>
+
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-white">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleScreenshotChange}
+                        className="hidden"
+                        id={`proof-upload-${deposit._id}`}
+                      />
+                      <label htmlFor={`proof-upload-${deposit._id}`} className="cursor-pointer">
+                        {screenshotPreview ? (
+                          <div className="space-y-4">
+                            <Image
+                              src={screenshotPreview}
+                              alt="Screenshot preview"
+                              width={400}
+                              height={400}
+                              className="mx-auto max-w-full max-h-48 rounded-lg shadow-sm"
+                            />
+                            <p className="text-xs text-gold-600 font-bold">Click to change screenshot</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
+                              <Upload className="w-5 h-5 text-gray-400" />
+                            </div>
+                            <p className="text-sm font-bold text-gray-700">Upload Transfer Proof</p>
+                            <p className="text-xs text-gray-500">JPG, PNG up to 5MB</p>
+                          </div>
+                        )}
+                      </label>
+                    </div>
+
+                    <button
+                      disabled={!screenshot || isSubmitting}
+                      onClick={() => screenshot && handleUploadProof(deposit._id, screenshot)}
+                      className={`w-full py-3 rounded-lg font-bold text-sm transition-all ${!screenshot || isSubmitting
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-gold-500 text-navy-900 hover:bg-gold-400 shadow-lg'
+                        }`}
+                    >
+                      {isSubmitting ? 'Uploading Proof...' : 'Submit Payment Proof'}
+                    </button>
+                  </div>
+                )}
+
+                {/* State: Verifying */}
+                {deposit.status === 'verifying' && (
+                  <div className="bg-white p-4 rounded-lg border border-blue-100 flex items-start gap-3">
+                    <Clock className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
                     <div>
-                      <h3 className="font-semibold text-gray-900 text-sm mobile:text-base">{method.name}</h3>
+                      <h4 className="text-sm font-bold text-blue-900 mb-1">Authenticating Transfer</h4>
+                      <p className="text-xs text-blue-700/80 leading-relaxed">
+                        We have received your payment proof. Our financial team is currently verifying the transaction. Your balance will be credited upon successful confirmation.
+                      </p>
                     </div>
                   </div>
-                </motion.div>
-              ))}
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4 mobile:space-y-6" style={{
+            opacity: userProfile?.kycStatus !== 'verified' ? 0.5 : 1,
+            pointerEvents: userProfile?.kycStatus !== 'verified' ? 'none' : 'auto'
+          }}>
+            {/* Payment Method Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Select Payment Method</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {paymentMethods.map((method) => (
+                  <motion.div
+                    key={method._id}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`p-3 mobile:p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedMethod?._id === method._id
+                      ? 'border-[#c9933a] bg-[#fdfcf0]'
+                      : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    onClick={() => setSelectedMethod(method)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      {method.logo && (
+                        <Image src={method.logo} alt={method.name} width={28} height={28} className="w-7 h-7 mobile:w-8 mobile:h-8 rounded" />
+                      )}
+                      <div>
+                        <h3 className="font-semibold text-gray-900 text-sm mobile:text-base">{method.name}</h3>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Selected Method Details */}
-          {selectedMethod && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="bg-gray-50 rounded-lg p-4 mobile:p-6"
-            >
-              <h3 className="font-semibold text-gray-900 mb-4">Payment Details</h3>
-              <div className="space-y-3">
-                <div>
-                  <span className="font-medium text-gray-700">Account Name:</span>
-                  <span className="ml-2 text-gray-900">{selectedMethod.accountDetails?.accountName || 'N/A'}</span>
+            {/* Selected Method Indicator */}
+            {selectedMethod && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-[#fdfcf0] border border-[#c9933a]/30 rounded-lg p-4 flex items-center justify-between"
+              >
+                <div className="flex items-center space-x-3">
+                  {selectedMethod.logo && (
+                    <Image src={selectedMethod.logo} alt={selectedMethod.name} width={24} height={24} className="w-6 h-6 rounded" />
+                  )}
+                  <span className="font-bold text-navy-900 text-sm italic uppercase tracking-tighter">{selectedMethod.name} Selected</span>
                 </div>
-                <div>
-                  <span className="font-medium text-gray-700">Account Number:</span>
-                  <span className="ml-2 text-gray-900 font-mono break-all">{selectedMethod.accountDetails?.accountNumber || 'N/A'}</span>
-                </div>
-                {selectedMethod.accountDetails?.bankName && (
-                  <div>
-                    <span className="font-medium text-gray-700">Bank:</span>
-                    <span className="ml-2 text-gray-900">{selectedMethod.accountDetails.bankName}</span>
-                  </div>
-                )}
-                {selectedMethod.accountDetails?.network && (
-                  <div>
-                    <span className="font-medium text-gray-700">Network:</span>
-                    <span className="ml-2 text-gray-900">{selectedMethod.accountDetails.network}</span>
-                  </div>
-                )}
-              </div>
-              <div className="mt-4">
-                <h4 className="font-medium text-gray-700 mb-2">Instructions:</h4>
-                <p className="text-sm text-gray-600 whitespace-pre-line">{selectedMethod.instructions}</p>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Amount Input */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Amount (USD)</label>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className={`w-full px-4 py-2.5 mobile:py-3 border rounded-lg focus:ring-2 focus:border-transparent text-sm mobile:text-base ${amount && !isAmountValid
-                ? 'border-[#c9933a] focus:ring-[#c9933a] bg-[#fdfcf0]'
-                : 'border-gray-300 focus:ring-[#c9933a]'
-                }`}
-              placeholder="Enter amount to deposit"
-              min="1"
-              step="0.01"
-              required
-            />
-            {amount && !isAmountValid && (
-              <p className="mt-1 text-sm text-[#c9933a]">
-                Please enter a valid amount greater than $0
-              </p>
+                <div className="w-2 h-2 bg-[#c9933a] rounded-full animate-pulse"></div>
+              </motion.div>
             )}
-            {amount && isAmountValid && (
-              <p className="mt-1 text-sm text-green-600">
-                Amount: ${depositAmount.toFixed(2)}
-              </p>
-            )}
-          </div>
 
-          {/* Screenshot Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Upload Payment Screenshot</label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            {/* Amount Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Amount (USD)</label>
               <input
-                type="file"
-                accept="image/*"
-                onChange={handleScreenshotChange}
-                className="hidden"
-                id="screenshot-upload"
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className={`w-full px-4 py-2.5 mobile:py-3 border rounded-lg focus:ring-2 focus:border-transparent text-sm mobile:text-base ${amount && !isAmountValid
+                  ? 'border-[#c9933a] focus:ring-[#c9933a] bg-[#fdfcf0]'
+                  : 'border-gray-300 focus:ring-[#c9933a]'
+                  }`}
+                placeholder="Enter amount to deposit"
+                min="1"
+                step="0.01"
                 required
               />
-              <label htmlFor="screenshot-upload" className="cursor-pointer">
-                {screenshotPreview ? (
-                  <div className="space-y-4">
-                    <Image
-                      src={screenshotPreview}
-                      alt="Screenshot preview"
-                      width={400}
-                      height={400}
-                      className="mx-auto max-w-full max-h-96 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200"
-                    />
-                    <p className="text-sm text-gray-600">Click to change screenshot</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <Upload className="w-12 h-12 text-gray-400 mx-auto" />
-                    <div>
-                      <p className="text-lg font-medium text-gray-900">Upload Payment Screenshot</p>
-                      <p className="text-sm text-gray-600">Click to select an image file</p>
-                    </div>
-                  </div>
-                )}
-              </label>
+              {amount && !isAmountValid && (
+                <p className="mt-1 text-sm text-[#c9933a]">
+                  Please enter a valid amount greater than $0
+                </p>
+              )}
+              {amount && isAmountValid && (
+                <p className="mt-1 text-sm text-green-600">
+                  Amount: ${depositAmount.toFixed(2)}
+                </p>
+              )}
             </div>
-          </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={!isFormValid || isSubmitting || !userProfile?.emailVerified}
-            className={`w-full text-white py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm mobile:text-base ${(!isFormValid || isSubmitting)
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-[#c9933a] hover:bg-[#b08132]'
-              }`}
-          >
-            {isSubmitting ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                <span>Submitting...</span>
-              </>
-            ) : (
-              <>
-                <CreditCard className="w-5 h-5" />
-                <span>Submit Deposit Request</span>
-              </>
-            )}
-          </button>
-        </form>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={!isFormValid || isSubmitting || !userProfile?.emailVerified}
+              className={`w-full text-white py-2.5 mobile:py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm mobile:text-base ${(!isFormValid || isSubmitting)
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-[#c9933a] hover:bg-[#b08132]'
+                }`}
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span>Submitting...</span>
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-5 h-5" />
+                  <span>Submit Deposit Request</span>
+                </>
+              )}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

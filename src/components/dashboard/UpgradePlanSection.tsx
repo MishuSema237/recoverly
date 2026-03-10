@@ -38,7 +38,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
   // Recalculate when plan changes
   const handlePlanChange = (plan: InvestmentPlan | null) => {
     setSelectedPlan(plan);
-    
+
     if (plan && investmentAmount > 0) {
       // Revalidate current amount against new plan
       const error = validateAmount(investmentAmount, plan);
@@ -49,7 +49,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
     } else {
       setAmountError('');
     }
-    
+
     setShowCalculation(false);
   };
 
@@ -70,7 +70,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
   // Handle amount change
   const handleAmountChange = (amount: number) => {
     setInvestmentAmount(amount);
-    
+
     if (selectedPlan) {
       const error = validateAmount(amount, selectedPlan);
       setAmountError(error);
@@ -83,7 +83,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
     const totalReturn = (amount * plan.roi) / 100;
     const dailyReturn = totalReturn / parseInt(plan.duration.toString());
     const netProfit = totalReturn;
-    
+
     return {
       totalReturn,
       dailyReturn,
@@ -104,15 +104,15 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
     try {
       // Call the onUpgrade callback with the selected plan and amount
       await onUpgrade(selectedPlan, investmentAmount);
-      
+
       setMessage({ type: 'success', text: 'Investment upgrade request submitted successfully!' });
-      
+
       // Reset form
       setSelectedPlan(null);
       setInvestmentAmount(0);
       setShowCalculation(false);
       setAmountError('');
-      
+
     } catch (error) {
       console.error('Investment error:', error);
       setMessage({ type: 'error', text: 'Failed to submit investment request. Please try again.' });
@@ -127,13 +127,13 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
       try {
         const planService = new PlanService();
         const mongoPlans = await planService.getAllPlans();
-        
+
         if (mongoPlans.length > 0) {
           setPlans(mongoPlans);
         } else {
           setPlans([]);
         }
-        
+
         if (refreshing) {
           setRefreshing(false);
         } else {
@@ -142,7 +142,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
       } catch (error) {
         console.error('Error loading plans from MongoDB:', error);
         setPlans([]);
-        
+
         if (refreshing) {
           setRefreshing(false);
         } else {
@@ -151,21 +151,29 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
       }
     };
 
-    loadPlans();
-  }, [refreshing]);
+    if (plans.length === 0) {
+      loadPlans();
+    }
+  }, []);
 
   // Manual refresh function
   const handleRefresh = async () => {
     setRefreshing(true);
-    const planService = new PlanService();
-    const mongoPlans = await planService.getAllPlans();
-    
-    if (mongoPlans.length > 0) {
-      setPlans(mongoPlans);
-    } else {
+    try {
+      const planService = new PlanService();
+      const mongoPlans = await planService.getAllPlans();
+
+      if (mongoPlans.length > 0) {
+        setPlans(mongoPlans);
+      } else {
+        setPlans([]);
+      }
+    } catch (e) {
+      console.error(e);
       setPlans([]);
+    } finally {
+      setRefreshing(false);
     }
-    setRefreshing(false);
   };
 
   // Pagination functions
@@ -308,9 +316,8 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer ${
-                    selectedPlan?._id === plan._id ? 'ring-2 ring-[#c9933a] border-[#c9933a]' : ''
-                  }`}
+                  className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer ${selectedPlan?._id === plan._id ? 'ring-2 ring-[#c9933a] border-[#c9933a]' : ''
+                    }`}
                   onClick={() => handlePlanChange(plan)}
                 >
                   <div className={`bg-gradient-to-r ${getColorGradient(plan.color || 'gray')} p-6 rounded-t-2xl`}>
@@ -351,11 +358,10 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
                     </div>
 
                     <button
-                      className={`w-full mt-6 py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${
-                        selectedPlan?._id === plan._id
-                          ? 'bg-[#c9933a] text-white hover:bg-[#b08132]'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
+                      className={`w-full mt-6 py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${selectedPlan?._id === plan._id
+                        ? 'bg-[#c9933a] text-white hover:bg-[#b08132]'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
                     >
                       {selectedPlan?._id === plan._id ? 'Selected' : 'Select Plan'}
                     </button>
@@ -393,7 +399,7 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
         {selectedPlan && (
           <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Investment Details</h3>
-            
+
             <div className="space-y-6">
               {/* Amount Input */}
               <div>
@@ -450,9 +456,8 @@ const UpgradePlanSection = ({ onBack, onUpgrade }: UpgradePlanSectionProps) => {
 
               {/* Message */}
               {message.text && (
-                <div className={`p-4 rounded-lg ${
-                  message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-[#fdfcf0] text-[#b08132]'
-                }`}>
+                <div className={`p-4 rounded-lg ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-[#fdfcf0] text-[#b08132]'
+                  }`}>
                   {message.text}
                 </div>
               )}

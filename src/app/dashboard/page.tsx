@@ -42,6 +42,7 @@ import {
   Activity,
   ChevronRight
 } from 'lucide-react';
+import VerificationBanner from '@/components/dashboard/VerificationBanner';
 import { useAuth } from '@/contexts/AuthContext';
 import { canAccessAdmin } from '@/utils/adminUtils';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -67,12 +68,19 @@ const VirtualCardsSection = dynamic(() => import('@/components/dashboard/Virtual
 const LoanSection = dynamic(() => import('@/components/dashboard/LoanSection'));
 const TaxRefundSection = dynamic(() => import('@/components/dashboard/TaxRefundSection'));
 const RecoverySection = dynamic(() => import('@/components/dashboard/RecoverySection'));
+const AccountBlockedOverlay = dynamic(() => import('@/components/dashboard/AccountBlockedOverlay'));
+const AccountRestrictedBanner = dynamic(() => import('@/components/dashboard/AccountRestrictedBanner'));
 
 const TransactionsHub = ({ setActiveSection }: { setActiveSection: (s: string) => void }) => {
   const { userProfile } = useAuth();
   const isVerified = userProfile?.emailVerified && userProfile?.kycStatus === 'verified';
 
   const handleAction = (id: string) => {
+    if (userProfile?.isAccountRestricted && (id === 'transfer' || id === 'withdraw')) {
+      showError('Financial actions are restricted. Please resolve the account restriction to proceed.');
+      return;
+    }
+
     if (id === 'deposit' || id === 'logs') {
       setActiveSection(id);
     } else {
@@ -128,6 +136,13 @@ const AccountHub = ({ setActiveSection }: { setActiveSection: (s: string) => voi
       icon: <ShieldCheck className="w-5 h-5" />,
       desc: 'System-wide governance',
       color: 'text-gold-600 bg-gold-50 border-gold-200/50'
+    }] : []),
+    ...(userProfile?.kycStatus !== 'verified' ? [{
+      id: 'kyc',
+      name: 'Identity Verification',
+      icon: <ShieldCheck className="w-5 h-5" />,
+      desc: 'Security clearance & KYC',
+      color: 'text-navy-900 bg-navy-50 border-gray-100'
     }] : [])
   ];
 
@@ -394,7 +409,7 @@ const DashboardContent = () => {
         name: 'Account',
         icon: <User className="w-5 h-5" />,
         // Include admin in the account hub logic if user is admin
-        subItems: ['profile', 'support', ...(isAdmin ? ['admin'] : [])],
+        subItems: ['profile', 'support', ...(isAdmin ? ['admin'] : []), ...(userProfile?.kycStatus !== 'verified' ? ['kyc'] : [])],
       },
       {
         id: 'services_hub',
@@ -501,11 +516,12 @@ const DashboardContent = () => {
                       <div className="pt-4 pb-2 px-4">
                         <p className="text-[10px] uppercase tracking-widest text-[#c9933a] font-bold">Account</p>
                       </div>
-                      {['profile', 'support'].map(id => {
+                      {['profile', 'support', ...(userProfile?.kycStatus !== 'verified' ? ['kyc'] : [])].map(id => {
                         const link = {
                           profile: { name: 'Account Info', icon: <User className="w-5 h-5" /> },
-                          support: { name: 'Contact Support', icon: <HeadphonesIcon className="w-5 h-5" /> }
-                        }[id as 'profile' | 'support'];
+                          support: { name: 'Contact Support', icon: <HeadphonesIcon className="w-5 h-5" /> },
+                          kyc: { name: 'Identity Verification', icon: <ShieldCheck className="w-5 h-5" /> }
+                        }[id as 'profile' | 'support' | 'kyc'];
                         return (
                           <button
                             key={id}
@@ -572,6 +588,14 @@ const DashboardContent = () => {
 
           {/* Main Content */}
           <main className="flex-1 flex flex-col h-full overflow-hidden">
+            {/* Restriction Banner */}
+            {userProfile?.isAccountRestricted && (
+              <AccountRestrictedBanner
+                reason={userProfile.accountBlockReason || ''}
+                fee={userProfile.accountUnblockFee || 0}
+                onPayFee={() => setActiveSection('deposit')}
+              />
+            )}
             {/* Navbar */}
             <header className="h-16 mobile:h-20 bg-white border-b border-gray-100 flex items-center justify-between px-4 mobile:px-6 shrink-0">
               <div className="flex items-center space-x-4">
@@ -604,7 +628,8 @@ const DashboardContent = () => {
             </header>
 
             {/* Scrollable Area */}
-            <div className="flex-1 overflow-y-auto p-3.5 mobile:p-6 bg-white space-y-4 mobile:space-y-8 pb-32 mb:pb-20">
+            <div className="flex-1 overflow-y-auto p-3.5 mobile:p-6 bg-white space-y-4 mobile:space-y-8 pb-32 mb:pb-20 relative">
+              <VerificationBanner onNavigate={(section) => setActiveSection(section)} />
               {activeSection === 'dashboard' ? (
                 <>
                   {/* Top Stats Cards Removed per request - replaced by slideshow in Welcome section */}
@@ -741,6 +766,10 @@ const DashboardContent = () => {
                             <h4 className="relative z-10 font-bold text-navy-900 mb-1 text-sm mobile:text-base uppercase tracking-tighter">Loan Services</h4>
                             <p className="relative z-10 text-[10px] text-gray-400 mb-4 font-black uppercase tracking-widest">Instant financial assistance</p>
                             <button onClick={() => {
+                              if (userProfile?.isAccountRestricted) {
+                                showError('Financial actions are restricted. Please resolve the account restriction to proceed.');
+                                return;
+                              }
                               const isVerified = userProfile?.emailVerified && userProfile?.kycStatus === 'verified';
                               if (!isVerified) {
                                 showError('Please verify your email and complete KYC to access this feature.');
@@ -759,6 +788,10 @@ const DashboardContent = () => {
                             <h4 className="relative z-10 font-bold text-navy-900 mb-1 text-sm mobile:text-base uppercase tracking-tighter">IRS Tax Refund</h4>
                             <p className="relative z-10 text-[10px] text-gray-400 mb-4 font-black uppercase tracking-widest">Claim your tax rebate</p>
                             <button onClick={() => {
+                              if (userProfile?.isAccountRestricted) {
+                                showError('Financial actions are restricted. Please resolve the account restriction to proceed.');
+                                return;
+                              }
                               const isVerified = userProfile?.emailVerified && userProfile?.kycStatus === 'verified';
                               if (!isVerified) {
                                 showError('Please verify your email and complete KYC to access this feature.');
@@ -1022,7 +1055,16 @@ const DashboardContent = () => {
                             )[activeSection]
                             : currentHub?.name}
                         </h2>
-                        <button onClick={() => setActiveSection('dashboard')} className="text-gray-400 hover:text-navy-900 flex items-center text-xs mobile:text-sm font-bold">
+                        <button
+                          onClick={() => {
+                            if (activeSection === 'kyc') {
+                              setActiveSection('account_hub');
+                            } else {
+                              setActiveSection('dashboard');
+                            }
+                          }}
+                          className="text-gray-400 hover:text-navy-900 flex items-center text-xs mobile:text-sm font-bold"
+                        >
                           <X className="w-4 h-4 mr-1" /> Close
                         </button>
                       </div>
@@ -1045,11 +1087,7 @@ const DashboardContent = () => {
                   {activeSection === 'recovery' && <RecoverySection />}
                   {activeSection === 'kyc' && (
                     userProfile?.kycStatus === 'verified'
-                      ? <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <CheckCircle className="w-20 h-20 text-green-500 mb-6" />
-                        <h2 className="text-3xl font-bold text-navy-900 mb-2">Account Verified</h2>
-                        <p className="text-gray-500">Your identity documents have already been successfully verified.</p>
-                      </div>
+                      ? null
                       : <KYCSection />
                   )}
                   {activeSection === 'admin' && <AdminSection />}
@@ -1057,6 +1095,15 @@ const DashboardContent = () => {
                 </div>
               )}
             </div>
+
+            {/* Account Blocked Overlay */}
+            {userProfile?.isAccountBlocked && activeSection !== 'deposit' && (
+              <AccountBlockedOverlay
+                reason={userProfile.accountBlockReason || ''}
+                unblockFee={userProfile.accountUnblockFee || 0}
+                onPayFee={() => setActiveSection('deposit')}
+              />
+            )}
 
             {/* Bottom Nav for Mobile - Grouped for all links */}
             <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[94vw] max-w-[440px]">

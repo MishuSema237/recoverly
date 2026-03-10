@@ -20,6 +20,24 @@ export const PUT = requireAdmin(async (request: AuthenticatedRequest) => {
     // Update user profile
     const success = await UserService.updateUserProfile(userId, allowedUpdates);
 
+    // If email was verified, add to activity log
+    if (success && allowedUpdates.emailVerified === true) {
+      const { getDb } = await import('@/lib/mongodb');
+      const { ObjectId } = await import('mongodb');
+      const db = await getDb();
+      await db.collection('users').updateOne(
+        { _id: new ObjectId(userId) },
+        {
+          $push: {
+            activityLog: {
+              action: 'Email manually verified by system administrator',
+              timestamp: new Date().toISOString()
+            }
+          } as any
+        }
+      );
+    }
+
     if (!success) {
       return NextResponse.json(
         { success: false, error: 'Failed to update user' },

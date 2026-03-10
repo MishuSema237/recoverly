@@ -8,8 +8,9 @@ interface DepositRequest {
   userId: string;
   paymentMethodId: string;
   amount: number;
-  screenshot: string;
-  status: 'pending' | 'approved' | 'rejected';
+  screenshot?: string;
+  paymentDetailsString?: string;
+  status: 'pending_details' | 'awaiting_payment' | 'verifying' | 'completed' | 'pending' | 'approved' | 'rejected';
   createdAt: Date;
   updatedAt: Date;
   approvedBy?: string;
@@ -72,10 +73,10 @@ export async function POST(request: NextRequest) {
         ...transactionData,
         createdAt: new Date(),
         updatedAt: new Date(),
-        status: 'pending',
+        status: 'pending_details',
       };
       const result = await collection.insertOne(newDeposit);
-      
+
       // Get user details for notification
       const user = await db.collection('users').findOne({ _id: new ObjectId(transactionData.userId) });
       const userEmail = user?.email || 'Unknown User';
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest) {
           if (pm?.name) paymentMethodName = pm.name;
         } catch { /* ignore invalid id */ }
       }
-      
+
       // Send notifications using NotificationService
       await NotificationService.notifyDepositRequest(
         transactionData.userId,
@@ -97,7 +98,7 @@ export async function POST(request: NextRequest) {
         result.insertedId.toString(),
         paymentMethodName
       );
-      
+
       return NextResponse.json({ success: true, data: result.insertedId });
     } else if (type === 'withdrawal') {
       // Check withdrawal schedule before proceeding
@@ -119,9 +120,9 @@ export async function POST(request: NextRequest) {
         const isTimeAllowed = currentTime >= startTime && currentTime <= endTime;
 
         if (!isDayAllowed || !isTimeAllowed) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Withdrawals are not allowed at this time. Allowed window: ${withdrawalSchedule.allowedDays.join(', ')} from ${startTime} to ${endTime} (${withdrawalSchedule.timezone})` 
+          return NextResponse.json({
+            success: false,
+            error: `Withdrawals are not allowed at this time. Allowed window: ${withdrawalSchedule.allowedDays.join(', ')} from ${startTime} to ${endTime} (${withdrawalSchedule.timezone})`
           }, { status: 403 });
         }
       }
@@ -134,7 +135,7 @@ export async function POST(request: NextRequest) {
         status: 'pending',
       };
       const result = await collection.insertOne(newWithdrawal);
-      
+
       // Get user details for notification
       const user = await db.collection('users').findOne({ _id: new ObjectId(transactionData.userId) });
       const userEmail = user?.email || 'Unknown User';
@@ -147,7 +148,7 @@ export async function POST(request: NextRequest) {
           if (pm?.name) paymentMethodName = pm.name;
         } catch { /* ignore invalid id */ }
       }
-      
+
       // Send notifications using NotificationService
       await NotificationService.notifyWithdrawalRequest(
         transactionData.userId,
@@ -156,7 +157,7 @@ export async function POST(request: NextRequest) {
         result.insertedId.toString(),
         paymentMethodName
       );
-      
+
       return NextResponse.json({ success: true, data: result.insertedId });
     } else {
       return NextResponse.json({ success: false, error: 'Invalid transaction type for POST' }, { status: 400 });
@@ -170,7 +171,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const db = await getDb();
-    const { _id, type, status, rejectionReason, approvedBy, approvedAt } = await request.json();
+    const { _id, type, status, rejectionReason, approvedBy, approvedAt, paymentDetailsString, screenshot } = await request.json();
 
     if (!_id || !type || !status) {
       return NextResponse.json({ success: false, error: 'Transaction ID, type, and status are required' }, { status: 400 });
@@ -189,15 +190,53 @@ export async function PUT(request: NextRequest) {
 
     if (type === 'deposit') {
       collection = db.collection<DepositRequest>('depositRequests');
-      if (status === 'approved') {
+      if (status === 'awaiting_payment') {
+        updateDoc = { ...updateDoc, paymentDetailsString };
+
+        // Notify user that payment instructions are ready
+        const depositRequest = await collection.findOne({ _id: objectId });
+        if (depositRequest) {
+          const user = await db.collection('users').findOne({ _id: new ObjectId(depositRequest.userId) });
+          if (user?.email) {
+            const { sendEmail, getBaseTemplate } = await import('@/lib/email');
+            const subject = 'Deposit Instructions Ready - Recoverly';
+            const html = getBaseTemplate(subject, `
+              <p>Your deposit request of <strong>$${depositRequest.amount.toLocaleString()}</strong> has been reviewed.</p>
+              <div style="background-color: #f9fafb; padding: 25px; border-radius: 12px; border: 1px solid #e5e7eb; margin: 30px 0;">
+                <p style="margin: 0; font-size: 15px; color: #111827; line-height: 1.6;"><strong>Payment Instructions:</strong><br/>${paymentDetailsString}</p>
+              </div>
+              <p>Please complete the payment and upload the screenshot proof via your dashboard.</p>
+            `, user.firstName);
+            await sendEmail({ to: user.email, subject, text: 'Deposit instructions ready.', html });
+          }
+        }
+      } else if (status === 'verifying') {
+        updateDoc = { ...updateDoc, screenshot };
+
+        // Notify admin that proof is uploaded (and optionally user)
+        const depositRequest = await collection.findOne({ _id: objectId });
+        if (depositRequest) {
+          const user = await db.collection('users').findOne({ _id: new ObjectId(depositRequest.userId) });
+          if (user?.email) {
+            const { sendEmail, getBaseTemplate } = await import('@/lib/email');
+            const subject = 'Payment Proof Verifying - Recoverly';
+            const html = getBaseTemplate(subject, `
+              <p>We received your payment proof for the deposit of <strong>$${depositRequest.amount.toLocaleString()}</strong>.</p>
+              <p>Our financial team is currently verifying the transaction. Your balance will be credited shortly upon successful confirmation.</p>
+            `, user.firstName);
+            await sendEmail({ to: user.email, subject, text: 'Payment proof received, verifying.', html });
+          }
+        }
+      } else if (status === 'approved' || status === 'completed') {
+        updateDoc = { ...updateDoc, status: 'completed', approvedBy, approvedAt };
         updateDoc = { ...updateDoc, approvedBy, approvedAt };
-        
+
         // Get the deposit request to update user balance
         const depositRequest = await collection.findOne({ _id: objectId });
         if (depositRequest) {
           // Update user balance
           await updateUserBalance(depositRequest.userId, depositRequest.amount, 'add', 'deposit');
-          
+
           // Get user details for notification
           const user = await db.collection('users').findOne({ _id: new ObjectId(depositRequest.userId) });
           const userEmail = user?.email || 'Unknown User';
@@ -210,7 +249,7 @@ export async function PUT(request: NextRequest) {
               if (pm?.name) pmName = pm.name;
             } catch { /* ignore */ }
           }
-          
+
           // Notify user of approval
           await NotificationService.notifyDepositApproval(
             depositRequest.userId,
@@ -223,7 +262,7 @@ export async function PUT(request: NextRequest) {
           // Check if this is the user's FIRST deposit (check before adding current deposit)
           const existingApprovedDeposits = await db.collection('depositRequests').find({
             userId: depositRequest.userId,
-            status: 'approved'
+            status: { $in: ['approved', 'completed'] }
           }).toArray();
 
           const isFirstDeposit = existingApprovedDeposits.length === 1; // Current one is the only approved
@@ -304,13 +343,13 @@ export async function PUT(request: NextRequest) {
         }
       } else if (status === 'rejected') {
         updateDoc = { ...updateDoc, rejectionReason };
-        
+
         // Get the deposit request to notify user
         const depositRequest = await collection.findOne({ _id: objectId });
         if (depositRequest) {
           const user = await db.collection('users').findOne({ _id: new ObjectId(depositRequest.userId) });
           const userEmail = user?.email || 'Unknown User';
-          
+
           // Notify user of rejection
           await NotificationService.notifyDepositDecline(
             depositRequest.userId,
@@ -325,13 +364,13 @@ export async function PUT(request: NextRequest) {
       collection = db.collection<WithdrawalRequest>('withdrawalRequests');
       if (status === 'completed') {
         updateDoc = { ...updateDoc, processedBy: approvedBy, processedAt: approvedAt };
-        
+
         // Get the withdrawal request to deduct from user balance
         const withdrawalRequest = await collection.findOne({ _id: objectId });
         if (withdrawalRequest) {
           // Deduct from user balance
           await updateUserBalance(withdrawalRequest.userId, withdrawalRequest.amount, 'subtract', 'withdrawal');
-          
+
           // Get user details for notification
           const user = await db.collection('users').findOne({ _id: new ObjectId(withdrawalRequest.userId) });
           const userEmail = user?.email || 'Unknown User';
@@ -344,7 +383,7 @@ export async function PUT(request: NextRequest) {
               if (pm?.name) pmName = pm.name;
             } catch { /* ignore */ }
           }
-          
+
           // Notify user of completion
           await NotificationService.notifyWithdrawalApproval(
             withdrawalRequest.userId,
@@ -356,13 +395,13 @@ export async function PUT(request: NextRequest) {
         }
       } else if (status === 'rejected') {
         updateDoc = { ...updateDoc, rejectionReason };
-        
+
         // Get the withdrawal request to notify user
         const withdrawalRequest = await collection.findOne({ _id: objectId });
         if (withdrawalRequest) {
           const user = await db.collection('users').findOne({ _id: new ObjectId(withdrawalRequest.userId) });
           const userEmail = user?.email || 'Unknown User';
-          
+
           // Notify user of rejection
           await NotificationService.notifyWithdrawalDecline(
             withdrawalRequest.userId,
@@ -398,7 +437,7 @@ async function updateUserBalance(userId: string, amount: number, operation: 'add
   try {
     const db = await getDb();
     const usersCollection = db.collection('users');
-    
+
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
     if (!user) {
       console.error('User not found for balance update:', userId);
@@ -406,8 +445,8 @@ async function updateUserBalance(userId: string, amount: number, operation: 'add
     }
 
     const currentBalance = user.balances?.main || 0;
-    const newBalance = operation === 'add' 
-      ? currentBalance + amount 
+    const newBalance = operation === 'add'
+      ? currentBalance + amount
       : Math.max(0, currentBalance - amount);
 
     const updateData: Record<string, number | Date> = {

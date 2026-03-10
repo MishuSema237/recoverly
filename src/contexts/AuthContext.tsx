@@ -40,6 +40,10 @@ interface User {
     referral: number;
     total: number;
   };
+  isAccountBlocked?: boolean;
+  isAccountRestricted?: boolean;
+  accountBlockReason?: string;
+  accountUnblockFee?: number;
   investments?: Array<{
     _id: string;
     planName: string;

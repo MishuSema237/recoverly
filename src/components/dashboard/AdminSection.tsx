@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import {
   Users,
@@ -37,12 +38,15 @@ import {
   Globe,
   ArrowLeftRight,
   FileSearch,
-  ArrowRight
+  ArrowRight,
+  Lock,
+  ShieldAlert
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
 import { canAccessAdmin } from '@/utils/adminUtils';
 import { PlanService, InvestmentPlan } from '@/lib/services/PlanService';
+import { getPaymentMethods } from '@/lib/services/PaymentMethodService';
 import WithdrawalScheduleManager from '@/components/admin/WithdrawalScheduleManager';
 
 import SupportMessagesManager from '@/components/admin/SupportMessagesManager';
@@ -56,14 +60,14 @@ interface PaymentMethod {
   _id?: string;
   name: string;
   logo: string;
-  accountDetails: {
-    accountName: string;
-    accountNumber: string;
+  accountDetails?: {
+    accountName?: string;
+    accountNumber?: string;
     bankName?: string;
     walletAddress?: string;
     network?: string;
   };
-  instructions: string;
+  instructions?: string;
   isActive: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -115,7 +119,12 @@ interface AdminUser {
     rejectionReason?: string;
     submittedAt?: string;
   };
+  kycStatus?: 'not_started' | 'pending' | 'verified' | 'rejected';
   accountType?: string;
+  isAccountBlocked?: boolean;
+  isAccountRestricted?: boolean;
+  accountBlockReason?: string;
+  accountUnblockFee?: number;
 }
 
 type AdminUserWithInvestments = AdminUser & { investments?: Array<{ status?: string }> };
@@ -125,8 +134,9 @@ interface DepositRequest {
   userId: string;
   paymentMethodId: string;
   amount: number;
-  screenshot: string;
-  status: 'pending' | 'approved' | 'rejected';
+  screenshot?: string;
+  paymentDetailsString?: string;
+  status: 'pending_details' | 'awaiting_payment' | 'verifying' | 'completed' | 'rejected' | 'pending' | 'approved';
   createdAt: Date;
   updatedAt: Date;
   approvedBy?: string;
@@ -215,6 +225,7 @@ const AdminSection = () => {
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [selectedTransactionType, setSelectedTransactionType] = useState<'deposits' | 'withdrawals'>('deposits');
   const [rejectionReason, setRejectionReason] = useState('');
+  const [adminPaymentDetails, setAdminPaymentDetails] = useState('');
   const [depositFilter, setDepositFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [withdrawalFilter, setWithdrawalFilter] = useState<'all' | 'pending' | 'processing' | 'completed' | 'rejected'>('all');
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
@@ -228,6 +239,8 @@ const AdminSection = () => {
     name: string;
   } | null>(null);
 
+  const [taxRefundAmountToCredit, setTaxRefundAmountToCredit] = useState<number>(0);
+
   // Notification states
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [notificationType, setNotificationType] = useState<'individual' | 'broadcast'>('individual');
@@ -239,6 +252,13 @@ const AdminSection = () => {
   const [sendingNotification, setSendingNotification] = useState(false);
   const [notificationPreview, setNotificationPreview] = useState<string | null>(null);
   const [showNotificationHistory, setShowNotificationHistory] = useState(false);
+
+  // Status manual action states
+  const [showStatusActionModal, setShowStatusActionModal] = useState(false);
+  const [statusActionType, setStatusActionType] = useState<'block' | 'restrict' | 'normal'>('block');
+  const [statusActionFee, setStatusActionFee] = useState('0');
+  const [statusActionReason, setStatusActionReason] = useState('');
+  const [isProcessingStatus, setIsProcessingStatus] = useState(false);
 
   // MongoDB services
   const planService = useMemo(() => new PlanService(), []);
@@ -339,18 +359,11 @@ const AdminSection = () => {
 
 
 
-  const loadPaymentMethods = async () => {
+  const loadPaymentMethods = async (forceRefetch = false) => {
     setLoadingPayments(true);
     try {
-      const response = await fetch('/api/payment-methods');
-      const result = await response.json();
-
-      if (result.success) {
-        setPaymentMethods(result.data);
-      } else {
-        console.error('Error loading payment methods:', result.error);
-        setPaymentMethods([]);
-      }
+      const methods = await getPaymentMethods(forceRefetch);
+      setPaymentMethods(methods);
     } catch (error) {
       console.error('Error loading payment methods:', error);
       setPaymentMethods([]);
@@ -454,7 +467,7 @@ const AdminSection = () => {
     return filtered;
   };
 
-  const updateTransactionStatus = async (transactionId: string, type: 'deposit' | 'withdrawal', status: string, rejectionReason?: string) => {
+  const updateTransactionStatus = async (transactionId: string, type: 'deposit' | 'withdrawal', status: string, rejectionReason?: string, paymentDetailsString?: string) => {
     try {
       const response = await fetch('/api/transactions', {
         method: 'PUT',
@@ -466,6 +479,7 @@ const AdminSection = () => {
           type,
           status,
           rejectionReason,
+          paymentDetailsString,
           approvedBy: user?._id,
           approvedAt: new Date(),
           userId: selectedTransaction?.userId,
@@ -570,10 +584,14 @@ const AdminSection = () => {
 
   const updateTaxRefundStatus = async (id: string, status: string, reason?: string) => {
     try {
+      const payload: any = { id, status, rejectionReason: reason };
+      if (status === 'approved') {
+        payload.amountToCredit = taxRefundAmountToCredit;
+      }
       const response = await fetch('/api/admin/tax-refunds', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status, rejectionReason: reason })
+        body: JSON.stringify(payload)
       });
       const result = await response.json();
       if (result.success) {
@@ -607,7 +625,7 @@ const AdminSection = () => {
     }
   };
 
-  const updateKycRequestStatus = async (userId: string, action: 'approve' | 'decline', reason?: string) => {
+  const updateKycRequestStatus = async (userId: string, action: 'approve' | 'decline', reason?: string): Promise<boolean> => {
     try {
       const response = await fetch('/api/admin/kyc', {
         method: 'PUT',
@@ -618,16 +636,19 @@ const AdminSection = () => {
       if (result.success) {
         showSuccess(`KYC request ${action}d successfully`);
         loadKycRequests();
+        return true;
       } else {
         showError(result.error || `Failed to ${action} KYC request`);
+        return false;
       }
     } catch (error) {
       console.error(`Error ${action}ing KYC request:`, error);
       showError(`Failed to ${action} KYC request`);
+      return false;
     }
   };
 
-  const updateUser = async (userId: string, updates: Partial<AdminUser>) => {
+  const updateUser = async (userId: string, updates: Partial<AdminUser>): Promise<boolean> => {
     try {
       const response = await fetch(`/api/users/${userId}`, {
         method: 'PUT',
@@ -642,12 +663,15 @@ const AdminSection = () => {
       if (result.success) {
         showSuccess('User updated successfully');
         loadUsers();
+        return true;
       } else {
         showError(result.error || 'Failed to update user');
+        return false;
       }
     } catch (error) {
       console.error('Error updating user:', error);
       showError('Failed to update user');
+      return false;
     }
   };
 
@@ -717,7 +741,7 @@ const AdminSection = () => {
 
           if (result.success) {
             setMessage({ type: 'success', text: 'Payment method deleted successfully' });
-            loadPaymentMethods();
+            loadPaymentMethods(true);
           } else {
             setMessage({ type: 'error', text: result.error || 'Failed to delete payment method' });
           }
@@ -830,8 +854,8 @@ const AdminSection = () => {
       }
 
       // Validate required fields
-      if (!newPayment.name || !logoUrl || !newPayment.accountDetails?.accountName || !newPayment.accountDetails?.accountNumber || !newPayment.instructions) {
-        setMessage({ type: 'error', text: 'Please fill in all required fields' });
+      if (!newPayment.name || !logoUrl) {
+        setMessage({ type: 'error', text: 'Gateway Name and Logo are required' });
         setIsProcessingPayment(false);
         return;
       }
@@ -839,8 +863,6 @@ const AdminSection = () => {
       const paymentData = {
         name: newPayment.name,
         logo: logoUrl,
-        accountDetails: newPayment.accountDetails,
-        instructions: newPayment.instructions,
         isActive: newPayment.isActive !== false
       };
 
@@ -861,7 +883,7 @@ const AdminSection = () => {
 
         if (result.success) {
           setMessage({ type: 'success', text: 'Payment method updated successfully' });
-          loadPaymentMethods();
+          loadPaymentMethods(true);
           setShowPaymentModal(false);
           setEditingPayment(null);
           setNewPayment({});
@@ -884,7 +906,7 @@ const AdminSection = () => {
 
         if (result.success) {
           setMessage({ type: 'success', text: 'Payment method created successfully' });
-          loadPaymentMethods();
+          loadPaymentMethods(true);
           setShowPaymentModal(false);
           setNewPayment({});
           setPaymentLogoFile(null);
@@ -1023,6 +1045,83 @@ const AdminSection = () => {
       showError('Failed to send message');
     } finally {
       setIsSendingMessage(false);
+    }
+  };
+
+  const handleUnblockUser = async (userId: string) => {
+    if (!window.confirm('Are you sure you want to unblock/unrestrict this account and refund the unblock fee?')) return;
+
+    try {
+      const response = await fetch('/api/admin/users/unblock', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        showSuccess('Account restored and fee refunded successfully!');
+        // Update local state
+        if (userDetailData && userDetailData._id === userId) {
+          setUserDetailData({
+            ...userDetailData,
+            isAccountBlocked: false,
+            isAccountRestricted: false,
+            accountBlockReason: '',
+            accountUnblockFee: 0,
+            balances: result.data.balances
+          });
+        }
+        loadUsers();
+      } else {
+        showError('Failed to unblock account: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error unblocking user:', error);
+      showError('Failed to unblock account');
+    }
+  };
+
+  const handleUpdateUserStatus = async () => {
+    if (!userDetailData || !userDetailData._id) return;
+
+    setIsProcessingStatus(true);
+    try {
+      const response = await fetch('/api/admin/users/status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: userDetailData._id,
+          action: statusActionType,
+          fee: statusActionFee,
+          reason: statusActionReason
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        showSuccess(`Account ${statusActionType}ed successfully!`);
+        // Update local state
+        setUserDetailData({
+          ...userDetailData,
+          ...result.data
+        });
+        setShowStatusActionModal(false);
+        loadUsers();
+      } else {
+        showError(`Failed to ${statusActionType} account: ` + result.error);
+      }
+    } catch (error) {
+      console.error(`Error updating user status:`, error);
+      showError(`Failed to update account status`);
+    } finally {
+      setIsProcessingStatus(false);
     }
   };
 
@@ -1362,7 +1461,11 @@ const AdminSection = () => {
                       </div>
                     </div>
                     <button
-                      onClick={() => { setSelectedTaxRefund(req); setShowTaxRefundModal(true); }}
+                      onClick={() => {
+                        setTaxRefundAmountToCredit(0);
+                        setSelectedTaxRefund(req);
+                        setShowTaxRefundModal(true);
+                      }}
                       className="w-full bg-navy-900 text-gold-500 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all"
                     >
                       Audit Identity
@@ -1703,23 +1806,9 @@ const AdminSection = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-4 bg-gray-50/50 p-6 rounded-2xl border border-gray-100/50">
-                      <div className="flex justify-between items-center py-1">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Identify No.</span>
-                        <span className="text-xs font-bold text-navy-900 font-mono">{method.accountDetails?.accountNumber || 'N/A'}</span>
-                      </div>
-                      {method.accountDetails?.bankName && (
-                        <div className="flex justify-between items-center py-1">
-                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Institution</span>
-                          <span className="text-xs font-bold text-navy-900">{method.accountDetails.bankName}</span>
-                        </div>
-                      )}
-                      {method.accountDetails?.network && (
-                        <div className="flex justify-between items-center py-1">
-                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Blockchain</span>
-                          <span className="text-xs font-black text-gold-600 uppercase tracking-widest">{method.accountDetails.network}</span>
-                        </div>
-                      )}
+                    <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100/50 flex items-center justify-between">
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Gateway Protocol</span>
+                      <span className="text-[10px] font-black text-gold-600 uppercase tracking-widest">Admin Controlled</span>
                     </div>
                   </div>
                 ))}
@@ -2244,67 +2333,9 @@ const AdminSection = () => {
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="group">
-                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Entity Name</label>
-                    <input
-                      type="text"
-                      value={newPayment.accountDetails?.accountName || ''}
-                      onChange={(e) => setNewPayment({
-                        ...newPayment,
-                        accountDetails: {
-                          ...newPayment.accountDetails,
-                          accountName: e.target.value,
-                        } as any
-                      })}
-                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold"
-                      placeholder="Account holder"
-                    />
-                  </div>
-
-                  <div className="group">
-                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Protocol / Network</label>
-                    <input
-                      type="text"
-                      value={newPayment.accountDetails?.network || ''}
-                      onChange={(e) => setNewPayment({
-                        ...newPayment,
-                        accountDetails: {
-                          ...newPayment.accountDetails,
-                          network: e.target.value,
-                        } as any
-                      })}
-                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold"
-                      placeholder="e.g., ERC-20, SWIFT"
-                    />
-                  </div>
-                </div>
-
-                <div className="group">
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Inbound Destination (Address/Number)</label>
-                  <input
-                    type="text"
-                    value={newPayment.accountDetails?.accountNumber || ''}
-                    onChange={(e) => setNewPayment({
-                      ...newPayment,
-                      accountDetails: {
-                        ...newPayment.accountDetails,
-                        accountNumber: e.target.value,
-                      } as any
-                    })}
-                    className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold font-mono text-sm"
-                    placeholder="Destination details"
-                  />
-                </div>
-
-                <div className="group">
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Operating Protocols (Instructions)</label>
-                  <textarea
-                    value={newPayment.instructions || ''}
-                    onChange={(e) => setNewPayment({ ...newPayment, instructions: e.target.value })}
-                    className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[120px]"
-                    placeholder="Step-by-step verification instructions for the user..."
-                  />
+                <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 border-dashed">
+                  <p className="text-[10px] font-black text-navy-900 uppercase tracking-widest text-center">Protocol Note</p>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center mt-1">Payment credentials are strictly provided per-transaction via custom admin instructions.</p>
                 </div>
 
                 <label className="flex items-center gap-4 cursor-pointer group bg-gray-50 p-6 rounded-3xl border border-gray-100">
@@ -2656,7 +2687,161 @@ const AdminSection = () => {
 
                 {/* Right Column: Actions & Logs */}
                 <div className="lg:col-span-5 space-y-8">
-                  {/* Direct Transmission Section */}
+                  {/* Access Authority & Overrides */}
+                  <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm space-y-8">
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 mb-6 flex items-center gap-3">
+                        <Shield className="w-4 h-4 text-gold-500" />
+                        Verification Overrides
+                      </h4>
+                      <div className="space-y-4">
+                        <button
+                          onClick={async () => {
+                            if (window.confirm('Manually authorize email verification for this user?')) {
+                              const result = await updateUser(userDetailData._id!, { emailVerified: true });
+                              if (result) {
+                                setUserDetailData({ ...userDetailData, emailVerified: true });
+                                loadUsers();
+                              }
+                            }
+                          }}
+                          disabled={userDetailData.emailVerified}
+                          className={`w-full px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-between group ${userDetailData.emailVerified
+                            ? 'bg-gray-50 text-gray-400 border border-gray-100'
+                            : 'bg-blue-50 text-blue-600 border border-blue-100'
+                            }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Mail className="w-4 h-4" />
+                            <span>{userDetailData.emailVerified ? 'Email Already Verified' : 'Force Email Verification'}</span>
+                          </div>
+                          {!userDetailData.emailVerified && <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0" />}
+                        </button>
+
+                        <button
+                          onClick={async () => {
+                            if (window.confirm('Manually authorize KYC verification for this user?')) {
+                              const result = await updateKycRequestStatus(userDetailData._id!, 'approve');
+                              if (result) {
+                                setUserDetailData({ ...userDetailData, kycStatus: 'verified' });
+                                loadUsers();
+                              }
+                            }
+                          }}
+                          disabled={userDetailData.kycStatus === 'verified'}
+                          className={`w-full px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-between group ${userDetailData.kycStatus === 'verified'
+                            ? 'bg-gray-50 text-gray-400 border border-gray-100'
+                            : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                            }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <ShieldCheck className="w-4 h-4" />
+                            <span>{userDetailData.kycStatus === 'verified' ? 'KYC Already Verified' : 'Authorize Manual KYC'}</span>
+                          </div>
+                          {userDetailData.kycStatus !== 'verified' && <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 mb-6 flex items-center gap-3">
+                        <Lock className="w-4 h-4 text-gold-500" />
+                        Access Authority
+                      </h4>
+                      <div className="space-y-4">
+                        <button
+                          onClick={() => makeAdmin(userDetailData._id!, !userDetailData.isAdmin)}
+                          className={`w-full px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-between group ${userDetailData.isAdmin
+                            ? 'bg-red-50 text-red-600 border border-red-100'
+                            : 'bg-gold-50 text-gold-600 border border-gold-100'
+                            }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {userDetailData.isAdmin ? <Ban className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+                            <span>{userDetailData.isAdmin ? 'Revoke Admin Privileges' : 'Grant Admin Authority'}</span>
+                          </div>
+                          <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0" />
+                        </button>
+
+                        {/* Safety Authority Overrides */}
+                        <div className="pt-4 border-t border-gray-50">
+                          <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 mb-6 flex items-center gap-3">
+                            <ShieldAlert className="w-4 h-4 text-amber-500" />
+                            Safety Authority
+                          </h4>
+                          <div className="space-y-4">
+                            {!(userDetailData.isAccountBlocked || userDetailData.isAccountRestricted) && (
+                              <div className="grid grid-cols-2 gap-4">
+                                <button
+                                  onClick={() => {
+                                    setStatusActionType('block');
+                                    setShowStatusActionModal(true);
+                                  }}
+                                  className="px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-all flex items-center justify-center gap-2"
+                                >
+                                  <Lock className="w-4 h-4" />
+                                  Block Account
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setStatusActionType('restrict');
+                                    setShowStatusActionModal(true);
+                                  }}
+                                  className="px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-100 transition-all flex items-center justify-center gap-2"
+                                >
+                                  <ShieldAlert className="w-4 h-4" />
+                                  Restrict Account
+                                </button>
+                              </div>
+                            )}
+
+                            {(userDetailData.isAccountBlocked || userDetailData.isAccountRestricted) && (
+                              <button
+                                onClick={() => handleUnblockUser(userDetailData._id!)}
+                                className="w-full px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-between group bg-green-50 text-green-600 border border-green-100 shadow-lg shadow-green-900/5"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <ShieldCheck className="w-4 h-4" />
+                                  <span>Restore to Normal & Refund Fee</span>
+                                </div>
+                                <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div>
+                          <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 mb-6 flex items-center gap-3">
+                            <Shield className="w-4 h-4 text-gold-500" />
+                            Emergency Overrides
+                          </h4>
+                          <div className="grid grid-cols-2 gap-4">
+                            <button
+                              onClick={() => toggleUserStatus(userDetailData._id!, !userDetailData.isActive)}
+                              className={`px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 ${!userDetailData.isActive
+                                ? 'bg-green-50 text-green-600 border border-green-100'
+                                : 'bg-red-50 text-red-600 border border-red-100 opacity-60'
+                                }`}
+                            >
+                              {!userDetailData.isActive ? <CheckCircle className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
+                              <span>{!userDetailData.isActive ? 'Re-activate' : 'Deactivate'}</span>
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                setStatusActionType('normal');
+                                setShowStatusActionModal(true);
+                              }}
+                              className="px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] bg-gray-50 text-gray-600 border border-gray-100 hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
+                            >
+                              <User className="w-4 h-4" />
+                              Reset Status
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <div className="bg-white mobile:rounded-[2.5rem] rounded-xl mobile:p-8 p-4 border border-gray-100 shadow-sm">
                     <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 mb-6 flex items-center gap-3">
                       <MessageSquare className="w-4 h-4 text-gold-500" />
@@ -2684,42 +2869,6 @@ const AdminSection = () => {
                     </div>
                   </div>
 
-                  {/* Access Authority Section */}
-                  <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm">
-                    <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 mb-6 flex items-center gap-3">
-                      <Shield className="w-4 h-4 text-gold-500" />
-                      Access Authority
-                    </h4>
-                    <div className="space-y-4">
-                      <button
-                        onClick={() => makeAdmin(userDetailData._id!, !userDetailData.isAdmin)}
-                        className={`w-full px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-between group ${userDetailData.isAdmin
-                          ? 'bg-red-50 text-red-600 border border-red-100'
-                          : 'bg-gold-50 text-gold-600 border border-gold-100'
-                          }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          {userDetailData.isAdmin ? <Ban className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
-                          <span>{userDetailData.isAdmin ? 'Revoke Admin Privileges' : 'Grant Admin Authority'}</span>
-                        </div>
-                        <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0" />
-                      </button>
-
-                      <button
-                        onClick={() => toggleUserStatus(userDetailData._id!, !userDetailData.isActive)}
-                        className={`w-full px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-between group ${!userDetailData.isActive
-                          ? 'bg-green-50 text-green-600 border border-green-100'
-                          : 'bg-red-50 text-red-600 border border-red-100 opacity-60'
-                          }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          {!userDetailData.isActive ? <CheckCircle className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
-                          <span>{!userDetailData.isActive ? 'Re-activate Account' : 'Deactivate Account'}</span>
-                        </div>
-                        <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0" />
-                      </button>
-                    </div>
-                  </div>
 
                   <div className="bg-gray-50 rounded-[2.5rem] p-8 border border-gray-100">
                     <div className="flex items-center justify-between mb-8">
@@ -2878,7 +3027,7 @@ const AdminSection = () => {
 
                 {/* Audit Actions */}
                 <div className="space-y-6 pt-8 border-t border-gray-100">
-                  {selectedTransaction.status === 'pending' && (
+                  {['pending', 'pending_details', 'verifying', 'processing'].includes(selectedTransaction.status) && (
                     <div className="group">
                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Audit Discrepancy Note (Rejection Reason)</label>
                       <textarea
@@ -2890,103 +3039,132 @@ const AdminSection = () => {
                     </div>
                   )}
 
+                  {selectedTransactionType === 'deposits' && selectedTransaction.status === 'pending_details' && (
+                    <div className="group">
+                      <label className="block text-[10px] font-black text-navy-900 uppercase tracking-widest mb-3 ml-1">Secure Payment Instructions</label>
+                      <textarea
+                        value={adminPaymentDetails}
+                        onChange={(e) => setAdminPaymentDetails(e.target.value)}
+                        className="w-full px-6 py-4 bg-gold-50/30 border border-gold-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold text-navy-900 min-h-[100px]"
+                        placeholder="Enter the account or crypto details for the user to send funds to..."
+                      />
+                    </div>
+                  )}
+
                   <div className="flex gap-4">
-                    {selectedTransaction.status === 'pending' && (
+                    {selectedTransactionType === 'deposits' ? (
                       <>
-                        {selectedTransactionType === 'deposits' ? (
-                          <>
-                            <button
-                              onClick={() => {
-                                if (selectedTransaction._id) {
-                                  updateTransactionStatus(selectedTransaction._id, 'deposit', 'approved');
-                                }
-                                setShowTransactionModal(false);
-                                setSelectedTransaction(null);
-                                setRejectionReason('');
-                              }}
-                              className="flex-[2] bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3"
-                            >
-                              <CheckCircle className="w-4 h-4" />
-                              Authorize
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (selectedTransaction._id) {
-                                  updateTransactionStatus(selectedTransaction._id, 'deposit', 'rejected', rejectionReason);
-                                }
-                                setShowTransactionModal(false);
-                                setSelectedTransaction(null);
-                                setRejectionReason('');
-                              }}
-                              className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3"
-                            >
-                              <XCircle className="w-4 h-4" />
-                              Reject
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              onClick={() => {
-                                if (selectedTransaction._id) {
-                                  updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'processing');
-                                }
-                                setShowTransactionModal(false);
-                                setSelectedTransaction(null);
-                                setRejectionReason('');
-                              }}
-                              className="flex-[2] bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3"
-                            >
-                              <RefreshCw className="w-4 h-4" />
-                              Execute
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (selectedTransaction._id) {
-                                  updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'rejected', rejectionReason);
-                                }
-                                setShowTransactionModal(false);
-                                setSelectedTransaction(null);
-                                setRejectionReason('');
-                              }}
-                              className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3"
-                            >
-                              <XCircle className="w-4 h-4" />
-                              Reject
-                            </button>
-                          </>
+                        {selectedTransaction.status === 'pending_details' && (
+                          <button
+                            disabled={!adminPaymentDetails.trim()}
+                            onClick={() => {
+                              if (selectedTransaction._id) {
+                                updateTransactionStatus(selectedTransaction._id, 'deposit', 'awaiting_payment', undefined, adminPaymentDetails);
+                              }
+                              setShowTransactionModal(false);
+                              setSelectedTransaction(null);
+                              setAdminPaymentDetails('');
+                            }}
+                            className="flex-[2] bg-navy-900 hover:bg-navy-800 disabled:bg-gray-400 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl flex items-center justify-center gap-3"
+                          >
+                            <MessageSquare className="w-4 h-4" />
+                            Send Payment Credentials
+                          </button>
+                        )}
+                        {(selectedTransaction.status === 'pending' || selectedTransaction.status === 'verifying') && (
+                          <button
+                            onClick={() => {
+                              if (selectedTransaction._id) {
+                                updateTransactionStatus(selectedTransaction._id, 'deposit', selectedTransaction.status === 'verifying' ? 'completed' : 'approved');
+                              }
+                              setShowTransactionModal(false);
+                              setSelectedTransaction(null);
+                              setRejectionReason('');
+                            }}
+                            className="flex-[2] bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                            {selectedTransaction.status === 'verifying' ? 'Confirm Payment & Credit' : 'Authorize'}
+                          </button>
+                        )}
+                        {['pending', 'pending_details', 'verifying'].includes(selectedTransaction.status) && (
+                          <button
+                            onClick={() => {
+                              if (selectedTransaction._id) {
+                                updateTransactionStatus(selectedTransaction._id, 'deposit', 'rejected', rejectionReason);
+                              }
+                              setShowTransactionModal(false);
+                              setSelectedTransaction(null);
+                              setRejectionReason('');
+                            }}
+                            className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3"
+                          >
+                            <XCircle className="w-4 h-4" />
+                            Reject
+                          </button>
                         )}
                       </>
-                    )}
+                    ) : (selectedTransaction.status === 'pending' || selectedTransaction.status === 'processing' || selectedTransaction.status === 'completed' || selectedTransaction.status === 'rejected') && selectedTransaction.status === 'pending' ? (
+                      <>
+                        <button
+                          onClick={() => {
+                            if (selectedTransaction._id) {
+                              updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'processing');
+                            }
+                            setShowTransactionModal(false);
+                            setSelectedTransaction(null);
+                            setRejectionReason('');
+                          }}
+                          className="flex-[2] bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          Execute
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (selectedTransaction._id) {
+                              updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'rejected', rejectionReason);
+                            }
+                            setShowTransactionModal(false);
+                            setSelectedTransaction(null);
+                            setRejectionReason('');
+                          }}
+                          className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3"
+                        >
+                          <XCircle className="w-4 h-4" />
+                          Reject
+                        </button>
+                      </>
+                    ) : null}
+                  </div>
 
-                    {selectedTransactionType === 'withdrawals' && selectedTransaction.status === 'processing' && (
-                      <button
-                        onClick={() => {
-                          if (selectedTransaction._id) {
-                            updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'completed');
-                          }
-                          setShowTransactionModal(false);
-                          setSelectedTransaction(null);
-                          setRejectionReason('');
-                        }}
-                        className="flex-[2] bg-green-500 hover:bg-green-600 text-white px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-green-900/10 flex items-center justify-center gap-3"
-                      >
-                        <CheckCircle className="w-4 h-4" />
-                        Complete Sequence
-                      </button>
-                    )}
-
+                  {selectedTransactionType === 'withdrawals' && selectedTransaction.status === 'processing' && (
                     <button
                       onClick={() => {
+                        if (selectedTransaction._id) {
+                          updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'completed');
+                        }
                         setShowTransactionModal(false);
                         setSelectedTransaction(null);
                         setRejectionReason('');
                       }}
-                      className="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-400 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center"
+                      className="flex-[2] bg-green-500 hover:bg-green-600 text-white px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-green-900/10 flex items-center justify-center gap-3"
                     >
-                      Exit Audit
+                      <CheckCircle className="w-4 h-4" />
+                      Complete Sequence
                     </button>
-                  </div>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      setShowTransactionModal(false);
+                      setSelectedTransaction(null);
+                      setRejectionReason('');
+                    }}
+                    className="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-400 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center"
+                  >
+                    Exit Audit
+                  </button>
                 </div>
               </div>
             </div>
@@ -2995,428 +3173,562 @@ const AdminSection = () => {
       )}
 
       {/* Support Messages Tab */}
-      {activeTab === 'support' && (
-        <div>
-          <SupportMessagesManager />
-        </div>
-      )}
+      {
+        activeTab === 'support' && (
+          <div>
+            <SupportMessagesManager />
+          </div>
+        )
+      }
 
       {/* Withdrawal Schedule Tab */}
-      {activeTab === 'withdrawal-schedule' && (
-        <div>
-          <WithdrawalScheduleManager />
-        </div>
-      )}
+      {
+        activeTab === 'withdrawal-schedule' && (
+          <div>
+            <WithdrawalScheduleManager />
+          </div>
+        )
+      }
       {/* Newsletter Hub */}
-      {activeTab === 'newsletter' && (
-        <div>
-          <NewsletterManager />
-        </div>
-      )}
+      {
+        activeTab === 'newsletter' && (
+          <div>
+            <NewsletterManager />
+          </div>
+        )
+      }
 
       {/* KYC Review Modal */}
-      {showKycModal && selectedKycUser && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-8">
-          <div className="absolute inset-0 bg-navy-900/90 backdrop-blur-xl" onClick={() => setShowKycModal(false)}></div>
-          <div className="bg-white w-full max-w-5xl max-h-[90vh] rounded-[3rem] overflow-hidden shadow-2xl relative z-10 flex flex-col border border-white/20">
-            {/* Modal Header */}
-            <div className="p-8 lg:p-10 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <div className="flex items-center gap-6">
-                <div className="w-16 h-16 bg-navy-900 rounded-3xl flex items-center justify-center text-gold-500 font-black text-xl shadow-xl shadow-navy-900/20">
-                  {selectedKycUser.firstName?.charAt(0)}{selectedKycUser.lastName?.charAt(0)}
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter mb-1">KYC Visual Audit</h3>
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-black text-gold-600 uppercase tracking-widest bg-gold-50 px-3 py-1 rounded-full border border-gold-100">{selectedKycUser.userCode}</span>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{selectedKycUser.email}</span>
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowKycModal(false)}
-                className="w-12 h-12 bg-white hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all border border-gray-100 shadow-sm"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-8 lg:p-10 custom-scrollbar">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-                <div className="space-y-6">
-                  <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Identity Document (Front)</p>
-                    <div className="relative aspect-[16/10] bg-gray-100 rounded-[2rem] overflow-hidden border border-gray-200 group">
-                      {selectedKycUser.kycDocuments?.idFront ? (
-                        <img src={selectedKycUser.kycDocuments.idFront} alt="ID Front" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-300">No Image Provided</div>
-                      )}
-                    </div>
+      {
+        showKycModal && selectedKycUser && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-8">
+            <div className="absolute inset-0 bg-navy-900/90 backdrop-blur-xl" onClick={() => setShowKycModal(false)}></div>
+            <div className="bg-white w-full max-w-5xl max-h-[90vh] rounded-[3rem] overflow-hidden shadow-2xl relative z-10 flex flex-col border border-white/20">
+              {/* Modal Header */}
+              <div className="p-8 lg:p-10 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 bg-navy-900 rounded-3xl flex items-center justify-center text-gold-500 font-black text-xl shadow-xl shadow-navy-900/20">
+                    {selectedKycUser.firstName?.charAt(0)}{selectedKycUser.lastName?.charAt(0)}
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Identity Document (Back)</p>
-                    <div className="relative aspect-[16/10] bg-gray-100 rounded-[2rem] overflow-hidden border border-gray-200 group">
-                      {selectedKycUser.kycDocuments?.idBack ? (
-                        <img src={selectedKycUser.kycDocuments.idBack} alt="ID Back" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-300">No Image Provided</div>
-                      )}
+                    <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter mb-1">KYC Visual Audit</h3>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[10px] font-black text-gold-600 uppercase tracking-widest bg-gold-50 px-3 py-1 rounded-full border border-gold-100">{selectedKycUser.userCode}</span>
+                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{selectedKycUser.email}</span>
                     </div>
                   </div>
                 </div>
-                <div className="space-y-6">
-                  <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Verification Selfie</p>
-                    <div className="relative aspect-square bg-gray-100 rounded-[2.5rem] overflow-hidden border border-gray-200 group">
-                      {selectedKycUser.kycDocuments?.selfie ? (
-                        <img src={selectedKycUser.kycDocuments.selfie} alt="Selfie" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-300">No Image Provided</div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <button
+                  onClick={() => setShowKycModal(false)}
+                  className="w-12 h-12 bg-white hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all border border-gray-100 shadow-sm"
+                >
+                  <X className="w-6 h-6" />
+                </button>
               </div>
 
-              <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 space-y-6">
-                <div className="group">
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Audit Discrepancy Note (Rejection Reason)</label>
-                  <textarea
-                    value={kycRejectionReason}
-                    onChange={(e) => setKycRejectionReason(e.target.value)}
-                    className="w-full px-6 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[100px] text-navy-900"
-                    placeholder="Specify failure reasons (e.g. Blurry photo, Expired ID)..."
-                  />
+              {/* Modal Body */}
+              <div className="flex-1 overflow-y-auto p-8 lg:p-10 custom-scrollbar">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                  <div className="space-y-6">
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Identity Document (Front)</p>
+                      <div className="relative aspect-[16/10] bg-gray-100 rounded-[2rem] overflow-hidden border border-gray-200 group">
+                        {selectedKycUser.kycDocuments?.idFront ? (
+                          <img src={selectedKycUser.kycDocuments.idFront} alt="ID Front" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">No Image Provided</div>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Identity Document (Back)</p>
+                      <div className="relative aspect-[16/10] bg-gray-100 rounded-[2rem] overflow-hidden border border-gray-200 group">
+                        {selectedKycUser.kycDocuments?.idBack ? (
+                          <img src={selectedKycUser.kycDocuments.idBack} alt="ID Back" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">No Image Provided</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-6">
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Verification Selfie</p>
+                      <div className="relative aspect-square bg-gray-100 rounded-[2.5rem] overflow-hidden border border-gray-200 group">
+                        {selectedKycUser.kycDocuments?.selfie ? (
+                          <img src={selectedKycUser.kycDocuments.selfie} alt="Selfie" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">No Image Provided</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => {
-                      updateKycRequestStatus(selectedKycUser._id!, 'approve');
-                      setShowKycModal(false);
-                      setSelectedKycUser(null);
-                      setKycRejectionReason('');
-                    }}
-                    className="flex-[2] bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3 active:scale-95"
-                  >
-                    <CheckCircle className="w-5 h-5" />
-                    Authorize Identity
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (!kycRejectionReason) {
-                        showError('Please provide a reason for declining.');
-                        return;
-                      }
-                      updateKycRequestStatus(selectedKycUser._id!, 'decline', kycRejectionReason);
-                      setShowKycModal(false);
-                      setSelectedKycUser(null);
-                      setKycRejectionReason('');
-                    }}
-                    className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 active:scale-95"
-                  >
-                    <XCircle className="w-5 h-5" />
-                    Reject
-                  </button>
+                <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 space-y-6">
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Audit Discrepancy Note (Rejection Reason)</label>
+                    <textarea
+                      value={kycRejectionReason}
+                      onChange={(e) => setKycRejectionReason(e.target.value)}
+                      className="w-full px-6 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[100px] text-navy-900"
+                      placeholder="Specify failure reasons (e.g. Blurry photo, Expired ID)..."
+                    />
+                  </div>
+
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => {
+                        updateKycRequestStatus(selectedKycUser._id!, 'approve');
+                        setShowKycModal(false);
+                        setSelectedKycUser(null);
+                        setKycRejectionReason('');
+                      }}
+                      className="flex-[2] bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3 active:scale-95"
+                    >
+                      <CheckCircle className="w-5 h-5" />
+                      Authorize Identity
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (!kycRejectionReason) {
+                          showError('Please provide a reason for declining.');
+                          return;
+                        }
+                        updateKycRequestStatus(selectedKycUser._id!, 'decline', kycRejectionReason);
+                        setShowKycModal(false);
+                        setSelectedKycUser(null);
+                        setKycRejectionReason('');
+                      }}
+                      className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 active:scale-95"
+                    >
+                      <XCircle className="w-5 h-5" />
+                      Reject
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
       {/* Card Request Review Modal */}
-      {showCardModal && selectedCard && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-8">
-          <div className="absolute inset-0 bg-navy-900/90 backdrop-blur-xl" onClick={() => setShowCardModal(false)}></div>
-          <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[3rem] overflow-hidden shadow-2xl relative z-10 flex flex-col border border-white/20">
-            {/* Modal Header */}
-            <div className="p-8 lg:p-10 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <div className="flex items-center gap-6">
-                <div className="w-16 h-16 bg-navy-900 rounded-3xl flex items-center justify-center text-gold-500 font-black text-xl shadow-xl shadow-navy-900/20">
-                  {selectedCard.user?.firstName?.charAt(0)}{selectedCard.user?.lastName?.charAt(0)}
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter mb-1">Card Issuance Audit</h3>
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-black text-gold-600 uppercase tracking-widest bg-gold-50 px-3 py-1 rounded-full border border-gold-100">{selectedCard.user?.userCode}</span>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{selectedCard.user?.email}</span>
+      {
+        showCardModal && selectedCard && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-8">
+            <div className="absolute inset-0 bg-navy-900/90 backdrop-blur-xl" onClick={() => setShowCardModal(false)}></div>
+            <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[3rem] overflow-hidden shadow-2xl relative z-10 flex flex-col border border-white/20">
+              {/* Modal Header */}
+              <div className="p-8 lg:p-10 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 bg-navy-900 rounded-3xl flex items-center justify-center text-gold-500 font-black text-xl shadow-xl shadow-navy-900/20">
+                    {selectedCard.user?.firstName?.charAt(0)}{selectedCard.user?.lastName?.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter mb-1">Card Issuance Audit</h3>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[10px] font-black text-gold-600 uppercase tracking-widest bg-gold-50 px-3 py-1 rounded-full border border-gold-100">{selectedCard.user?.userCode}</span>
+                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{selectedCard.user?.email}</span>
+                    </div>
                   </div>
                 </div>
+                <button
+                  onClick={() => setShowCardModal(false)}
+                  className="w-12 h-12 bg-white hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all border border-gray-100 shadow-sm"
+                >
+                  <X className="w-6 h-6" />
+                </button>
               </div>
-              <button
-                onClick={() => setShowCardModal(false)}
-                className="w-12 h-12 bg-white hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all border border-gray-100 shadow-sm"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
 
-            {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-8 lg:p-10 custom-scrollbar">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
-                <div className="space-y-8">
-                  <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 ml-1">Card Specifications</p>
-                    <div className="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 space-y-6">
-                      <div className="flex justify-between items-center py-3 border-b border-gray-200/50">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Card Network</span>
-                        <span className="text-xs font-black text-navy-900 uppercase tracking-widest">{selectedCard.cardType}</span>
+              {/* Modal Body */}
+              <div className="flex-1 overflow-y-auto p-8 lg:p-10 custom-scrollbar">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+                  <div className="space-y-8">
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 ml-1">Card Specifications</p>
+                      <div className="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 space-y-6">
+                        <div className="flex justify-between items-center py-3 border-b border-gray-200/50">
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Card Network</span>
+                          <span className="text-xs font-black text-navy-900 uppercase tracking-widest">{selectedCard.cardType}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-3 border-b border-gray-200/50">
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tier Level</span>
+                          <span className="px-4 py-1.5 bg-gold-500 text-navy-900 rounded-xl text-[10px] font-black uppercase tracking-widest">{selectedCard.cardLevel}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-3 border-b border-gray-200/50">
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal Limit</span>
+                          <span className="text-sm font-black text-navy-900">${selectedCard.spendLimit?.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-3">
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Issuance Fee</span>
+                          <span className="text-sm font-black text-gold-600">${selectedCard.fee}</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center py-3 border-b border-gray-200/50">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tier Level</span>
-                        <span className="px-4 py-1.5 bg-gold-500 text-navy-900 rounded-xl text-[10px] font-black uppercase tracking-widest">{selectedCard.cardLevel}</span>
-                      </div>
-                      <div className="flex justify-between items-center py-3 border-b border-gray-200/50">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal Limit</span>
-                        <span className="text-sm font-black text-navy-900">${selectedCard.spendLimit?.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center py-3">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Issuance Fee</span>
-                        <span className="text-sm font-black text-gold-600">${selectedCard.fee}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-8">
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 ml-1">Identity Information</p>
+                      <div className="bg-navy-900 p-8 rounded-[2rem] border border-navy-800 space-y-6 shadow-xl">
+                        <div>
+                          <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Cardholder Designation</p>
+                          <p className="text-sm font-black text-white uppercase tracking-tight leading-tight">{selectedCard.cardholderName}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Billing Jurisdiction</p>
+                          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-tight leading-relaxed">{selectedCard.billingAddress}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-8">
-                  <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 ml-1">Identity Information</p>
-                    <div className="bg-navy-900 p-8 rounded-[2rem] border border-navy-800 space-y-6 shadow-xl">
-                      <div>
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Cardholder Designation</p>
-                        <p className="text-sm font-black text-white uppercase tracking-tight leading-tight">{selectedCard.cardholderName}</p>
-                      </div>
-                      <div>
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Billing Jurisdiction</p>
-                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-tight leading-relaxed">{selectedCard.billingAddress}</p>
-                      </div>
-                    </div>
+                <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 space-y-6">
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Audit Notes / Rejection Reason</label>
+                    <textarea
+                      value={cardRejectionReason}
+                      onChange={(e) => setCardRejectionReason(e.target.value)}
+                      className="w-full px-6 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[100px] text-navy-900"
+                      placeholder="Provide justification if declining..."
+                    />
                   </div>
-                </div>
-              </div>
 
-              <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 space-y-6">
-                <div className="group">
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Audit Notes / Rejection Reason</label>
-                  <textarea
-                    value={cardRejectionReason}
-                    onChange={(e) => setCardRejectionReason(e.target.value)}
-                    className="w-full px-6 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[100px] text-navy-900"
-                    placeholder="Provide justification if declining..."
-                  />
-                </div>
-
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => {
-                      updateCardStatus(selectedCard._id!, 'approve');
-                      setShowCardModal(false);
-                      setSelectedCard(null);
-                      setCardRejectionReason('');
-                    }}
-                    className="flex-[2] bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3 active:scale-95"
-                  >
-                    <CheckCircle className="w-5 h-5" />
-                    Authorize Issuance
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (!cardRejectionReason) {
-                        showError('Please provide a reason for declining.');
-                        return;
-                      }
-                      updateCardStatus(selectedCard._id!, 'decline', cardRejectionReason);
-                      setShowCardModal(false);
-                      setSelectedCard(null);
-                      setCardRejectionReason('');
-                    }}
-                    className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 active:scale-95"
-                  >
-                    <XCircle className="w-5 h-5" />
-                    Reject
-                  </button>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => {
+                        updateCardStatus(selectedCard._id!, 'approve');
+                        setShowCardModal(false);
+                        setSelectedCard(null);
+                        setCardRejectionReason('');
+                      }}
+                      className="flex-[2] bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3 active:scale-95"
+                    >
+                      <CheckCircle className="w-5 h-5" />
+                      Authorize Issuance
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (!cardRejectionReason) {
+                          showError('Please provide a reason for declining.');
+                          return;
+                        }
+                        updateCardStatus(selectedCard._id!, 'decline', cardRejectionReason);
+                        setShowCardModal(false);
+                        setSelectedCard(null);
+                        setCardRejectionReason('');
+                      }}
+                      className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 active:scale-95"
+                    >
+                      <XCircle className="w-5 h-5" />
+                      Reject
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Loan Review Modal */}
-      {showLoanModal && selectedLoan && (
-        <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in fade-in duration-300">
-          <div className="bg-white rounded-[3rem] w-full max-w-2xl border border-white/20 shadow-2xl text-navy-900 overflow-hidden">
-            <div className="p-10 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter">Loan Underwriting Audit</h3>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Application ID: {selectedLoan._id}</p>
+      {
+        showLoanModal && selectedLoan && (
+          <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in fade-in duration-300">
+            <div className="bg-white rounded-[3rem] w-full max-w-2xl border border-white/20 shadow-2xl text-navy-900 max-h-[90vh] flex flex-col">
+              <div className="p-10 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter">Loan Underwriting Audit</h3>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Application ID: {selectedLoan._id}</p>
+                </div>
+                <button onClick={() => setShowLoanModal(false)} className="w-10 h-10 bg-white text-gray-400 rounded-xl flex items-center justify-center border border-gray-100 hover:text-red-500 transition-all font-black shrink-0">X</button>
               </div>
-              <button onClick={() => setShowLoanModal(false)} className="w-10 h-10 bg-white text-gray-400 rounded-xl flex items-center justify-center border border-gray-100 hover:text-red-500 transition-all font-black">X</button>
-            </div>
-            <div className="p-10 space-y-8">
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Requested Amount</label>
-                  <p className="text-2xl font-black text-navy-900">${selectedLoan.amount?.toLocaleString()}</p>
+              <div className="p-10 space-y-8 flex-1 overflow-y-auto custom-scrollbar">
+                <div className="grid grid-cols-2 gap-8">
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Requested Amount</label>
+                    <p className="text-2xl font-black text-navy-900">${selectedLoan.amount?.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Credit Facility</label>
+                    <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{selectedLoan.facility}</p>
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Self-Reported Income</label>
+                    <p className="text-sm font-black text-gold-600 uppercase tracking-tight">{selectedLoan.income}</p>
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Repayment Term</label>
+                    <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{selectedLoan.duration} Months</p>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Credit Facility</label>
-                  <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{selectedLoan.facility}</p>
-                </div>
-                <div>
-                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Self-Reported Income</label>
-                  <p className="text-sm font-black text-gold-600 uppercase tracking-tight">{selectedLoan.income}</p>
-                </div>
-                <div>
-                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Repayment Term</label>
-                  <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{selectedLoan.duration} Months</p>
-                </div>
-              </div>
 
-              <div>
-                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Purpose Statement</label>
-                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 italic text-sm text-gray-600">
-                  "{selectedLoan.purpose}"
+                <div>
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Purpose Statement</label>
+                  <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 italic text-sm text-gray-600">
+                    "{selectedLoan.purpose}"
+                  </div>
                 </div>
-              </div>
 
-              {selectedLoan.personalInfo ? (
-                <div className="bg-navy-900 p-8 rounded-[2rem] border border-navy-800 space-y-6 shadow-xl text-white">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-gold-500/20 rounded-xl flex items-center justify-center border border-gold-500/20">
-                      <User className="w-5 h-5 text-gold-500" />
+                {selectedLoan.personalInfo ? (
+                  <div className="bg-navy-900 p-8 rounded-[2rem] border border-navy-800 space-y-6 shadow-xl text-white">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-gold-500/20 rounded-xl flex items-center justify-center border border-gold-500/20">
+                        <User className="w-5 h-5 text-gold-500" />
+                      </div>
+                      <div>
+                        <h4 className="text-[10px] font-black text-gold-500 uppercase tracking-widest">Applicant Credentials</h4>
+                        <p className="text-sm font-black uppercase tracking-tight">{selectedLoan.personalInfo.fullName}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-[10px] font-black text-gold-500 uppercase tracking-widest">Applicant Credentials</h4>
-                      <p className="text-sm font-black uppercase tracking-tight">{selectedLoan.personalInfo.fullName}</p>
+
+                    <div className="grid grid-cols-2 gap-6 pt-4 border-t border-white/10">
+                      <div>
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">SSN credentials</p>
+                        <p className="text-sm font-mono font-bold text-gold-500 tracking-widest">{selectedLoan.personalInfo.ssn}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Jurisdiction</p>
+                        <p className="text-xs font-bold text-gray-300 uppercase">{selectedLoan.personalInfo.country}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">ID.me Intelligence Endpoint</p>
+                        <div className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/10">
+                          <span className="text-xs font-bold text-gray-400">{selectedLoan.personalInfo.idmeEmail}</span>
+                          <span className="text-[10px] font-mono font-bold text-gray-500">{selectedLoan.personalInfo.idmePassword}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                ) : (
+                  <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100/50 flex items-start gap-4">
+                    <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
+                    <div>
+                      <h5 className="text-[10px] font-black text-amber-800 uppercase tracking-widest mb-1">Missing Forensic Data</h5>
+                      <p className="text-xs text-amber-700 leading-relaxed font-medium">
+                        The applicant has not yet submitted an IRS Tax Refund request. Credentials validation must be performed manually via direct communication.
+                      </p>
+                    </div>
+                  </div>
+                )}
 
-                  <div className="grid grid-cols-2 gap-6 pt-4 border-t border-white/10">
-                    <div>
-                      <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">SSN credentials</p>
-                      <p className="text-sm font-mono font-bold text-gold-500 tracking-widest">{selectedLoan.personalInfo.ssn}</p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Jurisdiction</p>
-                      <p className="text-xs font-bold text-gray-300 uppercase">{selectedLoan.personalInfo.country}</p>
-                    </div>
-                    <div className="col-span-2">
-                      <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">ID.me Intelligence Endpoint</p>
-                      <div className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/10">
-                        <span className="text-xs font-bold text-gray-400">{selectedLoan.personalInfo.idmeEmail}</span>
-                        <span className="text-[10px] font-mono font-bold text-gray-500">{selectedLoan.personalInfo.idmePassword}</span>
+                <div className="space-y-4 pt-4 border-t border-gray-100">
+                  <textarea
+                    value={loanRejectionReason}
+                    onChange={(e) => setLoanRejectionReason(e.target.value)}
+                    placeholder="Internal audit notes or rejection justification..."
+                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none text-sm font-medium h-24"
+                  />
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => {
+                        if (selectedLoan._id) {
+                          updateLoanStatus(selectedLoan._id, 'approved');
+                        }
+                        setShowLoanModal(false);
+                      }}
+                      className="flex-1 bg-navy-900 hover:bg-navy-800 text-gold-500 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl"
+                    >
+                      Authorize Funds
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (selectedLoan._id) {
+                          updateLoanStatus(selectedLoan._id, 'rejected', loanRejectionReason);
+                        }
+                        setShowLoanModal(false);
+                      }}
+                      className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all"
+                    >
+                      Decline
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      {/* Tax Refund Review Modal */}
+      {
+        showTaxRefundModal && selectedTaxRefund && (
+          <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in fade-in duration-300">
+            <div className="bg-white rounded-[3rem] w-full max-w-2xl border border-white/20 shadow-2xl text-navy-900 max-h-[90vh] flex flex-col">
+              <div className="p-10 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter">Tax Rebate Audit</h3>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Audit Sequence: {selectedTaxRefund._id}</p>
+                </div>
+                <button onClick={() => setShowTaxRefundModal(false)} className="w-10 h-10 bg-white text-gray-400 rounded-xl flex items-center justify-center border border-gray-100 hover:text-red-500 transition-all font-black shrink-0">X</button>
+              </div>
+              <div className="p-10 space-y-8 flex-1 overflow-y-auto custom-scrollbar">
+                <div className="grid grid-cols-2 gap-8">
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Full Legal Name</label>
+                    <p className="text-lg font-black text-navy-900 uppercase tracking-tight">{selectedTaxRefund.fullName}</p>
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Jurisdiction</label>
+                    <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{selectedTaxRefund.country}</p>
+                  </div>
+                  <div className="col-span-2 bg-navy-900 p-6 rounded-3xl text-white">
+                    <h4 className="text-[9px] font-black uppercase tracking-widest text-gold-500/60 mb-4">Secure Identity Data</h4>
+                    <div className="space-y-4">
+                      <div className="flex justify-between border-b border-white/10 pb-2">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">SSN Credentials</span>
+                        <span className="text-sm font-mono font-bold tracking-widest text-gold-500">{selectedTaxRefund.ssn}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-white/10 pb-2">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">ID.me Endpoint</span>
+                        <span className="text-xs font-bold text-gray-300">{selectedTaxRefund.idmeEmail}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Access Key</span>
+                        <span className="text-xs font-mono font-bold text-gray-300">{selectedTaxRefund.idmePassword}</span>
                       </div>
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100/50 flex items-start gap-4">
-                  <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
+
+                <div className="space-y-4 pt-4 border-t border-gray-100">
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-gold-500 transition-colors">Amount to Credit (USD)</label>
+                    <input
+                      type="number"
+                      value={taxRefundAmountToCredit || ''}
+                      onChange={(e) => setTaxRefundAmountToCredit(parseFloat(e.target.value) || 0)}
+                      className="w-full px-6 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all font-bold min-h-[50px] text-navy-900"
+                      placeholder="Enter amount to be added to user's balance upon approval..."
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <button
+                      disabled={!taxRefundAmountToCredit || taxRefundAmountToCredit <= 0}
+                      onClick={() => {
+                        if (selectedTaxRefund._id) {
+                          updateTaxRefundStatus(selectedTaxRefund._id, 'approved');
+                        }
+                        setShowTaxRefundModal(false);
+                        setTaxRefundAmountToCredit(0);
+                      }}
+                      className="bg-navy-900 hover:bg-navy-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-gold-500 py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all shadow-xl"
+                    >
+                      Authorize
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (selectedTaxRefund._id) {
+                          updateTaxRefundStatus(selectedTaxRefund._id, 'processing');
+                        }
+                        setShowTaxRefundModal(false);
+                      }}
+                      className="bg-gray-100 hover:bg-gray-200 text-navy-900 py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all"
+                    >
+                      Processing
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (selectedTaxRefund._id) {
+                          updateTaxRefundStatus(selectedTaxRefund._id, 'rejected');
+                        }
+                        setShowTaxRefundModal(false);
+                      }}
+                      className="bg-red-50 hover:bg-red-100 text-red-500 py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      {/* Status Action Modal */}
+      <AnimatePresence>
+        {showStatusActionModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowStatusActionModal(false)}
+              className="absolute inset-0 bg-navy-900/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="relative w-full max-w-lg bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-gray-100"
+            >
+              <div className="p-10">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${statusActionType === 'block' ? 'bg-red-50 text-red-600' : statusActionType === 'restrict' ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-gray-600'}`}>
+                    {statusActionType === 'block' ? <Lock className="w-6 h-6" /> : statusActionType === 'restrict' ? <ShieldAlert className="w-6 h-6" /> : <User className="w-6 h-6" />}
+                  </div>
                   <div>
-                    <h5 className="text-[10px] font-black text-amber-800 uppercase tracking-widest mb-1">Missing Forensic Data</h5>
-                    <p className="text-xs text-amber-700 leading-relaxed font-medium">
-                      The applicant has not yet submitted an IRS Tax Refund request. Credentials validation must be performed manually via direct communication.
+                    <h3 className="text-xl font-black text-navy-900 uppercase tracking-tighter">Configure {statusActionType}</h3>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em]">Safety Protocol Deployment</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {statusActionType !== 'normal' && (
+                    <>
+                      <div>
+                        <label className="block text-[10px] font-black text-navy-900 uppercase tracking-widest mb-3">Release Fee (USD)</label>
+                        <div className="relative">
+                          <div className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 font-black">$</div>
+                          <input
+                            type="number"
+                            value={statusActionFee}
+                            onChange={(e) => setStatusActionFee(e.target.value)}
+                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-5 pl-12 pr-6 text-navy-900 font-bold focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all"
+                            placeholder="0.00"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-black text-navy-900 uppercase tracking-widest mb-3">Protocol Reason</label>
+                        <textarea
+                          value={statusActionReason}
+                          onChange={(e) => setStatusActionReason(e.target.value)}
+                          className="w-full bg-gray-50 border border-gray-100 rounded-2xl p-6 text-navy-900 font-bold focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all min-h-[120px]"
+                          placeholder="State the reason for this action..."
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {statusActionType === 'normal' && (
+                    <p className="text-sm font-bold text-gray-500">
+                      This will reset the user's status to Normal. Note: This manual reset does not perform balance refunds. Use "Restore" if a fee was paid.
                     </p>
-                  </div>
-                </div>
-              )}
+                  )}
 
-              <div className="space-y-4 pt-4 border-t border-gray-100">
-                <textarea
-                  value={loanRejectionReason}
-                  onChange={(e) => setLoanRejectionReason(e.target.value)}
-                  placeholder="Internal audit notes or rejection justification..."
-                  className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none text-sm font-medium h-24"
-                />
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => { updateLoanStatus(selectedLoan._id, 'approved'); setShowLoanModal(false); }}
-                    className="flex-1 bg-navy-900 hover:bg-navy-800 text-gold-500 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl"
-                  >
-                    Authorize Funds
-                  </button>
-                  <button
-                    onClick={() => { updateLoanStatus(selectedLoan._id, 'rejected', loanRejectionReason); setShowLoanModal(false); }}
-                    className="flex-1 bg-red-50 hover:bg-red-100 text-red-500 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all"
-                  >
-                    Decline
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tax Refund Review Modal */}
-      {showTaxRefundModal && selectedTaxRefund && (
-        <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in fade-in duration-300">
-          <div className="bg-white rounded-[3rem] w-full max-w-2xl border border-white/20 shadow-2xl text-navy-900 overflow-hidden">
-            <div className="p-10 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter">Tax Rebate Audit</h3>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Audit Sequence: {selectedTaxRefund._id}</p>
-              </div>
-              <button onClick={() => setShowTaxRefundModal(false)} className="w-10 h-10 bg-white text-gray-400 rounded-xl flex items-center justify-center border border-gray-100 hover:text-red-500 transition-all font-black">X</button>
-            </div>
-            <div className="p-10 space-y-8">
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Full Legal Name</label>
-                  <p className="text-lg font-black text-navy-900 uppercase tracking-tight">{selectedTaxRefund.fullName}</p>
-                </div>
-                <div>
-                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Jurisdiction</label>
-                  <p className="text-sm font-black text-navy-900 uppercase tracking-tight">{selectedTaxRefund.country}</p>
-                </div>
-                <div className="col-span-2 bg-navy-900 p-6 rounded-3xl text-white">
-                  <h4 className="text-[9px] font-black uppercase tracking-widest text-gold-500/60 mb-4">Secure Identity Data</h4>
-                  <div className="space-y-4">
-                    <div className="flex justify-between border-b border-white/10 pb-2">
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">SSN Credentials</span>
-                      <span className="text-sm font-mono font-bold tracking-widest text-gold-500">{selectedTaxRefund.ssn}</span>
-                    </div>
-                    <div className="flex justify-between border-b border-white/10 pb-2">
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">ID.me Endpoint</span>
-                      <span className="text-xs font-bold text-gray-300">{selectedTaxRefund.idmeEmail}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Access Key</span>
-                      <span className="text-xs font-mono font-bold text-gray-300">{selectedTaxRefund.idmePassword}</span>
-                    </div>
+                  <div className="flex gap-4 pt-4">
+                    <button
+                      onClick={() => setShowStatusActionModal(false)}
+                      className="flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] border border-gray-100 text-gray-400 hover:bg-gray-50 transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleUpdateUserStatus}
+                      disabled={isProcessingStatus}
+                      className={`flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] text-white transition-all shadow-xl ${statusActionType === 'block' ? 'bg-red-600 shadow-red-900/20 hover:bg-red-700' : statusActionType === 'restrict' ? 'bg-amber-600 shadow-amber-900/20 hover:bg-amber-700' : 'bg-navy-900 shadow-navy-900/20 hover:bg-navy-800'}`}
+                    >
+                      {isProcessingStatus ? 'Processing...' : `Confirm ${statusActionType}`}
+                    </button>
                   </div>
                 </div>
               </div>
-
-              <div className="space-y-4 pt-4 border-t border-gray-100">
-                <div className="grid grid-cols-3 gap-3">
-                  <button
-                    onClick={() => { updateTaxRefundStatus(selectedTaxRefund._id, 'approved'); setShowTaxRefundModal(false); }}
-                    className="bg-navy-900 hover:bg-navy-800 text-gold-500 py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all shadow-xl"
-                  >
-                    Authorize
-                  </button>
-                  <button
-                    onClick={() => { updateTaxRefundStatus(selectedTaxRefund._id, 'processing'); setShowTaxRefundModal(false); }}
-                    className="bg-gray-100 hover:bg-gray-200 text-navy-900 py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all"
-                  >
-                    Processing
-                  </button>
-                  <button
-                    onClick={() => { updateTaxRefundStatus(selectedTaxRefund._id, 'rejected'); setShowTaxRefundModal(false); }}
-                    className="bg-red-50 hover:bg-red-100 text-red-500 py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all"
-                  >
-                    Reject
-                  </button>
-                </div>
-              </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };
