@@ -424,7 +424,7 @@ const WithdrawSection = () => {
               />
             </div>
 
-            {selectedMethod?.accountDetails.bankName && (
+            {selectedMethod?.accountDetails?.bankName && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Bank Name</label>
                 <input
@@ -437,7 +437,7 @@ const WithdrawSection = () => {
               </div>
             )}
 
-            {selectedMethod?.accountDetails.network && (
+            {selectedMethod?.accountDetails?.network && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Network</label>
                 <input
