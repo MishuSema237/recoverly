@@ -5,12 +5,25 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Shield, Landmark, ArrowRight, Zap, Globe, Lock } from 'lucide-react';
+import HeroBg from '@/assets/images_for_pages/homeHero.png';
 
 const BankingHero = () => {
     return (
-        <section className="relative min-h-[90vh] flex items-center pt-24 pb-12 overflow-hidden bg-[#0a0f1a]">
+        <section className="relative min-h-[90vh] flex items-center pt-24 pb-12 overflow-hidden bg-navy-950">
+            {/* Background Image with Overlay */}
+            <div className="absolute inset-0 z-0 bg-black">
+                <Image 
+                    src={HeroBg} 
+                    alt="Recoverly Banking Background"
+                    fill
+                    className="object-cover opacity-20"
+                    priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-navy-950/90 via-navy-950/60 to-navy-950"></div>
+            </div>
+
             {/* Background Orbs */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gold-600/10 rounded-full blur-[120px] -mr-64 -mt-32"></div>
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gold-600/10 rounded-full blur-[120px] -mr-64 -mt-32 z-1"></div>
             <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px] -ml-40 -mb-40"></div>
 
             <div className="container mx-auto px-4 relative z-10">

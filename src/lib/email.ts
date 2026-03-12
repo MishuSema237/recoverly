@@ -61,7 +61,7 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
 export const getBaseTemplate = (title: string, content: string, userName?: string) => {
   const year = new Date().getFullYear();
   const appName = 'Recoverly';
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://recoverly-pi.vercel.app';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://recoverlytrustbank.com';
   const logoUrl = `${appUrl}/RecoverlyLogo.png`;
 
   return `

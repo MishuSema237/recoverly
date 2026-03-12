@@ -16,7 +16,10 @@ import {
     CheckCircle2,
     Lock,
     Zap,
-    ShieldCheck
+    ShieldCheck,
+    Upload,
+    ImageIcon,
+    Loader2
 } from 'lucide-react';
 import { showError, showSuccess } from '@/utils/toast';
 
@@ -46,8 +49,10 @@ const CaseReportPage = () => {
         amountLost: '',
         dateOfIncident: '',
         platformName: '',
-        details: ''
+        details: '',
+        screenshotUrl: ''
     });
+    const [uploading, setUploading] = useState(false);
 
     const nextStep = () => {
         if (step === 1 && (!formData.firstName || !formData.lastName || !formData.email || !formData.phone)) {
@@ -63,6 +68,38 @@ const CaseReportPage = () => {
     };
 
     const prevStep = () => setStep(s => s - 1);
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            showError('File size must be less than 5MB.');
+            return;
+        }
+
+        setUploading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                setFormData(prev => ({ ...prev, screenshotUrl: data.url }));
+                showSuccess('Screenshot uploaded successfully.');
+            } else {
+                showError(data.error || 'Upload failed.');
+            }
+        } catch (err) {
+            showError('Network error during upload.');
+        } finally {
+            setUploading(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -368,6 +405,55 @@ const CaseReportPage = () => {
                                         <p className="text-xs text-amber-900/60 font-medium leading-relaxed">
                                             <strong>Affidavit of Truth:</strong> By submitting this report, you certify that all provided information is accurate to the best of your knowledge. Providing false information to forensic intelligence is prohibited.
                                         </p>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-black text-navy-900 uppercase tracking-widest ml-1">Screenshot Proof of Scam (Optional)</label>
+                                        <div className="relative">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleFileUpload}
+                                                className="hidden"
+                                                id="screenshot-upload"
+                                                disabled={uploading}
+                                            />
+                                            <label
+                                                htmlFor="screenshot-upload"
+                                                className={`w-full flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-[32px] cursor-pointer transition-all ${
+                                                    formData.screenshotUrl 
+                                                    ? 'border-green-500 bg-green-50/30' 
+                                                    : 'border-gray-200 hover:border-gold-500 bg-gray-50'
+                                                }`}
+                                            >
+                                                {uploading ? (
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <Loader2 className="w-8 h-8 text-gold-500 animate-spin" />
+                                                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Uploading Intelligence...</span>
+                                                    </div>
+                                                ) : formData.screenshotUrl ? (
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <div className="relative w-20 h-20 rounded-xl overflow-hidden shadow-lg border-2 border-white">
+                                                            <img src={formData.screenshotUrl} alt="Screenshot" className="w-full h-full object-cover" />
+                                                            <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+                                                                <CheckCircle2 className="text-white w-6 h-6" />
+                                                            </div>
+                                                        </div>
+                                                        <span className="text-xs font-bold text-green-600 uppercase tracking-widest">Evidence Secured</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-gray-400">
+                                                            <ImageIcon className="w-6 h-6" />
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <span className="text-xs font-bold text-navy-900 uppercase tracking-widest">Click to Upload Evidence</span>
+                                                            <p className="text-[10px] text-gray-400 font-medium">PNG, JPG up to 5MB</p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </label>
+                                        </div>
                                     </div>
                                 </motion.div>
                             )}

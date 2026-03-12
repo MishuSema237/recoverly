@@ -2,6 +2,11 @@ import type { Metadata } from 'next';
 import { Shield, Globe, Briefcase, ArrowRight, Building2, Smartphone, Lock, CheckCircle2 } from 'lucide-react';
 import PublicRoute from '@/components/PublicRoute';
 import Link from 'next/link';
+import Image from 'next/image';
+
+// Images
+import BankingAppImg from '@/assets/images_for_pages/mobilebankingappinterface.png';
+import FraudInvestigationImg from '@/assets/images_for_pages/financialfraudinvestigation.png';
 
 export const metadata: Metadata = {
     title: 'Private Digital Banking | Recoverly Trust Bank',
@@ -47,7 +52,9 @@ export default function BankingServicesPage() {
             <div className="min-h-screen bg-gray-50">
                 {/* Hero */}
                 <section className="bg-navy-900 text-white pt-32 pb-24 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[url('https://placehold.co/1920x1080/0b1626/1e293b?text=Modern+Bank+Architecture')] opacity-20 bg-cover bg-center mix-blend-overlay" />
+                    <div className="absolute inset-0 bg-navy-800/20 mix-blend-overlay">
+                        <Image src={BankingAppImg} alt="Background" fill className="object-cover opacity-20" priority />
+                    </div>
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                             <div>
@@ -73,7 +80,7 @@ export default function BankingServicesPage() {
                                 </div>
                             </div>
                             <div className="hidden lg:block relative h-[600px] w-full rounded-2xl overflow-hidden shadow-2xl border border-white/10">
-                                <img src="https://placehold.co/800x1200/1e293b/c9933a?text=Mobile+Banking+App+Interface" alt="Recoverly Digital Banking App" className="w-full h-full object-cover" />
+                                <Image src={BankingAppImg} alt="Recoverly Digital Banking App" fill className="object-cover" />
                                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-navy-900 to-transparent p-8">
                                     <div className="flex items-center gap-3 text-white mb-2">
                                         <Shield className="w-6 h-6 text-gold-500" />
@@ -149,7 +156,7 @@ export default function BankingServicesPage() {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                             <div className="relative h-[500px] w-full rounded-2xl overflow-hidden shadow-2xl">
-                                <img src="https://placehold.co/800x1000/1e293b/c9933a?text=Financial+Fraud+Investigation" alt="Financial Fraud Investigation" className="w-full h-full object-cover" />
+                                <Image src={FraudInvestigationImg} alt="Financial Fraud Investigation" fill className="object-cover" />
                             </div>
                             <div>
                                 <h2 className="text-sm font-bold tracking-widest text-gold-500 uppercase mb-3">The Recoverly Advantage</h2>

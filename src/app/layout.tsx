@@ -13,14 +13,14 @@ export const metadata = {
   authors: [{ name: 'Recoverly Trust Bank' }],
   creator: 'Recoverly Trust Bank',
   publisher: 'Recoverly Trust Bank',
-  metadataBase: new URL('https://recoverly-pi.vercel.app'),
+  metadataBase: new URL('https://recoverlytrustbank.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://recoverly-pi.vercel.app',
+    url: 'https://recoverlytrustbank.com',
     siteName: 'Recoverly Trust Bank',
     title: 'Recoverly - We Fight For Your Money Back',
     description: 'Scammed? Overcharged? We use the law to get your money back. Join the bank that fights for you.',

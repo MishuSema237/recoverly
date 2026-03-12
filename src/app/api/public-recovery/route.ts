@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
             amountLost,
             dateOfIncident,
             platformName,
-            details
+            details,
+            screenshotUrl
         } = body;
 
         if (!firstName || !lastName || !email || !scamType || !amountLost || !platformName) {
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
             dateOfIncident,
             platformName,
             details,
+            screenshotUrl,
             status: 'pending',
             updates: [{
                 status: 'pending',

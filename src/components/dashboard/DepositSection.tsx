@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Upload, CheckCircle, AlertCircle, CreditCard, DollarSign, ShieldCheck, Clock } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, CreditCard, DollarSign, ShieldCheck, Clock, Lock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { showSuccess, showError } from '@/utils/toast';
 import { getPaymentMethods, PaymentMethod } from '@/lib/services/PaymentMethodService';
@@ -358,6 +358,35 @@ const DepositSection: React.FC<DepositSectionProps> = ({ initialAmount, isFixedA
             opacity: userProfile?.kycStatus !== 'verified' ? 0.5 : 1,
             pointerEvents: userProfile?.kycStatus !== 'verified' ? 'none' : 'auto'
           }}>
+            {/* Amount Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Deposit Amount ($)</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <DollarSign className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="number"
+                  disabled={isFixedAmount}
+                  className={`block w-full pl-10 pr-12 py-3 border-2 rounded-xl focus:ring-navy-500 focus:border-navy-500 text-lg font-bold ${
+                    isFixedAmount ? 'bg-gray-50 text-gray-500 border-gray-200' : 'border-gray-200 text-navy-900'
+                  }`}
+                  placeholder="0.00"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  required
+                />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 font-bold">USD</span>
+                </div>
+              </div>
+              {isFixedAmount && (
+                <p className="mt-2 text-xs text-navy-500 font-bold uppercase tracking-widest flex items-center gap-1">
+                  <Lock className="w-3 h-3" /> Fixed requirement for account restoration
+                </p>
+              )}
+            </div>
+
             {/* Payment Method Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">Select Payment Method</label>

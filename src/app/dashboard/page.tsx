@@ -597,7 +597,10 @@ const DashboardContent = () => {
               <AccountRestrictedBanner
                 reason={userProfile.accountBlockReason || ''}
                 fee={userProfile.accountUnblockFee || 0}
-                onPayFee={() => setActiveSection('deposit')}
+                onPayFee={() => {
+                  setPendingDepositAmount(userProfile.accountUnblockFee || 0);
+                  setActiveSection('deposit');
+                }}
               />
             )}
             {/* Navbar */}

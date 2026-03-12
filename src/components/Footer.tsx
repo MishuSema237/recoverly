@@ -14,7 +14,7 @@ const Footer = () => {
     { name: 'Home', href: '/' },
     { name: 'Asset Recovery', href: '/asset-recovery' },
     { name: 'Banking Services', href: '/banking' },
-    { name: 'Track My Case', href: '/dashboard' },
+    { name: 'Track My Case', href: '/track-claim' },
     { name: 'About Us', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ];
@@ -41,20 +41,6 @@ const Footer = () => {
             <p className="text-gray-400 mb-5 mobile:mb-6 max-w-md leading-relaxed text-sm mobile:text-base">
               We are the bridge between financial loss and legal recovery. Recoverly combines the power of a specialized law firm with the security of a chartered bank to fight for what belongs to you.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-navy-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gold-600 transition-all duration-300">
-                <Facebook size={18} />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-navy-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gold-600 transition-all duration-300">
-                <Twitter size={18} />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-navy-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gold-600 transition-all duration-300">
-                <Linkedin size={18} />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-navy-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gold-600 transition-all duration-300">
-                <Instagram size={18} />
-              </a>
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -79,22 +65,22 @@ const Footer = () => {
               <div className="flex items-start space-x-3 group">
                 <Mail size={18} className="text-gold-500 mt-1 flex-shrink-0 group-hover:text-white transition-colors" />
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider">Legal Inquiries</p>
-                  <span className="text-gray-300 group-hover:text-white transition-colors">legal@recoverly-trust.com</span>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Direct Intake</p>
+                  <span className="text-gray-300 group-hover:text-white transition-colors lowercase">admin@recoverlytrustbank.com</span>
                 </div>
               </div>
               <div className="flex items-start space-x-3 group">
                 <Phone size={18} className="text-gold-500 mt-1 flex-shrink-0 group-hover:text-white transition-colors" />
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider">Client Hotline</p>
-                  <span className="text-gray-300 group-hover:text-white transition-colors">+1 (888) RECOVER-ME</span>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Global Switchboard</p>
+                  <a href="tel:+14093342911" className="text-gray-300 group-hover:text-white transition-colors hover:underline">+1 (409) 334-2911</a>
                 </div>
               </div>
               <div className="flex items-start space-x-3 group">
-                <MapPin size={18} className="text-gold-500 mt-1 flex-shrink-0 group-hover:text-white transition-colors" />
+                <Shield size={18} className="text-gold-500 mt-1 flex-shrink-0 group-hover:text-white transition-colors" />
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider">Headquarters</p>
-                  <span className="text-gray-300 group-hover:text-white transition-colors">100 Financial District Blvd, Suite 400<br />New York, NY 10005</span>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Emergency Services</p>
+                  <span className="text-gray-300 group-hover:text-white transition-colors">Urgent Bank Freeze</span>
                 </div>
               </div>
             </div>

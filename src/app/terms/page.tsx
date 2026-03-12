@@ -8,7 +8,7 @@ const TermsPage = () => {
   return (
     <PublicRoute>
       <div className="min-h-screen bg-gray-50">
-        <section className="bg-gradient-to-br from-gray-900 via-red-900 to-gray-900 text-white py-20">
+        <section className="bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 text-white py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 50 }}

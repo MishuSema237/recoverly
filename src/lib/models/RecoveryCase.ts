@@ -25,6 +25,7 @@ export interface IRecoveryCase extends Document {
   serviceFee?: number;
   unblockFee?: number;
   feePaid: boolean;
+  screenshotUrl?: string;
   updates: IRecoveryUpdate[];
   createdAt: Date;
   updatedAt: Date;
@@ -64,6 +65,7 @@ const RecoveryCaseSchema = new Schema<IRecoveryCase>({
   serviceFee: { type: Number },
   unblockFee: { type: Number },
   feePaid: { type: Boolean, default: false },
+  screenshotUrl: { type: String },
   updates: [RecoveryUpdateSchema],
 }, {
   timestamps: true

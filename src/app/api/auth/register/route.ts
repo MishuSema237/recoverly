@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     // Send verification email
     try {
-      const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://recoverly-pi.vercel.app'}/verify-email?token=${result.emailVerificationToken}`;
+      const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://recoverlytrustbank.com'}/verify-email?token=${result.emailVerificationToken}`;
       const template = emailTemplates.emailVerification(result.user.firstName, verificationUrl);
 
       await sendEmail({

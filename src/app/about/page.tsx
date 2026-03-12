@@ -3,6 +3,18 @@ import { Scale, Users, Target, ShieldCheck } from 'lucide-react';
 import PublicRoute from '@/components/PublicRoute';
 import Image from 'next/image';
 
+// Leader Images
+import JonathanSterlingImg from '@/assets/images_for_pages/leaders/jonathanSterling.jpg';
+import ElenaRostovaImg from '@/assets/images_for_pages/leaders/Elena Rostova.png';
+import MarcusChenImg from '@/assets/images_for_pages/leaders/Marcus Chen.jpg';
+
+// Testimonial Images
+// Removed - Moved to Home Page
+
+// Origin Images
+import LegalOfficeImg from '@/assets/images_for_pages/legalOffice600-800.png';
+import FinancialGraphImg from '@/assets/images_for_pages/financial_graph_600x800.png';
+
 export const metadata: Metadata = {
   title: 'About Us | Recoverly Trust Bank',
   description: 'Founded by ex-prosecutors and forensic accountants to bridge the gap between law enforcement and banking.',
@@ -13,21 +25,23 @@ const team = [
     name: 'Jonathan Sterling',
     role: 'Chief Executive Officer',
     bio: 'Former Federal Prosecutor with 15 years investigating international wire fraud and financial syndicates.',
-    image: 'https://placehold.co/400x400/1e293b/c9933a?text=Jonathan+Sterling'
+    image: JonathanSterlingImg
   },
   {
     name: 'Elena Rostova',
     role: 'Head of Forensic Accounting',
     bio: 'Certified fraud examiner specializing in blockchain tracing and offshore liability mapping.',
-    image: 'https://placehold.co/400x400/1e293b/c9933a?text=Elena+Rostova'
+    image: ElenaRostovaImg
   },
   {
     name: 'Marcus Chen',
     role: 'Chief Legal Officer',
     bio: 'International banking law expert. Drafts our cross-border levies and legal demands.',
-    image: 'https://placehold.co/400x400/1e293b/c9933a?text=Marcus+Chen'
+    image: MarcusChenImg
   }
 ];
+
+// Removed - moved to home page
 
 export default function AboutPage() {
   return (
@@ -61,10 +75,10 @@ export default function AboutPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-100 h-64 rounded-xl overflow-hidden relative">
-                  <img src="https://placehold.co/600x800/e2e8f0/1e293b?text=Legal+Office+600x800" alt="Legal office" className="object-cover w-full h-full" />
+                  <Image src={LegalOfficeImg} alt="Legal office" fill className="object-cover" />
                 </div>
                 <div className="bg-gray-100 h-64 rounded-xl overflow-hidden relative mt-8">
-                  <img src="https://placehold.co/600x800/e2e8f0/1e293b?text=Financial+Graphs+600x800" alt="Financial graphs" className="object-cover w-full h-full" />
+                  <Image src={FinancialGraphImg} alt="Financial graphs" fill className="object-cover" />
                 </div>
               </div>
             </div>
@@ -112,7 +126,7 @@ export default function AboutPage() {
               {team.map((member, idx) => (
                 <div key={idx} className="bg-navy-800 rounded-xl overflow-hidden border border-navy-700/50">
                   <div className="h-64 relative bg-navy-950">
-                    <img src={member.image} alt={member.name} className="object-cover w-full h-full opacity-90" />
+                    <Image src={member.image} alt={member.name} fill className="object-cover opacity-90" />
                   </div>
                   <div className="p-8">
                     <h4 className="text-2xl font-bold text-white mb-1">{member.name}</h4>

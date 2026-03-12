@@ -1,20 +1,48 @@
+'use client';
+
+import React, { useState } from 'react';
 import type { Metadata } from 'next';
-import { Mail, Phone, MapPin, ShieldAlert, Lock } from 'lucide-react';
+import { Mail, Phone, MapPin, ShieldAlert, Lock, Send, CheckCircle2 } from 'lucide-react';
 import PublicRoute from '@/components/PublicRoute';
-
-export const metadata: Metadata = {
-  title: 'Contact | Recoverly Trust Bank',
-  description: 'Secure, encrypted communication channel. Reach our 24/7 emergency line or visit one of our global offices.',
-};
-
-const offices = [
-  { city: 'London', address: '1 Canada Square, Canary Wharf, London E14 5AB' },
-  { city: 'New York', address: '1 World Trade Center, Suite 4500, NY 10007' },
-  { city: 'Singapore', address: '8 Marina Boulevard, Marina Bay Financial Centre' },
-  { city: 'Dubai', address: 'Level 42, Emirates Towers, Sheikh Zayed Road' }
-];
+import { showError, showSuccess } from '@/utils/toast';
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    scamType: 'Cryptocurrency Fraud',
+    amount: '',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSubmitted(true);
+        showSuccess(data.message);
+      } else {
+        showError(data.error);
+      }
+    } catch (err) {
+      showError('Failed to transmit inquiry. Please check your connection.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <PublicRoute>
       <div className="min-h-screen bg-gray-50">
@@ -43,47 +71,100 @@ export default function ContactPage() {
               </div>
               <h3 className="text-2xl font-bold text-navy-900 mb-8 relative z-10">Encrypted Intake Form</h3>
 
-              <form className="space-y-6 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                    <input type="text" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors" placeholder="John Doe" />
+              {submitted ? (
+                <div className="text-center py-12 anime-in bounce-in">
+                  <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle2 className="w-10 h-10 text-emerald-500" />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                    <input type="email" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors" placeholder="secure@example.com" />
+                  <h4 className="text-2xl font-bold text-navy-900 mb-2">Transmission Secure</h4>
+                  <p className="text-gray-500 mb-8">Case intake confirmed. A recovery officer will be assigned shortly.</p>
+                  <button 
+                    onClick={() => setSubmitted(false)}
+                    className="text-gold-600 font-bold hover:underline"
+                  >
+                    Send another inquiry
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                      <input 
+                        required
+                        type="text" 
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors" 
+                        placeholder="John Doe" 
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                      <input 
+                        required
+                        type="email" 
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors" 
+                        placeholder="secure@example.com" 
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Scam Type</label>
-                  <select className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none bg-white">
-                    <option>Cryptocurrency Fraud</option>
-                    <option>Forex / Trading Platform</option>
-                    <option>Romance Scam</option>
-                    <option>Bank Transfer Fraud</option>
-                    <option>Other</option>
-                  </select>
-                </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Scam Type</label>
+                    <select 
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none bg-white font-medium"
+                      value={formData.scamType}
+                      onChange={(e) => setFormData({...formData, scamType: e.target.value})}
+                    >
+                      <option>Cryptocurrency Fraud</option>
+                      <option>Forex / Trading Platform</option>
+                      <option>Romance Scam</option>
+                      <option>Bank Transfer Fraud</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Estimated Amount Lost</label>
-                  <input type="text" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors" placeholder="$10,000+" />
-                </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Estimated Amount Lost</label>
+                    <input 
+                      type="text" 
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors" 
+                      placeholder="$10,000+" 
+                      value={formData.amount}
+                      onChange={(e) => setFormData({...formData, amount: e.target.value})}
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Initial Case Details</label>
-                  <textarea rows={5} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors resize-none" placeholder="Provide a brief overview of what happened..."></textarea>
-                </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Initial Case Details</label>
+                    <textarea 
+                      required
+                      rows={5} 
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors resize-none" 
+                      placeholder="Provide a brief overview of what happened..."
+                      value={formData.message}
+                      onChange={(e) => setFormData({...formData, message: e.target.value})}
+                    ></textarea>
+                  </div>
 
-                <button type="button" className="w-full bg-navy-900 hover:bg-navy-800 text-white font-bold py-4 rounded-lg transition-transform hover:-translate-y-1 flex justify-center items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  Submit Secure Inquiry
-                </button>
-                <p className="text-xs text-center text-gray-500 mt-4">
-                  By submitting, you agree to our strict privacy policy. Information is legally privileged.
-                </p>
-              </form>
+                  <button 
+                    disabled={loading}
+                    type="submit" 
+                    className="w-full bg-navy-900 hover:bg-navy-800 text-white font-bold py-4 rounded-lg transition-transform hover:-translate-y-1 flex justify-center items-center gap-2 disabled:opacity-70"
+                  >
+                    {loading ? (
+                      <div className="w-5 h-5 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+                    ) : <Lock className="w-4 h-4 text-gold-500" />}
+                    Submit Secure Inquiry
+                  </button>
+                  <p className="text-xs text-center text-gray-500 mt-4">
+                    By submitting, you agree to our strict privacy policy. Information is legally privileged.
+                  </p>
+                </form>
+              )}
             </div>
 
             {/* Contact Info container */}
@@ -91,15 +172,15 @@ export default function ContactPage() {
               {/* Emergency Line */}
               <div className="bg-[#fdfcf0] p-8 rounded-xl border border-red-100 flex items-start gap-6">
                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <ShieldAlert className="w-6 h-6 text-[#c9933a]" />
+                  <ShieldAlert className="w-6 h-6 text-gold-600" />
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-red-900 mb-2">Urgent Bank Freeze Line</h4>
-                  <p className="text-[#b08132] mb-4 text-sm leading-relaxed">
+                  <p className="text-[#b08132] mb-4 text-sm leading-relaxed font-medium">
                     If you transferred funds within the last 48 hours, immediate action is critical. Call our emergency response team.
                   </p>
-                  <a href="tel:+18005550199" className="text-3xl font-bold text-[#c9933a] hover:text-[#b08132] transition-colors">
-                    +1 (800) 555-0199
+                  <a href="tel:+14093342911" className="text-3xl font-black text-[#c9933a] hover:text-[#b08132] transition-colors">
+                    +1 (409) 334-2911
                   </a>
                 </div>
               </div>
@@ -112,7 +193,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500">Email (PGP Available)</p>
-                    <a href="mailto:intake@recoverly.com" className="text-lg font-bold text-navy-900 hover:text-gold-500 transition-colors">intake@recoverly.com</a>
+                    <a href="mailto:admin@recoverlytrustbank.com" className="text-lg font-bold text-navy-900 hover:text-gold-500 transition-colors lowercase">admin@recoverlytrustbank.com</a>
                   </div>
                 </div>
 
@@ -122,25 +203,23 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500">Global Switchboard</p>
-                    <a href="tel:+442071234567" className="text-lg font-bold text-navy-900 hover:text-gold-500 transition-colors">+44 20 7123 4567</a>
+                    <a href="tel:+14093342911" className="text-lg font-bold text-navy-900 hover:text-gold-500 transition-colors">+1 (409) 334-2911</a>
                   </div>
                 </div>
               </div>
 
-              {/* Offices */}
-              <div className="pl-4">
-                <h4 className="text-xl font-bold text-navy-900 mb-6 flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-gold-500" />
-                  Global Presence
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {offices.map((office, idx) => (
-                    <div key={idx} className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                      <h5 className="font-bold text-navy-900 mb-2">{office.city}</h5>
-                      <p className="text-sm text-gray-600">{office.address}</p>
-                    </div>
-                  ))}
+              {/* Locations Removed */}
+              <div className="p-8 bg-navy-900 rounded-xl text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-5">
+                  <Globe className="w-32 h-32 text-gold-500" />
                 </div>
+                <h4 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-gold-500" />
+                  Global Operations
+                </h4>
+                <p className="text-sm text-gray-400 leading-relaxed">
+                  While we maintain digital-first response protocols, our legal network operates across major financial hubs including London, New York, Singapore, and Dubai to ensure jurisdictional authority.
+                </p>
               </div>
 
             </div>
@@ -151,3 +230,6 @@ export default function ContactPage() {
     </PublicRoute>
   );
 }
+
+// MapPin and Globe needed for the component
+import { Globe } from 'lucide-react';
