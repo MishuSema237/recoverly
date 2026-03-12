@@ -638,7 +638,7 @@ const DashboardContent = () => {
             </header>
 
             {/* Scrollable Area */}
-            <div className="flex-1 overflow-y-auto p-3.5 mobile:p-6 bg-white space-y-4 mobile:space-y-8 pb-32 mb:pb-20 relative">
+            <div className="flex-1 overflow-y-auto p-3.5 mobile:p-6 bg-white space-y-4 mobile:space-y-8 pb-48 mobile:pb-48 relative">
               <VerificationBanner onNavigate={(section) => {
                 if (section === 'activate-email') {
                   router.push('/activate-email');
