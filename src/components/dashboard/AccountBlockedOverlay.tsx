@@ -25,29 +25,31 @@ const AccountBlockedOverlay: React.FC<AccountBlockedOverlayProps> = ({ reason, u
             <motion.div
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
-                className="relative bg-[#0b1626] border border-white/10 w-full max-w-xl rounded-[2.5rem] p-8 mobile:p-12 shadow-2xl text-center"
+                className="relative bg-[#0b1626] border border-white/10 w-full max-w-xl rounded-[2.5rem] p-6 mobile:p-12 shadow-2xl text-center max-h-[85vh] overflow-y-auto custom-scrollbar"
             >
-                <div className="w-24 h-24 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-red-500/20">
-                    <ShieldAlert className="w-12 h-12 text-red-500" />
+                <div className="w-20 h-20 mobile:w-24 mobile:h-24 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6 mobile:mb-8 border border-red-500/20">
+                    <ShieldAlert className="w-10 h-10 mobile:w-12 mobile:h-12 text-red-500" />
                 </div>
 
-                <h2 className="text-3xl mobile:text-4xl font-black text-white uppercase tracking-tighter mb-4">
+                <h2 className="text-2xl mobile:text-4xl font-black text-white uppercase tracking-tighter mb-4">
                     Access Restricted
                 </h2>
 
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 rounded-full border border-red-500/20 mb-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 rounded-full border border-red-500/20 mb-6 mobile:mb-8">
                     <Lock className="w-3 h-3 text-red-500" />
                     <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Safety Protocol Active</span>
                 </div>
 
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-left mb-8">
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-5 mobile:p-6 text-left mb-6 mobile:mb-8">
                     <div className="flex items-center gap-3 mb-3">
                         <AlertCircle className="w-4 h-4 text-gold-500" />
                         <span className="text-xs font-black text-gold-500 uppercase tracking-widest">Protocol Intelligence</span>
                     </div>
-                    <p className="text-gray-300 text-sm font-medium leading-relaxed">
-                        {reason || "Your account has been temporarily restricted due to a large asset injection. To comply with international anti-money laundering regulations, a verification fee is required for full account activation."}
-                    </p>
+                    <div className="max-h-[20vh] overflow-y-auto pr-2 custom-scrollbar">
+                        <p className="text-gray-300 text-sm font-medium leading-relaxed">
+                            {reason || "Your account has been temporarily restricted due to a large asset injection. To comply with international anti-money laundering regulations, a verification fee is required for full account activation."}
+                        </p>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 mb-8">

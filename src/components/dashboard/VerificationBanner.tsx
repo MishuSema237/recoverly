@@ -14,7 +14,7 @@ const VerificationBanner: React.FC<VerificationBannerProps> = ({ onNavigate }) =
     if (!userProfile) return null;
 
     const showEmailBanner = !userProfile.emailVerified;
-    const showKycBanner = userProfile.kycStatus === 'unverified' || userProfile.kycStatus === 'rejected';
+    const showKycBanner = userProfile.kycStatus !== 'verified';
 
     if (!showEmailBanner && !showKycBanner) return null;
 
