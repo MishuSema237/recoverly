@@ -52,24 +52,24 @@ const AccountBlockedOverlay: React.FC<AccountBlockedOverlayProps> = ({ reason, u
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 mb-8">
-                    <div className="bg-navy-900 border border-gold-500/20 rounded-2xl p-6">
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1 text-center">Required Activation Fee</p>
-                        <p className="text-4xl font-black text-gold-500 flex items-center justify-center gap-2">
-                            <span className="text-lg opacity-50">$</span>
+                <div className="grid grid-cols-1 gap-4 mb-6 mobile:mb-8">
+                    <div className="bg-navy-900 border border-gold-500/20 rounded-2xl p-4 mobile:p-6">
+                        <p className="text-[9px] mobile:text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1 text-center">Required Activation Fee</p>
+                        <p className="text-3xl mobile:text-4xl font-black text-gold-500 flex items-center justify-center gap-2">
+                            <span className="text-base mobile:text-lg opacity-50">$</span>
                             {unblockFee.toLocaleString()}
                         </p>
-                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-2 text-center">100% Refundable After Unblocking</p>
+                        <p className="text-[8px] mobile:text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-2 text-center">100% Refundable After Unblocking</p>
                     </div>
                 </div>
 
                 <button
                     onClick={onPayFee}
-                    className="w-full h-16 bg-gold-500 text-navy-900 rounded-2xl font-black uppercase tracking-widest hover:bg-gold-400 transition-all shadow-xl shadow-gold-500/20 flex items-center justify-center gap-3 group"
+                    className="w-full h-14 mobile:h-16 bg-gold-500 text-navy-900 rounded-xl mobile:rounded-2xl font-black text-xs mobile:text-sm uppercase tracking-widest hover:bg-gold-400 transition-all shadow-xl shadow-gold-500/20 flex items-center justify-center gap-2 mobile:gap-3 group"
                 >
-                    <CreditCard className="w-5 h-5" />
+                    <CreditCard className="w-4 h-4 mobile:w-5 mobile:h-5" />
                     Initialize Unblocking Sequence
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 mobile:w-5 mobile:h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
 
                 <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-8">
