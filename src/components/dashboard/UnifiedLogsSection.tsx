@@ -118,7 +118,9 @@ const UnifiedLogsSection = () => {
       return `${prefix}$${Math.abs(amount).toLocaleString()}`;
     }
     // For other types, use type to determine prefix
-    const prefix = type === 'deposit' ? '+' : '-';
+    // Positive types: deposit, earning, tax_refund, loan (payouts), recovery (if positive)
+    const positiveTypes = ['deposit', 'earning', 'tax_refund', 'loan'];
+    const prefix = (positiveTypes.includes(type) || (type === 'recovery' && amount > 0)) ? '+' : '-';
     return `${prefix}$${Math.abs(amount).toLocaleString()}`;
   };
 
@@ -192,7 +194,7 @@ const UnifiedLogsSection = () => {
                   <div className="text-right">
                     <p className={`font-semibold text-sm mobile:text-base ${log.status === 'failed'
                       ? 'text-red-500'
-                      : log.type === 'deposit' || (log.type === 'transfer' && !log.isSent)
+                      : (log.type === 'deposit' || log.type === 'earning' || log.type === 'loan' || log.type === 'tax_refund' || (log.type === 'recovery' && log.amount > 0) || (log.type === 'transfer' && !log.isSent))
                         ? 'text-green-600'
                         : 'text-[#c9933a]'
                       }`}>
@@ -273,7 +275,7 @@ const UnifiedLogsSection = () => {
                     <td className="py-3 px-4">
                       <span className={`font-semibold ${log.status === 'failed'
                         ? 'text-red-500'
-                        : log.type === 'deposit' || (log.type === 'transfer' && !log.isSent)
+                        : (log.type === 'deposit' || log.type === 'earning' || log.type === 'loan' || log.type === 'tax_refund' || (log.type === 'recovery' && log.amount > 0) || (log.type === 'transfer' && !log.isSent))
                           ? 'text-green-600'
                           : 'text-[#c9933a]'
                         }`}>
@@ -371,7 +373,7 @@ const UnifiedLogsSection = () => {
                     <label className="block text-sm font-medium text-gray-700">Amount</label>
                     <p className={`text-lg font-semibold ${selectedLog.status === 'failed'
                       ? 'text-red-500'
-                      : selectedLog.type === 'deposit' || (selectedLog.type === 'transfer' && !selectedLog.isSent)
+                      : (selectedLog.type === 'deposit' || selectedLog.type === 'earning' || selectedLog.type === 'loan' || selectedLog.type === 'tax_refund' || (selectedLog.type === 'recovery' && selectedLog.amount > 0) || (selectedLog.type === 'transfer' && !selectedLog.isSent))
                         ? 'text-green-600'
                         : 'text-[#c9933a]'
                       }`}>
