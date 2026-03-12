@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Clock, Calendar, Save, AlertCircle, CheckCircle, ShieldCheck } from 'lucide-react';
+import { Clock, Calendar, Save, AlertCircle, CheckCircle, ShieldCheck, ArrowRight } from 'lucide-react';
 
 interface WithdrawalSchedule {
   enabled: boolean;
@@ -128,7 +128,7 @@ const WithdrawalScheduleManager = () => {
           <Clock className="w-8 h-8 text-gold-500" />
         </div>
         <div>
-          <h3 className="text-2xl font-black uppercase tracking-tighter">Temporal Restriction</h3>
+          <h3 className="text-2xl font-black uppercase tracking-tighter text-navy-900">Temporal Restriction</h3>
           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Configure active disbursement windows</p>
         </div>
       </div>
@@ -146,11 +146,45 @@ const WithdrawalScheduleManager = () => {
       )}
 
       <div className="space-y-10">
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 gap-6">
+          <button
+            onClick={() => {
+              setSchedule(prev => ({ ...prev, enabled: false }));
+              // Use a slight delay to ensure state update if needed, or just call save with local state
+              setTimeout(handleSave, 100);
+            }}
+            disabled={saving || !schedule.enabled}
+            className={`p-8 rounded-[2.5rem] border-2 transition-all flex items-center justify-between group ${
+              !schedule.enabled 
+                ? 'bg-gold-50 border-gold-200 cursor-default' 
+                : 'bg-navy-900 border-navy-800 hover:bg-navy-800 active:scale-[0.98]'
+            }`}
+          >
+            <div className="flex items-center gap-6">
+              <div className={`p-4 rounded-2xl ${!schedule.enabled ? 'bg-gold-500/20 text-gold-600' : 'bg-gold-500 text-navy-900'}`}>
+                <ShieldCheck className="w-8 h-8" />
+              </div>
+              <div className="text-left">
+                <h4 className={`text-lg font-black uppercase tracking-tighter ${!schedule.enabled ? 'text-gold-600' : 'text-gold-500'}`}>Allow Withdrawals At All Times</h4>
+                <p className={`text-[10px] font-black uppercase tracking-widest mt-1 ${!schedule.enabled ? 'text-gold-400' : 'text-gray-400'}`}>
+                  {!schedule.enabled ? 'System currently open for all participants' : 'Disable all temporal restrictions instantly'}
+                </p>
+              </div>
+            </div>
+            {schedule.enabled && (
+              <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                <ArrowRight className="w-6 h-6 text-gold-500" />
+              </div>
+            )}
+          </button>
+        </div>
+
         {/* Enable/Disable Toggle */}
         <div className="flex items-center justify-between p-8 bg-gray-50 border border-gray-100 rounded-[2rem] hover:border-gray-200 transition-all group">
           <div>
-            <h4 className="text-sm font-black uppercase tracking-tight group-hover:text-gold-500 transition-colors">Active Protocol Gating</h4>
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Enforce temporal access restrictions</p>
+            <h4 className="text-sm font-black uppercase tracking-tight group-hover:text-gold-500 transition-colors">Manual Schedule Control</h4>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Configure specific active windows</p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
@@ -164,7 +198,7 @@ const WithdrawalScheduleManager = () => {
         </div>
 
         {schedule.enabled && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-in fade-in duration-500">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-in fade-in slide-in-from-bottom-5 duration-500">
             {/* Allowed Days */}
             <div className="p-8 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm space-y-8">
               <h4 className="text-xs font-black uppercase tracking-widest text-navy-900 flex items-center gap-4">
@@ -252,7 +286,7 @@ const WithdrawalScheduleManager = () => {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="bg-navy-900 hover:bg-navy-800 disabled:opacity-50 text-gold-500 px-12 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center gap-4 group active:scale-95"
+            className="w-full sm:w-auto bg-navy-900 hover:bg-navy-800 disabled:opacity-50 text-gold-500 px-12 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-4 group active:scale-95"
           >
             {saving ? (
               <div className="w-5 h-5 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
