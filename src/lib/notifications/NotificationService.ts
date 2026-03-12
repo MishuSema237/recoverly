@@ -25,6 +25,8 @@ interface NotificationData {
     activityType?: string;
     reason?: string;
     capitalReturned?: boolean;
+    balanceType?: string;
+    action?: string;
   };
 }
 

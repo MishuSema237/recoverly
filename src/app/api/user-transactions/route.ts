@@ -180,6 +180,9 @@ export const GET = requireAuth(async (request) => {
       } else if (transaction.type === 'investment') {
         txType = 'investment';
         details = `Investment in ${transaction.planName || 'Investment Plan'}`;
+      } else if (transaction.type === 'manual_adjustment') {
+        txType = transaction.action === 'add' ? 'deposit' : 'other';
+        details = transaction.description || 'Account Adjustment';
       } else if (isTransfer) {
         txType = 'transfer';
         details = transaction.description || 'Transfer';

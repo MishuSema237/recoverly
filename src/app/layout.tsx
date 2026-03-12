@@ -7,9 +7,9 @@ import { Toaster } from 'react-hot-toast';
 import './globals.css';
 
 export const metadata = {
-  title: 'Recoverly - Trust Bank | Asset Recovery & Secure Banking',
-  description: 'Recoverly is your bridge between financial loss and legal recovery. We offer specialized asset recovery services and secure legal banking to protect your wealth.',
-  keywords: ['asset recovery', 'scam recovery', 'secure banking', 'legal banking', 'recoverly', 'trust bank', 'fraud protection'],
+  title: 'Recoverly Trust Bank | High-Security Private Banking & Asset Recovery',
+  description: 'Secure your capital with Recoverly Trust Bank. We provide elite private banking services alongside specialized legal asset recovery to protect and reclaim your wealth.',
+  keywords: ['private banking', 'secure banking', 'asset recovery', 'wealth management', 'legal banking', 'scam recovery', 'fraud protection'],
   authors: [{ name: 'Recoverly Trust Bank' }],
   creator: 'Recoverly Trust Bank',
   publisher: 'Recoverly Trust Bank',
@@ -22,21 +22,21 @@ export const metadata = {
     locale: 'en_US',
     url: 'https://recoverlytrustbank.com',
     siteName: 'Recoverly Trust Bank',
-    title: 'Recoverly - We Fight For Your Money Back',
-    description: 'Scammed? Overcharged? We use the law to get your money back. Join the bank that fights for you.',
+    title: 'Recoverly Trust Bank - Secure Banking & Asset Recovery',
+    description: 'Elite private banking meets specialized asset recovery. Protect your current capital and let us fight to reclaim your lost funds with Swiss-level security.',
     images: [
       {
         url: '/thumbnail.png',
         width: 1200,
         height: 630,
-        alt: 'Recoverly - Asset Recovery & Banking',
+        alt: 'Recoverly Trust Bank - Secure Banking & Recovery',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Recoverly - We Fight For Your Money Back',
-    description: 'Scammed? Overcharged? We use the law to get your money back.',
+    title: 'Recoverly Trust Bank - Absolute Wealth Security',
+    description: 'Secure private banking and specialized asset recovery for global capital protection.',
     images: ['/thumbnail.png'],
   },
   robots: {

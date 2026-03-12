@@ -260,6 +260,15 @@ const AdminSection = () => {
   const [statusActionReason, setStatusActionReason] = useState('');
   const [isProcessingStatus, setIsProcessingStatus] = useState(false);
 
+  // New Balance Adjustment states
+  const [showBalanceAdjustmentModal, setShowBalanceAdjustmentModal] = useState(false);
+  const [balanceAdjustmentData, setBalanceAdjustmentData] = useState({
+    amount: '',
+    action: 'add' as 'add' | 'subtract',
+    reason: ''
+  });
+  const [isProcessingBalanceAdjustment, setIsProcessingBalanceAdjustment] = useState(false);
+
   // MongoDB services
   const planService = useMemo(() => new PlanService(), []);
 
@@ -465,6 +474,53 @@ const AdminSection = () => {
     }
 
     return filtered;
+  };
+
+  const handleBalanceAdjustment = async () => {
+    if (!userDetailData || !userDetailData._id) return;
+    if (!balanceAdjustmentData.amount || !balanceAdjustmentData.reason) {
+      showError('Please provide amount and reason');
+      return;
+    }
+
+    setIsProcessingBalanceAdjustment(true);
+    try {
+      const response = await fetch('/api/admin/adjust-balance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: userDetailData._id,
+          amount: balanceAdjustmentData.amount,
+          action: balanceAdjustmentData.action,
+          reason: balanceAdjustmentData.reason,
+          adminId: userProfile?.email || 'admin'
+        })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        showSuccess('Balance adjusted successfully');
+        setShowBalanceAdjustmentModal(false);
+        setBalanceAdjustmentData({ amount: '', action: 'add', reason: '' });
+        // Refresh users to get latest balances
+        loadUsers();
+        // Update local detail view if possible
+        const updatedUser = users.find(u => u._id === userDetailData._id);
+        if (updatedUser) {
+           setUserDetailData({
+              ...userDetailData,
+              balances: updatedUser.balances
+           } as AdminUser);
+        }
+      } else {
+        showError(result.error || 'Failed to adjust balance');
+      }
+    } catch (error) {
+      console.error('Error adjusting balance:', error);
+      showError('An error occurred while adjusting balance');
+    } finally {
+      setIsProcessingBalanceAdjustment(false);
+    }
   };
 
   const updateTransactionStatus = async (transactionId: string, type: 'deposit' | 'withdrawal', status: string, rejectionReason?: string, paymentDetailsString?: string) => {
@@ -2719,26 +2775,21 @@ const AdminSection = () => {
                         </button>
 
                         <button
-                          onClick={async () => {
-                            if (window.confirm('Manually authorize KYC verification for this user?')) {
-                              const result = await updateKycRequestStatus(userDetailData._id!, 'approve');
-                              if (result) {
-                                setUserDetailData({ ...userDetailData, kycStatus: 'verified' });
-                                loadUsers();
-                              }
-                            }
+                          onClick={() => {
+                            setBalanceAdjustmentData({
+                              amount: '',
+                              action: 'add',
+                              reason: ''
+                            });
+                            setShowBalanceAdjustmentModal(true);
                           }}
-                          disabled={userDetailData.kycStatus === 'verified'}
-                          className={`w-full px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-between group ${userDetailData.kycStatus === 'verified'
-                            ? 'bg-gray-50 text-gray-400 border border-gray-100'
-                            : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
-                            }`}
+                          className="w-full px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-between group bg-gold-50 text-gold-600 border border-gold-100 hover:bg-gold-100"
                         >
                           <div className="flex items-center gap-3">
-                            <ShieldCheck className="w-4 h-4" />
-                            <span>{userDetailData.kycStatus === 'verified' ? 'KYC Already Verified' : 'Authorize Manual KYC'}</span>
+                            <DollarSign className="w-4 h-4" />
+                            <span>Adjust User Balance</span>
                           </div>
-                          {userDetailData.kycStatus !== 'verified' && <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0" />}
+                          <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0" />
                         </button>
                       </div>
                     </div>
@@ -3740,6 +3791,89 @@ const AdminSection = () => {
                       className={`flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] text-white transition-all shadow-xl ${statusActionType === 'block' ? 'bg-red-600 shadow-red-900/20 hover:bg-red-700' : statusActionType === 'restrict' ? 'bg-amber-600 shadow-amber-900/20 hover:bg-amber-700' : 'bg-navy-900 shadow-navy-900/20 hover:bg-navy-800'}`}
                     >
                       {isProcessingStatus ? 'Processing...' : `Confirm ${statusActionType}`}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+        {showBalanceAdjustmentModal && (
+          <div className="fixed inset-0 bg-navy-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-in fade-in duration-300">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-white rounded-[2.5rem] shadow-2xl max-w-xl w-full border border-white/20 overflow-hidden"
+            >
+              <div className="p-10">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h3 className="text-2xl font-black text-navy-900 uppercase tracking-tighter">Manual Balance Adjust</h3>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Authorized Financial Override Profile</p>
+                  </div>
+                  <button
+                    onClick={() => setShowBalanceAdjustmentModal(false)}
+                    className="w-12 h-12 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-[10px] font-black text-navy-900 uppercase tracking-widest mb-3">Adjustment Action</label>
+                    <select
+                      value={balanceAdjustmentData.action}
+                      onChange={(e) => setBalanceAdjustmentData({ ...balanceAdjustmentData, action: e.target.value as 'add' | 'subtract' })}
+                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 text-navy-900 font-bold outline-none focus:ring-2 focus:ring-gold-500/20"
+                    >
+                      <option value="add">Add Funds (+)</option>
+                      <option value="subtract">Deduct Funds (-)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black text-navy-900 uppercase tracking-widest mb-3">Adjustment Amount (USD)</label>
+                    <div className="relative">
+                      <div className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 font-black">$</div>
+                      <input
+                        type="number"
+                        value={balanceAdjustmentData.amount}
+                        onChange={(e) => setBalanceAdjustmentData({ ...balanceAdjustmentData, amount: e.target.value })}
+                        className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-5 pl-12 pr-6 text-navy-900 font-bold focus:ring-2 focus:ring-gold-500/20 outline-none"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black text-navy-900 uppercase tracking-widest mb-3">Adjustment Protocol Reason</label>
+                    <textarea
+                      value={balanceAdjustmentData.reason}
+                      onChange={(e) => setBalanceAdjustmentData({ ...balanceAdjustmentData, reason: e.target.value })}
+                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl p-6 text-navy-900 font-bold focus:ring-2 focus:ring-gold-500/20 outline-none min-h-[100px]"
+                      placeholder="e.g., Manual bonus credit for verification..."
+                    />
+                  </div>
+
+                  <div className="flex gap-4 pt-4">
+                    <button
+                      onClick={() => setShowBalanceAdjustmentModal(false)}
+                      className="flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] border border-gray-100 text-gray-400 hover:bg-gray-50 transition-all"
+                    >
+                      Abort
+                    </button>
+                    <button
+                      onClick={handleBalanceAdjustment}
+                      disabled={isProcessingBalanceAdjustment}
+                      className="flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] bg-navy-900 text-gold-500 hover:bg-navy-800 transition-all shadow-xl shadow-navy-900/20 flex items-center justify-center gap-2"
+                    >
+                      {isProcessingBalanceAdjustment ? (
+                        <div className="w-4 h-4 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <TrendingUp className="w-4 h-4" />
+                      )}
+                      <span>Authorize Adjustment</span>
                     </button>
                   </div>
                 </div>
