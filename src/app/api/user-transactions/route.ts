@@ -181,8 +181,12 @@ export const GET = requireAuth(async (request) => {
         txType = 'investment';
         details = `Investment in ${transaction.planName || 'Investment Plan'}`;
       } else if (transaction.type === 'fee' || transaction.type === 'unblock_fee' || transaction.type === 'recovery_fee') {
-        txType = 'other'; // Keep as other or map to a 'fee' type if UI supports it
+        txType = 'recovery'; // Use recovery type for positive sign in UI
         details = transaction.description || 'Protocol Fee';
+        // Ensure amount is positive for these types
+        if (typeof transaction.amount === 'number') {
+          transaction.amount = Math.abs(transaction.amount);
+        }
       } else if (transaction.type === 'refund') {
         txType = 'deposit'; // Show as deposit to get positive sign
         details = transaction.description || 'Refund';

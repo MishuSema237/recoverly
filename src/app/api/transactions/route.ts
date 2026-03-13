@@ -235,7 +235,7 @@ export async function PUT(request: NextRequest) {
         const depositRequest = await collection.findOne({ _id: objectId });
         if (depositRequest) {
           // Update user balance
-          await updateUserBalance(depositRequest.userId, depositRequest.amount, 'add', 'deposit');
+            await updateUserBalance(depositRequest.userId, depositRequest.amount, 'add', 'deposit', `Deposit approved: ${depositRequest.amount.toFixed(2)}`);
 
           // Get user details for notification
           const user = await db.collection('users').findOne({ _id: new ObjectId(depositRequest.userId) });
@@ -382,8 +382,8 @@ export async function PUT(request: NextRequest) {
         // Get the withdrawal request to deduct from user balance
         const withdrawalRequest = await collection.findOne({ _id: objectId });
         if (withdrawalRequest) {
-          // Deduct from user balance
-          await updateUserBalance(withdrawalRequest.userId, withdrawalRequest.amount, 'subtract', 'withdrawal');
+          // Deduct from user balance and add to history
+          await updateUserBalance(withdrawalRequest.userId, withdrawalRequest.amount, 'subtract', 'withdrawal', `Withdrawal approved: ${withdrawalRequest.amount.toFixed(2)}`);
 
           // Get user details for notification
           const user = await db.collection('users').findOne({ _id: new ObjectId(withdrawalRequest.userId) });
@@ -447,7 +447,7 @@ export async function PUT(request: NextRequest) {
 }
 
 // Helper function to update user balance
-async function updateUserBalance(userId: string, amount: number, operation: 'add' | 'subtract', transactionType?: 'deposit' | 'withdrawal') {
+async function updateUserBalance(userId: string, amount: number, operation: 'add' | 'subtract', transactionType?: 'deposit' | 'withdrawal', description?: string) {
   try {
     const db = await getDb();
     const usersCollection = db.collection('users');
@@ -463,10 +463,14 @@ async function updateUserBalance(userId: string, amount: number, operation: 'add
       ? currentBalance + amount
       : Math.max(0, currentBalance - amount);
 
-    const updateData: Record<string, number | Date> = {
+    const updateData: Record<string, any> = {
       'balances.main': newBalance,
       'balances.total': (user.balances?.investment || 0) + (user.balances?.referral || 0) + newBalance,
       updatedAt: new Date()
+    };
+
+    const updateQuery: Record<string, any> = {
+      $set: updateData
     };
 
     // Track total deposits and withdrawals
@@ -476,9 +480,26 @@ async function updateUserBalance(userId: string, amount: number, operation: 'add
       updateData.totalWithdraw = (user.totalWithdraw || 0) + amount;
     }
 
+    // Push to transaction history if it's a financial operation
+    if (transactionType) {
+      updateQuery.$push = {
+        transactions: {
+          type: transactionType,
+          amount: operation === 'subtract' ? -amount : amount,
+          date: new Date(),
+          status: 'completed',
+          description: description || (transactionType === 'deposit' ? 'Deposit Approved' : 'Withdrawal Approved')
+        },
+        activityLog: {
+          action: description || `${transactionType.charAt(0).toUpperCase() + transactionType.slice(1)} ${operation === 'add' ? 'Added' : 'Subtracted'}: $${amount.toFixed(2)}`,
+          timestamp: new Date().toISOString()
+        }
+      };
+    }
+
     await usersCollection.updateOne(
       { _id: new ObjectId(userId) },
-      { $set: updateData }
+      updateQuery
     );
 
     console.log(`Updated balance for user ${userId}: ${operation} ${amount}, new balance: ${newBalance}`);

@@ -3179,7 +3179,7 @@ const AdminSection = () => {
                         <button
                           onClick={() => {
                             if (selectedTransaction._id) {
-                              updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'processing');
+                              updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'completed');
                             }
                             setShowTransactionModal(false);
                             setSelectedTransaction(null);
@@ -3187,8 +3187,22 @@ const AdminSection = () => {
                           }}
                           className="flex-[2] bg-navy-900 hover:bg-navy-800 text-gold-500 px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-navy-900/10 flex items-center justify-center gap-3"
                         >
-                          <RefreshCw className="w-4 h-4" />
-                          Execute
+                          <ShieldCheck className="w-4 h-4" />
+                          Approve & Complete
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (selectedTransaction._id) {
+                              updateTransactionStatus(selectedTransaction._id, 'withdrawal', 'processing');
+                            }
+                            setShowTransactionModal(false);
+                            setSelectedTransaction(null);
+                            setRejectionReason('');
+                          }}
+                          className="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-400 px-4 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2"
+                        >
+                          <Clock className="w-3.5 h-3.5" />
+                          Process Only
                         </button>
                         <button
                           onClick={() => {
