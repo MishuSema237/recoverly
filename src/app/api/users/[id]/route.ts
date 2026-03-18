@@ -38,6 +38,38 @@ export const PUT = requireAdmin(async (request: AuthenticatedRequest) => {
       );
     }
 
+    // If KYC was verified, add to activity log
+    if (success && allowedUpdates.kycStatus === 'verified') {
+      const { getDb } = await import('@/lib/mongodb');
+      const { ObjectId } = await import('mongodb');
+      const { NotificationService } = await import('@/lib/notifications/NotificationService');
+      const db = await getDb();
+      await db.collection('users').updateOne(
+        { _id: new ObjectId(userId) },
+        {
+          $set: {
+            kycVerifiedAt: new Date()
+          },
+          $push: {
+            activityLog: {
+              action: 'KYC manually verified by system administrator',
+              timestamp: new Date().toISOString()
+            }
+          } as any
+        }
+      );
+
+      // Notify the user
+      try {
+        const user = await UserService.getUserById(userId);
+        if (user && user.email) {
+          await NotificationService.notifyKycApproval(userId, user.email);
+        }
+      } catch (notificationError) {
+        console.error('Failed to send manual KYC notification:', notificationError);
+      }
+    }
+
     if (!success) {
       return NextResponse.json(
         { success: false, error: 'Failed to update user' },

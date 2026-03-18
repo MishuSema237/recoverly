@@ -20,6 +20,10 @@ if (process.env.NODE_ENV === 'development') {
         strict: true,
         deprecationErrors: true,
       },
+      connectTimeoutMS: 60000,
+      socketTimeoutMS: 60000,
+      maxPoolSize: 10,
+      retryWrites: true,
     });
     (global as unknown as { _mongoClient: MongoClient })._mongoClient = cachedClient;
   }
@@ -32,6 +36,10 @@ if (process.env.NODE_ENV === 'development') {
       strict: true,
       deprecationErrors: true,
     },
+    connectTimeoutMS: 60000,
+    socketTimeoutMS: 60000,
+    maxPoolSize: 10,
+    retryWrites: true,
   });
   clientPromise = client.connect();
 }
@@ -41,13 +49,21 @@ export async function connectToDatabase() {
     const client = await clientPromise;
     const db = client.db(dbName);
 
-    // Test the connection
-    await client.db('admin').command({ ping: 1 });
-    console.log('Connected to MongoDB successfully');
-
+    // Test the connection (optional, can be slow on some networks)
+    // await client.db('admin').command({ ping: 1 });
+    // console.log('Connected to MongoDB successfully');
+    
     return { client, db };
   } catch (error) {
-    console.error('MongoDB connection error:', error);
+    console.error('CRITICAL: MongoDB connection error:', error);
+    if (error instanceof Error && (error.message.includes('ETIMEDOUT') || error.message.includes('ServerSelectionError'))) {
+      console.error('--- DIAGNOSTIC HINT ---');
+      console.error('This error often means your current IP address is not whitelisted in MongoDB Atlas.');
+      console.error('1. Log in to MongoDB Atlas.');
+      console.error('2. Go to "Network Access".');
+      console.error('3. Click "Add IP Address" and select "Allow Access From Anywhere" (0.0.0.0/0) or "Add Current IP Address".');
+      console.error('-----------------------');
+    }
     throw error;
   }
 }

@@ -14,13 +14,15 @@ import {
   ShieldCheck,
   Copy,
   Info,
-  Zap
+  Zap,
+  LogOut
 } from 'lucide-react';
 import { showSuccess } from '@/utils/toast';
 
 const ProfileSection = () => {
-  const { userProfile } = useAuth();
+  const { userProfile, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -94,6 +96,36 @@ const ProfileSection = () => {
             <button className="flex items-center gap-2 text-gold-600 font-black uppercase tracking-widest text-[10px] hover:gap-4 transition-all group/btn">
               <span>Contact Support</span>
               <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+            </button>
+          </div>
+
+          {/* Logout Card - Standard for all devices */}
+          <div className="bg-red-50 rounded-2xl mobile:rounded-[2.5rem] p-5 mobile:p-8 border border-red-100 shadow-sm group">
+            <div className="w-10 h-10 mobile:w-12 mobile:h-12 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mb-4 mobile:mb-6 group-hover:scale-110 transition-transform">
+              <LogOut className="w-5 h-5 mobile:w-6 mobile:h-6" />
+            </div>
+            <h4 className="text-base mobile:text-lg font-black text-red-900 uppercase tracking-tight mb-2">Secure Logout</h4>
+            <p className="text-xs text-red-700/60 font-medium leading-relaxed mb-4 mobile:mb-6">
+              Terminate your current session and clear all active ledger credentials from this device.
+            </p>
+            <button
+              onClick={async () => {
+                if (window.confirm('Are you sure you want to terminate your current session?')) {
+                  setIsLoggingOut(true);
+                  try {
+                    await logout();
+                    window.location.href = '/';
+                  } catch (e) {
+                    console.error('Logout failed:', e);
+                    setIsLoggingOut(false);
+                  }
+                }
+              }}
+              disabled={isLoggingOut}
+              className="w-full flex items-center justify-between px-6 py-4 bg-red-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-red-700 transition-all disabled:opacity-50"
+            >
+              <span>{isLoggingOut ? 'Terminating...' : 'Terminate Session'}</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>

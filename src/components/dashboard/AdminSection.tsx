@@ -2775,6 +2775,29 @@ const AdminSection = () => {
                         </button>
 
                         <button
+                          onClick={async () => {
+                            if (window.confirm('Manually authorize KYC verification for this user?')) {
+                              const result = await updateUser(userDetailData._id!, { kycStatus: 'verified' });
+                              if (result) {
+                                setUserDetailData({ ...userDetailData, kycStatus: 'verified' });
+                                loadUsers();
+                              }
+                            }
+                          }}
+                          disabled={userDetailData.kycStatus === 'verified'}
+                          className={`w-full px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-between group ${userDetailData.kycStatus === 'verified'
+                            ? 'bg-gray-50 text-gray-400 border border-gray-100'
+                            : 'bg-gold-50 text-gold-600 border border-gold-100 hover:bg-gold-100'
+                            }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <UserCheck className="w-4 h-4" />
+                            <span>{userDetailData.kycStatus === 'verified' ? 'KYC Already Verified' : 'Force KYC Verification'}</span>
+                          </div>
+                          {userDetailData.kycStatus !== 'verified' && <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0" />}
+                        </button>
+
+                        <button
                           onClick={() => {
                             setBalanceAdjustmentData({
                               amount: '',
