@@ -423,7 +423,13 @@ export class UserService {
     const db = await getDb();
     const usersCollection = db.collection<User>('users');
 
-    const users = await usersCollection.find({}).toArray();
+    const users = await usersCollection.find({}, {
+      projection: {
+        'kycDocuments.idFront': 0,
+        'kycDocuments.idBack': 0,
+        'kycDocuments.selfie': 0
+      }
+    }).toArray();
     return users.map(user => ({ ...user, _id: user._id!.toString() }));
   }
 

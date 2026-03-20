@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
     if (type === 'deposits') {
       const collection = db.collection<DepositRequest>('depositRequests');
-      const deposits = await collection.find({}).sort({ createdAt: -1 }).toArray();
+      const deposits = await collection.find({}, { projection: { screenshot: 0 } }).sort({ createdAt: -1 }).toArray();
       return NextResponse.json({ success: true, data: deposits });
     } else if (type === 'withdrawals') {
       const collection = db.collection<WithdrawalRequest>('withdrawalRequests');

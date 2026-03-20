@@ -2,6 +2,33 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, AuthenticatedRequest } from '@/middleware/auth';
 import { UserService } from '@/lib/auth/user';
 
+export const GET = requireAdmin(async (request: AuthenticatedRequest) => {
+  try {
+    const url = new URL(request.url);
+    const pathSegments = url.pathname.split('/');
+    const userId = pathSegments[pathSegments.length - 1];
+
+    const user = await UserService.getUserById(userId);
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
+    }
+
+    // Remove sensitive data
+    const { password: _p, emailVerificationToken: _ev, passwordResetToken: _pr, ...userWithoutSensitiveData } = user;
+
+    return NextResponse.json({
+      success: true,
+      data: userWithoutSensitiveData
+    });
+  } catch (error) {
+    console.error('Get user error:', error);
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : 'Failed to get user' },
+      { status: 500 }
+    );
+  }
+});
+
 export const PUT = requireAdmin(async (request: AuthenticatedRequest) => {
   try {
     const url = new URL(request.url);

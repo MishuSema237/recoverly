@@ -407,7 +407,41 @@ const AdminSection = () => {
     }
   };
 
+  const openTransactionModal = async (transaction: any) => {
+    setIsLoadingTransactions(true);
+    try {
+      const response = await fetch(`/api/transactions/${transaction._id}`);
+      const result = await response.json();
+      if (result.success) {
+        setSelectedTransaction(result.data);
+        setShowTransactionModal(true);
+      } else {
+        showError('Failed to load transaction details.');
+      }
+    } catch (e) {
+      showError('Error loading transaction details.');
+    } finally {
+      setIsLoadingTransactions(false);
+    }
+  };
 
+  const openKycModal = async (userParam: any) => {
+    setLoadingKyc(true);
+    try {
+      const response = await fetch(`/api/users/${userParam._id}`);
+      const result = await response.json();
+      if (result.success) {
+        setSelectedKycUser(result.data);
+        setShowKycModal(true);
+      } else {
+        showError('Failed to load KYC details.');
+      }
+    } catch (e) {
+      showError('Error loading KYC details.');
+    } finally {
+      setLoadingKyc(false);
+    }
+  };
 
   const getUserInfo = (userId: string) => {
     const user = users.find(u => u._id === userId);
@@ -1770,10 +1804,7 @@ const AdminSection = () => {
 
                     <div className="flex items-center gap-3">
                       <button
-                        onClick={() => {
-                          setSelectedKycUser(user);
-                          setShowKycModal(true);
-                        }}
+                        onClick={() => openKycModal(user)}
                         className="flex-1 bg-navy-900 hover:bg-navy-800 text-gold-500 px-4 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-navy-900/10 active:scale-95"
                       >
                         Review Docs
@@ -1969,10 +2000,7 @@ const AdminSection = () => {
                   <div
                     key={deposit._id}
                     className="bg-white rounded-2xl mobile:rounded-3xl p-5 mobile:p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 cursor-pointer group"
-                    onClick={() => {
-                      setSelectedTransaction(deposit);
-                      setShowTransactionModal(true);
-                    }}
+                    onClick={() => openTransactionModal(deposit)}
                   >
                     <div className="flex items-center justify-between mb-4 mobile:mb-6">
                       <div className="flex items-center space-x-2 mobile:space-x-3">
@@ -2018,10 +2046,7 @@ const AdminSection = () => {
                   <div
                     key={withdrawal._id}
                     className="bg-white rounded-2xl mobile:rounded-3xl p-5 mobile:p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gold-500/30 transition-all duration-500 cursor-pointer group"
-                    onClick={() => {
-                      setSelectedTransaction(withdrawal);
-                      setShowTransactionModal(true);
-                    }}
+                    onClick={() => openTransactionModal(withdrawal)}
                   >
                     <div className="flex items-center justify-between mb-4 mobile:mb-6">
                       <div className="flex items-center space-x-2 mobile:space-x-3">

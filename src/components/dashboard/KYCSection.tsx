@@ -16,21 +16,62 @@ const KYCSection = () => {
     const [selfie, setSelfie] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'front' | 'back' | 'selfie') => {
+    const compressImage = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new window.Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1200;
+                    const MAX_HEIGHT = 1200;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
+                    
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    resolve(dataUrl);
+                };
+                img.onerror = (error) => reject(error);
+            };
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'front' | 'back' | 'selfie') => {
         const file = e.target.files?.[0];
         if (file) {
-            if (file.size > 5 * 1024 * 1024) {
-                showError('File size too large. Maximum 5MB allowed.');
+            if (file.size > 15 * 1024 * 1024) {
+                showError('File size too large. Maximum 15MB allowed.');
                 return;
             }
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const base64 = e.target?.result as string;
-                if (type === 'front') setIdFront(base64);
-                if (type === 'back') setIdBack(base64);
-                if (type === 'selfie') setSelfie(base64);
-            };
-            reader.readAsDataURL(file);
+            try {
+                const compressedBase64 = await compressImage(file);
+                if (type === 'front') setIdFront(compressedBase64);
+                if (type === 'back') setIdBack(compressedBase64);
+                if (type === 'selfie') setSelfie(compressedBase64);
+            } catch (error) {
+                console.error("Image compression error:", error);
+                showError('Failed to process image. Please try another.');
+            }
         }
     };
 
@@ -154,7 +195,7 @@ const KYCSection = () => {
                                     <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileChange(e, 'front')} />
                                     <Upload className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                                     <p className="text-navy-900 font-bold">Select ID Front Image</p>
-                                    <p className="text-gray-400 text-sm mt-1">PNG, JPG or WEBP (Max 5MB)</p>
+                                    <p className="text-gray-400 text-sm mt-1">PNG, JPG or WEBP (Max 15MB)</p>
                                 </label>
                             )}
                         </div>
@@ -178,7 +219,7 @@ const KYCSection = () => {
                                     <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileChange(e, 'back')} />
                                     <Upload className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                                     <p className="text-navy-900 font-bold">Select ID Back Image</p>
-                                    <p className="text-gray-400 text-sm mt-1">PNG, JPG or WEBP (Max 5MB)</p>
+                                    <p className="text-gray-400 text-sm mt-1">PNG, JPG or WEBP (Max 15MB)</p>
                                 </label>
                             )}
                         </div>

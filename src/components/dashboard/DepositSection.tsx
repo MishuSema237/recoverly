@@ -97,43 +97,74 @@ const DepositSection: React.FC<DepositSectionProps> = ({ initialAmount, isFixedA
     }
   };
 
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+          } else {
+            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+        img.onerror = error => reject(error);
+      };
+      reader.onerror = error => reject(error);
+    });
+  };
+
   const handleUploadProof = async (depositId: string, proofFile: File) => {
     setIsSubmitting(true);
     try {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        try {
-          const base64Screenshot = reader.result as string;
-          const response = await fetch('/api/transactions', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              _id: depositId,
-              type: 'deposit',
-              status: 'verifying',
-              screenshot: base64Screenshot
-            })
-          });
+      if (proofFile.size > 15 * 1024 * 1024) {
+        showError('File size too large. Maximum 15MB allowed.');
+        setIsSubmitting(false);
+        return;
+      }
+      
+      const base64Screenshot = await compressImage(proofFile);
+      
+      const response = await fetch('/api/transactions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          _id: depositId,
+          type: 'deposit',
+          status: 'verifying',
+          screenshot: base64Screenshot
+        })
+      });
 
-          const result = await response.json();
-          if (result.success) {
-            showSuccess('Payment proof uploaded successfully. Admin is verifying.');
-            await loadActiveDeposits();
-            // Force refresh user data
-            await forceRefresh();
-          } else {
-            showError(result.error || 'Failed to upload proof');
-          }
-        } catch (err) {
-          showError('An error occurred during upload');
-        } finally {
-          setIsSubmitting(false);
-        }
-      };
-      reader.readAsDataURL(proofFile);
+      const result = await response.json();
+      if (result.success) {
+        showSuccess('Payment proof uploaded successfully. Admin is verifying.');
+        await loadActiveDeposits();
+        // Force refresh user data
+        await forceRefresh();
+      } else {
+        showError(result.error || 'Failed to upload proof');
+      }
     } catch (e) {
+      console.error("Upload error:", e);
+      showError('An error occurred during upload');
+    } finally {
       setIsSubmitting(false);
-      showError('Error reading file');
     }
   };
 
@@ -319,7 +350,7 @@ const DepositSection: React.FC<DepositSectionProps> = ({ initialAmount, isFixedA
                               <Upload className="w-5 h-5 text-gray-400" />
                             </div>
                             <p className="text-sm font-bold text-gray-700">Upload Transfer Proof</p>
-                            <p className="text-xs text-gray-500">JPG, PNG up to 5MB</p>
+                            <p className="text-xs text-gray-500">JPG, PNG up to 15MB</p>
                           </div>
                         )}
                       </label>
