@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const db = await getDb();
-    const id = params.id;
+    const { id } = await params;
     
     if (!id || id.length !== 24) {
       return NextResponse.json({ success: false, error: 'Invalid transaction ID' }, { status: 400 });

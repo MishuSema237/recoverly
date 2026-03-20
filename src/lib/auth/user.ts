@@ -655,7 +655,32 @@ export class UserService {
     const usersCollection = db.collection<User>('users');
 
     try {
+      // 1. Delete user from main users collection
       const result = await usersCollection.deleteOne({ _id: new ObjectId(userId) });
+      
+      if (result.deletedCount > 0) {
+        // 2. Cascade delete orphaned records to keep system clean
+        const idStr = userId;
+        const idObj = new ObjectId(userId);
+        
+        // Check for both string and ObjectId references just in case
+        const query = { $or: [{ userId: idStr }, { userId: idObj }] };
+        
+        // Scrub all linked relational collections
+        await Promise.allSettled([
+          db.collection('depositRequests').deleteMany(query),
+          db.collection('withdrawalRequests').deleteMany(query),
+          db.collection('cardRequests').deleteMany(query),
+          db.collection('cardTopUps').deleteMany(query),
+          db.collection('loanRequests').deleteMany(query),
+          db.collection('taxRefundRequests').deleteMany(query),
+          db.collection('supportMessages').deleteMany(query),
+          db.collection('recoveryCases').deleteMany(query),
+          db.collection('notifications').deleteMany({ recipients: idStr })
+        ]);
+        console.log(`Cascading delete executed for user ${userId}`);
+      }
+
       return result.deletedCount > 0;
     } catch (error) {
       console.error('Error deleting user:', error);
