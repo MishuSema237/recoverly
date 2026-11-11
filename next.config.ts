@@ -51,7 +51,7 @@ const nextConfig: NextConfig = {
 
   // Reduce bundle size
   images: {
-    unoptimized: false,
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
